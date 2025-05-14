@@ -153,7 +153,7 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
         key  = new PanelEntityKey(id);        //Sets up key
 
         this.seed = seed;
-        innovations = new Innovations(9, seed);
+        innovations = new Innovations(9, 1, seed);
 
         this.numberChildrenAll_lag1 = 0;
         this.numberChildren02_lag1 = 0;
@@ -1108,7 +1108,7 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
             }
 
             //Sample labour supply from possible labour (pairs of) values
-            double labourInnov = innovations.getDoubleDraw(5);
+            double labourInnov = innovations.getSingleDrawDoubleInnov(0);
             try {
                 MultiKeyMap<Labour, Double> labourSupplyUtilityRegressionProbabilitiesByLabourPairs = convertRegressionScoresToProbabilities(labourSupplyUtilityRegressionScoresByLabourPairs);
                 labourSupplyChoice = ManagerRegressions.multiEvent(labourSupplyUtilityRegressionProbabilitiesByLabourPairs, labourInnov);
