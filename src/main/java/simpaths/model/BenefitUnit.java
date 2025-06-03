@@ -95,6 +95,8 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
     @Transient ArrayList<Triple<Les_c7_covid, Double, Integer>> covid19MonthlyStateAndGrossIncomeAndWorkHoursTripleFemale = new ArrayList<>(); // This ArrayList stores monthly values of labour market states and gross incomes, to be sampled from by the LabourMarket class, for the female member of the benefit unit
 
     @Transient Innovations innovations;
+    @Transient private Double lastLabourInnov;
+    @Transient private Integer lastYear;
 
     @Transient private Integer yearLocal;
     @Transient private Occupancy occupancyLocal;
@@ -1108,7 +1110,8 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
             }
 
             //Sample labour supply from possible labour (pairs of) values
-            double labourInnov = innovations.getSingleDrawDoubleInnov(0);
+//            double labourInnov = innovations.getSingleDrawDoubleInnov(0);
+            double labourInnov = getLabourInnovation(Parameters.labour_innovation_persistence_probability);
             try {
                 MultiKeyMap<Labour, Double> labourSupplyUtilityRegressionProbabilitiesByLabourPairs = convertRegressionScoresToProbabilities(labourSupplyUtilityRegressionScoresByLabourPairs);
                 labourSupplyChoice = ManagerRegressions.multiEvent(labourSupplyUtilityRegressionProbabilitiesByLabourPairs, labourInnov);
@@ -3646,4 +3649,55 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
     }
 
     public static void setBenefitUnitIdCounter(long id) {benefitUnitIdCounter = id;}
+
+        /**
+         * Calculates the labour innovation value for the current period with persistence.
+         *
+         * This method implements a persistence mechanism for labour innovations where there's
+         * a probability that the previous period's innovation will persist into the current period.
+         * A new innovation is drawn each period, but it's only used with probability (1 - persistenceProbability).
+         *
+         * The persistence mechanism works as follows:
+         * 1. Draw a new potential innovation value
+         * 2. Draw a random number to determine if we should use the new value or persist with the old one
+         * 3. If it's the first period or there was a gap in years, use the new innovation
+         * 4. Otherwise, use the persistence probability to decide between new and old values
+         *
+         * @param persistenceProbability The probability (between 0 and 1) that the previous period's
+         *                              innovation will persist. A value of 0 means always use new innovations,
+         *                              while 1 means always keep the old innovation.
+         * @return The labour innovation value for this period
+         */
+    private double getLabourInnovation(double persistenceProbability) {
+
+        double newLabourInnovation = innovations.getDoubleDraw(5);
+
+        // persistenceRandomDraw - random value to determine if we keep old innovation
+        double persistenceRandomDraw = innovations.getDoubleDraw(6);
+
+        int currentYear = model.getYear();
+
+        // Initialize on first call
+        if (lastLabourInnov == null || lastYear == null) {
+            lastLabourInnov = newLabourInnovation;
+            lastYear = currentYear;
+            return newLabourInnovation;
+        }
+
+        double labourInnov;
+        if (persistenceRandomDraw < persistenceProbability) {
+            labourInnov = lastLabourInnov;
+        } else {
+            labourInnov = newLabourInnovation;
+        }
+
+        // Store values for next period
+        lastLabourInnov = labourInnov;
+        lastYear = currentYear;
+
+        return labourInnov;
+
+
+
+        }
 }
