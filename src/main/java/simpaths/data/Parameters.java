@@ -241,6 +241,9 @@ public class Parameters {
     public static final double WEEKS_PER_MONTH = 365.25/(7.*12.);	// = 4.348214286
     public static final double WEEKS_PER_YEAR = 365.25 / 7.;
 
+    // Determine probability of yearly labour supply matches persisting from previous year
+    public static double labour_innovation_persistence_probability = 0.3;
+
     public static final int HOURS_IN_WEEK = 24 * 7; //This is used to calculate leisure in labour supply
     //Is it possible for people to start going to the labour module (e.g. age 17) while they are living with parents (until age 18)?
     //Cannot see how its possible if it is the household that decides how much labour to supply.  If someone finishes school at 17, they need to leave home before they can enter the labour market.  So set age for finishing school and leaving home to 18.
