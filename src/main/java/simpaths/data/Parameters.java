@@ -1140,13 +1140,13 @@ public class Parameters {
             columnsEmploymentSelectionMalesE = 29;
             columnsEmploymentSelectionFemalesNE = 30;
             columnsEmploymentSelectionFemalesE = 29;
-            columnsLabourSupplyUtilityMales = 19;
+            columnsLabourSupplyUtilityMales = 18;
             columnsLabourSupplyUtilityFemales = 12;
             columnsLabourSupplyUtilityMalesWithDependent = 23;
             columnsLabourSupplyUtilityFemalesWithDependent = 23;
             columnsLabourSupplyUtilityACMales = 17;
             columnsLabourSupplyUtilityACFemales = 17;
-            columnsLabourSupplyUtilityCouples = 64;
+            columnsLabourSupplyUtilityCouples = 14;
             columnsLabourCovid19_SE = 1;
             columnsLabourCovid19_2a_processes = 1;
             columnsHealthH1a = 28;
