@@ -78,13 +78,14 @@ public class SimPathsMultiRun extends MultiRun {
 		if (parameterArgs != null)
 			updateParameters(parameterArgs);
 		// set default values for country and start year
-		MultiKeyCoefficientMap lastDatabaseCountryAndYear = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + File.separator + Parameters.DatabaseCountryYearFilename + ".xlsx", "Data", 1, 1);
+		MultiKeyCoefficientMap lastDatabaseCountryAndYear = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + Parameters.DatabaseCountryYearFilename + ".xlsx", "Data", 1, 1);
 		try {
 			if (lastDatabaseCountryAndYear.keySet().stream().anyMatch(key -> key.toString().equals("MultiKey[IT]"))) {
 				countryString = "Italy";
 			} else {
 				countryString = "United Kingdom";
 			}
+			country = Country.getCountryFromNameString(countryString);
 			String valueYear = lastDatabaseCountryAndYear.getValue(country.toString()).toString();
 			startYear = Integer.parseInt(valueYear);
 		} catch (NullPointerException e) {
@@ -93,7 +94,6 @@ public class SimPathsMultiRun extends MultiRun {
 			startYear = 2019;
 		}
 
-		country = Country.getCountryFromNameString(countryString);
 
 		if (innovationArgs!=null)
 			updateLocalParameters(innovationArgs);
