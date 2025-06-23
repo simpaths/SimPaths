@@ -10,6 +10,7 @@ import microsim.statistics.CrossSection;
 import microsim.statistics.IDoubleSource;
 import microsim.statistics.functions.MeanArrayFunction;
 import simpaths.data.filters.AgeGroupCSfilter;
+import simpaths.data.filters.EmploymentCSfilter;
 import simpaths.data.filters.EmploymentHistoryFilter;
 import simpaths.model.BenefitUnit;
 import microsim.statistics.functions.SumArrayFunction;
@@ -56,6 +57,8 @@ public class EmploymentStatistics {
 
     @Column(name = "PropReceivedUC")
     private double PropReceivedUC;
+    @Column(name = "meanLabourHours")
+    private double meanLabourHours;
 
     @Column(name = "PropReceivedLegacyBenefits")
     private double PropReceivedLegacyBenefits;
@@ -132,8 +135,15 @@ public class EmploymentStatistics {
 
 
 
+    public void setMeanLabourHours(double meanLabourHours) {
+        this.meanLabourHours = meanLabourHours;
+    }
+
     public void update(SimPathsModel model) {
 
+        EmploymentHistoryFilter employmentHistoryEmployed = new EmploymentHistoryFilter(Les_c4.EmployedOrSelfEmployed);
+        EmploymentHistoryFilter employmentHistoryUnemployed = new EmploymentHistoryFilter(Les_c4.NotEmployed);
+        EmploymentCSfilter employmentCSfilter = new EmploymentCSfilter(Les_c4.EmployedOrSelfEmployed);
     public void setPropUC(double propUC) {
         this.propUC = propUC;
     }
