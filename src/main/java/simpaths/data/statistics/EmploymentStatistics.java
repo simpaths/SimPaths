@@ -9,6 +9,7 @@ import microsim.statistics.CrossSection;
 import microsim.statistics.IDoubleSource;
 import microsim.statistics.functions.MeanArrayFunction;
 import simpaths.data.filters.AgeGroupCSfilter;
+import simpaths.data.filters.EmploymentCSfilter;
 import simpaths.data.filters.EmploymentHistoryFilter;
 import simpaths.model.SimPathsModel;
 import simpaths.model.enums.Les_c4;
@@ -31,6 +32,9 @@ public class EmploymentStatistics {
 
     @Column(name = "PropUnemployed")
     private double PropUnemployed;
+
+    @Column(name = "meanLabourHours")
+    private double meanLabourHours;
 
 
     public double getEmpToNotEmp() {
@@ -65,10 +69,15 @@ public class EmploymentStatistics {
         PropUnemployed = propUnemployed;
     }
 
+    public void setMeanLabourHours(double meanLabourHours) {
+        this.meanLabourHours = meanLabourHours;
+    }
+
     public void update(SimPathsModel model) {
 
         EmploymentHistoryFilter employmentHistoryEmployed = new EmploymentHistoryFilter(Les_c4.EmployedOrSelfEmployed);
         EmploymentHistoryFilter employmentHistoryUnemployed = new EmploymentHistoryFilter(Les_c4.NotEmployed);
+        EmploymentCSfilter employmentCSfilter = new EmploymentCSfilter(Les_c4.EmployedOrSelfEmployed);
 
 
         // Entering employment transition rate
@@ -103,6 +112,14 @@ public class EmploymentStatistics {
         MeanArrayFunction isUnemployed = new MeanArrayFunction(personsUnemployed);
         isUnemployed.applyFunction();
         setPropUnemployed(isUnemployed.getDoubleValue(IDoubleSource.Variables.Default));
+
+        // Mean hours worked amongst employed
+        CrossSection.Integer hoursWorked = new CrossSection.Integer(model.getPersons(), Person.class, "getHoursWorkedWeekly", true);
+        hoursWorked.setFilter(employmentCSfilter);
+
+        MeanArrayFunction meanHoursWorked = new MeanArrayFunction(hoursWorked);
+        meanHoursWorked.applyFunction();
+        setMeanLabourHours(meanHoursWorked.getDoubleValue(IDoubleSource.Variables.Default));
 
 
     }
