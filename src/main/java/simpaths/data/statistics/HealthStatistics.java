@@ -10,6 +10,7 @@ import microsim.statistics.functions.PercentileArrayFunction;
 import microsim.statistics.functions.SumArrayFunction;
 import simpaths.data.Parameters;
 import simpaths.data.filters.AgeGenderCSfilter;
+import simpaths.experiment.SimPathsCollector;
 import simpaths.data.filters.SingleCoupledChildrenCSfilter;
 import simpaths.experiment.SimPathsCollector;
 import simpaths.model.Person;
