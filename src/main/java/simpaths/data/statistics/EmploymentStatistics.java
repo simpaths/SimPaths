@@ -160,6 +160,11 @@ public class EmploymentStatistics {
         N = n;
     }
 
+    public EmploymentStatistics(PanelEntityKey key) {
+        super();
+        this.setKey(key);
+    }
+
     public void update(SimPathsModel model, String gender_s, SimPathsCollector.AgeRange ageRange) {
 
         AgeGenderCSfilter ageGenderCSfilter;
