@@ -9,6 +9,7 @@ import microsim.data.db.PanelEntityKey;
 import microsim.statistics.CrossSection;
 import microsim.statistics.IDoubleSource;
 import microsim.statistics.functions.MeanArrayFunction;
+import microsim.statistics.functions.SumArrayFunction;
 import simpaths.data.Parameters;
 import simpaths.data.filters.*;
 import simpaths.experiment.SimPathsCollector;
@@ -137,6 +138,26 @@ public class EmploymentStatistics {
 
     public void setMeanLabourHours(double meanLabourHours) {
         this.meanLabourHours = meanLabourHours;
+    }
+
+    public void setPropUC(double propUC) {
+        this.propUC = propUC;
+    }
+
+    public void setPropLB(double propLB) {
+        this.propLB = propLB;
+    }
+
+    public void setKey(PanelEntityKey key) {
+        this.key = key;
+    }
+
+    public void setScenario(String scenario) {
+        this.scenario = scenario;
+    }
+
+    public void setN(int n) {
+        N = n;
     }
 
     public void update(SimPathsModel model, String gender_s, SimPathsCollector.AgeRange ageRange) {
