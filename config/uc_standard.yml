@@ -68,3 +68,4 @@ parameter_args:
     euromod_output_directory: /home/abaxter/euromod_outs/standard
     MIN_START_YEAR: 2011
     MAX_START_YEAR: 2011
+    scenario: "UC rollout as-is"

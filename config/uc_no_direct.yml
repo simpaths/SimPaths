@@ -69,3 +69,4 @@ parameter_args:
     UC_ROLLOUT: false
     MIN_START_YEAR: 2011
     MAX_START_YEAR: 2011
+    scenario: "No UC direct effects"

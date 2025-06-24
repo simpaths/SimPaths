@@ -68,3 +68,4 @@ parameter_args:
     euromod_output_directory: /home/abaxter/euromod_outs/lba
     MIN_START_YEAR: 2011
     MAX_START_YEAR: 2011
+    scenario: "No UC rollout"
