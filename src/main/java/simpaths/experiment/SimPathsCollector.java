@@ -303,16 +303,6 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
             }
             break;
         case DumpHealthStatistics:
-            String[] genders = {"Total", "Male", "Female"};
-
-            List<AgeRange> ageGroups = Arrays.asList(
-                    new AgeRange(16, 17),
-                    new AgeRange(18, 24),
-                    new AgeRange(25, 34),
-                    new AgeRange(35, 49),
-                    new AgeRange(50, 64),
-                    new AgeRange(65, Parameters.maxAge)
-            );
 
             for (String gender_s: genders) {
                 statsHealthGender.update(model, gender_s, new AgeRange(18, 64));

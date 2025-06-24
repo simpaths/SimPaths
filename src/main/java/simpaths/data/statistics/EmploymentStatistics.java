@@ -9,9 +9,9 @@ import microsim.data.db.PanelEntityKey;
 import microsim.statistics.CrossSection;
 import microsim.statistics.IDoubleSource;
 import microsim.statistics.functions.MeanArrayFunction;
-import simpaths.data.filters.AgeGroupCSfilter;
-import simpaths.data.filters.EmploymentCSfilter;
-import simpaths.data.filters.EmploymentHistoryFilter;
+import simpaths.data.Parameters;
+import simpaths.data.filters.*;
+import simpaths.experiment.SimPathsCollector;
 import simpaths.model.BenefitUnit;
 import microsim.statistics.functions.SumArrayFunction;
 import simpaths.data.Parameters;
@@ -139,7 +139,25 @@ public class EmploymentStatistics {
         this.meanLabourHours = meanLabourHours;
     }
 
-    public void update(SimPathsModel model) {
+    public void update(SimPathsModel model, String gender_s, SimPathsCollector.AgeRange ageRange) {
+
+        AgeGenderCSfilter ageGenderCSfilter;
+        EmploymentAgeGenderCSfilter employmentCSfilter;
+
+        if (gender_s.equals("Total")) {
+            ageGenderCSfilter = new AgeGenderCSfilter(ageRange.lowerBound(), ageRange.upperBound());
+            employmentCSfilter = new EmploymentAgeGenderCSfilter(Les_c4.EmployedOrSelfEmployed, ageRange.lowerBound(), ageRange.upperBound());
+        } else {
+            ageGenderCSfilter = new AgeGenderCSfilter(ageRange.lowerBound(), ageRange.upperBound(), Gender.valueOf(gender_s));
+            employmentCSfilter = new EmploymentAgeGenderCSfilter(Les_c4.EmployedOrSelfEmployed, ageRange.lowerBound(), ageRange.upperBound(), Gender.valueOf(gender_s));
+        }
+
+        // set gender
+        setGender(gender_s);
+
+        // set agegroup
+        setAgegroup(ageRange);
+
 
         EmploymentHistoryFilter employmentHistoryEmployed = new EmploymentHistoryFilter(Les_c4.EmployedOrSelfEmployed);
         EmploymentHistoryFilter employmentHistoryUnemployed = new EmploymentHistoryFilter(Les_c4.NotEmployed);
