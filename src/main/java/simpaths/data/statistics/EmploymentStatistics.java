@@ -44,6 +44,9 @@ public class EmploymentStatistics {
 
     @Column(name = "PropUnemployed")
     private double PropUnemployed;
+    
+    @Column(name = "PropUCTakeup")
+    private double PropUCTakeup;
 
     @Column(name = "meanLabourHours")
     private double meanLabourHours;
@@ -103,6 +106,10 @@ public class EmploymentStatistics {
     public void setMeanLabourHours(double meanLabourHours) {
         this.meanLabourHours = meanLabourHours;
     }
+    public void setPropUCTakeup(double propUCTakeup) {
+        PropUCTakeup = propUCTakeup;
+    }
+
 
     public void setPropUC(double propUC) {
         this.propUC = propUC;
@@ -189,9 +196,17 @@ public class EmploymentStatistics {
         isUnemployed.applyFunction();
         setPropUnemployed(isUnemployed.getDoubleValue(IDoubleSource.Variables.Default));
 
+        CrossSection.Integer personsUCTakeup = new CrossSection.Integer(model.getPersons(), Person.class, "getUC_takeup", true);
         // Mean hours worked amongst employed
         CrossSection.Double hoursWorked = new CrossSection.Double(model.getPersons(), Person.class, "getHoursWorkedWeekly", true);
         hoursWorked.setFilter(employmentCSfilter);
+
+        personsUCTakeup.setFilter(ageGroupCSfilter);
+
+        MeanArrayFunction isUCTakeup = new MeanArrayFunction(personsUCTakeup);
+        isUCTakeup.applyFunction();
+        setPropUCTakeup(isUCTakeup.getDoubleValue(IDoubleSource.Variables.Default));
+
 
         MeanArrayFunction meanHoursWorked = new MeanArrayFunction(hoursWorked);
         meanHoursWorked.applyFunction();
