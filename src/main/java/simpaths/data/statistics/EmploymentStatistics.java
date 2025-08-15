@@ -9,6 +9,9 @@ import microsim.data.db.PanelEntityKey;
 import microsim.statistics.CrossSection;
 import microsim.statistics.IDoubleSource;
 import microsim.statistics.functions.MeanArrayFunction;
+import simpaths.data.filters.AgeGroupCSfilter;
+import simpaths.data.filters.EmploymentHistoryFilter;
+import simpaths.model.BenefitUnit;
 import microsim.statistics.functions.SumArrayFunction;
 import simpaths.data.Parameters;
 import simpaths.data.filters.*;
@@ -17,6 +20,10 @@ import simpaths.model.SimPathsModel;
 import simpaths.model.enums.Gender;
 import simpaths.model.enums.Les_c4;
 import simpaths.model.Person;
+
+import static simpaths.model.BenefitUnit.Regressors.UC_TakeUp;
+import static simpaths.model.Person.DoublesVariables.D_Econ_benefits_NonUC;
+import static simpaths.model.Person.DoublesVariables.D_Econ_benefits_UC;
 
 @Entity
 public class EmploymentStatistics {
@@ -47,6 +54,12 @@ public class EmploymentStatistics {
     
     @Column(name = "PropUCTakeup")
     private double PropUCTakeup;
+
+    @Column(name = "PropReceivedUC")
+    private double PropReceivedUC;
+
+    @Column(name = "PropReceivedLegacyBenefits")
+    private double PropReceivedLegacyBenefits;
 
     @Column(name = "meanLabourHours")
     private double meanLabourHours;
@@ -110,6 +123,17 @@ public class EmploymentStatistics {
         PropUCTakeup = propUCTakeup;
     }
 
+    public void setPropReceivedUC(double propReceivedUC) {
+        PropReceivedUC = propReceivedUC;
+    }
+
+    public void setPropReceivedLegacyBenefits(double propReceivedLegacyBenefits) {
+        PropReceivedLegacyBenefits = propReceivedLegacyBenefits;
+    }
+
+
+
+    public void update(SimPathsModel model) {
 
     public void setPropUC(double propUC) {
         this.propUC = propUC;
@@ -196,16 +220,29 @@ public class EmploymentStatistics {
         isUnemployed.applyFunction();
         setPropUnemployed(isUnemployed.getDoubleValue(IDoubleSource.Variables.Default));
 
+//        CrossSection.Integer benefitUnitsUCTakeup = new CrossSection.Integer(model.getBenefitUnits(), BenefitUnit.class, "getUC_takeup", true);
+        CrossSection.Double benefitUnitsUCTakeup = new CrossSection.Double(model.getBenefitUnits(), UC_TakeUp);
         CrossSection.Integer personsUCTakeup = new CrossSection.Integer(model.getPersons(), Person.class, "getUC_takeup", true);
         // Mean hours worked amongst employed
         CrossSection.Double hoursWorked = new CrossSection.Double(model.getPersons(), Person.class, "getHoursWorkedWeekly", true);
         hoursWorked.setFilter(employmentCSfilter);
 
-        personsUCTakeup.setFilter(ageGroupCSfilter);
-
-        MeanArrayFunction isUCTakeup = new MeanArrayFunction(personsUCTakeup);
-        isUCTakeup.applyFunction();
+        MeanArrayFunction isUCTakeup = new MeanArrayFunction(benefitUnitsUCTakeup);
+        isUCTakeup.updateSource();
         setPropUCTakeup(isUCTakeup.getDoubleValue(IDoubleSource.Variables.Default));
+
+        CrossSection.Double personsReceivedUC = new CrossSection.Double(model.getPersons(), D_Econ_benefits_UC);
+        CrossSection.Double personsReceivedLegacyBenefits = new CrossSection.Double(model.getPersons(), D_Econ_benefits_NonUC);
+
+        personsReceivedUC.setFilter(ageGroupCSfilter);
+        personsReceivedLegacyBenefits.setFilter(ageGroupCSfilter);
+
+        MeanArrayFunction isReceivedUC = new MeanArrayFunction(personsReceivedUC);
+        isReceivedUC.applyFunction();
+        setPropReceivedUC(isReceivedUC.getDoubleValue(IDoubleSource.Variables.Default));
+        MeanArrayFunction isReceivedLegacyBenefits = new MeanArrayFunction(personsReceivedLegacyBenefits);
+        isReceivedLegacyBenefits.applyFunction();
+        setPropReceivedLegacyBenefits(isReceivedLegacyBenefits.getDoubleValue(IDoubleSource.Variables.Default));
 
 
         MeanArrayFunction meanHoursWorked = new MeanArrayFunction(hoursWorked);
