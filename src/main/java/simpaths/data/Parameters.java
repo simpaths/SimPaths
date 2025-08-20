@@ -702,7 +702,7 @@ public class Parameters {
     private static MultiKeyCoefficientMap validationGrossEarningsByGenderAndEducation;
 
     //Hourly wages by education and gender (for employed persons)
-    private static MultiKeyCoefficientMap validationLhwByGenderAndEducation;
+    private static MultiKeyCoefficientMap validationLhwByGenderAndEducation, validationLhwByGender;
 
     //Hours worked weekly by education and gender (for employed persons)
     private static MultiKeyCoefficientMap hourlyWageByGenderAndEducation;
@@ -877,6 +877,118 @@ public class Parameters {
     public static double disposableIncomeFromLabourInnov;
 
 
+    private static int columnsWagesMales = -1;
+    private static int columnsWagesMalesNE = -1;
+    private static int columnsWagesMalesE = -1;
+    private static int columnsWagesFemales = -1;
+    private static int columnsWagesFemalesNE = -1;
+    private static int columnsWagesFemalesE = -1;
+    private static int columnsEmploymentSelectionMales = -1;
+    private static int columnsEmploymentSelectionMalesNE = -1;
+    private static int columnsEmploymentSelectionMalesE = -1;
+    private static int columnsEmploymentSelectionFemales = -1;
+    private static int columnsEmploymentSelectionFemalesNE = -1;
+    private static int columnsEmploymentSelectionFemalesE = -1;
+    private static int columnsLabourSupplyUtilityMales = -1;
+    private static int columnsLabourSupplyUtilityFemales = -1;
+    private static int columnsLabourSupplyUtilityMalesWithDependent = -1;
+    private static int columnsLabourSupplyUtilityFemalesWithDependent = -1;
+    private static int columnsLabourSupplyUtilityACMales = -1;
+    private static int columnsLabourSupplyUtilityACFemales = -1;
+    private static int columnsLabourSupplyUtilityCouples = -1;
+    private static int columnsLabourCovid19_SE = -1;
+    private static int columnsLabourCovid19_2a_processes = -1;
+    private static int columnsHealthH1a = -1;
+    private static int columnsHealthH1b = -1;
+    private static int columnsHealthH2b = -1;
+    private static int columnsHealthHM1 = -1;
+    private static int columnsHealthHM2Males = -1;
+    private static int columnsHealthHM2Females = -1;
+    private static int columnsHealthMCS1 = -1;
+    private static int columnsHealthMCS2Males = -1;
+    private static int columnsHealthMCS2Females = -1;
+    private static int columnsHealthPCS1 = -1;
+    private static int columnsHealthPCS2Males = -1;
+    private static int columnsHealthPCS2Females = -1;
+    private static int columnsLifeSatisfaction1 = -1;
+    private static int columnsLifeSatisfaction2Males = -1;
+    private static int columnsLifeSatisfaction2Females = -1;
+    private static int columnsHealthEQ5D = -1;
+    private static int columnsSocialCareS1a = -1;
+    private static int columnsSocialCareS1b = -1;
+    private static int columnsSocialCareS2a = -1;
+    private static int columnsSocialCareS2b = -1;
+    private static int columnsSocialCareS2c = -1;
+    private static int columnsSocialCareS2d = -1;
+    private static int columnsSocialCareS2e = -1;
+    private static int columnsSocialCareS2f = -1;
+    private static int columnsSocialCareS2g = -1;
+    private static int columnsSocialCareS2h = -1;
+    private static int columnsSocialCareS2i = -1;
+    private static int columnsSocialCareS2j = -1;
+    private static int columnsSocialCareS2k = -1;
+    private static int columnsSocialCareS3a = -1;
+    private static int columnsSocialCareS3b = -1;
+    private static int columnsSocialCareS3c = -1;
+    private static int columnsSocialCareS3d = -1;
+    private static int columnsSocialCareS3e = -1;
+    private static int columnsUnemploymentU1a = -1;
+    private static int columnsUnemploymentU1b = -1;
+    private static int columnsUnemploymentU1c = -1;
+    private static int columnsUnemploymentU1d = -1;
+    private static int columnsFinancialDistress = -1;
+    private static int columnsEducationE1a = -1;
+    private static int columnsEducationE1b = -1;
+    private static int columnsEducationE2a = -1;
+    private static int columnsPartnershipU1a = -1;
+    private static int columnsPartnershipU1b = -1;
+    private static int columnsPartnershipU2b = -1;
+    private static int columnsPartnershipU1 = -1;
+    private static int columnsPartnershipU2 = -1;
+    private static int columnsFertilityF1a = -1;
+    private static int columnsFertilityF1b = -1;
+    private static int columnsFertilityF1 = -1;
+    private static int columnsIncomeI1a = -1;
+    private static int columnsIncomeI1b = -1;
+    private static int columnsIncomeI3a = -1;
+    private static int columnsIncomeI3b = -1;
+    private static int columnsIncomeI3c = -1;
+    private static int columnsIncomeI4a = -1;
+    private static int columnsIncomeI4b = -1;
+    private static int columnsIncomeI5a = -1;
+    private static int columnsIncomeI5b = -1;
+    private static int columnsIncomeI6a = -1;
+    private static int columnsIncomeI6b = -1;
+    private static int columnsIncomeI3a_selection = -1;
+    private static int columnsIncomeI3b_selection = -1;
+    private static int columnsLeaveHomeP1a = -1;
+    private static int columnsHomeownership = -1;
+    private static int columnsRetirementR1a = -1;
+    private static int columnsRetirementR1b = -1;
+    private static int columnsChildcareC1a = -1;
+    private static int columnsChildcareC1b = -1;
+    //For validation below:
+    private static int columnsValidationStudentsByAge = -1;
+    private static int columnsValidationStudentsByRegion = -1;
+    private static int columnsValidationEducationLevel = -1;
+    private static int columnsValidationEducationLevelByAge = -1;
+    private static int columnsValidationEducationLevelByRegion = -1;
+    private static int columnsValidationPartneredBUShareByRegion = -1;
+    private static int columnsValidationDisabledByGender = -1;
+    private static int columnsValidationDisabledByAgeGroup = -1;
+    private static int columnsValidationHealthByAgeGroup = -1;
+    private static int columnsValidationMentalHealthByAgeGroup = -1;
+    private static int columnsValidationHealthMCSByAgeGroup = -1;
+    private static int columnsValidationPhysicalHealthByAgeGroup = -1;
+    private static int columnsValidationLifeSatisfactionByAgeGroup = -1;
+    private static int columnsValidationEmploymentByGender = -1;
+    private static int columnsValidationEmploymentByGenderAndAge = -1;
+    private static int columnsValidationEmploymentByMaternity = -1;
+    private static int columnsValidationEmploymentByGenderAndRegion = -1;
+    private static int columnsValidationActivityStatus = -1;
+    private static int columnsValidationHomeownership = -1;
+    private static int columnsValidationByGenderAndEducation = -1;
+    private static int columnsValidationLabourSupplyByEducation = -1;
     /**
      *
      * METHOD TO LOAD PARAMETERS FOR GIVEN COUNTRY
@@ -889,6 +1001,8 @@ public class Parameters {
                                       Integer timeTrendStops, int startYearModel, int endYearModel, double interestRateInnov1,
                                       double disposableIncomeFromLabourInnov1, boolean flagSuppressChildcareCosts1,
                                       boolean flagSuppressSocialCareCosts1, boolean lifetimeIncomeImpute1) {
+
+
 
         // display a dialog box to let the user know what is happening
         System.out.println("Loading model parameters");
@@ -927,6 +1041,8 @@ public class Parameters {
         realInterestRateInnov = interestRateInnov1;
         disposableIncomeFromLabourInnov = disposableIncomeFromLabourInnov1;
         lifetimeIncomeImpute = lifetimeIncomeImpute1;
+
+        updateCountryColumnNumbers(country);
 
 //		unemploymentRatesByRegion = new LinkedHashMap<>();
 //		unemploymentRates = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "scenario_unemploymentRates.xlsx", countryString, 1, 46);
@@ -1446,6 +1562,10 @@ public class Parameters {
         calculateFertilityRatesFromProjections();
         calculatePopulationGrowthRatiosFromProjections();
 
+        loadValidationStatistics(countryString);
+    }
+
+    public static void loadValidationStatistics(String countryString) {
         /////////////////////////////////////////////////POPULATE STATISTICS FOR VALIDATION/////////////////////////////
         //Students by Age
         validationStudentsByAge = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "validation_statistics.xlsx", countryString + "_studentsByAge", 1);
@@ -1517,6 +1637,7 @@ public class Parameters {
 
         //Hourly wages by education and gender (for employed persons)
         validationLhwByGenderAndEducation = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "validation_statistics.xlsx", countryString + "_lhwByGenderAndEdu", 1);
+        validationLhwByGender = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "validation_statistics.xlsx", countryString + "_lhwByGender", 1, 2);
 
         //Hours worked weekly by education and gender (for employed persons)
         hourlyWageByGenderAndEducation = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "validation_statistics.xlsx", countryString + "_hourlywageByGenderAndEdu", 1);
@@ -2252,6 +2373,10 @@ public class Parameters {
 
     public static MultiKeyCoefficientMap getValidationLhwByGenderAndEducation() {
         return validationLhwByGenderAndEducation;
+    }
+
+    public static MultiKeyCoefficientMap getValidationLhwByGender() {
+        return validationLhwByGender;
     }
 
     public static MultiKeyCoefficientMap getHourlyWageByGenderAndEducation() {
