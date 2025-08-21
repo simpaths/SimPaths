@@ -1751,6 +1751,11 @@ gen econ_benefits_uc=econ_benefits
 replace econ_benefits_uc=0 if benefits_uc==0
 label var econ_benefits_uc "Household income includes UC benefits"
 
+gen econ_benefits_lb=benefits_lb
+replace econ_benefits_lb=0 if benefits_lb==.
+replace econ_benefits_lb=0 if econ_benefits_uc==1
+label var econ_benefits_lb "Household income includes Legacy Benefits"
+
 
 /***************************** Financial Distress ***************************************************************************/
 // This is a measure of subjective financial distress, corresponding to answering 4 or 5 to the question below:
