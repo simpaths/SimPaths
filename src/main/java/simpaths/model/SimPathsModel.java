@@ -258,6 +258,8 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
     private boolean flagSuppressSocialCareCosts = false;
 
+    private boolean flagSuppressUCTakeup = false;
+
     @GUIparameter(description = "tick to enable intertemporal optimised consumption and labour decisions")
     private boolean enableIntertemporalOptimisations = false;
 
@@ -376,7 +378,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         Parameters.loadParameters(country, maxAge, enableIntertemporalOptimisations, projectFormalChildcare,
                 projectSocialCare, donorPoolAveraging, fixTimeTrend, flagDefaultToTimeSeriesAverages, saveImperfectTaxDBMatches,
                 timeTrendStopsIn, startYear, endYear, interestRateInnov, disposableIncomeFromLabourInnov, flagSuppressChildcareCosts,
-                flagSuppressSocialCareCosts, lifetimeIncomeImpute);
+                flagSuppressSocialCareCosts, lifetimeIncomeImpute, flagSuppressUCTakeup);
         if (lifetimeIncomeGenerate) {
             ManagerProjectLifetimeIncomes.run(log, lifetimeIncomeStartBirthYear,
                     lifetimeIncomeEndBirthYear, lifetimeIncomeEndAge, lifetimeIncomeCohortSize, lifetimeIncomeWriteToCSV,
