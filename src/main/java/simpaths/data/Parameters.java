@@ -1554,17 +1554,25 @@ public class Parameters {
         regChildcareC1a = new BinomialRegression(RegressionType.Probit, Indicator.class, coeffCovarianceChildcareC1a);
         regChildcareC1b = new LinearRegression(coeffCovarianceChildcareC1b);
 
+        calculatePartnershipDifferentials(countryString);
+
+        calculateFertilityRatesFromProjections();
+        calculatePopulationGrowthRatiosFromProjections();
+
+        loadValidationStatistics(countryString);
+    }
+
+    public static void calculatePartnershipDifferentials(String countryString) {
+
+        //Partnership - parameters for matching based on wage and age differential
+        meanCovarianceParametricMatching = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "scenario_parametricMatching.xlsx", countryString, 1, 1);
+
         //Create the age and wage differential MultivariateNormalDistribution for partnership formation, using means and var-cov matrix loaded from Excel
         targetMeanAgeDifferential = ((Number) meanCovarianceParametricMatching.getValue("mean_dag_diff")).doubleValue();
         targetMeanWageDifferential = ((Number) meanCovarianceParametricMatching.getValue("mean_wage_diff")).doubleValue();
         double[] means = {targetMeanAgeDifferential, targetMeanWageDifferential};
         double[][] covariances = { {((Number) meanCovarianceParametricMatching.getValue("var_dag_diff")).doubleValue(), ((Number) meanCovarianceParametricMatching.getValue("cov_dag_wage_diff")).doubleValue()} , {((Number) meanCovarianceParametricMatching.getValue("cov_dag_wage_diff")).doubleValue(), ((Number) meanCovarianceParametricMatching.getValue("var_wage_diff")).doubleValue()}};
         wageAndAgeDifferentialMultivariateNormalDistribution = getMultivariateNormalDistribution(means, covariances);
-
-        calculateFertilityRatesFromProjections();
-        calculatePopulationGrowthRatiosFromProjections();
-
-        loadValidationStatistics(countryString);
     }
 
     public static void loadValidationStatistics(String countryString) {
