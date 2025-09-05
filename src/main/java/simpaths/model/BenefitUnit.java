@@ -181,6 +181,8 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
         this.grossIncomeMonthly = 0.;
         this.equivalisedDisposableIncomeYearly = 0.;
         this.benefitsReceivedPerMonth = 0.;
+        this.universalCreditMonthly = 0.;
+        this.legacyBenefitMonthly = 0.;
         this.createdByConstructor = "LongID";
         if (Parameters.projectLiquidWealth)
             setTotalWealth(0.);
@@ -252,6 +254,8 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
 
         this.log = originalBenefitUnit.log;
         disposableIncomeMonthly = Objects.requireNonNullElse(originalBenefitUnit.getDisposableIncomeMonthly(),0.0);
+        universalCreditMonthly = Objects.requireNonNullElse(originalBenefitUnit.getUniversalCreditMonthly(),0.0);
+        legacyBenefitMonthly = Objects.requireNonNullElse(originalBenefitUnit.getLegacyBenefitMonthly(),0.0);
         discretionaryConsumptionPerYear = Objects.requireNonNullElse(originalBenefitUnit.discretionaryConsumptionPerYear, 0.0);
         grossIncomeMonthly = Objects.requireNonNullElse(originalBenefitUnit.getGrossIncomeMonthly(),0.0);
         equivalisedDisposableIncomeYearly = Objects.requireNonNullElse(originalBenefitUnit.equivalisedDisposableIncomeYearly,0.0);
@@ -1508,6 +1512,7 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
             benefitsReceivedPerMonth = benefitsReceivedMonthlyByLabourPairs.get(labourSupplyChoice);
             universalCreditMonthly = universalCreditByLabourPairs.get(labourSupplyChoice);
             legacyBenefitMonthly = legacyBenefitsByLabourPairs.get(labourSupplyChoice);
+            setUC_takeup(labourSupplyChoice.getRight());
             setReceivedUC(getUniversalCreditMonthly() > 0. ? 1 : 0);
             setReceivedLegacyBenefits(getLegacyBenefitMonthly() > 0. ? 1 : 0);
             grossIncomeMonthly = grossIncomeMonthlyByLabourPairs.get(labourSupplyChoice);
