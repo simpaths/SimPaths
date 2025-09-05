@@ -154,7 +154,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
     @Column(name="econ_benefits_nonuc") private Boolean receivesBenefitsFlagNonUC;  // Person receives a benefit which is not UC
     @Transient private Boolean receivesBenefitsFlagNonUC_L1;
     @Column(name="lifetime_income") private Double lifetimeIncome;                  // mean annual equivalised household disposable income by age
-    @Column(name="econ_benefits_lb") private Boolean receivesBenefitsFlagLB;
+    @Column(name="econ_benefits_lb") private Boolean receivesBenefitsFlagLB = false;
     @Transient private Boolean receivesBenefitsFlagLB_L1;
 
     @Enumerated(EnumType.STRING) private Labour labourSupplyWeekly;			//Number of hours of labour supplied each week
@@ -3869,7 +3869,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
                 return isReceivesBenefitsFlagNonUC() ? 1. : 0.;
             }
             case D_Econ_benefits_LB -> {
-                return getReceivesBenefitsFlagLB() ? 1. : 0.;
+                return isReceivesBenefitsFlagLB() ? 1. : 0.;
             }
             case D_Econ_benefits_UC -> {
                 return isReceivesBenefitsFlagUC() ? 1. : 0.;
@@ -5088,8 +5088,8 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         this.receivesBenefitsFlagNonUC_L1 = receivesBenefitsFlagNonUC_L1;
     }
 
-    public Boolean getReceivesBenefitsFlagLB() {
-        return receivesBenefitsFlagLB;
+    public Boolean isReceivesBenefitsFlagLB() {
+        return (null != receivesBenefitsFlagLB ? receivesBenefitsFlagLB : false);
     }
 
     public void setReceivesBenefitsFlagLB(Boolean receivesBenefitsFlagLB) {
