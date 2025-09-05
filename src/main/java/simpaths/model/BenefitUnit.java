@@ -71,6 +71,8 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
     private Double disposableIncomeMonthly;
     private Double grossIncomeMonthly;
     private Double benefitsReceivedPerMonth;
+    private Double universalCreditMonthly;
+    private Double legacyBenefitMonthly;
     private Integer receivedUC;
     private Integer receivedLegacyBenefits;
     private Double equivalisedDisposableIncomeYearly;
@@ -537,7 +539,6 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
 
     public void setReceivesBenefitsFlagUCNonUC() {
 
-        // TO DO: this will require an additional test of whether UC is received or not - for now all receive UC if any ben
         boolean receivesBenefitsFlagUC = getReceivedUC() == 1 && Parameters.UC_ROLLOUT;
         boolean receivesLegacyBenefitsFlag = !receivesBenefitsFlagUC && getReceivedLegacyBenefits() == 1;
         boolean receivesBenefitsNonUC = !receivesBenefitsFlagUC && getBenefitsReceivedPerMonth() > 0;
@@ -1303,6 +1304,8 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
             Triple<Labour, Labour, Integer> labourSupplyChoice = null;
             Map<Triple<Labour, Labour, Integer>, Double> disposableIncomeMonthlyByLabourPairs = new LinkedHashMap<>();
             Map<Triple<Labour, Labour, Integer>, Double> benefitsReceivedMonthlyByLabourPairs = new LinkedHashMap<>();
+            Map<Triple<Labour, Labour, Integer>, Double> universalCreditByLabourPairs = new LinkedHashMap<>();
+            Map<Triple<Labour, Labour, Integer>, Double> legacyBenefitsByLabourPairs = new LinkedHashMap<>();
             Map<Triple<Labour, Labour, Integer>, Double> grossIncomeMonthlyByLabourPairs = new LinkedHashMap<>();
             Map<Triple<Labour, Labour, Integer>, Match> taxDbMatchByLabourPairs = new LinkedHashMap<>();
             LinkedHashSet<Triple<Labour, Labour, Integer>> possibleLabourCombinations = findPossibleLabourCombinationsWithUniversalCredit(); // Find possible labour combinations for this benefit unit
@@ -1329,8 +1332,8 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
                     disposableIncomeMonthly = evaluatedTransfers.getDisposableIncomePerMonth();
                     benefitsReceivedPerMonth = evaluatedTransfers.getBenefitsReceivedPerMonth();
                     grossIncomeMonthly = evaluatedTransfers.getGrossIncomePerMonth();
-                    setReceivedUC(evaluatedTransfers.getReceivedUC());
-                    setReceivedLegacyBenefits(evaluatedTransfers.getReceivedLegacyBenefit());
+                    universalCreditMonthly = evaluatedTransfers.getUniversalCreditPerMonth();
+                    legacyBenefitMonthly = evaluatedTransfers.getLegacyBenefitPerMonth();
 
                     //Note that only benefitUnits at risk of work are considered, so at least one partner is at risk of work
                     double regressionScore = 0.;
@@ -1354,6 +1357,8 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
 
                     disposableIncomeMonthlyByLabourPairs.put(labourKey, getDisposableIncomeMonthly());
                     benefitsReceivedMonthlyByLabourPairs.put(labourKey, getBenefitsReceivedPerMonth());
+                    universalCreditByLabourPairs.put(labourKey, getUniversalCreditMonthly());
+                    legacyBenefitsByLabourPairs.put(labourKey, getLegacyBenefitMonthly());
                     grossIncomeMonthlyByLabourPairs.put(labourKey, getGrossIncomeMonthly());
                     taxDbMatchByLabourPairs.put(labourKey, evaluatedTransfers.getMatch());
                     labourSupplyUtilityRegressionScoresByLabourPairs.put(labourKey, regressionScore); //XXX: Adult children could contribute their income to the hh, but then utility would have to be joint for a household with adult children, and they couldn't be treated separately as they are at the moment?
@@ -1374,8 +1379,8 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
                         disposableIncomeMonthly = evaluatedTransfers.getDisposableIncomePerMonth();
                         benefitsReceivedPerMonth = evaluatedTransfers.getBenefitsReceivedPerMonth();
                         grossIncomeMonthly = evaluatedTransfers.getGrossIncomePerMonth();
-                        setReceivedUC(evaluatedTransfers.getReceivedUC());
-                        setReceivedLegacyBenefits(evaluatedTransfers.getReceivedLegacyBenefit());
+                        universalCreditMonthly = evaluatedTransfers.getUniversalCreditPerMonth();
+                        legacyBenefitMonthly = evaluatedTransfers.getLegacyBenefitPerMonth();
 
                         double regressionScore = 0.;
                         if (male.getAdultChildFlag() == 1) { //If adult children use labour supply estimates for male adult children
@@ -1389,6 +1394,8 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
 
                         disposableIncomeMonthlyByLabourPairs.put(labourKey, getDisposableIncomeMonthly());
                         benefitsReceivedMonthlyByLabourPairs.put(labourKey, getBenefitsReceivedPerMonth());
+                        universalCreditByLabourPairs.put(labourKey, getUniversalCreditMonthly());
+                        legacyBenefitsByLabourPairs.put(labourKey, getLegacyBenefitMonthly());
                         grossIncomeMonthlyByLabourPairs.put(labourKey, getGrossIncomeMonthly());
                         taxDbMatchByLabourPairs.put(labourKey, evaluatedTransfers.getMatch());
                         labourSupplyUtilityRegressionScoresByLabourPairs.put(labourKey, regressionScore);
@@ -1406,8 +1413,8 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
                         disposableIncomeMonthly = evaluatedTransfers.getDisposableIncomePerMonth();
                         benefitsReceivedPerMonth = evaluatedTransfers.getBenefitsReceivedPerMonth();
                         grossIncomeMonthly = evaluatedTransfers.getGrossIncomePerMonth();
-                        setReceivedUC(evaluatedTransfers.getReceivedUC());
-                        setReceivedLegacyBenefits(evaluatedTransfers.getReceivedLegacyBenefit());
+                        universalCreditMonthly = evaluatedTransfers.getUniversalCreditPerMonth();
+                        legacyBenefitMonthly = evaluatedTransfers.getLegacyBenefitPerMonth();
 
                         double regressionScore = 0.;
                         if (female.getAdultChildFlag() == 1) { //If adult children use labour supply estimates for female adult children
@@ -1420,6 +1427,8 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
                         }
                         disposableIncomeMonthlyByLabourPairs.put(labourKey, getDisposableIncomeMonthly());
                         benefitsReceivedMonthlyByLabourPairs.put(labourKey, getBenefitsReceivedPerMonth());
+                        universalCreditByLabourPairs.put(labourKey, getUniversalCreditMonthly());
+                        legacyBenefitsByLabourPairs.put(labourKey, getLegacyBenefitMonthly());
                         grossIncomeMonthlyByLabourPairs.put(labourKey, getGrossIncomeMonthly());
                         taxDbMatchByLabourPairs.put(labourKey, evaluatedTransfers.getMatch());
                         labourSupplyUtilityRegressionScoresByLabourPairs.put(labourKey, regressionScore);
@@ -1497,6 +1506,10 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
             // populate disposable income
             disposableIncomeMonthly = disposableIncomeMonthlyByLabourPairs.get(labourSupplyChoice);
             benefitsReceivedPerMonth = benefitsReceivedMonthlyByLabourPairs.get(labourSupplyChoice);
+            universalCreditMonthly = universalCreditByLabourPairs.get(labourSupplyChoice);
+            legacyBenefitMonthly = legacyBenefitsByLabourPairs.get(labourSupplyChoice);
+            setReceivedUC(getUniversalCreditMonthly() > 0. ? 1 : 0);
+            setReceivedLegacyBenefits(getLegacyBenefitMonthly() > 0. ? 1 : 0);
             grossIncomeMonthly = grossIncomeMonthlyByLabourPairs.get(labourSupplyChoice);
             taxDbMatch = taxDbMatchByLabourPairs.get(labourSupplyChoice);
             taxDbDonorId = taxDbMatch.getCandidateID();
@@ -4593,6 +4606,22 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
 
     public Double getDisposableIncomeMonthly() {
         return disposableIncomeMonthly;
+    }
+
+    public Double getLegacyBenefitMonthly() {
+        return legacyBenefitMonthly;
+    }
+
+    public void setLegacyBenefitMonthly(Double legacyBenefitMonthly) {
+        this.legacyBenefitMonthly = legacyBenefitMonthly;
+    }
+
+    public Double getUniversalCreditMonthly() {
+        return universalCreditMonthly;
+    }
+
+    public void setUniversalCreditMonthly(Double universalCreditMonthly) {
+        this.universalCreditMonthly = universalCreditMonthly;
     }
 
     public Double getGrossIncomeMonthly() {
