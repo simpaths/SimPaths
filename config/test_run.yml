@@ -16,3 +16,6 @@ collector_args:
     persistPersons: false
     persistBenefitUnits: false
     persistHouseholds: false
+    
+parameter_args:
+    trainingFlag: true
