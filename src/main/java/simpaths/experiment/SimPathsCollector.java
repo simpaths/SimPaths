@@ -61,6 +61,7 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
     @GUIparameter(description="Report health statistics")
     private boolean persistHealthStatistics = true;
 
+    @GUIparameter(description="Report employment statistics")
     private boolean persistEmploymentStatistics = true;
 
     @GUIparameter(description="Toggle to turn database persistence on/off")
@@ -1117,4 +1118,11 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
         this.persistHealthStatistics = persistHealthStatistics;
     }
 
+    public boolean isPersistEmploymentStatistics() {
+        return persistEmploymentStatistics;
+    }
+
+    public void setPersistEmploymentStatistics(boolean persistEmploymentStatistics) {
+        this.persistEmploymentStatistics = persistEmploymentStatistics;
+    }
 }
