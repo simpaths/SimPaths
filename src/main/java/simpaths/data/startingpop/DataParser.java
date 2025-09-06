@@ -177,6 +177,16 @@ public class DataParser {
 								+ "ALTER TABLE " + personTable + " DROP COLUMN les_c4;"
 								+ "ALTER TABLE " + personTable + " ALTER COLUMN activity_status RENAME TO les_c4;"
 
+				//DEMOGRAPHIC: Ethnicity
+				+ "ALTER TABLE " + personTable + " ADD ethnicity VARCHAR_IGNORECASE;"
+				+ "UPDATE " + personTable + " SET ethnicity = 'White' WHERE dot01 = 1;"
+				+ "UPDATE " + personTable + " SET ethnicity = 'Mixed' WHERE dot01 = 2;"
+				+ "UPDATE " + personTable + " SET ethnicity = 'Asian' WHERE dot01 = 3;"
+				+ "UPDATE " + personTable + " SET ethnicity = 'Black' WHERE dot01 = 4;"
+				+ "UPDATE " + personTable + " SET ethnicity = 'Other' WHERE dot01 = 5;"
+				+ "UPDATE " + personTable + " SET ethnicity = 'Missing' WHERE dot01 = 6;"
+				+ "ALTER TABLE " + personTable + " DROP COLUMN dot01;"
+				+ "ALTER TABLE " + personTable + " ALTER COLUMN ethnicity RENAME TO dot01;"
 								//DEMOGRAPHIC: Long-term sick or disabled (to be used with Indicator enum when defined in Person class)
 								+ "ALTER TABLE " + personTable + " ADD sick_longterm VARCHAR_IGNORECASE;"
 								+ "UPDATE " + personTable + " SET sick_longterm = 'False' WHERE dlltsd01 = 0;"
