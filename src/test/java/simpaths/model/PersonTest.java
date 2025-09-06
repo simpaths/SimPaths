@@ -370,6 +370,12 @@ public class PersonTest {
             testPerson.setDag(30);
         }
 
+
+        @AfterAll
+        static void tearDown() {
+            Parameters.setInputDirectory("input");
+        }
+        
         @Nested
         @DisplayName("With eq5dConversionParameters set to 'lawrence'")
         class WithLawrenceParameters {
