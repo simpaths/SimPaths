@@ -2487,6 +2487,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         Dhe_pcs_c,                      //MCS centralised by subtracting population mean
         Dhe_pcs_c_sq,                   //Square of centralised MCS
         Dhe_pcssp_L1,                      //Physical well-being status of the partner
+        Dhmghq,
         Dhmghq_L1,
         Dlltsd,							//Long-term sick or disabled
         Dlltsd01,
@@ -3179,6 +3180,9 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
                 if (dls_lag1 != null && dls_lag1 >= 0.) {
                     return dls_lag1;
                 } else return 0.;
+            }
+            case Dhmghq -> {
+                return (getDhmGhq()) ? 1. : 0.;
             }
             case Dhmghq_L1 -> {
                 return getDhmGhq_lag1();
