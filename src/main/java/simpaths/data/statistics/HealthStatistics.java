@@ -126,6 +126,9 @@ public class HealthStatistics extends StatisticsHelper {
     @Column(name = "N")
     private int N;
 
+    @Column(name = "Education")
+    private String Education;
+
     @Transient
     final static double WELLBEING_MEASURE_ADJUSTMENT = (double) 11 / 7;
 
@@ -266,6 +269,10 @@ public class HealthStatistics extends StatisticsHelper {
         this.dhm_ghq_prop = dhm_ghq_prop;
     }
 
+    public void setEducation(String education) {
+        this.Education = education;
+    }
+
     public HealthStatistics(PanelEntityKey key) {
         super();
         this.setKey(key);
@@ -292,6 +299,8 @@ public class HealthStatistics extends StatisticsHelper {
         // set household structure
         setHouseholdStructure("Total");
 
+        setEducation("Total");
+
         calculateFilteredStats(model, ageGenderCSfilter);
 
     }
@@ -306,6 +315,8 @@ public class HealthStatistics extends StatisticsHelper {
 
         setHouseholdStructure(householdStructure.toString());
 
+        setEducation("Total");
+
         calculateFilteredStats(model, singleCoupledChildrenCSfilter);
 
     }
@@ -319,6 +330,8 @@ public class HealthStatistics extends StatisticsHelper {
         setAgegroup(new SimPathsCollector.AgeRange(24, 64));
 
         setHouseholdStructure("Total");
+
+        setEducation(education.toString());
 
         calculateFilteredStats(model, educationCSfilter);
 
