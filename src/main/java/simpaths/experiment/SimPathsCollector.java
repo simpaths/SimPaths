@@ -62,7 +62,7 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
     @GUIparameter(description="Report health statistics")
     private boolean persistHealthStatistics = true;
 
-    private boolean persistEmploymentStatistics = false;
+    private boolean persistEmploymentStatistics = true;
 
     @GUIparameter(description="Toggle to turn database persistence on/off")
     private boolean exportToDatabase = false;
