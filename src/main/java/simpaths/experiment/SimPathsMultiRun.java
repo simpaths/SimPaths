@@ -4,6 +4,7 @@ package simpaths.experiment;
 // import Java packages
 import org.apache.log4j.Level;
 import org.apache.commons.cli.*;
+import org.apache.commons.io.FileUtils;
 import org.yaml.snakeyaml.Yaml;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -62,6 +63,8 @@ public class SimPathsMultiRun extends MultiRun {
 	private static boolean persist_population;
 	private static boolean persist_root;
 
+    private static boolean integrationTest = false;
+
 	/**
 	 *
 	 * 	MAIN PROGRAM ENTRY FOR MULTI-SIMULATION
@@ -78,23 +81,24 @@ public class SimPathsMultiRun extends MultiRun {
 		if (parameterArgs != null)
 			updateParameters(parameterArgs);
 		// set default values for country and start year
-		MultiKeyCoefficientMap lastDatabaseCountryAndYear = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + File.separator + Parameters.DatabaseCountryYearFilename + ".xlsx", "Data", 1, 1);
+		MultiKeyCoefficientMap lastDatabaseCountryAndYear = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + File.separator + Parameters.DatabaseCountryYearFilename + ".xlsx", "Data", 1);
 		try {
 			if (lastDatabaseCountryAndYear.keySet().stream().anyMatch(key -> key.toString().equals("MultiKey[IT]"))) {
 				countryString = "Italy";
+				country = Country.IT;
 			} else {
 				countryString = "United Kingdom";
+				country = Country.UK;
 			}
-		    country = Country.getCountryFromNameString(countryString);
 			String valueYear = lastDatabaseCountryAndYear.getValue(country.toString()).toString();
 			startYear = Integer.parseInt(valueYear);
 		} catch (NullPointerException e) {
 			System.out.println("No last database country and year found.");
 			countryString = "United Kingdom";
-		    country = Country.getCountryFromNameString(countryString);
 			startYear = 2019;
 		}
 
+        country = Country.getCountryFromNameString(countryString);
 
 		if (innovationArgs!=null)
 			updateLocalParameters(innovationArgs);
@@ -128,6 +132,27 @@ public class SimPathsMultiRun extends MultiRun {
 			SimPathsMultiRun experimentBuilder = new SimPathsMultiRun();
 			engine.setExperimentBuilder(experimentBuilder);
 			engine.setup();		//This is needed to update model attributes (from model_args in config file)
+
+
+            if (integrationTest) {
+
+                String integrationOutputFolder = "./output" + File.separator + "INTEGRATION_TESTS";
+
+                Experiment.testOutputFolder = integrationOutputFolder;
+
+
+                try {
+
+                    if (FileUtils.isDirectory(new File(integrationOutputFolder))) {
+                        FileUtils.deleteDirectory(new File(integrationOutputFolder));
+                    }
+
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+                Parameters.setTrainingFlag(true);
+            }
 
 			if (executeWithGui)
 				new MultiRunFrame(experimentBuilder, "SimPaths MultiRun", maxNumberOfRuns);
@@ -179,7 +204,7 @@ public class SimPathsMultiRun extends MultiRun {
 				"\n - root: persist to root output folder (input/)" +
 				"\n - run: persist to run output folder (output/[yyyymmdd_seed]/input/)" +
 				"\n - none: do not write/read processed dataset.\n" +
-				"(default: `run` - multirun copy in output folder)");
+				"(default: `root` - persist to root folder for further runs)");
 		persistRoot.setArgName("persist");
 		options.addOption(persistRoot);
 
@@ -225,7 +250,7 @@ public class SimPathsMultiRun extends MultiRun {
 				popSize = Integer.parseInt(cmd.getOptionValue("p"));
 			}
 
-				switch (cmd.getOptionValue("P", "run")) {
+				switch (cmd.getOptionValue("P", "root")) {
 					case "root":
 						log.info("Persisting processed data to root folder");
 						persist_population = true;
@@ -242,9 +267,9 @@ public class SimPathsMultiRun extends MultiRun {
 						persist_root = false;
 						break;
 					default:
-						System.out.println("Persist option `" + cmd.getOptionValue("P") + "` not recognised. Valid values: `none`, `root`, `run`. Persisting processed data to run folder");
+						System.out.println("Persist option `" + cmd.getOptionValue("P") + "` not recognised. Valid values: `none`, `root`, `run`. Persisting processed data to root folder");
 						persist_population = true;
-						persist_root = false;
+						persist_root = true;
 				}
 
 			if (cmd.hasOption("f")) {

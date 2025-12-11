@@ -867,6 +867,13 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
             }
         }
 
+        if (median == null) {
+            throw new IllegalStateException(
+                    "Median could not be calculated — totalWeight=" + totalWeight +
+                            ", households considered=" + arrHouse_eqHouseholdDispIncome.size()
+            );
+        }
+
         double atRiskOfPovertyThreshold = median * 0.6;
 //		log.info("atRiskOfPovertyThreshold = " + atRiskOfPovertyThreshold);
         stats.setMedianEquivalisedHouseholdDisposableIncome(median);		//Save median household equivalised disposable income in statistics object

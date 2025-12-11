@@ -6,7 +6,7 @@
 * COUNTRY:              UK
 * DATA:         	    UKHLS EUL version - UKDA-6614-stata [to wave n]
 * AUTHORS: 				Daria Popova, Justin van de Ven
-* LAST UPDATE:          14 Jan 2025 DP
+* LAST UPDATE:          18 July 2025 DP
 * NOTE:					Called from 00_master.do - see master file for further details
 ***************************************************************************************
 
@@ -30,12 +30,12 @@ foreach w of global UKHLSwaves {
 	local waveno=strpos("abcdefghijklmnopqrstuvwxyz","`w'")
 	
 	if (`waveno'<13) {
-		use pidp `w'_ivfho `w'_ivfio `w'_hhorig `w'_buno_dv `w'_dvage `w'_sex `w'_depchl `w'_hidp `w'_pno `w'_pns1pid `w'_pns2pid `w'_month `w'_intdaty_dv ///
+		use pidp `w'_ivfho `w'_ivfio `w'_hhorig `w'_memorig `w'_buno_dv `w'_dvage `w'_sex `w'_depchl `w'_hidp `w'_pno `w'_pns1pid `w'_pns2pid `w'_month `w'_intdaty_dv ///
 		`w'_mnspid `w'_fnspid `w'_ppid `w'_ppno `w'_sppid `w'_sex_dv `w'_mastat_dv `w'_gor_dv `w'_age_dv  /* `w'_hgbioad1 `w'_hgbioad2 */ ///
 		`w'_intdatd_dv `w'_intdatm_dv `w'_intdaty_dv `w'_ethn_dv using `w'_indall.dta, clear
 	}
 	else {
-		use pidp `w'_ivfho `w'_ivfio `w'_hhorig `w'_buno_dv `w'_dvage `w'_sex `w'_depchl `w'_hidp `w'_pno `w'_pns1pid `w'_pns2pid `w'_month `w'_intdaty_dv ///
+		use pidp `w'_ivfho `w'_ivfio `w'_hhorig `w'_memorig `w'_buno_dv `w'_dvage `w'_sex `w'_depchl `w'_hidp `w'_pno `w'_pns1pid `w'_pns2pid `w'_month `w'_intdaty_dv ///
 		`w'_mnspid `w'_fnspid `w'_ppid `w'_ppno `w'_sppid `w'_sex_dv `w'_mastat_dv `w'_gor_dv `w'_age_dv  `w'_hgbioad1 `w'_hgbioad2 ///
 		`w'_intdatd_dv `w'_intdatm_dv `w'_intdaty_dv `w'_ethn_dv using `w'_indall.dta, clear
 	}
@@ -167,9 +167,28 @@ gen inc_tu = frmnthimp_dv if ficode == 25 //Trade Union / Friendly Society Payme
 gen inc_ma = frmnthimp_dv if ficode == 26 //Maintenance or Alimony
 gen inc_fm = frmnthimp_dv if ficode == 27 //payments from a family member not living here
 gen inc_oth = frmnthimp_dv if ficode == 38 //any other regular payment (not asked in Wave 1)
-keep swv pidp hidp inc_pp inc_tu inc_ma inc_fm inc_oth
-drop if missing(inc_pp) & missing(inc_tu) & missing(inc_ma) & missing(inc_fm) & missing(inc_oth)
-collapse (sum) inc_pp inc_tu inc_ma inc_fm inc_oth, by(swv pidp hidp)
+/*			          
+8  Severe Disablement Allowance	
+9  Industrial Injury Disablement Allowance	
+10 Disability Living Allowance	
+11 Attendance Allowance	
+12 Carer's Allowance (formerly Invalid Care	Allowance)				          
+13 War Disablement Pension	
+14 Incapacity Benefit	
+33 Employment and Support Allowance                  
+34 Return to Work Credit                                  
+35 Sickness and Accident Insurance                      
+37 Other Disability Related Benefit or Payment          
+41 Personal Independence Payments                       
+43 Child Disability Payment                               
+44 Adult Disability Payment                              
+45 Pension Age Disability Payment                         
+*/
+gen inc_disab = frmnthimp_dv if (ficode>=8 & ficode<=14) | ficode==33 |  ficode==34 |  ficode==35  |  ficode==37 |  ficode==41 |  ficode==43 |  ficode==44 |  ficode==45 
+
+keep swv pidp hidp inc_pp inc_tu inc_ma inc_fm inc_oth inc_disab
+drop if missing(inc_pp) & missing(inc_tu) & missing(inc_ma) & missing(inc_fm) & missing(inc_oth) & missing(inc_disab)
+collapse (sum) inc_pp inc_tu inc_ma inc_fm inc_oth inc_disab, by(swv pidp hidp)
 save "$dir_data\tmp_income", replace
 restore
 

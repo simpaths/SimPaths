@@ -37,6 +37,15 @@ public class ManagerRegressions {
             case HealthHM2LevelFemales -> {
                 return Parameters.getRegHealthHM2LevelFemales();
             }
+            case HealthHM1Case -> {
+                return Parameters.getRegHealthHM1Case();
+            }
+            case HealthHM2CaseMales -> {
+                return Parameters.getRegHealthHM2CaseMales();
+            }
+            case HealthHM2CaseFemales -> {
+                return Parameters.getRegHealthHM2CaseFemales();
+            }
             case HealthMCS1 -> {
                 return Parameters.getRegHealthMCS1();
             }
@@ -142,15 +151,6 @@ public class ManagerRegressions {
             case HealthH2b -> {
                 return Parameters.getRegHealthH2b();
             }
-            case HealthHM1Case -> {
-                return Parameters.getRegHealthHM1Case();
-            }
-            case HealthHM2CaseMales -> {
-                return Parameters.getRegHealthHM2CaseMales();
-            }
-            case HealthHM2CaseFemales -> {
-                return Parameters.getRegHealthHM2CaseFemales();
-            }
             case SocialCareS1a -> {
                 return Parameters.getRegReceiveCareS1a();
             }
@@ -196,15 +196,6 @@ public class ManagerRegressions {
             throw new RuntimeException("requested ordered regression is not recognised: " + regression.name());
 
         switch (regression) {
-            case HealthH1a -> {
-                return Parameters.getRegHealthH1a();
-            }
-            case HealthH1b -> {
-                return Parameters.getRegHealthH1b();
-            }
-            case EducationE2a -> {
-                return Parameters.getRegEducationE2a();
-            }
             default -> {
                 throw new RuntimeException("unrecognised regression (1)");
             }
@@ -217,6 +208,15 @@ public class ManagerRegressions {
             throw new RuntimeException("requested generalised ordered regression is not recognised: " + regression.name());
 
         switch (regression) {
+            case HealthH1a -> {
+                return Parameters.getRegHealthH1a();
+            }
+            case HealthH1b -> {
+                return Parameters.getRegHealthH1b();
+            }
+            case EducationE2a -> {
+                return Parameters.getRegEducationE2a();
+            }
             default -> {
                 throw new RuntimeException("unrecognised regression (1)");
             }
