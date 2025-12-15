@@ -365,7 +365,9 @@ public class PersonTest {
 
         @BeforeEach
         void setup() {
+
             testPerson = new Person(true);
+            testPerson.setDag(30);
         }
 
         @Nested
