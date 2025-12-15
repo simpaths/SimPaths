@@ -1,16 +1,17 @@
 package simpaths.data.statistics;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Transient;
+import jakarta.persistence.*;
 import microsim.data.db.PanelEntityKey;
 import microsim.statistics.CrossSection;
+import microsim.statistics.ICollectionFilter;
 import microsim.statistics.IDoubleSource;
 import microsim.statistics.functions.MeanArrayFunction;
 import microsim.statistics.functions.PercentileArrayFunction;
 import microsim.statistics.functions.SumArrayFunction;
+import simpaths.data.Parameters;
 import simpaths.data.filters.AgeGenderCSfilter;
+import simpaths.data.filters.SingleCoupledChildrenCSfilter;
+import simpaths.experiment.SimPathsCollector;
 import simpaths.model.Person;
 import simpaths.model.SimPathsModel;
 import simpaths.model.enums.Gender;
@@ -21,8 +22,17 @@ public class HealthStatistics {
     @Id
     private PanelEntityKey key = new PanelEntityKey(1L);
 
+    @Column(name = "scenario")
+    private String scenario = Parameters.scenario;
+
     @Column(name = "gender")
     private String gender;
+
+    @Column(name = "agegroup")
+    private String agegroup;
+
+    @Column(name = "HouseholdStructure")
+    private String HouseholdStructure;
 
     // mental health numeric
     @Column(name = "dhm_mean")
@@ -115,6 +125,19 @@ public class HealthStatistics {
 
     public void setGender(String gender) {
         this.gender = gender;
+    }
+
+    public void setAgegroup(SimPathsCollector.AgeRange agegroup) {
+        String agegroup_s = agegroup.toString();
+        this.agegroup = agegroup_s;
+    }
+
+    public void setHouseholdStructure(SimPathsCollector.HouseholdStructure householdStructure) {
+        HouseholdStructure = householdStructure.toString();
+    }
+
+    public void setHouseholdStructure(String householdStructure) {
+        HouseholdStructure = householdStructure;
     }
 
     public void setDhm_mean(double dhm_mean) {
@@ -225,23 +248,63 @@ public class HealthStatistics {
         this.wellbys = wellbys;
     }
 
-    public void update(SimPathsModel model, String gender_s) {
+    public void setKey(PanelEntityKey key) {
+        this.key = key;
+    }
+
+    public void setScenario(String scenario) {
+        this.scenario = scenario;
+    }
+
+    public HealthStatistics(PanelEntityKey key) {
+        super();
+        this.setKey(key);
+    }
+
+
+    public void update(SimPathsModel model, String gender_s, SimPathsCollector.AgeRange ageRange) {
 
 
         AgeGenderCSfilter ageGenderCSfilter;
 
         if (gender_s.equals("Total")) {
-            ageGenderCSfilter = new AgeGenderCSfilter(25, 64);
+            ageGenderCSfilter = new AgeGenderCSfilter(ageRange.lowerBound(), ageRange.upperBound());
         } else {
-            ageGenderCSfilter = new AgeGenderCSfilter(25, 64, Gender.valueOf(gender_s));
+            ageGenderCSfilter = new AgeGenderCSfilter(ageRange.lowerBound(), ageRange.upperBound(), Gender.valueOf(gender_s));
         }
 
         // set gender
         setGender(gender_s);
 
+        // set agegroup
+        setAgegroup(ageRange);
+
+        // set household structure
+        setHouseholdStructure("Total");
+
+        calculateFilteredStats(model, ageGenderCSfilter);
+
+    }
+
+    public void update(SimPathsModel model, SimPathsCollector.HouseholdStructure householdStructure) {
+
+        SingleCoupledChildrenCSfilter singleCoupledChildrenCSfilter = new SingleCoupledChildrenCSfilter(householdStructure.coupled(), householdStructure.children(), householdStructure.gender());
+
+        setGender(householdStructure.gender().toString());
+
+        setAgegroup(new SimPathsCollector.AgeRange(16, 64));
+
+        setHouseholdStructure(householdStructure.toString());
+
+        calculateFilteredStats(model, singleCoupledChildrenCSfilter);
+
+    }
+
+    public void calculateFilteredStats(SimPathsModel model, ICollectionFilter filter) {
+
         // dhm score
         CrossSection.Double personsDhm = new CrossSection.Double(model.getPersons(), Person.DoublesVariables.Dhm); // Get cross section of simulated individuals and their mental health using the IDoubleSource interface implemented by Person class.
-        personsDhm.setFilter(ageGenderCSfilter);
+        personsDhm.setFilter(filter);
 
 
         MeanArrayFunction dhm_mean_f = new MeanArrayFunction(personsDhm); // Create MeanArrayFunction
@@ -259,7 +322,7 @@ public class HealthStatistics {
 
         // mcs score
         CrossSection.Double personsMCS = new CrossSection.Double(model.getPersons(), Person.DoublesVariables.Dhe_mcs);
-        personsMCS.setFilter(ageGenderCSfilter);
+        personsMCS.setFilter(filter);
 
 
         MeanArrayFunction dhe_mcs_mean_f = new MeanArrayFunction(personsMCS); // Create MeanArrayFunction
@@ -277,7 +340,7 @@ public class HealthStatistics {
 
         // pcs score
         CrossSection.Double personsPCS = new CrossSection.Double(model.getPersons(), Person.DoublesVariables.Dhe_pcs);
-        personsPCS.setFilter(ageGenderCSfilter);
+        personsPCS.setFilter(filter);
 
 
         MeanArrayFunction dhe_pcs_mean_f = new MeanArrayFunction(personsPCS); // Create MeanArrayFunction
@@ -295,7 +358,7 @@ public class HealthStatistics {
 
         // Life Satisfaction score
         CrossSection.Double personsDls = new CrossSection.Double(model.getPersons(), Person.DoublesVariables.Dls);
-        personsDls.setFilter(ageGenderCSfilter);
+        personsDls.setFilter(filter);
 
 
         MeanArrayFunction dls_mean_f = new MeanArrayFunction(personsDls); // Create MeanArrayFunction
@@ -313,7 +376,7 @@ public class HealthStatistics {
 
         // QALYS as sum of EQ5D
         CrossSection.Double personEQ5D = new CrossSection.Double(model.getPersons(), Person.DoublesVariables.He_eq5d);
-        personEQ5D.setFilter(ageGenderCSfilter);
+        personEQ5D.setFilter(filter);
 
         SumArrayFunction.Double qalys = new SumArrayFunction.Double(personEQ5D);
         qalys.applyFunction();
@@ -329,10 +392,13 @@ public class HealthStatistics {
 
         // count
         CrossSection.Integer n_persons = new CrossSection.Integer(model.getPersons(), Person.class, "getPersonCount", true);
-        n_persons.setFilter(ageGenderCSfilter);
+        n_persons.setFilter(filter);
 
         SumArrayFunction.Integer count_f = new SumArrayFunction.Integer(n_persons);
         count_f.applyFunction();
         setN(count_f.getIntValue(IDoubleSource.Variables.Default));
+
+
+
     }
 }

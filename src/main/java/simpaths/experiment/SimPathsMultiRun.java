@@ -90,6 +90,7 @@ public class SimPathsMultiRun extends MultiRun {
 				countryString = "United Kingdom";
 				country = Country.UK;
 			}
+			country = Country.getCountryFromNameString(countryString);
 			String valueYear = lastDatabaseCountryAndYear.getValue(country.toString()).toString();
 			startYear = Integer.parseInt(valueYear);
 		} catch (NullPointerException e) {
@@ -113,6 +114,7 @@ public class SimPathsMultiRun extends MultiRun {
 		country = Country.getCountryFromNameString(countryString);
 
 		//Save the last selected country and year to Excel to use in the model
+        System.setProperty("java.io.tmpdir", "~/.simpathstmp");
 		String[] columnNames = {"Country", "Year"};
 		Object[][] data = new Object[1][columnNames.length];
 		data[0][0] = country.toString();

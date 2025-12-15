@@ -309,6 +309,13 @@ public class TaxDonorDataParser {
                     inputPersonDynamicColumnNames.add(variable + "_" + systemName);
                 }
 
+                for(String colName: inputPersonDynamicColumnNames) {
+                    //Set any expected but nonexistent columns to 0 (for example, policy variables that are only defined for certain years)
+                    stat.execute(
+                            "ALTER TABLE " + taxDonorInputFileName + " ADD COLUMN IF NOT EXISTS " + colName + " VARCHAR DEFAULT '0';"
+                    );
+                }
+
                 stat.execute(
                     "INSERT INTO " + personPolicyTableName + " (" + varList2 + ")"
                     + " SELECT " + stringAppender(inputPersonDynamicColumnNames) + " FROM " + taxDonorInputFileName + ";"

@@ -4,13 +4,17 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Id;
 import jakarta.persistence.Entity;
 
+import jakarta.persistence.Transient;
 import microsim.data.db.PanelEntityKey;
 import microsim.statistics.CrossSection;
 import microsim.statistics.IDoubleSource;
 import microsim.statistics.functions.MeanArrayFunction;
-import simpaths.data.filters.AgeGroupCSfilter;
-import simpaths.data.filters.EmploymentHistoryFilter;
+import microsim.statistics.functions.SumArrayFunction;
+import simpaths.data.Parameters;
+import simpaths.data.filters.*;
+import simpaths.experiment.SimPathsCollector;
 import simpaths.model.SimPathsModel;
+import simpaths.model.enums.Gender;
 import simpaths.model.enums.Les_c4;
 import simpaths.model.Person;
 
@@ -19,6 +23,15 @@ public class EmploymentStatistics {
 
     @Id
     private PanelEntityKey key = new PanelEntityKey(1L);
+
+    @Column(name = "scenario")
+    private String scenario = Parameters.scenario;
+
+    @Column(name = "gender")
+    private String gender;
+
+    @Column(name = "agegroup")
+    private String agegroup;
 
     @Column(name= "EmpToNotEmp")
     private double EmpToNotEmp;         // Proportion of employed people becoming unemployed
@@ -31,6 +44,28 @@ public class EmploymentStatistics {
 
     @Column(name = "PropUnemployed")
     private double PropUnemployed;
+
+    @Column(name = "meanLabourHours")
+    private double meanLabourHours;
+
+    @Column(name = "propUC")
+    private double propUC;
+
+    @Column(name = "propLB")
+    private double propLB;
+
+    //N
+    @Column(name = "N")
+    private int N;
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public void setAgegroup(SimPathsCollector.AgeRange agegroup) {
+        String agegroup_s = agegroup.toString();
+        this.agegroup = agegroup_s;
+    }
 
 
     public double getEmpToNotEmp() {
@@ -65,10 +100,62 @@ public class EmploymentStatistics {
         PropUnemployed = propUnemployed;
     }
 
-    public void update(SimPathsModel model) {
+    public void setMeanLabourHours(double meanLabourHours) {
+        this.meanLabourHours = meanLabourHours;
+    }
 
-        EmploymentHistoryFilter employmentHistoryEmployed = new EmploymentHistoryFilter(Les_c4.EmployedOrSelfEmployed);
-        EmploymentHistoryFilter employmentHistoryUnemployed = new EmploymentHistoryFilter(Les_c4.NotEmployed);
+    public void setPropUC(double propUC) {
+        this.propUC = propUC;
+    }
+
+    public void setPropLB(double propLB) {
+        this.propLB = propLB;
+    }
+
+    public void setKey(PanelEntityKey key) {
+        this.key = key;
+    }
+
+    public void setScenario(String scenario) {
+        this.scenario = scenario;
+    }
+
+    public void setN(int n) {
+        N = n;
+    }
+
+    public EmploymentStatistics(PanelEntityKey key) {
+        super();
+        this.setKey(key);
+    }
+
+    public void update(SimPathsModel model, String gender_s, SimPathsCollector.AgeRange ageRange) {
+
+        AgeGenderCSfilter ageGenderCSfilter;
+        EmploymentAgeGenderCSfilter employmentCSfilter;
+        EmploymentHistoryFilter employmentHistoryEmployed;
+        EmploymentHistoryFilter employmentHistoryUnemployed;
+
+        if (gender_s.equals("Total")) {
+            ageGenderCSfilter = new AgeGenderCSfilter(ageRange.lowerBound(), ageRange.upperBound());
+            employmentCSfilter = new EmploymentAgeGenderCSfilter(Les_c4.EmployedOrSelfEmployed, ageRange.lowerBound(), ageRange.upperBound());
+
+            employmentHistoryEmployed = new EmploymentHistoryFilter(Les_c4.EmployedOrSelfEmployed, ageRange.lowerBound(), ageRange.upperBound());
+            employmentHistoryUnemployed = new EmploymentHistoryFilter(Les_c4.NotEmployed, ageRange.lowerBound(), ageRange.upperBound());
+        } else {
+            ageGenderCSfilter = new AgeGenderCSfilter(ageRange.lowerBound(), ageRange.upperBound(), Gender.valueOf(gender_s));
+            employmentCSfilter = new EmploymentAgeGenderCSfilter(Les_c4.EmployedOrSelfEmployed, ageRange.lowerBound(), ageRange.upperBound(), Gender.valueOf(gender_s));
+
+            employmentHistoryEmployed = new EmploymentHistoryFilter(Les_c4.EmployedOrSelfEmployed, ageRange.lowerBound(), ageRange.upperBound(), Gender.valueOf(gender_s));
+            employmentHistoryUnemployed = new EmploymentHistoryFilter(Les_c4.NotEmployed, ageRange.lowerBound(), ageRange.upperBound(), Gender.valueOf(gender_s));
+        }
+
+        // set gender
+        setGender(gender_s);
+
+        // set agegroup
+        setAgegroup(ageRange);
+
 
 
         // Entering employment transition rate
@@ -87,14 +174,12 @@ public class EmploymentStatistics {
         isEmpToNotEmp.applyFunction();
         setEmpToNotEmp(isEmpToNotEmp.getDoubleValue(IDoubleSource.Variables.Default));
 
-        // Employment and unemployment, working age adults 16-64
-        AgeGroupCSfilter ageGroupCSfilter = new AgeGroupCSfilter(16, 64);
-
+        // Employed and unemployed in age-groups
         CrossSection.Integer personsEmployed = new CrossSection.Integer(model.getPersons(), Person.class, "getEmployed", true);
         CrossSection.Integer personsUnemployed = new CrossSection.Integer(model.getPersons(), Person.class, "getNonwork", true);
 
-        personsEmployed.setFilter(ageGroupCSfilter);
-        personsUnemployed.setFilter(ageGroupCSfilter);
+        personsEmployed.setFilter(ageGenderCSfilter);
+        personsUnemployed.setFilter(ageGenderCSfilter);
 
         MeanArrayFunction isEmployed = new MeanArrayFunction(personsEmployed);
         isEmployed.applyFunction();
@@ -104,6 +189,37 @@ public class EmploymentStatistics {
         isUnemployed.applyFunction();
         setPropUnemployed(isUnemployed.getDoubleValue(IDoubleSource.Variables.Default));
 
+        // Mean hours worked amongst employed
+        CrossSection.Double hoursWorked = new CrossSection.Double(model.getPersons(), Person.class, "getHoursWorkedWeekly", true);
+        hoursWorked.setFilter(employmentCSfilter);
+
+        MeanArrayFunction meanHoursWorked = new MeanArrayFunction(hoursWorked);
+        meanHoursWorked.applyFunction();
+        setMeanLabourHours(meanHoursWorked.getDoubleValue(IDoubleSource.Variables.Default));
+
+        // proportions on UC/Legacy benefits
+        CrossSection.Double personsUC = new CrossSection.Double(model.getPersons(), Person.DoublesVariables.D_Econ_benefits_UC);
+        CrossSection.Double personsLB = new CrossSection.Double(model.getPersons(), Person.DoublesVariables.D_Econ_benefits_NonUC);
+
+        personsUC.setFilter(ageGenderCSfilter);
+        personsLB.setFilter(ageGenderCSfilter);
+
+        MeanArrayFunction propReceivesUC = new MeanArrayFunction(personsUC);
+        MeanArrayFunction propReceivesLB = new MeanArrayFunction(personsLB);
+
+        propReceivesUC.applyFunction();
+        propReceivesLB.applyFunction();
+
+        setPropUC(propReceivesUC.getDoubleValue(IDoubleSource.Variables.Default));
+        setPropLB(propReceivesLB.getDoubleValue(IDoubleSource.Variables.Default));
+
+        // count
+        CrossSection.Integer n_persons = new CrossSection.Integer(model.getPersons(), Person.class, "getPersonCount", true);
+        n_persons.setFilter(ageGenderCSfilter);
+
+        SumArrayFunction.Integer count_f = new SumArrayFunction.Integer(n_persons);
+        count_f.applyFunction();
+        setN(count_f.getIntValue(IDoubleSource.Variables.Default));
 
     }
 }
