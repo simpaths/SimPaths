@@ -1024,13 +1024,13 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
                             regressionScore = Parameters.getRegLabourSupplyUtilityCouples().getScore(this, BenefitUnit.Regressors.class);
                         } else if (!female.atRiskOfWork()) { //Male has flexible labour supply, female doesn't
                             //Follow utility process for single males for the UK
-                            regressionScore = Parameters.getRegLabourSupplyUtilitySingleWithDependent().getScore(this, BenefitUnit.Regressors.class);
+                            regressionScore = Parameters.getRegLabourSupplyUtilityMalesWithDependent().getScore(this, BenefitUnit.Regressors.class);
                             //In Italy, this should follow a separate set of estimates. One way is to differentiate between countries here; another would be to add a set of estimates for both countries, but for the UK have the same number as for singles
                             //Introduced a new category of estimates, Males/Females with Dependent to be used when only one of the couple is flexible in labour supply. In Italy, these have a separate set of estimates; in the UK they use the same estimates as "independent" singles
                         }
                     } else if (female.atRiskOfWork() && !male.atRiskOfWork()) { //Male not at risk of work - female must be at risk of work since only benefitUnits at risk are considered here
                         //Follow utility process for single female
-                        regressionScore = Parameters.getRegLabourSupplyUtilitySingleWithDependent().getScore(this, BenefitUnit.Regressors.class);
+                        regressionScore = Parameters.getRegLabourSupplyUtilityFemalesWithDependent().getScore(this, BenefitUnit.Regressors.class);
                     } else throw new IllegalArgumentException("None of the partners are at risk of work! HHID " + getKey().getId());
                     if (!Parameters.checkFinite(regressionScore)) {
                         throw new RuntimeException("problem evaluating exponential regression score in labour supply module (1)");
