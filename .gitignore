@@ -338,3 +338,5 @@ input/EUROMODoutput/current/uk_2027_std.txt
 input/InitialPopulations/current/*
 input/InitialPopulations/testing/*
 .Rproj.user
+
+input/DatabaseCountryYear.xlsx
