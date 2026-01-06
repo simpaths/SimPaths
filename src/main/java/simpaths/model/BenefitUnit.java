@@ -2098,11 +2098,6 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
         MaleLeisure_UKM,
         MaleLeisure_UKN,
         MaleLeisureSq,
-        FemaleLeisure_dnc02,
-        IncomeDiv100_FemaleAgeDiv100,
-        IncomeDiv100_FemaleAgeSqDiv10000,
-                //Other
-        Homeownership_D, // Indicator: does the benefit unit own home?
 
         //Enums added for Universal Credit effects on LS
         UC_TakeUp,
@@ -2218,24 +2213,6 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
         UKM_41,
         UKN_41,
 
-        Liwwh_Male_1,
-        Liwwh_Female_1,
-        Liwwh_Male_10,
-        Liwwh_Female_10,
-        Liwwh_Male_11,
-        Liwwh_Female_11,
-        Liwwh_Male_20,
-        Liwwh_Female_20,
-        Liwwh_Male_21,
-        Liwwh_Female_21,
-        Liwwh_Male_30,
-        Liwwh_Female_30,
-        Liwwh_Male_31,
-        Liwwh_Female_31,
-        Liwwh_Male_40,
-        Liwwh_Female_40,
-        Liwwh_Male_41,
-        Liwwh_Female_41,
         Liwwh_Male_100,
         Liwwh_Female_100,
         Liwwh_Male_101,
@@ -3240,13 +3217,13 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
                     throw new RuntimeException("request for parameter Liwwh_60 for non-single man");
                 }
             }
-            case Liwwh_Female_1 -> {
-                if (Occupancy.Couple.equals(getOccupancy()) && !getMale().atRiskOfWork()) {
-                    return (getFemale().getLabourSupplyWeekly().equals(Labour.TEN)) ? getFemale().getLiwwh() : 0.;
-                } else {
-                    return 0.;
-                }
-            }
+//            case Liwwh_Female_1 -> {
+//                if (Occupancy.Couple.equals(getOccupancy()) && !getMale().atRiskOfWork()) {
+//                    return (getFemale().getLabourSupplyWeekly().equals(Labour.TEN)) ? getFemale().getLiwwh() : 0.;
+//                } else {
+//                    return 0.;
+//                }
+//            }
             case Liwwh_Female_2 -> {
                 if (Occupancy.Couple.equals(getOccupancy()) && !getMale().atRiskOfWork()) {
                     return (getFemale().getLabourSupplyWeekly().equals(Labour.TWENTY)) ? getFemale().getLiwwh() : 0.;
@@ -3282,20 +3259,20 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
                     return 0.;
                 }
             }
-            case Liwwh_Female_10, Liwwh_Female_20, Liwwh_Female_30, Liwwh_Female_40, Liwwh_Female_50, Liwwh_Female_60  -> {
-                if (Occupancy.Couple.equals(getOccupancy())) {
-                    return (getFemale().getLabourSupplyWeekly().equals(Labour.ZERO)) ? getFemale().getLiwwh() : 0.;
-                } else {
-                    throw new RuntimeException("request for parameter Liwwh_Female_XY for non-couple");
-                }
-            }
-            case Liwwh_Female_01, Liwwh_Female_11, Liwwh_Female_21, Liwwh_Female_31, Liwwh_Female_41, Liwwh_Female_51, Liwwh_Female_61  -> {
-                if (Occupancy.Couple.equals(getOccupancy())) {
-                    return (getFemale().getLabourSupplyWeekly().equals(Labour.TEN)) ? getFemale().getLiwwh() : 0.;
-                } else {
-                    throw new RuntimeException("request for parameter Liwwh_Female_XY for non-couple");
-                }
-            }
+//            case Liwwh_Female_10, Liwwh_Female_20, Liwwh_Female_30, Liwwh_Female_40, Liwwh_Female_50, Liwwh_Female_60  -> {
+//                if (Occupancy.Couple.equals(getOccupancy())) {
+//                    return (getFemale().getLabourSupplyWeekly().equals(Labour.ZERO)) ? getFemale().getLiwwh() : 0.;
+//                } else {
+//                    throw new RuntimeException("request for parameter Liwwh_Female_XY for non-couple");
+//                }
+//            }
+//            case Liwwh_Female_01, Liwwh_Female_11, Liwwh_Female_21, Liwwh_Female_31, Liwwh_Female_41, Liwwh_Female_51, Liwwh_Female_61  -> {
+//                if (Occupancy.Couple.equals(getOccupancy())) {
+//                    return (getFemale().getLabourSupplyWeekly().equals(Labour.TEN)) ? getFemale().getLiwwh() : 0.;
+//                } else {
+//                    throw new RuntimeException("request for parameter Liwwh_Female_XY for non-couple");
+//                }
+//            }
             case Liwwh_Female_02, Liwwh_Female_12, Liwwh_Female_22, Liwwh_Female_32, Liwwh_Female_42, Liwwh_Female_52, Liwwh_Female_62  -> {
                 if (Occupancy.Couple.equals(getOccupancy())) {
                     return (getFemale().getLabourSupplyWeekly().equals(Labour.TWENTY)) ? getFemale().getLiwwh() : 0.;
@@ -3331,13 +3308,13 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
                     throw new RuntimeException("request for parameter Liwwh_Female_XY for non-couple");
                 }
             }
-            case Liwwh_Male_1 -> {
-                if (Occupancy.Couple.equals(getOccupancy()) && !getFemale().atRiskOfWork()) {
-                    return (getMale().getLabourSupplyWeekly().equals(Labour.TEN)) ? getMale().getLiwwh() : 0.;
-                } else {
-                    return 0.;
-                }
-            }
+//            case Liwwh_Male_1 -> {
+//                if (Occupancy.Couple.equals(getOccupancy()) && !getFemale().atRiskOfWork()) {
+//                    return (getMale().getLabourSupplyWeekly().equals(Labour.TEN)) ? getMale().getLiwwh() : 0.;
+//                } else {
+//                    return 0.;
+//                }
+//            }
             case Liwwh_Male_2 -> {
                 if (Occupancy.Couple.equals(getOccupancy()) && !getFemale().atRiskOfWork()) {
                     return (getMale().getLabourSupplyWeekly().equals(Labour.TWENTY)) ? getMale().getLiwwh() : 0.;
@@ -3380,34 +3357,34 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
                     throw new RuntimeException("request for parameter Liwwh_Male_XY for non-couple");
                 }
             }
-            case Liwwh_Male_10, Liwwh_Male_11, Liwwh_Male_12, Liwwh_Male_13, Liwwh_Male_14, Liwwh_Male_15, Liwwh_Male_16  -> {
-                if (Occupancy.Couple.equals(getOccupancy())) {
-                    return (getMale().getLabourSupplyWeekly().equals(Labour.TEN)) ? getMale().getLiwwh() : 0.;
-                } else {
-                    throw new RuntimeException("request for parameter Liwwh_Male_XY for non-couple");
-                }
-            }
-            case Liwwh_Male_20, Liwwh_Male_21, Liwwh_Male_22, Liwwh_Male_23, Liwwh_Male_24, Liwwh_Male_25, Liwwh_Male_26  -> {
-                if (Occupancy.Couple.equals(getOccupancy())) {
-                    return (getMale().getLabourSupplyWeekly().equals(Labour.TWENTY)) ? getMale().getLiwwh() : 0.;
-                } else {
-                    throw new RuntimeException("request for parameter Liwwh_Male_XY for non-couple");
-                }
-            }
-            case Liwwh_Male_30, Liwwh_Male_31, Liwwh_Male_32, Liwwh_Male_33, Liwwh_Male_34, Liwwh_Male_35, Liwwh_Male_36  -> {
-                if (Occupancy.Couple.equals(getOccupancy())) {
-                    return (getMale().getLabourSupplyWeekly().equals(Labour.THIRTY)) ? getMale().getLiwwh() : 0.;
-                } else {
-                    throw new RuntimeException("request for parameter Liwwh_Male_XY for non-couple");
-                }
-            }
-            case Liwwh_Male_40, Liwwh_Male_41, Liwwh_Male_42, Liwwh_Male_43, Liwwh_Male_44, Liwwh_Male_45, Liwwh_Male_46  -> {
-                if (Occupancy.Couple.equals(getOccupancy())) {
-                    return (getMale().getLabourSupplyWeekly().equals(Labour.THIRTY_EIGHT)) ? getMale().getLiwwh() : 0.;
-                } else {
-                    throw new RuntimeException("request for parameter Liwwh_Male_XY for non-couple");
-                }
-            }
+//            case Liwwh_Male_10, Liwwh_Male_11, Liwwh_Male_12, Liwwh_Male_13, Liwwh_Male_14, Liwwh_Male_15, Liwwh_Male_16  -> {
+//                if (Occupancy.Couple.equals(getOccupancy())) {
+//                    return (getMale().getLabourSupplyWeekly().equals(Labour.TEN)) ? getMale().getLiwwh() : 0.;
+//                } else {
+//                    throw new RuntimeException("request for parameter Liwwh_Male_XY for non-couple");
+//                }
+//            }
+//            case Liwwh_Male_20, Liwwh_Male_21, Liwwh_Male_22, Liwwh_Male_23, Liwwh_Male_24, Liwwh_Male_25, Liwwh_Male_26  -> {
+//                if (Occupancy.Couple.equals(getOccupancy())) {
+//                    return (getMale().getLabourSupplyWeekly().equals(Labour.TWENTY)) ? getMale().getLiwwh() : 0.;
+//                } else {
+//                    throw new RuntimeException("request for parameter Liwwh_Male_XY for non-couple");
+//                }
+//            }
+//            case Liwwh_Male_30, Liwwh_Male_31, Liwwh_Male_32, Liwwh_Male_33, Liwwh_Male_34, Liwwh_Male_35, Liwwh_Male_36  -> {
+//                if (Occupancy.Couple.equals(getOccupancy())) {
+//                    return (getMale().getLabourSupplyWeekly().equals(Labour.THIRTY)) ? getMale().getLiwwh() : 0.;
+//                } else {
+//                    throw new RuntimeException("request for parameter Liwwh_Male_XY for non-couple");
+//                }
+//            }
+//            case Liwwh_Male_40, Liwwh_Male_41, Liwwh_Male_42, Liwwh_Male_43, Liwwh_Male_44, Liwwh_Male_45, Liwwh_Male_46  -> {
+//                if (Occupancy.Couple.equals(getOccupancy())) {
+//                    return (getMale().getLabourSupplyWeekly().equals(Labour.THIRTY_EIGHT)) ? getMale().getLiwwh() : 0.;
+//                } else {
+//                    throw new RuntimeException("request for parameter Liwwh_Male_XY for non-couple");
+//                }
+//            }
             case Liwwh_Male_50, Liwwh_Male_51, Liwwh_Male_52, Liwwh_Male_53, Liwwh_Male_54, Liwwh_Male_55, Liwwh_Male_56  -> {
                 if (Occupancy.Couple.equals(getOccupancy())) {
                     return (getMale().getLabourSupplyWeekly().equals(Labour.FORTY_FIVE)) ? getMale().getLiwwh() : 0.;

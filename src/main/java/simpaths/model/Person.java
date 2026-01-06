@@ -550,7 +550,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         yearlyEquivalisedConsumptionSeries = new Series.Double(this, DoublesVariables.EquivalisedConsumptionYearly);
         yearlyEquivalisedConsumption = originalPerson.yearlyEquivalisedConsumption;
         sIndexYearMap = new LinkedHashMap<Integer, Double>();
-        dhhOwned = originalPerson.dhhOwned;
+//        dhhOwned = originalPerson.dhhOwned;
         dot01 = originalPerson.dot01;
         receivesBenefitsFlag = originalPerson.receivesBenefitsFlag;
         receivesBenefitsFlag_L1 = originalPerson.receivesBenefitsFlag_L1;
@@ -2506,6 +2506,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         EquivalisedConsumptionYearly,
         EquivalisedIncomeYearly, 							//Equivalised income for use with the security index
         Ethn_White,
+        EthnicityWhite,
         // Ethn_Mixed,
         Ethn_Asian,
         EthnicityAsian,
@@ -2514,7 +2515,8 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         Ethn_Other,
         EthnicityOther,
         EthnicityMixed,
-        // Ethn_Missing,
+        EthnicityMissing,
+//         Ethn_Missing,
         Female,
         FertilityRate,
         FinancialDistress,
@@ -3182,7 +3184,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
                 } else return 0.;
             }
             case Dhmghq -> {
-                return (getDhmGhq()) ? 1. : 0.;
+                return (getDhmGhq() == 1.) ? 1. : 0.;
             }
             case Dhmghq_L1 -> {
                 return getDhmGhq_lag1();
@@ -4935,10 +4937,6 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
 
     public void setL1_fullTimeHourlyEarningsPotential(double potentialHourlyEarnings) {
         L1_fullTimeHourlyEarningsPotential = potentialHourlyEarnings;
-    }
-
-    public Integer getLiwwh() {
-        return liwwh;
     }
 
     public void setLiwwh(Integer liwwh) {

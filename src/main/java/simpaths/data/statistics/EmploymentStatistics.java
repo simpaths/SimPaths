@@ -66,9 +66,6 @@ public class EmploymentStatistics extends StatisticsHelper {
     @Column(name = "PropReceivedLegacyBenefits")
     private double PropReceivedLegacyBenefits;
 
-    @Column(name = "meanLabourHours")
-    private double meanLabourHours;
-
     @Column(name = "propUC")
     private double propUC;
 
@@ -87,7 +84,6 @@ public class EmploymentStatistics extends StatisticsHelper {
         String agegroup_s = agegroup.toString();
         this.agegroup = agegroup_s;
     }
-
 
     public double getEmpToNotEmp() {
         return EmpToNotEmp;
@@ -129,9 +125,6 @@ public class EmploymentStatistics extends StatisticsHelper {
         PropStudent = propStudent;
     }
 
-    public void setMeanLabourHours(double meanLabourHours) {
-        this.meanLabourHours = meanLabourHours;
-    }
     public void setPropUCTakeup(double propUCTakeup) {
         PropUCTakeup = propUCTakeup;
     }
@@ -144,8 +137,6 @@ public class EmploymentStatistics extends StatisticsHelper {
         PropReceivedLegacyBenefits = propReceivedLegacyBenefits;
     }
 
-
-
     public void setMeanLabourHours(double meanLabourHours) {
         this.meanLabourHours = meanLabourHours;
     }
@@ -170,61 +161,6 @@ public class EmploymentStatistics extends StatisticsHelper {
         N = n;
     }
 
-    public EmploymentStatistics(PanelEntityKey key) {
-        super();
-        this.setKey(key);
-    }
-
-    public void update(SimPathsModel model, String gender_s, SimPathsCollector.AgeRange ageRange) {
-
-        AgeGenderCSfilter ageGenderCSfilter;
-        EmploymentAgeGenderCSfilter employmentCSfilter;
-        EmploymentHistoryFilter employmentHistoryEmployed;
-        EmploymentHistoryFilter employmentHistoryUnemployed;
-
-        if (gender_s.equals("Total")) {
-            ageGenderCSfilter = new AgeGenderCSfilter(ageRange.lowerBound(), ageRange.upperBound());
-            employmentCSfilter = new EmploymentAgeGenderCSfilter(Les_c4.EmployedOrSelfEmployed, ageRange.lowerBound(), ageRange.upperBound());
-
-            employmentHistoryEmployed = new EmploymentHistoryFilter(Les_c4.EmployedOrSelfEmployed, ageRange.lowerBound(), ageRange.upperBound());
-            employmentHistoryUnemployed = new EmploymentHistoryFilter(Les_c4.NotEmployed, ageRange.lowerBound(), ageRange.upperBound());
-        } else {
-            ageGenderCSfilter = new AgeGenderCSfilter(ageRange.lowerBound(), ageRange.upperBound(), Gender.valueOf(gender_s));
-            employmentCSfilter = new EmploymentAgeGenderCSfilter(Les_c4.EmployedOrSelfEmployed, ageRange.lowerBound(), ageRange.upperBound(), Gender.valueOf(gender_s));
-
-            employmentHistoryEmployed = new EmploymentHistoryFilter(Les_c4.EmployedOrSelfEmployed, ageRange.lowerBound(), ageRange.upperBound(), Gender.valueOf(gender_s));
-            employmentHistoryUnemployed = new EmploymentHistoryFilter(Les_c4.NotEmployed, ageRange.lowerBound(), ageRange.upperBound(), Gender.valueOf(gender_s));
-        }
-
-        // set gender
-        setGender(gender_s);
-
-        // set agegroup
-        setAgegroup(ageRange);
-
-
-        EmploymentHistoryFilter employmentHistoryEmployed = new EmploymentHistoryFilter(Les_c4.EmployedOrSelfEmployed);
-        EmploymentHistoryFilter employmentHistoryUnemployed = new EmploymentHistoryFilter(Les_c4.NotEmployed);
-        EmploymentCSfilter employmentCSfilter = new EmploymentCSfilter(Les_c4.EmployedOrSelfEmployed);
-    public void setPropUC(double propUC) {
-        this.propUC = propUC;
-    }
-
-    public void setPropLB(double propLB) {
-        this.propLB = propLB;
-    }
-
-    public void setKey(PanelEntityKey key) {
-        this.key = key;
-    }
-
-    public void setScenario(String scenario) {
-        this.scenario = scenario;
-    }
-
-    public void setN(int n) {
-        N = n;
-    }
 
     public EmploymentStatistics(PanelEntityKey key) {
         super();
@@ -299,8 +235,8 @@ public class EmploymentStatistics extends StatisticsHelper {
         CrossSection.Double personsReceivedUC = new CrossSection.Double(model.getPersons(), D_Econ_benefits_UC);
         CrossSection.Double personsReceivedLegacyBenefits = new CrossSection.Double(model.getPersons(), D_Econ_benefits_LB);
 
-        personsReceivedUC.setFilter(ageGroupCSfilter);
-        personsReceivedLegacyBenefits.setFilter(ageGroupCSfilter);
+        personsReceivedUC.setFilter(ageGenderCSfilter);
+        personsReceivedLegacyBenefits.setFilter(ageGenderCSfilter);
 
         calculateAndSetMean(personsReceivedUC, this::setPropReceivedUC);
         calculateAndSetMean(personsReceivedLegacyBenefits, this::setPropReceivedLegacyBenefits);
@@ -316,14 +252,8 @@ public class EmploymentStatistics extends StatisticsHelper {
         personsUC.setFilter(ageGenderCSfilter);
         personsLB.setFilter(ageGenderCSfilter);
 
-        MeanArrayFunction propReceivesUC = new MeanArrayFunction(personsUC);
-        MeanArrayFunction propReceivesLB = new MeanArrayFunction(personsLB);
-
-        propReceivesUC.applyFunction();
-        propReceivesLB.applyFunction();
-
-        setPropUC(propReceivesUC.getDoubleValue(IDoubleSource.Variables.Default));
-        setPropLB(propReceivesLB.getDoubleValue(IDoubleSource.Variables.Default));
+        calculateAndSetMean(personsUC, this::setPropUC);
+        calculateAndSetMean(personsLB, this::setPropLB);
 
         // count
         CrossSection.Integer n_persons = new CrossSection.Integer(model.getPersons(), Person.class, "getPersonCount", true);

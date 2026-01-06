@@ -47,7 +47,6 @@ class ValidatorTest {
 
         Parameters.setInputDirectory("input/");
 
-        Parameters.updateCountryColumnNumbers(Country.UK);
         Parameters.loadValidationStatistics(Country.UK.toString());
 
         validator = new Validator();
