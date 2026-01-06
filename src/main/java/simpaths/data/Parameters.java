@@ -73,6 +73,7 @@ public class Parameters {
 		"ddi",					//disability status
         "yem", 					//employment income - used to construct work sector *NOT VALID FOR POLICY ANALYSIS*
         "yse", 					//self-employment income - used to construct work sector *NOT VALID FOR POLICY ANALYSIS*
+        "uc_takeup",
     };
 
     public static final String[] DONOR_POLICY_VARIABLES = new String[] {
