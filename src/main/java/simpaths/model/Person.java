@@ -3318,10 +3318,10 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
             case EthnicityMixed -> {
                 return dot01.equals(Ethnicity.Mixed) ? 1. : 0.;
             }
-            case EthnicityAsian -> {
+            case EthnicityAsian, Ethn_Asian -> {
                 return dot01.equals(Ethnicity.Asian) ? 1. : 0.;
             }
-            case EthnicityBlack -> {
+            case EthnicityBlack, Ethn_Black -> {
                 return dot01.equals(Ethnicity.Black) ? 1. : 0.;
             }
             case EthnicityOther -> {
@@ -3329,6 +3329,9 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
             }
             case EthnicityMissing -> {
                 return dot01.equals(Ethnicity.Missing) ? 1. : 0.;
+            }
+            case Ethn_Other -> {
+                return dot01.equals(Ethnicity.Missing) || dot01.equals(Ethnicity.Mixed) || dot01.equals(Ethnicity.Other)  ? 1. : 0.;
             }
             case FertilityRate -> {
                 if (ioFlag)
