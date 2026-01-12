@@ -393,7 +393,7 @@ public class HealthStatistics extends StatisticsHelper {
         wellbys.applyFunction();
 
 
-        setWellbys(wellbys.getDoubleValue(IDoubleSource.Variables.Default) * WELLBEING_MEASURE_ADJUSTMENT);
+        setWellbys(wellbys.getDoubleValue(IDoubleSource.Variables.Default));
 
         // count
         CrossSection.Integer n_persons = new CrossSection.Integer(model.getPersons(), Person.class, "getPersonCount", true);
