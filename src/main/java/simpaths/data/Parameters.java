@@ -10,6 +10,7 @@ import microsim.statistics.regression.*;
 import org.apache.commons.io.FileUtils;
 import simpaths.data.startingpop.DataParser;
 import simpaths.model.AnnuityRates;
+import simpaths.model.Person;
 import simpaths.model.enums.*;
 import org.apache.commons.collections4.keyvalue.MultiKey;
 import org.apache.commons.collections4.map.LinkedMap;
@@ -1259,6 +1260,8 @@ public class Parameters {
         coeffCovarianceFinancialDistress = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_financial_distress.xlsx", countryString, 1);
 
 
+        validateRegressors(coeffCovarianceHM2CaseMales, "HM2_Males_C");
+
         loadDHMParameters(countryString);
 
         //Health
@@ -1478,7 +1481,6 @@ public class Parameters {
 
         //Financial distress
         regFinancialDistress = new BinomialRegression(RegressionType.Logit, Indicator.class, coeffCovarianceFinancialDistress);
-
 
 
         regHealthHM1Case = new OrderedRegression(RegressionType.OrderedLogit,DhmGhq.class,coeffCovarianceHM1Case);
@@ -3434,6 +3436,50 @@ public class Parameters {
             EUROMOD_OUTPUT_DIRECTORY = WORKING_DIRECTORY + File.separator + euromodOutputDirectory + File.separator;
         }
         EUROMOD_TRAINING_DIRECTORY = EUROMOD_OUTPUT_DIRECTORY + "training" + File.separator;
+    }
+
+    public static void validateRegressors(MultiKeyCoefficientMap map, String mapName) {
+        if (map == null) return;
+
+        // Get the values read from the REGRESSOR column by ExcelAssistant (excludes 'Constant')
+        Set<Object> regressorNames = map.keySet();
+
+        // Check across all
+        for (Object regressor : regressorNames) {
+            if (regressor instanceof MultiKey mk) {
+                String keyName = mk.getKey(0).toString();
+
+                // Test if a Person Enum
+                try {
+                    Person.DoublesVariables.valueOf(keyName);
+                } catch (IllegalArgumentException e) {
+                    // This fires if the string isn't in the Enum
+                    throw new RuntimeException("Validation failed for " + mapName +
+                            ": Regressor '" + keyName + "' not found in Person.DoublesVariables. " +
+                            "Check for typos in Excel or missing Enums in Person.java.");
+                }
+            }
+        }
+    }
+
+    public static MultiKeyCoefficientMap safeReadExcel(String excelFileName, String sheetName, int keyColumns) {
+
+        MultiKeyCoefficientMap map = ExcelAssistant.loadCoefficientMap(excelFileName, sheetName, keyColumns);
+
+        validateRegressors(map, sheetName);
+
+        return map;
+
+    }
+
+    public static MultiKeyCoefficientMap safeReadExcel(String excelFileName, String sheetName, int keyColumns, int valueColumns) {
+
+        MultiKeyCoefficientMap map = ExcelAssistant.loadCoefficientMap(excelFileName, sheetName, keyColumns, valueColumns);
+
+        validateRegressors(map, sheetName);
+
+        return map;
+
     }
 
     public static String getInputDirectory() {
