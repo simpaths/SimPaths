@@ -129,9 +129,6 @@ public class HealthStatistics extends StatisticsHelper {
     @Column(name = "Education")
     private String Education;
 
-    @Transient
-    final static double WELLBEING_MEASURE_ADJUSTMENT = (double) 11 / 7;
-
     public void setGender(String gender) {
         this.gender = gender;
     }
