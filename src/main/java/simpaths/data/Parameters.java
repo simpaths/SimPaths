@@ -10,6 +10,7 @@ import microsim.statistics.regression.*;
 import org.apache.commons.io.FileUtils;
 import simpaths.data.startingpop.DataParser;
 import simpaths.model.AnnuityRates;
+import simpaths.model.BenefitUnit;
 import simpaths.model.Person;
 import simpaths.model.enums.*;
 import org.apache.commons.collections4.keyvalue.MultiKey;
@@ -1260,11 +1261,10 @@ public class Parameters {
         coeffCovarianceFinancialDistress = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_financial_distress.xlsx", countryString, 1);
 
 
-        validateRegressors(coeffCovarianceHM2CaseMales, "HM2_Males_C");
 
+
+        //Health and Wellbeing regressors
         loadDHMParameters(countryString);
-
-        //Health
         loadDHE_MCSParameters(countryString);
         loadDHE_PCSParameters(countryString);
         loadDLSParameters(countryString);
@@ -1272,8 +1272,6 @@ public class Parameters {
         loadEQ5DParameters(countryString);
 
 
-        //Life satisfaction
-//        coeffCovarianceDLS1 = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_lifesatisfaction.xlsx", countryString + "_DLS1", 1, columnsLifeSatisfaction1);
 
         //Education
         coeffCovarianceEducationE1a = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_education.xlsx", countryString + "_E1a", 1);
@@ -1332,14 +1330,7 @@ public class Parameters {
             coeffCovarianceEmploymentSelectionFemalesE = RegressionUtils.bootstrap(coeffCovarianceEmploymentSelectionFemalesE);
             coeffCovarianceEmploymentSelectionFemalesNE = RegressionUtils.bootstrap(coeffCovarianceEmploymentSelectionFemalesNE);
 
-            //Labour supply utility
-            coeffLabourSupplyUtilityMales = RegressionUtils.bootstrap(coeffLabourSupplyUtilityMales);
-            coeffLabourSupplyUtilityFemales = RegressionUtils.bootstrap(coeffLabourSupplyUtilityFemales);
-            coeffLabourSupplyUtilityMalesWithDependent = RegressionUtils.bootstrap(coeffLabourSupplyUtilityMalesWithDependent);
-            coeffLabourSupplyUtilityFemalesWithDependent = RegressionUtils.bootstrap(coeffLabourSupplyUtilityFemalesWithDependent);
-            coeffLabourSupplyUtilityACMales = RegressionUtils.bootstrap(coeffLabourSupplyUtilityACMales);
-            coeffLabourSupplyUtilityACFemales = RegressionUtils.bootstrap(coeffLabourSupplyUtilityACFemales);
-            coeffLabourSupplyUtilityCouples = RegressionUtils.bootstrap(coeffLabourSupplyUtilityCouples);
+
 
             //Education
             coeffCovarianceEducationE1a = RegressionUtils.bootstrap(coeffCovarianceEducationE1a);
@@ -1350,21 +1341,7 @@ public class Parameters {
             coeffCovarianceHealthH1a = RegressionUtils.bootstrap(coeffCovarianceHealthH1a); //Note that this overrides the original coefficient map with bootstrapped values
             coeffCovarianceHealthH1b = RegressionUtils.bootstrap(coeffCovarianceHealthH1b);
             coeffCovarianceHealthH2b = RegressionUtils.bootstrap(coeffCovarianceHealthH2b);
-            coeffCovarianceHM1Level = RegressionUtils.bootstrap(coeffCovarianceHM1Level);
-            coeffCovarianceHM2LevelMales = RegressionUtils.bootstrap(coeffCovarianceHM2LevelMales);
-            coeffCovarianceHM2LevelFemales = RegressionUtils.bootstrap(coeffCovarianceHM2LevelFemales);
-            coeffCovarianceHM1Case = RegressionUtils.bootstrap(coeffCovarianceHM1Case);
-            coeffCovarianceHM2CaseMales = RegressionUtils.bootstrap(coeffCovarianceHM2CaseMales);
-            coeffCovarianceHM2CaseFemales = RegressionUtils.bootstrap(coeffCovarianceHM2CaseFemales);
-            coeffCovarianceDHE_MCS1 = RegressionUtils.bootstrap(coeffCovarianceDHE_MCS1);
-            coeffCovarianceDHE_MCS2Males = RegressionUtils.bootstrap(coeffCovarianceDHE_MCS2Males);
-            coeffCovarianceDHE_MCS2Females = RegressionUtils.bootstrap(coeffCovarianceDHE_MCS2Females);
-            coeffCovarianceDHE_PCS1 = RegressionUtils.bootstrap(coeffCovarianceDHE_PCS1);
-            coeffCovarianceDHE_PCS2Males = RegressionUtils.bootstrap(coeffCovarianceDHE_PCS2Males);
-            coeffCovarianceDHE_PCS2Females = RegressionUtils.bootstrap(coeffCovarianceDHE_PCS2Females);
-            coeffCovarianceDLS1 = RegressionUtils.bootstrap(coeffCovarianceDLS1);
-            coeffCovarianceDLS2Males = RegressionUtils.bootstrap(coeffCovarianceDLS2Males);
-            coeffCovarianceDLS2Females = RegressionUtils.bootstrap(coeffCovarianceDLS2Females);
+
 
 
             //Social care
@@ -1483,12 +1460,6 @@ public class Parameters {
         regFinancialDistress = new BinomialRegression(RegressionType.Logit, Indicator.class, coeffCovarianceFinancialDistress);
 
 
-        regHealthHM1Case = new OrderedRegression(RegressionType.OrderedLogit,DhmGhq.class,coeffCovarianceHM1Case);
-        regHealthHM2CaseMales = new LinearRegression(coeffCovarianceHM2CaseMales);
-        regHealthHM2CaseFemales = new LinearRegression(coeffCovarianceHM2CaseFemales);
-
-        //Health
-
 
         regEducationE1a = new BinomialRegression(RegressionType.Probit, Indicator.class, coeffCovarianceEducationE1a);
         regEducationE1b = new BinomialRegression(RegressionType.Probit, Indicator.class, coeffCovarianceEducationE1b);
@@ -1589,66 +1560,6 @@ public class Parameters {
         loadValidationStatistics(countryString);
     }
 
-    private static void loadLabourSupplyUtilityParameters(String countryString, String labourSupplyExcelFileName) {
-        coeffLabourSupplyUtilityMales = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + labourSupplyExcelFileName + ".xlsx", countryString + "_Single_Males", 1, columnsLabourSupplyUtilityMales);
-        coeffLabourSupplyUtilityFemales = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + labourSupplyExcelFileName + ".xlsx", countryString + "_Single_Females", 1, columnsLabourSupplyUtilityFemales);
-        coeffLabourSupplyUtilityMalesWithDependent = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + labourSupplyExcelFileName + ".xlsx", countryString + "_Males_With_Dep", 1, columnsLabourSupplyUtilityMalesWithDependent);
-        coeffLabourSupplyUtilityFemalesWithDependent = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + labourSupplyExcelFileName + ".xlsx", countryString + "_Females_With_Dep", 1, columnsLabourSupplyUtilityFemalesWithDependent);
-        coeffLabourSupplyUtilityACMales = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + labourSupplyExcelFileName + ".xlsx", countryString + "_SingleAC_Males", 1, columnsLabourSupplyUtilityACMales);
-        coeffLabourSupplyUtilityACFemales = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + labourSupplyExcelFileName + ".xlsx", countryString + "_SingleAC_Females", 1, columnsLabourSupplyUtilityACFemales);
-        coeffLabourSupplyUtilityCouples = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + labourSupplyExcelFileName + ".xlsx", countryString + "_Couples", 1, columnsLabourSupplyUtilityCouples);
-
-        //Labour Supply regressions from Zhechun's estimates on the EM input data
-        regLabourSupplyUtilityMales = new LinearRegression(coeffLabourSupplyUtilityMales);
-        regLabourSupplyUtilityFemales = new LinearRegression(coeffLabourSupplyUtilityFemales);
-        regLabourSupplyUtilityMalesWithDependent = new LinearRegression(coeffLabourSupplyUtilityMalesWithDependent);
-        regLabourSupplyUtilityFemalesWithDependent = new LinearRegression(coeffLabourSupplyUtilityFemalesWithDependent);
-        regLabourSupplyUtilityACMales = new LinearRegression(coeffLabourSupplyUtilityACMales);
-        regLabourSupplyUtilityACFemales = new LinearRegression(coeffLabourSupplyUtilityACFemales);
-        regLabourSupplyUtilityCouples = new LinearRegression(coeffLabourSupplyUtilityCouples);
-    }
-
-    private static void loadHealthMentalParameters(String countryString, String healthMentalExcelFileName) {
-        //Health mental: level and case-based
-        coeffCovarianceHM1Level = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + healthMentalExcelFileName + ".xlsx", countryString + "_HM1_L", 1, columnsHealthHM1);
-        coeffCovarianceHM2LevelMales = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + healthMentalExcelFileName + ".xlsx", countryString + "_HM2_Males_L", 1, columnsHealthHM2Males);
-        coeffCovarianceHM2LevelFemales = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + healthMentalExcelFileName + ".xlsx", countryString + "_HM2_Females_L", 1, columnsHealthHM2Females);
-        coeffCovarianceHM1Case = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + healthMentalExcelFileName + ".xlsx", countryString + "_HM1_C", 1, columnsHealthHM1);
-        coeffCovarianceHM2CaseMales = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + healthMentalExcelFileName + ".xlsx", countryString + "_HM2_Males_C", 1, columnsHealthHM2Males);
-        coeffCovarianceHM2CaseFemales = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + healthMentalExcelFileName + ".xlsx", countryString + "_HM2_Females_C", 1, columnsHealthHM2Females);
-
-        coeffCovarianceHM1Level = RegressionUtils.bootstrap(coeffCovarianceHM1Level);
-        coeffCovarianceHM2LevelMales = RegressionUtils.bootstrap(coeffCovarianceHM2LevelMales);
-        coeffCovarianceHM2LevelFemales = RegressionUtils.bootstrap(coeffCovarianceHM2LevelFemales);
-        coeffCovarianceHM1Case = RegressionUtils.bootstrap(coeffCovarianceHM1Case);
-        coeffCovarianceHM2CaseMales = RegressionUtils.bootstrap(coeffCovarianceHM2CaseMales);
-        coeffCovarianceHM2CaseFemales = RegressionUtils.bootstrap(coeffCovarianceHM2CaseFemales);
-    }
-
-    private static void loadHealthWellbeingParameters(String countryString, String healthWellbeingExcelFileName) {
-        //Health
-        coeffCovarianceDHE_MCS1 = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + healthWellbeingExcelFileName + ".xlsx", countryString + "_DHE_MCS1", 1, columnsHealthMCS1);
-        coeffCovarianceDHE_MCS2Males = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + healthWellbeingExcelFileName + ".xlsx", countryString + "_DHE_MCS2_Males", 1, columnsHealthMCS2Males);
-        coeffCovarianceDHE_MCS2Females = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + healthWellbeingExcelFileName + ".xlsx", countryString + "_DHE_MCS2_Females", 1, columnsHealthMCS2Females);
-
-        coeffCovarianceDHE_PCS1 = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + healthWellbeingExcelFileName + ".xlsx", countryString + "_DHE_PCS1", 1, columnsHealthPCS1);
-        coeffCovarianceDHE_PCS2Males = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + healthWellbeingExcelFileName + ".xlsx", countryString + "_DHE_PCS2_Males", 1, columnsHealthPCS2Males);
-        coeffCovarianceDHE_PCS2Females = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + healthWellbeingExcelFileName + ".xlsx", countryString + "_DHE_PCS2_Females", 1, columnsHealthPCS2Females);
-
-        coeffCovarianceDLS1 = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + healthWellbeingExcelFileName + ".xlsx", countryString + "_DLS1", 1, columnsLifeSatisfaction1);
-        coeffCovarianceDLS2Males = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + healthWellbeingExcelFileName + ".xlsx", countryString + "_DLS2_Males", 1, columnsLifeSatisfaction2Males);
-        coeffCovarianceDLS2Females = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + healthWellbeingExcelFileName + ".xlsx", countryString + "_DLS2_Females", 1, columnsLifeSatisfaction2Females);
-
-        regHealthMCS1 = new LinearRegression(coeffCovarianceDHE_MCS1);
-        regHealthMCS2Males = new LinearRegression(coeffCovarianceDHE_MCS2Males);
-        regHealthMCS2Females = new LinearRegression(coeffCovarianceDHE_MCS2Females);
-        regHealthPCS1 = new LinearRegression(coeffCovarianceDHE_PCS1);
-        regHealthPCS2Males = new LinearRegression(coeffCovarianceDHE_PCS2Males);
-        regHealthPCS2Females = new LinearRegression(coeffCovarianceDHE_PCS2Females);
-        regLifeSatisfaction1 = new LinearRegression(coeffCovarianceDLS1);
-        regLifeSatisfaction2Males = new LinearRegression(coeffCovarianceDLS2Males);
-        regLifeSatisfaction2Females = new LinearRegression(coeffCovarianceDLS2Females);
-    }
 
     public static void calculatePartnershipDifferentials(String countryString) {
 
@@ -3438,7 +3349,7 @@ public class Parameters {
         EUROMOD_TRAINING_DIRECTORY = EUROMOD_OUTPUT_DIRECTORY + "training" + File.separator;
     }
 
-    public static void validateRegressors(MultiKeyCoefficientMap map, String mapName) {
+    public static void validatePersonRegressors(MultiKeyCoefficientMap map, String excelFileName, String sheetName) {
         if (map == null) return;
 
         // Get the values read from the REGRESSOR column by ExcelAssistant (excludes 'Constant')
@@ -3453,10 +3364,15 @@ public class Parameters {
                 try {
                     Person.DoublesVariables.valueOf(keyName);
                 } catch (IllegalArgumentException e) {
-                    // This fires if the string isn't in the Enum
-                    throw new RuntimeException("Validation failed for " + mapName +
-                            ": Regressor '" + keyName + "' not found in Person.DoublesVariables. " +
-                            "Check for typos in Excel or missing Enums in Person.java.");
+                    try {
+                        BenefitUnit.Regressors.valueOf(keyName);
+                    } catch (IllegalArgumentException e2) {
+
+                        // This fires if the string isn't in the Enum
+                        throw new RuntimeException("Validation failed for " + excelFileName + " in " + sheetName +
+                                ": Regressor '" + keyName + "' not found in Person.DoublesVariables. " +
+                                "Check for typos in Excel or missing Enums in Person.java.");
+                    }
                 }
             }
         }
@@ -3464,9 +3380,20 @@ public class Parameters {
 
     public static MultiKeyCoefficientMap safeReadExcel(String excelFileName, String sheetName, int keyColumns) {
 
-        MultiKeyCoefficientMap map = ExcelAssistant.loadCoefficientMap(excelFileName, sheetName, keyColumns);
+        MultiKeyCoefficientMap map;
 
-        validateRegressors(map, sheetName);
+        try {
+
+            map = ExcelAssistant.loadCoefficientMap(excelFileName, sheetName, keyColumns);
+
+        } catch (NullPointerException e) {
+
+            throw new RuntimeException("Error reading Excel file: " + excelFileName + ", sheet: " + sheetName +
+                    ". Please check that the file and sheet exist and are accessible.");
+
+        }
+
+        validatePersonRegressors(map, excelFileName,  sheetName);
 
         return map;
 
@@ -3476,7 +3403,7 @@ public class Parameters {
 
         MultiKeyCoefficientMap map = ExcelAssistant.loadCoefficientMap(excelFileName, sheetName, keyColumns, valueColumns);
 
-        validateRegressors(map, sheetName);
+        validatePersonRegressors(map, excelFileName, sheetName);
 
         return map;
 
@@ -3494,9 +3421,13 @@ public class Parameters {
 
     public static void loadDHE_MCSParameters(String countryString) {
 
-        coeffCovarianceDHE_MCS1 = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_health_wellbeing.xlsx", countryString + "_DHE_MCS1", 1);
-        coeffCovarianceDHE_MCS2Males = ExcelAssistant.loadCoefficientMap("input/reg_health_wellbeing.xlsx", countryString + "_DHE_MCS2_Males", 1);
-        coeffCovarianceDHE_MCS2Females = ExcelAssistant.loadCoefficientMap("input/reg_health_wellbeing.xlsx", countryString + "_DHE_MCS2_Females", 1);
+        coeffCovarianceDHE_MCS1 = safeReadExcel(Parameters.getInputDirectory() + "reg_health_wellbeing.xlsx", countryString + "_DHE_MCS1", 1);
+        coeffCovarianceDHE_MCS2Males = safeReadExcel("input/reg_health_wellbeing.xlsx", countryString + "_DHE_MCS2_Males", 1);
+        coeffCovarianceDHE_MCS2Females = safeReadExcel("input/reg_health_wellbeing.xlsx", countryString + "_DHE_MCS2_Females", 1);
+
+        coeffCovarianceDHE_MCS1 = RegressionUtils.bootstrap(coeffCovarianceDHE_MCS1);
+        coeffCovarianceDHE_MCS2Males = RegressionUtils.bootstrap(coeffCovarianceDHE_MCS2Males);
+        coeffCovarianceDHE_MCS2Females = RegressionUtils.bootstrap(coeffCovarianceDHE_MCS2Females);
 
         regHealthMCS1 = new LinearRegression(coeffCovarianceDHE_MCS1);
         regHealthMCS2Males = new LinearRegression(coeffCovarianceDHE_MCS2Males);
@@ -3506,9 +3437,13 @@ public class Parameters {
 
     public static void loadDHE_PCSParameters(String countryString) {
 
-        coeffCovarianceDHE_PCS1 = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_health_wellbeing.xlsx", countryString + "_DHE_PCS1", 1);
-        coeffCovarianceDHE_PCS2Males = ExcelAssistant.loadCoefficientMap("input/reg_health_wellbeing.xlsx", countryString + "_DHE_PCS2_Males", 1);
-        coeffCovarianceDHE_PCS2Females = ExcelAssistant.loadCoefficientMap("input/reg_health_wellbeing.xlsx", countryString + "_DHE_PCS2_Females", 1);
+        coeffCovarianceDHE_PCS1 = safeReadExcel(Parameters.getInputDirectory() + "reg_health_wellbeing.xlsx", countryString + "_DHE_PCS1", 1);
+        coeffCovarianceDHE_PCS2Males = safeReadExcel("input/reg_health_wellbeing.xlsx", countryString + "_DHE_PCS2_Males", 1);
+        coeffCovarianceDHE_PCS2Females = safeReadExcel("input/reg_health_wellbeing.xlsx", countryString + "_DHE_PCS2_Females", 1);
+
+        coeffCovarianceDHE_PCS1 = RegressionUtils.bootstrap(coeffCovarianceDHE_PCS1);
+        coeffCovarianceDHE_PCS2Males = RegressionUtils.bootstrap(coeffCovarianceDHE_PCS2Males);
+        coeffCovarianceDHE_PCS2Females = RegressionUtils.bootstrap(coeffCovarianceDHE_PCS2Females);
 
         regHealthPCS1 = new LinearRegression(coeffCovarianceDHE_PCS1);
         regHealthPCS2Males = new LinearRegression(coeffCovarianceDHE_PCS2Males);
@@ -3518,9 +3453,13 @@ public class Parameters {
 
     public static void loadDLSParameters(String countryString) {
 
-        coeffCovarianceDLS1 = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_health_wellbeing.xlsx", countryString + "_DLS1", 1);
-        coeffCovarianceDLS2Males = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_health_wellbeing.xlsx", countryString + "_DLS2_Males", 1);
-        coeffCovarianceDLS2Females = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_health_wellbeing.xlsx", countryString + "_DLS2_Females", 1);
+        coeffCovarianceDLS1 = safeReadExcel(Parameters.getInputDirectory() + "reg_health_wellbeing.xlsx", countryString + "_DLS1", 1);
+        coeffCovarianceDLS2Males = safeReadExcel(Parameters.getInputDirectory() + "reg_health_wellbeing.xlsx", countryString + "_DLS2_Males", 1);
+        coeffCovarianceDLS2Females = safeReadExcel(Parameters.getInputDirectory() + "reg_health_wellbeing.xlsx", countryString + "_DLS2_Females", 1);
+
+        coeffCovarianceDLS1 = RegressionUtils.bootstrap(coeffCovarianceDLS1);
+        coeffCovarianceDLS2Males = RegressionUtils.bootstrap(coeffCovarianceDLS2Males);
+        coeffCovarianceDLS2Females = RegressionUtils.bootstrap(coeffCovarianceDLS2Females);
 
         regLifeSatisfaction1 = new LinearRegression(coeffCovarianceDLS1);
         regLifeSatisfaction2Males = new LinearRegression(coeffCovarianceDLS2Males);
@@ -3530,17 +3469,24 @@ public class Parameters {
 
     public static void loadDHMParameters(String countryString) {
 
-        coeffCovarianceHM1Level = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_health_mental.xlsx", countryString + "_HM1_L", 1);
-        coeffCovarianceHM2LevelMales = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_health_mental.xlsx", countryString + "_HM2_Males_L", 1);
-        coeffCovarianceHM2LevelFemales = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_health_mental.xlsx", countryString + "_HM2_Females_L", 1);
-        coeffCovarianceHM1Case = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_health_mental.xlsx", countryString + "_HM1_C", 1);
-        coeffCovarianceHM2CaseMales = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_health_mental.xlsx", countryString + "_HM2_Males_C", 1);
-        coeffCovarianceHM2CaseFemales = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_health_mental.xlsx", countryString + "_HM2_Females_C", 1);
+        coeffCovarianceHM1Level = safeReadExcel(Parameters.getInputDirectory() + "reg_health_mental.xlsx", countryString + "_HM1_L", 1);
+        coeffCovarianceHM2LevelMales = safeReadExcel(Parameters.getInputDirectory() + "reg_health_mental.xlsx", countryString + "_HM2_Males_L", 1);
+        coeffCovarianceHM2LevelFemales = safeReadExcel(Parameters.getInputDirectory() + "reg_health_mental.xlsx", countryString + "_HM2_Females_L", 1);
+        coeffCovarianceHM1Case = safeReadExcel(Parameters.getInputDirectory() + "reg_health_mental.xlsx", countryString + "_HM1_C", 1);
+        coeffCovarianceHM2CaseMales = safeReadExcel(Parameters.getInputDirectory() + "reg_health_mental.xlsx", countryString + "_HM2_Males_C", 1);
+        coeffCovarianceHM2CaseFemales = safeReadExcel(Parameters.getInputDirectory() + "reg_health_mental.xlsx", countryString + "_HM2_Females_C", 1);
+
+        coeffCovarianceHM1Level = RegressionUtils.bootstrap(coeffCovarianceHM1Level);
+        coeffCovarianceHM2LevelMales = RegressionUtils.bootstrap(coeffCovarianceHM2LevelMales);
+        coeffCovarianceHM2LevelFemales = RegressionUtils.bootstrap(coeffCovarianceHM2LevelFemales);
+        coeffCovarianceHM1Case = RegressionUtils.bootstrap(coeffCovarianceHM1Case);
+        coeffCovarianceHM2CaseMales = RegressionUtils.bootstrap(coeffCovarianceHM2CaseMales);
+        coeffCovarianceHM2CaseFemales = RegressionUtils.bootstrap(coeffCovarianceHM2CaseFemales);
 
         regHealthHM1Level = new LinearRegression(coeffCovarianceHM1Level);
         regHealthHM2LevelMales = new LinearRegression(coeffCovarianceHM2LevelMales);
         regHealthHM2LevelFemales = new LinearRegression(coeffCovarianceHM2LevelFemales);
-        regHealthHM1Case = new LinearRegression(coeffCovarianceHM1Case);
+        regHealthHM1Case = new OrderedRegression(RegressionType.OrderedLogit, DhmGhq.class, coeffCovarianceHM1Case);
         regHealthHM2CaseMales = new LinearRegression(coeffCovarianceHM2CaseMales);
         regHealthHM2CaseFemales = new LinearRegression(coeffCovarianceHM2CaseFemales);
 
@@ -3552,14 +3498,23 @@ public class Parameters {
 
     public static void loadLabourSupplyUtilityParameters(String countryString) {
         //Labour Supply coefficients from Zhechun's estimates on the EM input data
-        coeffLabourSupplyUtilityMales = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_labourSupplyUtility_UC.xlsx", "Single_Males", 1);
-        coeffLabourSupplyUtilityFemales = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_labourSupplyUtility_UC.xlsx", "Single_Females", 1);
-        coeffLabourSupplyUtilityMalesWithDependent = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_labourSupplyUtility_UC.xlsx", "SingleDep_Males", 1);
-        coeffLabourSupplyUtilityFemalesWithDependent = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_labourSupplyUtility_UC.xlsx", "SingleDep_Females", 1);
-        coeffLabourSupplyUtilityACMales = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_labourSupplyUtility_UC.xlsx", "SingleAC_Males", 1);
-        coeffLabourSupplyUtilityACFemales = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_labourSupplyUtility_UC.xlsx", "SingleAC_Females", 1);
-        coeffLabourSupplyUtilityCouples = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_labourSupplyUtility_UC.xlsx", "Couples", 1);
+        coeffLabourSupplyUtilityMales = safeReadExcel(Parameters.getInputDirectory() + "reg_labourSupplyUtility_UC.xlsx", countryString + "_Single_Males", 1);
+        coeffLabourSupplyUtilityFemales = safeReadExcel(Parameters.getInputDirectory() + "reg_labourSupplyUtility_UC.xlsx", countryString + "_Single_Females", 1);
+        coeffLabourSupplyUtilityMalesWithDependent = safeReadExcel(Parameters.getInputDirectory() + "reg_labourSupplyUtility_UC.xlsx", countryString + "_SingleDep_Males", 1);
+        coeffLabourSupplyUtilityFemalesWithDependent = safeReadExcel(Parameters.getInputDirectory() + "reg_labourSupplyUtility_UC.xlsx", countryString + "_SingleDep_Females", 1);
+        coeffLabourSupplyUtilityACMales = safeReadExcel(Parameters.getInputDirectory() + "reg_labourSupplyUtility_UC.xlsx", countryString + "_SingleAC_Males", 1);
+        coeffLabourSupplyUtilityACFemales = safeReadExcel(Parameters.getInputDirectory() + "reg_labourSupplyUtility_UC.xlsx", countryString + "_SingleAC_Females", 1);
+        coeffLabourSupplyUtilityCouples = safeReadExcel(Parameters.getInputDirectory() + "reg_labourSupplyUtility_UC.xlsx", countryString + "_Couples", 1);
 
+
+        //Labour supply utility
+        coeffLabourSupplyUtilityMales = RegressionUtils.bootstrap(coeffLabourSupplyUtilityMales);
+        coeffLabourSupplyUtilityFemales = RegressionUtils.bootstrap(coeffLabourSupplyUtilityFemales);
+        coeffLabourSupplyUtilityMalesWithDependent = RegressionUtils.bootstrap(coeffLabourSupplyUtilityMalesWithDependent);
+        coeffLabourSupplyUtilityFemalesWithDependent = RegressionUtils.bootstrap(coeffLabourSupplyUtilityFemalesWithDependent);
+        coeffLabourSupplyUtilityACMales = RegressionUtils.bootstrap(coeffLabourSupplyUtilityACMales);
+        coeffLabourSupplyUtilityACFemales = RegressionUtils.bootstrap(coeffLabourSupplyUtilityACFemales);
+        coeffLabourSupplyUtilityCouples = RegressionUtils.bootstrap(coeffLabourSupplyUtilityCouples);
 
         //Labour Supply regressions from Zhechun's estimates on the EM input data
         regLabourSupplyUtilityMales = new LinearRegression(coeffLabourSupplyUtilityMales);
