@@ -1,18 +1,32 @@
 package simpaths.data;
 
+import microsim.data.MultiKeyCoefficientMap;
+import microsim.engine.SimulationEngine;
 import microsim.statistics.regression.LinearRegression;
-import org.apache.xmlbeans.impl.tool.Extension;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import microsim.statistics.regression.OrderedRegression;
+import microsim.statistics.regression.RegressionUtils;
+import org.junit.jupiter.api.*;
+import org.mockito.MockedStatic;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ParametersTest {
 
+    private MockedStatic<SimulationEngine> mockEngine;
+    private MockedStatic<RegressionUtils> mockRegressionUtils;
+
     @Nested
     @DisplayName("Loading regression parameters")
     class testLoadRegressionParameters {
+
+        @BeforeAll
+        public static void setup() {
+
+            SimulationEngine.getInstance();
+            SimulationEngine.getRnd().setSeed(1234);
+
+        }
+
 
 
         @Test
@@ -76,7 +90,7 @@ class ParametersTest {
             assertInstanceOf(LinearRegression.class, Parameters.getRegHealthHM1Level(), "`regHealthHM1Level` not loaded");
             assertInstanceOf(LinearRegression.class, Parameters.getRegHealthHM2LevelMales(), "`regHealthHM2LevelMales` not loaded");
             assertInstanceOf(LinearRegression.class, Parameters.getRegHealthHM2LevelFemales(), "`regHealthHM2LevelFemales` not loaded");
-            assertInstanceOf(LinearRegression.class, Parameters.getRegHealthHM1Case(), "`regHealthHM1Case` not loaded");
+            assertInstanceOf(OrderedRegression.class, Parameters.getRegHealthHM1Case(), "`regHealthHM1Case` not loaded");
             assertInstanceOf(LinearRegression.class, Parameters.getRegHealthHM2CaseMales(), "`regHealthHM2CaseMales` not loaded");
             assertInstanceOf(LinearRegression.class, Parameters.getRegHealthHM2CaseFemales(), "`regHealthHM2CaseFemales` not loaded");
 
@@ -108,7 +122,7 @@ class ParametersTest {
      * Tests regressor validation logic using valid/invalid maps
      */
     @Test
-    void validateRegressors() {
+    void validatePersonRegressors() {
 
         String[] badValueVector = new String[] {"Dag", "Not_a_valid_value"};
         String[] goodValueVector = new String[] {"Dag", "D_Home_owner", "PovertyToNonPoverty"};
@@ -120,8 +134,8 @@ class ParametersTest {
         MultiKeyCoefficientMap goodMap = new MultiKeyCoefficientMap(keyVector, goodValueVector);
         for (String goodValue : goodValueVector) {goodMap.putValue(goodValue, 0);}
 
-        assertThrows(RuntimeException.class, () -> Parameters.validateRegressors(badMap, "A map designed to contain invalid values"));
-        assertDoesNotThrow(() -> Parameters.validateRegressors(goodMap, "A map designed to contain valid values"));
+        assertThrows(RuntimeException.class, () -> Parameters.validatePersonRegressors(badMap, "A map designed to contain invalid values", "bad sheet"));
+        assertDoesNotThrow(() -> Parameters.validatePersonRegressors(goodMap, "A map designed to contain valid values", "good sheet"));
 
     }
 }

@@ -1787,6 +1787,8 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
         FemaleEduM_4,
         FemaleEduM_40,
         FemaleHoursAbove40,
+        FemaleIncomeDiv100,
+        FemaleIncomeSqDiv10000,
         FemaleLeisure,                            //24*7 - labour supply weekly for Female
         FemaleLeisure_DChildren017,  //Male leisure interacted with dummy for presence of children aged 0 - 17
         FemaleLeisure_DChildren1317, //Male leisure interacted with dummy for presence of children aged 13-17
@@ -2069,6 +2071,8 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
         MaleEduM_4,
         MaleEduM_40,
         MaleHoursAbove40,
+        MaleIncomeDiv100,
+        MaleIncomeSqDiv10000,
         MaleLeisure,                            //24*7 - labour supply weekly for male
         MaleLeisure_DChildren017,  //Male leisure interacted with dummy for presence of children aged 0 - 17
         MaleLeisure_DChildren1317, //Male leisure interacted with dummy for presence of children aged 13-17
@@ -2414,14 +2418,23 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
                 return (getDisposableIncomeMonthlyUpratedToBasePriceYear() -
                         getNonDiscretionaryExpenditureMonthlyUpratedToBasePriceYear()) * getIndicatorChildren(0,2).ordinal() * 1.e-2;
             }
+            case MaleIncomeDiv100 -> {
+                return (getMale() == null ? 0. : getDisposableIncomeMonthlyUpratedToBasePriceYear() * 1.e-2);
+            }
+            case MaleIncomeSqDiv10000 -> {
+                return (getMale() == null ? 0. : (getDisposableIncomeMonthlyUpratedToBasePriceYear() -
+                        getNonDiscretionaryExpenditureMonthlyUpratedToBasePriceYear()) *
+                        (getDisposableIncomeMonthlyUpratedToBasePriceYear() -
+                                getNonDiscretionaryExpenditureMonthlyUpratedToBasePriceYear()) * 1.e-4);
+            }
             case MaleLeisure -> {                            //24*7 - labour supply weekly for male
-                return Parameters.HOURS_IN_WEEK - getMale().getLabourSupplyHoursWeekly();
+                return (getMale() == null ? 0. : Parameters.HOURS_IN_WEEK - getMale().getLabourSupplyHoursWeekly());
             }
             case MaleLeisureSq -> {
                 return (Parameters.HOURS_IN_WEEK - getMale().getLabourSupplyHoursWeekly()) * (Parameters.HOURS_IN_WEEK - getMale().getLabourSupplyHoursWeekly());
             }
             case MaleLeisure_IncomeDiv100 -> {
-                return (Parameters.HOURS_IN_WEEK - getMale().getLabourSupplyHoursWeekly()) * getDisposableIncomeMonthlyUpratedToBasePriceYear() * 1.e-2;
+                return (getMale() == null ? 0. : (Parameters.HOURS_IN_WEEK - getMale().getLabourSupplyHoursWeekly()) * getDisposableIncomeMonthlyUpratedToBasePriceYear() * 1.e-2);
             }
             case MaleLeisure_MaleAgeDiv100 -> {                //Male Leisure interacted with age of male
                 return (Parameters.HOURS_IN_WEEK - getMale().getLabourSupplyHoursWeekly()) * getMale().getDag() * 1.e-2;
@@ -2537,14 +2550,23 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
             case MaleLeisure_FemaleLeisure -> {            //Male leisure interacted with female leisure
                 return (Parameters.HOURS_IN_WEEK - getMale().getLabourSupplyHoursWeekly()) * (Parameters.HOURS_IN_WEEK - getFemale().getLabourSupplyHoursWeekly());
             }
+            case FemaleIncomeDiv100 -> {
+                return (getFemale() == null ? 0. : getDisposableIncomeMonthlyUpratedToBasePriceYear() * 1.e-2);
+            }
+            case FemaleIncomeSqDiv10000 -> {
+                return (getFemale() == null ? 0. : (getDisposableIncomeMonthlyUpratedToBasePriceYear() -
+                        getNonDiscretionaryExpenditureMonthlyUpratedToBasePriceYear()) *
+                        (getDisposableIncomeMonthlyUpratedToBasePriceYear() -
+                                getNonDiscretionaryExpenditureMonthlyUpratedToBasePriceYear()) * 1.e-4);
+            }
             case FemaleLeisure -> {                            //24*7 - labour supply weekly for Female
-                return Parameters.HOURS_IN_WEEK - getFemale().getLabourSupplyHoursWeekly();
+                return (getFemale() == null ? 0. : Parameters.HOURS_IN_WEEK - getFemale().getLabourSupplyHoursWeekly());
             }
             case FemaleLeisureSq -> {
-                return (Parameters.HOURS_IN_WEEK - getFemale().getLabourSupplyHoursWeekly()) * (Parameters.HOURS_IN_WEEK - getFemale().getLabourSupplyHoursWeekly());
+                return (getFemale() == null ? 0. : (Parameters.HOURS_IN_WEEK - getFemale().getLabourSupplyHoursWeekly()) * (Parameters.HOURS_IN_WEEK - getFemale().getLabourSupplyHoursWeekly()));
             }
             case FemaleLeisure_IncomeDiv100 -> {
-                return (Parameters.HOURS_IN_WEEK - getFemale().getLabourSupplyHoursWeekly()) * getDisposableIncomeMonthlyUpratedToBasePriceYear() * 1.e-2;
+                return (getFemale() == null ? 0. : (Parameters.HOURS_IN_WEEK - getFemale().getLabourSupplyHoursWeekly()) * getDisposableIncomeMonthlyUpratedToBasePriceYear() * 1.e-2);
             }
             case FemaleLeisure_FemaleAgeDiv100 -> {                //Female Leisure interacted with age of Female
                 return (Parameters.HOURS_IN_WEEK - getFemale().getLabourSupplyHoursWeekly()) * getFemale().getDag() * 1.e-2;
