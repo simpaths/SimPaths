@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@Tag("IntegrationTest")
 public class RunSimPathsIntegrationTest {
     @Test
     @DisplayName("Initial database setup runs successfully")
