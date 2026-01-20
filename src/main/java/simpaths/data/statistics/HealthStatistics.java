@@ -7,9 +7,7 @@ import microsim.statistics.ICollectionFilter;
 import microsim.statistics.IDoubleSource;
 import microsim.statistics.functions.SumArrayFunction;
 import simpaths.data.Parameters;
-import simpaths.data.filters.AgeGenderCSfilter;
-import simpaths.data.filters.EducationCSfilter;
-import simpaths.data.filters.SingleCoupledChildrenCSfilter;
+import simpaths.data.filters.*;
 import simpaths.experiment.SimPathsCollector;
 import simpaths.data.filters.SingleCoupledChildrenCSfilter;
 import simpaths.experiment.SimPathsCollector;
@@ -308,7 +306,7 @@ public class HealthStatistics extends StatisticsHelper {
 
         setGender(householdStructure.gender().toString());
 
-        setAgegroup(new SimPathsCollector.AgeRange(16, 64));
+        setAgegroup(new SimPathsCollector.AgeRange(18, 64));
 
         setHouseholdStructure(householdStructure.toString());
 
@@ -320,7 +318,7 @@ public class HealthStatistics extends StatisticsHelper {
 
     public void update(SimPathsModel model, Education education) {
 
-        EducationCSfilter educationCSfilter = new EducationCSfilter(education);
+        EducationWorkingAgeCSfilter educationWorkingAgeCSfilter = new EducationWorkingAgeCSfilter(education);
 
         setGender("Total");
 
@@ -330,7 +328,7 @@ public class HealthStatistics extends StatisticsHelper {
 
         setEducation(education.toString());
 
-        calculateFilteredStats(model, educationCSfilter);
+        calculateFilteredStats(model, educationWorkingAgeCSfilter);
 
     }
 

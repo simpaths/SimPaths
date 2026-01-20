@@ -225,7 +225,7 @@ public class EmploymentStatistics extends StatisticsHelper {
 
 //        CrossSection.Integer benefitUnitsUCTakeup = new CrossSection.Integer(model.getBenefitUnits(), BenefitUnit.class, "getUC_takeup", true);
         CrossSection.Double benefitUnitsUCTakeup = new CrossSection.Double(model.getBenefitUnits(), UC_TakeUp);
-        CrossSection.Integer personsUCTakeup = new CrossSection.Integer(model.getPersons(), Person.class, "getUC_takeup", true);
+//        CrossSection.Integer personsUCTakeup = new CrossSection.Integer(model.getPersons(), BenefitUnit.class, "getUC_takeup", true);
         // Mean hours worked amongst employed
         CrossSection.Double hoursWorked = new CrossSection.Double(model.getPersons(), Person.class, "getHoursWorkedWeekly", true);
         hoursWorked.setFilter(employmentCSfilter);
