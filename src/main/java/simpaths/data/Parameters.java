@@ -3500,8 +3500,8 @@ public class Parameters {
         //Labour Supply coefficients from Zhechun's estimates on the EM input data
         coeffLabourSupplyUtilityMales = safeReadExcel(Parameters.getInputDirectory() + "reg_labourSupplyUtility_UC.xlsx", countryString + "_Single_Males", 1);
         coeffLabourSupplyUtilityFemales = safeReadExcel(Parameters.getInputDirectory() + "reg_labourSupplyUtility_UC.xlsx", countryString + "_Single_Females", 1);
-        coeffLabourSupplyUtilityMalesWithDependent = safeReadExcel(Parameters.getInputDirectory() + "reg_labourSupplyUtility_UC.xlsx", countryString + "_SingleDep_Males", 1);
-        coeffLabourSupplyUtilityFemalesWithDependent = safeReadExcel(Parameters.getInputDirectory() + "reg_labourSupplyUtility_UC.xlsx", countryString + "_SingleDep_Females", 1);
+        coeffLabourSupplyUtilityMalesWithDependent = safeReadExcel(Parameters.getInputDirectory() + "reg_labourSupplyUtility_UC.xlsx", countryString + "_Males_With_Dep", 1);
+        coeffLabourSupplyUtilityFemalesWithDependent = safeReadExcel(Parameters.getInputDirectory() + "reg_labourSupplyUtility_UC.xlsx", countryString + "_Females_With_Dep", 1);
         coeffLabourSupplyUtilityACMales = safeReadExcel(Parameters.getInputDirectory() + "reg_labourSupplyUtility_UC.xlsx", countryString + "_SingleAC_Males", 1);
         coeffLabourSupplyUtilityACFemales = safeReadExcel(Parameters.getInputDirectory() + "reg_labourSupplyUtility_UC.xlsx", countryString + "_SingleAC_Females", 1);
         coeffLabourSupplyUtilityCouples = safeReadExcel(Parameters.getInputDirectory() + "reg_labourSupplyUtility_UC.xlsx", countryString + "_Couples", 1);
@@ -3509,12 +3509,12 @@ public class Parameters {
 
         //Labour supply utility
         coeffLabourSupplyUtilityMales = RegressionUtils.bootstrap(coeffLabourSupplyUtilityMales);
-        coeffLabourSupplyUtilityFemales = RegressionUtils.bootstrap(coeffLabourSupplyUtilityFemales);
+//        coeffLabourSupplyUtilityFemales = RegressionUtils.bootstrap(coeffLabourSupplyUtilityFemales);
         coeffLabourSupplyUtilityMalesWithDependent = RegressionUtils.bootstrap(coeffLabourSupplyUtilityMalesWithDependent);
         coeffLabourSupplyUtilityFemalesWithDependent = RegressionUtils.bootstrap(coeffLabourSupplyUtilityFemalesWithDependent);
-        coeffLabourSupplyUtilityACMales = RegressionUtils.bootstrap(coeffLabourSupplyUtilityACMales);
-        coeffLabourSupplyUtilityACFemales = RegressionUtils.bootstrap(coeffLabourSupplyUtilityACFemales);
-        coeffLabourSupplyUtilityCouples = RegressionUtils.bootstrap(coeffLabourSupplyUtilityCouples);
+//        coeffLabourSupplyUtilityACMales = RegressionUtils.bootstrap(coeffLabourSupplyUtilityACMales);
+//        coeffLabourSupplyUtilityACFemales = RegressionUtils.bootstrap(coeffLabourSupplyUtilityACFemales);
+//        coeffLabourSupplyUtilityCouples = RegressionUtils.bootstrap(coeffLabourSupplyUtilityCouples);
 
         //Labour Supply regressions from Zhechun's estimates on the EM input data
         regLabourSupplyUtilityMales = new LinearRegression(coeffLabourSupplyUtilityMales);

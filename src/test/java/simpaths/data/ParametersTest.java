@@ -29,6 +29,9 @@ class ParametersTest {
 
 
 
+        /**
+         * Loads and validates DHE MCS parameters
+         */
         @Test
         @DisplayName("Loads MCS parameters")
         void loadDHE_MCSParameters() {
@@ -45,6 +48,9 @@ class ParametersTest {
             assertInstanceOf(LinearRegression.class, Parameters.getRegHealthMCS2Females(), "`regHealthMCS2Females` not loaded");
         }
 
+        /**
+         * Loads and validates physical component summary parameters
+         */
         @Test
         @DisplayName("Loads PCS parameters")
         void loadDHE_PCSParameters() {
@@ -61,6 +67,9 @@ class ParametersTest {
             assertInstanceOf(LinearRegression.class, Parameters.getRegHealthPCS2Females(), "`regHealthPCS2Females` not loaded");
         }
 
+        /**
+         * Loads and validates life satisfaction regression parameters
+         */
         @Test
         @DisplayName("Loads Life Satisfaction parameters")
         void loadDLSParameters() {
@@ -76,6 +85,9 @@ class ParametersTest {
             assertInstanceOf(LinearRegression.class, Parameters.getRegLifeSatisfaction2Females(), "`regLifeSatisfaction2Females` not loaded");
         }
 
+        /**
+         * Loads and validates health mental parameters
+         */
         @Test
         @DisplayName("Loads Health Mental (level and caseness) parameters")
         void loadDHMParameters() {
@@ -96,6 +108,9 @@ class ParametersTest {
 
         }
 
+        /**
+         * Loads and validates labour supply utility parameters
+         */
         @Test
         @DisplayName("Loads labour supply utility parameters")
         void loadLabourSupplyUtilityParameters() {
@@ -103,7 +118,7 @@ class ParametersTest {
             try {
                 Parameters.loadLabourSupplyUtilityParameters("UK");
             } catch (NullPointerException e) {
-                System.out.println("Not all LabourSupplyUtility worksheets loaded");
+                throw new RuntimeException("Not all LabourSupplyUtility worksheets loaded. Error: " + e.getMessage());
             };
 
 
