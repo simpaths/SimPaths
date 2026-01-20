@@ -1935,17 +1935,22 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
         L1_lhw_Male_43,
         L1_lhw_Male_44,
         Liwwh_1,
-        Liwwh_10,
-        Liwwh_2,
-        Liwwh_20,
-        Liwwh_3,
-        Liwwh_30,
-        Liwwh_4,
-        Liwwh_40,
-        Liwwh_5,
-        Liwwh_50,
-        Liwwh_6,
-        Liwwh_60,
+        Liwwh_010,
+        Liwwh_011,
+        Liwwh_020,
+        Liwwh_021,
+        Liwwh_030,
+        Liwwh_031,
+        Liwwh_040,
+        Liwwh_041,
+        Liwwh_100,
+        Liwwh_101,
+        Liwwh_200,
+        Liwwh_201,
+        Liwwh_300,
+        Liwwh_301,
+        Liwwh_400,
+        Liwwh_401,
         Liwwh_Female_01,
         Liwwh_Female_02,
         Liwwh_Female_03,
@@ -3155,97 +3160,7 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
             case L1_lhw_Female_44 -> {
                 return (getMale() != null && getFemale() != null && getMale().getLabourSupplyWeekly().equals(Labour.FORTY) && getFemale().getLabourSupplyWeekly().equals(Labour.FORTY)) ? getFemale().getL1LabourSupplyHoursWeekly() : 0.;
             }
-            case Liwwh_1 -> {
-                if (Occupancy.Single_Female.equals(getOccupancy())) {
-                    return (getFemale().getLabourSupplyWeekly().equals(Labour.TEN)) ? getFemale().getLiwwh() : 0.;
-                } else {
-                    throw new RuntimeException("request for parameter Liwwh_1 for non-single woman");
-                }
-            }
-            case Liwwh_10 -> {
-                if (Occupancy.Single_Male.equals(getOccupancy())) {
-                    return (getMale().getLabourSupplyWeekly().equals(Labour.TEN)) ? getMale().getLiwwh() : 0.;
-                } else {
-                    throw new RuntimeException("request for parameter Liwwh_10 for non-single man");
-                }
-            }
-            case Liwwh_2 -> {
-                if (Occupancy.Single_Female.equals(getOccupancy())) {
-                    return (getFemale().getLabourSupplyWeekly().equals(Labour.TWENTY)) ? getFemale().getLiwwh() : 0.;
-                } else {
-                    throw new RuntimeException("request for parameter Liwwh_2 for non-single woman");
-                }
-            }
-            case Liwwh_20 -> {
-                if (Occupancy.Single_Male.equals(getOccupancy())) {
-                    return (getMale().getLabourSupplyWeekly().equals(Labour.TWENTY)) ? getMale().getLiwwh() : 0.;
-                } else {
-                    throw new RuntimeException("request for parameter Liwwh_20 for non-single man");
-                }
-            }
-            case Liwwh_3 -> {
-                if (Occupancy.Single_Female.equals(getOccupancy())) {
-                    return (getFemale().getLabourSupplyWeekly().equals(Labour.THIRTY)) ? getFemale().getLiwwh() : 0.;
-                } else {
-                    throw new RuntimeException("request for parameter Liwwh_3 for non-single woman");
-                }
-            }
-            case Liwwh_30 -> {
-                if (Occupancy.Single_Male.equals(getOccupancy())) {
-                    return (getMale().getLabourSupplyWeekly().equals(Labour.THIRTY)) ? getMale().getLiwwh() : 0.;
-                } else {
-                    throw new RuntimeException("request for parameter Liwwh_30 for non-single man");
-                }
-            }
-            case Liwwh_4 -> {
-                if (Occupancy.Single_Female.equals(getOccupancy())) {
-                    return (getFemale().getLabourSupplyWeekly().equals(Labour.THIRTY_EIGHT)) ? getFemale().getLiwwh() : 0.;
-                } else {
-                    throw new RuntimeException("request for parameter Liwwh_4 for non-single woman");
-                }
-            }
-            case Liwwh_40 -> {
-                if (Occupancy.Single_Male.equals(getOccupancy())) {
-                    return (getMale().getLabourSupplyWeekly().equals(Labour.THIRTY_EIGHT)) ? getMale().getLiwwh() : 0.;
-                } else {
-                    throw new RuntimeException("request for parameter Liwwh_40 for non-single man");
-                }
-            }
-            case Liwwh_5 -> {
-                if (Occupancy.Single_Female.equals(getOccupancy())) {
-                    return (getFemale().getLabourSupplyWeekly().equals(Labour.FORTY_FIVE)) ? getFemale().getLiwwh() : 0.;
-                } else {
-                    throw new RuntimeException("request for parameter Liwwh_5 for non-single woman");
-                }
-            }
-            case Liwwh_50 -> {
-                if (Occupancy.Single_Male.equals(getOccupancy())) {
-                    return (getMale().getLabourSupplyWeekly().equals(Labour.FORTY_FIVE)) ? getMale().getLiwwh() : 0.;
-                } else {
-                    throw new RuntimeException("request for parameter Liwwh_50 for non-single man");
-                }
-            }
-            case Liwwh_6 -> {
-                if (Occupancy.Single_Female.equals(getOccupancy())) {
-                    return (getFemale().getLabourSupplyWeekly().equals(Labour.FIFTY_FIVE)) ? getFemale().getLiwwh() : 0.;
-                } else {
-                    throw new RuntimeException("request for parameter Liwwh_6 for non-single woman");
-                }
-            }
-            case Liwwh_60 -> {
-                if (Occupancy.Single_Male.equals(getOccupancy())) {
-                    return (getMale().getLabourSupplyWeekly().equals(Labour.FIFTY_FIVE)) ? getMale().getLiwwh() : 0.;
-                } else {
-                    throw new RuntimeException("request for parameter Liwwh_60 for non-single man");
-                }
-            }
-//            case Liwwh_Female_1 -> {
-//                if (Occupancy.Couple.equals(getOccupancy()) && !getMale().atRiskOfWork()) {
-//                    return (getFemale().getLabourSupplyWeekly().equals(Labour.TEN)) ? getFemale().getLiwwh() : 0.;
-//                } else {
-//                    return 0.;
-//                }
-//            }
+
             case Liwwh_Female_2 -> {
                 if (Occupancy.Couple.equals(getOccupancy()) && !getMale().atRiskOfWork()) {
                     return (getFemale().getLabourSupplyWeekly().equals(Labour.TWENTY)) ? getFemale().getLiwwh() : 0.;
@@ -3532,6 +3447,86 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
             }
             case Year_transformed -> {
                 return (Parameters.isFixTimeTrend && getYear() >= Parameters.timeTrendStopsIn) ? (double) Parameters.timeTrendStopsIn - 2000 : (double) getYear() - 2000;
+            }
+
+            // ---------------------------------------------------------------------------------
+            // LIWWH case statements for single male/female households with UC takeup
+            // Pattern: Liwwh_{male work index}{female work index}{UC takeup}
+            // In Single_Male households: any enum with femaleWorkIndex != 0 returns 0
+            // In Single_Female households: any enum with maleWorkIndex != 0 returns 0
+            // ---------------------------------------------------------------------------------
+            case Liwwh_1 -> {
+                // Baseline: for singles return the single adult's liwwh if UC takeup, else 0
+                Person male = getMale();
+                Person female = getFemale();
+                if (male != null && female == null && uc_takeup == 1) {
+                    return male.getLiwwh();
+                }
+                if (female != null && male == null && uc_takeup == 1) {
+                    return female.getLiwwh();
+                }
+                return 0.;
+            }
+
+            case Liwwh_010, Liwwh_011, Liwwh_020, Liwwh_021, Liwwh_030, Liwwh_031, Liwwh_040, Liwwh_041,
+                 Liwwh_100, Liwwh_101, Liwwh_200, Liwwh_201, Liwwh_300, Liwwh_301, Liwwh_400, Liwwh_401 -> {
+
+                Person male = getMale();
+                Person female = getFemale();
+
+                // If not a single-adult BU, these parameters aren't defined (per user request)
+                if ((male != null && female != null) || (male == null && female == null)) {
+                    return 0.;
+                }
+
+                // Decode indices from enum name: Liwwh_{m}{f}{uc}
+                // m/f indices: 0..4 correspond to Labour: ZERO/TEN/TWENTY/THIRTY/FORTY
+                // uc: 0/1 corresponds to uc_takeup
+                final String name = ((Regressors) variableID).name();
+                final String code = name.substring("Liwwh_".length());
+                final int maleIndex = Character.digit(code.charAt(0), 10);
+                final int femaleIndex = Character.digit(code.charAt(1), 10);
+                final int ucIndex = Character.digit(code.charAt(2), 10);
+                final int takeUp = (uc_takeup == null ? 0 : uc_takeup);
+
+                if (takeUp != ucIndex) {
+                    return 0.;
+                }
+
+                // Single male BU
+                if (male != null) {
+                    if (femaleIndex != 0) {
+                        return 0.;
+                    }
+                    // maleIndex 0 implies ZERO hours; 1..4 imply TEN/TWENTY/THIRTY/FORTY
+                    final Labour expected = switch (maleIndex) {
+                        case 0 -> Labour.ZERO;
+                        case 1 -> Labour.TEN;
+                        case 2 -> Labour.TWENTY;
+                        case 3 -> Labour.THIRTY;
+                        case 4 -> Labour.FORTY;
+                        default -> null;
+                    };
+                    return (expected != null && expected.equals(male.getLabourSupplyWeekly())) ? male.getLiwwh() : 0.;
+                }
+
+                // Single female BU
+                if (female != null) {
+                    if (maleIndex != 0) {
+                        return 0.;
+                    }
+                    final Labour expected = switch (femaleIndex) {
+                        case 0 -> Labour.ZERO;
+                        case 1 -> Labour.TEN;
+                        case 2 -> Labour.TWENTY;
+                        case 3 -> Labour.THIRTY;
+                        case 4 -> Labour.FORTY;
+                        default -> null;
+                    };
+                    return (expected != null && expected.equals(female.getLabourSupplyWeekly())) ? female.getLiwwh() : 0.;
+                }
+
+                return 0.;
             }
             case couple_emp_2ft -> {
                 return (getCoupleBoolean() && (getMinWeeklyHoursWorked() >= Parameters.MIN_HOURS_FULL_TIME_EMPLOYED)) ? 1.0 : 0.0;
