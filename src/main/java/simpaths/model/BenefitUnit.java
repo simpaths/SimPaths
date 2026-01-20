@@ -2436,22 +2436,22 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
                 return (getMale() == null ? 0. : Parameters.HOURS_IN_WEEK - getMale().getLabourSupplyHoursWeekly());
             }
             case MaleLeisureSq -> {
-                return (Parameters.HOURS_IN_WEEK - getMale().getLabourSupplyHoursWeekly()) * (Parameters.HOURS_IN_WEEK - getMale().getLabourSupplyHoursWeekly());
+                return (getMale() == null ? 0. : (Parameters.HOURS_IN_WEEK - getMale().getLabourSupplyHoursWeekly()) * (Parameters.HOURS_IN_WEEK - getMale().getLabourSupplyHoursWeekly()));
             }
             case MaleLeisure_IncomeDiv100 -> {
                 return (getMale() == null ? 0. : (Parameters.HOURS_IN_WEEK - getMale().getLabourSupplyHoursWeekly()) * getDisposableIncomeMonthlyUpratedToBasePriceYear() * 1.e-2);
             }
             case MaleLeisure_MaleAgeDiv100 -> {                //Male Leisure interacted with age of male
-                return (Parameters.HOURS_IN_WEEK - getMale().getLabourSupplyHoursWeekly()) * getMale().getDag() * 1.e-2;
+                return (getMale() == null ? 0. : (Parameters.HOURS_IN_WEEK - getMale().getLabourSupplyHoursWeekly()) * getMale().getDag() * 1.e-2);
             }
             case MaleLeisure_MaleAgeSqDiv10000 -> {
-                return (Parameters.HOURS_IN_WEEK - getMale().getLabourSupplyHoursWeekly()) * getMale().getDag() * getMale().getDag() * 1.e-4;
+                return (getMale() == null ? 0. : (Parameters.HOURS_IN_WEEK - getMale().getLabourSupplyHoursWeekly()) * getMale().getDag() * getMale().getDag() * 1.e-4);
             }
             case MaleLeisure_NChildren017, MaleLeisure_dnc -> {
-                return (Parameters.HOURS_IN_WEEK - getMale().getLabourSupplyHoursWeekly()) * (double)getNumberChildren(0,17);
+                return (getMale() == null ? 0. : (Parameters.HOURS_IN_WEEK - getMale().getLabourSupplyHoursWeekly()) * (double)getNumberChildren(0,17));
             }
             case MaleLeisure_DChildren2Under -> {
-                return (Parameters.HOURS_IN_WEEK - getMale().getLabourSupplyHoursWeekly()) * getIndicatorChildren(0,2).ordinal();
+                return (getMale() == null ? 0. : (Parameters.HOURS_IN_WEEK - getMale().getLabourSupplyHoursWeekly()) * getIndicatorChildren(0,2).ordinal());
             }
             case MaleLeisure_MaleDeh_c3_Low -> {
                 if(getMale().getDeh_c3().equals(Education.Low)) {
@@ -2574,16 +2574,16 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
                 return (getFemale() == null ? 0. : (Parameters.HOURS_IN_WEEK - getFemale().getLabourSupplyHoursWeekly()) * getDisposableIncomeMonthlyUpratedToBasePriceYear() * 1.e-2);
             }
             case FemaleLeisure_FemaleAgeDiv100 -> {                //Female Leisure interacted with age of Female
-                return (Parameters.HOURS_IN_WEEK - getFemale().getLabourSupplyHoursWeekly()) * getFemale().getDag() * 1.e-2;
+                return (getFemale() == null ? 0. : (Parameters.HOURS_IN_WEEK - getFemale().getLabourSupplyHoursWeekly()) * getFemale().getDag() * 1.e-2);
             }
             case FemaleLeisure_FemaleAgeSqDiv10000 -> {
-                return (Parameters.HOURS_IN_WEEK - getFemale().getLabourSupplyHoursWeekly()) * getFemale().getDag() * getFemale().getDag() * 1.e-4;
+                return (getFemale() == null ? 0. : (Parameters.HOURS_IN_WEEK - getFemale().getLabourSupplyHoursWeekly()) * getFemale().getDag() * getFemale().getDag() * 1.e-4);
             }
             case FemaleLeisure_NChildren017, FemaleLeisure_dnc -> {
-                return (Parameters.HOURS_IN_WEEK - getFemale().getLabourSupplyHoursWeekly()) * (double)getNumberChildren(0,17);
+                return (getFemale() == null ? 0. : (Parameters.HOURS_IN_WEEK - getFemale().getLabourSupplyHoursWeekly()) * (double)getNumberChildren(0,17));
             }
             case FemaleLeisure_DChildren2Under -> {
-                return (Parameters.HOURS_IN_WEEK - getFemale().getLabourSupplyHoursWeekly()) * getIndicatorChildren(0,2).ordinal();
+                return (getFemale() == null ? 0. : (Parameters.HOURS_IN_WEEK - getFemale().getLabourSupplyHoursWeekly()) * getIndicatorChildren(0,2).ordinal());
             }
             case FemaleLeisure_FemaleDeh_c3_Low -> {
                 if(getFemale().getDeh_c3().equals(Education.Low)) {
