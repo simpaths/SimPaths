@@ -457,10 +457,10 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
      * It generates combinations of labour supply levels for both individuals, including
      * Universal Credit take-up status.
      *
-     * @return A set of triplets (Triple<Labour, Labour, Double>) where each triplet represents:
+     * @return A set of triplets (Triple&lt;Labour, Labour, Integer&gt;) where each triplet represents:
      * - Labour supply level for the male partner.
      * - Labour supply level for the female partner.
-     * - Universal Credit take-up status (1.0 for taken, 0.0 for not taken).
+     * - Universal Credit take-up status (1 for taken, 0 for not taken).
      */
     public LinkedHashSet<Triple<Labour, Labour, Integer>> findPossibleLabourCombinationsWithUniversalCredit() {
         LinkedHashSet<Triple<Labour, Labour, Integer>> combinationsToReturn = new LinkedHashSet<>();
