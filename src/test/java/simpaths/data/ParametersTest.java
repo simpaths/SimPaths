@@ -37,7 +37,7 @@ class ParametersTest {
         void loadDHE_MCSParameters() {
 
             try {
-                Parameters.loadDHE_MCSParameters("UK");
+                Parameters.loadDHE_MCSParameters("UK", Boolean.TRUE);
             } catch (NullPointerException e) {
                 System.out.println("Not all DHE_MCS worksheets loaded");
             };
@@ -56,7 +56,7 @@ class ParametersTest {
         void loadDHE_PCSParameters() {
 
             try {
-                Parameters.loadDHE_PCSParameters("UK");
+                Parameters.loadDHE_PCSParameters("UK", Boolean.TRUE);
             } catch (NullPointerException e) {
                 System.out.println("Not all DHE_PCS worksheets loaded");
             };
@@ -75,7 +75,7 @@ class ParametersTest {
         void loadDLSParameters() {
 
             try {
-                Parameters.loadDLSParameters("UK");
+                Parameters.loadDLSParameters("UK", Boolean.TRUE);
             } catch (NullPointerException e) {
                 System.out.println("Not all DLS worksheets loaded");
             };
@@ -93,7 +93,7 @@ class ParametersTest {
         void loadDHMParameters() {
 
             try {
-                Parameters.loadDHMParameters("UK");
+                Parameters.loadDHMParameters("UK", Boolean.TRUE);
             } catch (NullPointerException e) {
                 System.out.println("Not all DHM worksheets loaded");
             };
@@ -116,7 +116,7 @@ class ParametersTest {
         void loadLabourSupplyUtilityParameters() {
 
             try {
-                Parameters.loadLabourSupplyUtilityParameters("UK");
+                Parameters.loadLabourSupplyUtilityParameters("UK", Boolean.FALSE);
             } catch (NullPointerException e) {
                 throw new RuntimeException("Not all LabourSupplyUtility worksheets loaded. Error: " + e.getMessage());
             };
