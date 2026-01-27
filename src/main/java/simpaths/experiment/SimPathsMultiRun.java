@@ -81,8 +81,12 @@ public class SimPathsMultiRun extends MultiRun {
 		if (parameterArgs != null)
 			updateParameters(parameterArgs);
 		// set default values for country and start year
-		MultiKeyCoefficientMap lastDatabaseCountryAndYear = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + File.separator + Parameters.DatabaseCountryYearFilename + ".xlsx", "Data", 1);
-		try {
+        MultiKeyCoefficientMap lastDatabaseCountryAndYear = null;
+        try {
+			File dataBaseCountryYearFile = new File(Parameters.getInputDirectory() + File.separator + Parameters.DatabaseCountryYearFilename + ".xlsx");
+
+			if (dataBaseCountryYearFile.exists()) lastDatabaseCountryAndYear = ExcelAssistant.loadCoefficientMap(dataBaseCountryYearFile.getPath(),"Data", 1);
+
 			if (lastDatabaseCountryAndYear.keySet().stream().anyMatch(key -> key.toString().equals("MultiKey[IT]"))) {
 				countryString = "Italy";
 				country = Country.IT;
