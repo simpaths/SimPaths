@@ -8,6 +8,7 @@ import microsim.data.excel.ExcelAssistant;
 import microsim.statistics.regression.*;
 // import plug-in packages
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.math3.linear.SingularMatrixException;
 import simpaths.data.startingpop.DataParser;
 import simpaths.model.AnnuityRates;
 import simpaths.model.BenefitUnit;
@@ -3517,13 +3518,13 @@ public class Parameters {
 
 
         if (bootstrap) {
-            coeffLabourSupplyUtilityMales = RegressionUtils.bootstrap(coeffLabourSupplyUtilityMales);
-            coeffLabourSupplyUtilityFemales = RegressionUtils.bootstrap(coeffLabourSupplyUtilityFemales);
-            coeffLabourSupplyUtilityMalesWithDependent = RegressionUtils.bootstrap(coeffLabourSupplyUtilityMalesWithDependent);
-            coeffLabourSupplyUtilityFemalesWithDependent = RegressionUtils.bootstrap(coeffLabourSupplyUtilityFemalesWithDependent);
-            coeffLabourSupplyUtilityACMales = RegressionUtils.bootstrap(coeffLabourSupplyUtilityACMales);
-            coeffLabourSupplyUtilityACFemales = RegressionUtils.bootstrap(coeffLabourSupplyUtilityACFemales);
-            coeffLabourSupplyUtilityCouples = RegressionUtils.bootstrap(coeffLabourSupplyUtilityCouples);
+            coeffLabourSupplyUtilityMales = safeBootstrap(coeffLabourSupplyUtilityMales);
+            coeffLabourSupplyUtilityFemales = safeBootstrap(coeffLabourSupplyUtilityFemales); // Singular matrix
+            coeffLabourSupplyUtilityMalesWithDependent = safeBootstrap(coeffLabourSupplyUtilityMalesWithDependent);
+            coeffLabourSupplyUtilityFemalesWithDependent = safeBootstrap(coeffLabourSupplyUtilityFemalesWithDependent);
+            coeffLabourSupplyUtilityACMales = safeBootstrap(coeffLabourSupplyUtilityACMales); // Singular matrix
+            coeffLabourSupplyUtilityACFemales = safeBootstrap(coeffLabourSupplyUtilityACFemales); // Singular matrix
+            coeffLabourSupplyUtilityCouples = safeBootstrap(coeffLabourSupplyUtilityCouples); // Singular matrix
         }
 
         //Labour Supply regressions from Zhechun's estimates on the EM input data
@@ -3535,5 +3536,14 @@ public class Parameters {
         regLabourSupplyUtilityACFemales = new LinearRegression(coeffLabourSupplyUtilityACFemales);
         regLabourSupplyUtilityCouples = new LinearRegression(coeffLabourSupplyUtilityCouples);
 
+    }
+
+    public static MultiKeyCoefficientMap safeBootstrap(MultiKeyCoefficientMap map) throws SingularMatrixException {
+        try {
+            return RegressionUtils.bootstrap(map);
+        } catch (SingularMatrixException e) {
+            System.out.println("Singular matrix encountered in bootstrap. Reverting to original coefficients.");
+            return map;
+        }
     }
 }

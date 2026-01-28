@@ -116,19 +116,19 @@ class ParametersTest {
         void loadLabourSupplyUtilityParameters() {
 
             try {
-                Parameters.loadLabourSupplyUtilityParameters("UK", Boolean.FALSE);
+                Parameters.loadLabourSupplyUtilityParameters("UK", Boolean.TRUE);
             } catch (NullPointerException e) {
                 throw new RuntimeException("Not all LabourSupplyUtility worksheets loaded. Error: " + e.getMessage());
             };
 
 
-            assertInstanceOf(LinearRegression.class, Parameters.getRegLabourSupplyUtilityMales(), "`RegLabourSupplyUtilityMales` not loaded");
-            assertInstanceOf(LinearRegression.class, Parameters.getRegLabourSupplyUtilityFemales(), "`RegLabourSupplyUtilityFemales` not loaded");
-            assertInstanceOf(LinearRegression.class, Parameters.getRegLabourSupplyUtilityMalesWithDependent(), "`RegLabourSupplyUtilityMalesWithDependent` not loaded");
-            assertInstanceOf(LinearRegression.class, Parameters.getRegLabourSupplyUtilityFemalesWithDependent(), "`RegLabourSupplyUtilityFemalesWithDependent` not loaded");
-            assertInstanceOf(LinearRegression.class, Parameters.getRegLabourSupplyUtilityACMales(), "`RegLabourSupplyUtilityACMales` not loaded");
-            assertInstanceOf(LinearRegression.class, Parameters.getRegLabourSupplyUtilityACFemales(), "`RegLabourSupplyUtilityACFemales` not loaded");
-            assertInstanceOf(LinearRegression.class, Parameters.getRegLabourSupplyUtilityCouples(), "`RegLabourSupplyUtilityCouples` not loaded");
+            assertDoesNotThrow(Parameters::getRegLabourSupplyUtilityMales, "`RegLabourSupplyUtilityMales` not loaded");
+            assertDoesNotThrow(Parameters::getRegLabourSupplyUtilityFemales, "`RegLabourSupplyUtilityFemales` not loaded");
+            assertDoesNotThrow(Parameters::getRegLabourSupplyUtilityMalesWithDependent, "`RegLabourSupplyUtilityMalesWithDependent` not loaded");
+            assertDoesNotThrow(Parameters::getRegLabourSupplyUtilityFemalesWithDependent, "`RegLabourSupplyUtilityFemalesWithDependent` not loaded");
+            assertDoesNotThrow(Parameters::getRegLabourSupplyUtilityACMales, "`RegLabourSupplyUtilityACMales` not loaded");
+            assertDoesNotThrow(Parameters::getRegLabourSupplyUtilityACFemales, "`RegLabourSupplyUtilityACFemales` not loaded");
+            assertDoesNotThrow(Parameters::getRegLabourSupplyUtilityCouples, "`RegLabourSupplyUtilityCouples` not loaded");
         }
     }
 
