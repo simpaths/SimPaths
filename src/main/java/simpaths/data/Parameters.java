@@ -1265,10 +1265,10 @@ public class Parameters {
 
 
         //Health and Wellbeing regressors
-        loadDHMParameters(countryString, bootstrapAll);
-        loadDHE_MCSParameters(countryString, bootstrapAll);
-        loadDHE_PCSParameters(countryString, bootstrapAll);
-        loadDLSParameters(countryString, bootstrapAll);
+        loadDHMParameters(countryString, true);
+        loadDHE_MCSParameters(countryString, true);
+        loadDHE_PCSParameters(countryString, true);
+        loadDLSParameters(countryString, true);
 
         loadEQ5DParameters(countryString);
 
@@ -3517,15 +3517,15 @@ public class Parameters {
         coeffLabourSupplyUtilityCouples = safeReadExcel(Parameters.getInputDirectory() + "reg_labourSupplyUtility_UC.xlsx", countryString + "_Couples", 1);
 
 
-        if (bootstrap) {
-            coeffLabourSupplyUtilityMales = safeBootstrap(coeffLabourSupplyUtilityMales);
-            coeffLabourSupplyUtilityFemales = safeBootstrap(coeffLabourSupplyUtilityFemales); // Singular matrix
-            coeffLabourSupplyUtilityMalesWithDependent = safeBootstrap(coeffLabourSupplyUtilityMalesWithDependent);
-            coeffLabourSupplyUtilityFemalesWithDependent = safeBootstrap(coeffLabourSupplyUtilityFemalesWithDependent);
-            coeffLabourSupplyUtilityACMales = safeBootstrap(coeffLabourSupplyUtilityACMales); // Singular matrix
-            coeffLabourSupplyUtilityACFemales = safeBootstrap(coeffLabourSupplyUtilityACFemales); // Singular matrix
-            coeffLabourSupplyUtilityCouples = safeBootstrap(coeffLabourSupplyUtilityCouples); // Singular matrix
-        }
+//        if (bootstrap) {
+//            coeffLabourSupplyUtilityMales = safeBootstrap(coeffLabourSupplyUtilityMales);
+//            coeffLabourSupplyUtilityFemales = safeBootstrap(coeffLabourSupplyUtilityFemales); // Singular matrix
+//            coeffLabourSupplyUtilityMalesWithDependent = safeBootstrap(coeffLabourSupplyUtilityMalesWithDependent);
+//            coeffLabourSupplyUtilityFemalesWithDependent = safeBootstrap(coeffLabourSupplyUtilityFemalesWithDependent);
+//            coeffLabourSupplyUtilityACMales = safeBootstrap(coeffLabourSupplyUtilityACMales); // Singular matrix
+//            coeffLabourSupplyUtilityACFemales = safeBootstrap(coeffLabourSupplyUtilityACFemales); // Singular matrix
+//            coeffLabourSupplyUtilityCouples = safeBootstrap(coeffLabourSupplyUtilityCouples); // Singular matrix
+//        }
 
         //Labour Supply regressions from Zhechun's estimates on the EM input data
         regLabourSupplyUtilityMales = new LinearRegression(coeffLabourSupplyUtilityMales);
