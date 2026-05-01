@@ -464,7 +464,7 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
      */
     public LinkedHashSet<Triple<Labour, Labour, Integer>> findPossibleLabourCombinationsWithUniversalCredit() {
         LinkedHashSet<Triple<Labour, Labour, Integer>> combinationsToReturn = new LinkedHashSet<>();
-        Integer[] UC_TakeUp = {1, 0};
+        Integer[] UC_TakeUp = Parameters.uc_labour_supply_effects ? new Integer[]{1, 0} : new Integer[]{0};
         Person male = getMale();
         Person female = getFemale();
         if (male!=null && female!=null) {
