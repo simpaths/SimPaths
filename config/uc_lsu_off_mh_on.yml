@@ -5,9 +5,9 @@ maxNumberOfRuns: 1
 countryString: "United Kingdom"
 executeWithGui: false
 startYear: 2015
-endYear: 2035
-popSize: 200000
-persistCountryYear: false
+endYear: 2030
+popSize: 40000
+persistCountryYear: true
 
 # Arguments passed to the SimPathsModel
 model_args:
@@ -51,21 +51,22 @@ innovation_args:
 #    labourSupplyElasticityInnov: true
 
 collector_args:
-#    calculateGiniCoefficients: false
-#    exportToDatabase: false
-#    exportToCSV: true
-#    persistStatistics: true
-#    persistStatistics2: true
-   persistPersons: true
-   persistBenefitUnits: true
-   persistHouseholds: true
+  #    calculateGiniCoefficients: false
+  #    exportToDatabase: false
+  #    exportToCSV: true
+  #    persistStatistics: true
+  #    persistStatistics2: true
+  persistPersons: true
+  persistBenefitUnits: true
+  persistHouseholds: true
 #    dataDumpStartTime: 0L
 #    dataDumpTimePeriod: 1.0
 
 parameter_args:
-  scenario: "UC on full"
+  scenario: "Mental health effects on - single labour supply option"
   uc_direct_effects: true
-  uc_labour_supply_effects: true
+  uc_labour_supply_effects: false
+  euromod_output_directory: EUROMODoutput_noLSU
   EUROMODpolicyScheduleFilename: "EUROMODpolicySchedule_UC"
-#  input_directory_initial_populations: input/InitialPopulations
-#  euromod_output_directory: input/EUROMODoutput
+  #  input_directory: input_full
+  #  input_directory_initial_populations: input/InitialPopulations
