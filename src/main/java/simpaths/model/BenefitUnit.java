@@ -1481,7 +1481,7 @@ Contemporaneous values of dhhtp_c4 are required for validation. Update and outpu
         // populate final incomes from cache (NO taxWrapper)
         LabourEval chosenEval = cachedEvalByLabourPairs.get(labourSupplyChoice);
         yDispMonth = chosenEval.disposableIncomeMonthly;
-        yBenAmountMonth = chosenEval.benefitsReceivedPerMonth;
+        yPensYear = chosenEval.benefitsReceivedPerMonth;
         yGrossMonth = chosenEval.grossIncomeMonthly;
         demDbMatchTax = chosenEval.taxDbMatch;
         idtaxDbDonor = demDbMatchTax.getCandidateID();
