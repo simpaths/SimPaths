@@ -1,6 +1,6 @@
 # Saving Outputs
 
-# 1. Persistence
+## 1. Persistence
 
 Persistence is achieved by updating a table in the relational database corresponding to a class in the simulation model. Classes to be persisted must be annotated as `@Entity` classes:
 
@@ -23,7 +23,7 @@ protected Agent() {
 
 ```
 
-# 2. Keys
+## 2. Keys
 
 To provide a unique identifier for the table entries, Entity classes must specify a `PanelEntityKey` (annotated as `@Id`), which is a three-dimensional object which identifies the agent id, the simulation time and the simulation run. These three keys uniquely identify each record:
 
@@ -96,7 +96,7 @@ private WorkState workState;
 ```
 
 
-# 3. The `DataExport` class
+## 3. The `DataExport` class
 
 There are two ways of storing output data from the simulation runs, either to the database or to .csv files. Exporting to .csv is quicker than persisting to the database, so may be preferable when running simulations in time-constrained situations. 
 
@@ -124,7 +124,7 @@ DataExport agentOutput = new DataExport(agent, exportToDatabase, exportToCSV);
 
 ```
 
-# 4. Export to csv
+## 4. Export to csv
 
 When executed with the `exportToCSV` Boolean set to true, separate .csv files will be created corresponding to the `populationOutput` and `agentOutput` objects. The name of the .csv files will match the name of the class of object or entries of the collection of objects which were passed to the `DataExport` constructor. In the case above for instance, the `collectionOfAgents` is a Java Collection such as a list or set whose entries are of the `Agent` class, so the corresponding Agent.csv file will be created. On the other hand, the agent object is a single instance of the `Agent` class (not a collection), so a file named Agent123.csv will be created, with the suffix '123' matching the agent's id number in its `PanelEntityKey` instance.
 
@@ -162,7 +162,7 @@ public void onEvent(Enum<?> type) {
 
 When the `exportToCSV` boolean is set to true, the `.export()` invocation will dump comma-separated data to the .csv files. Again, the data included is either numerical, strings, Booleans or enum constants, and includes private and inherited fields belonging to the object or it's superclasses. In the case of the Agent.csv, one line will be added for each of the agent instances contained in the `collectionOfAgents` object, with each line referenced by values of the `PanelEntityKey`:- the simulation run number, the simulation time and the agent's id. In the case of Agent123.csv, a single line will be added containing the comma-separated data of the fields of the agent whose id is 123.
 
-# 5. Export to database
+## 5. Export to database
 
 When the `exportToDatabase` Boolean is set to true, the `DatabaseUtils.snap()` method will be invoked in the Collector, and JAS-mine's database functionality will kick in to export the data to the appropriate tables in the output database:
 

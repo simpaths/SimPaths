@@ -12,7 +12,7 @@ This is invoked as
 SimpleMatching.getInstance().matching(...)
 ```
 
-# 1. Method Arguments
+## 1. Method Arguments
 
 The method requires 7 arguments:
 
@@ -24,7 +24,7 @@ The method requires 7 arguments:
 6. **matchingScoreClosure**: a piece of code that assigns, for every element of the filtered collection1, a double value to each element of the filtered collection2, as a measure of the quality of the match between every pair;
 7. **matchingClosure**: a piece of code that determines what to do upon matching.
 
-# 2. Understanding Closures
+## 2. Understanding Closures
 
 The use of **closures**, which are relatively new to the Java language, allows a great simplification of the code. A closure is a function written by another function. Closures are so called because they enclose the environment of the parent function, and can access all variables and parameters in that function. This is useful because it allows us to have two levels of parameters. One level of parameters (the parent) controls how the function works. The other level (the child) does the work. While it is not required that the user knows about closures, it is interesting to understand why they are so useful. 
 
@@ -32,25 +32,25 @@ In the example, suppose that the females in the population are sorted according 
 
 Technically, a closure is a function that refers to free variables in its lexical context. A free variable is an identifier (a name, the identity of the woman who is evaluating the men in the population, for instance) that has a definition outside the closure; it is not defined by the closure, but it is used by the closure. In other words, these free variables inside the closure have the same meaning they would have had outside the closure.
 
-## Example Implementation
+### Example Implementation
 
 Closures in the *matching*() method are easier used than explained. An example is found in the *Demo07* sample model. The 7 arguments are:
 
-### collection1
+#### collection1
 The whole population
 
 ```java
 persons
 ```
 
-### filter1
+#### filter1
 A subset of the female population
 
 ```java
 new FemaleToCoupleFilter()
 ```
 
-### comparator1
+#### comparator1
 A comparator that assigns priority to the individual that has a lower difficulty in matching (this is determined by an individual's age in relation to the average)
 
 ```java
@@ -63,21 +63,21 @@ new Comparator<Person>() {
 }
 ```
 
-### collection2
+#### collection2
 Same as collection1
 
 ```java
 persons
 ```
 
-### filter2
+#### filter2
 A subset of the male population
 
 ```java
 new MaleToCoupleFilter()
 ```
 
-### matchingScoreClosure
+#### matchingScoreClosure
 A closure that, given a specific female, computes for every male in the population a matching score
 
 ```java
@@ -89,7 +89,7 @@ new MatchingScoreClosure<Person>() {
 }
 ```
 
-### matchingClosure
+#### matchingClosure
 A closure that creates a link between a specific female and a specific male, and sets up a new household
 
 ```java
@@ -104,7 +104,7 @@ new MatchingClosure<Person>() {
 }
 ```
 
-# 3. Complete Method Example
+## 3. Complete Method Example
 
 Hence, the whole method looks like:
 

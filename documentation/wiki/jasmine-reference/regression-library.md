@@ -10,9 +10,9 @@ The JAS-mine Core libraries support several types of regressions, including:
 
 The relevant classes can be found in the microsim.statistics.regression package of the core JAS-mine libraries. The regression objects store the regression coefficients (the 'betas') of a regression. When they are passed another object such as an agent that holds the corresponding regressor or 'covariate' values (the 'x's in a regression), these objects can return a variety of values corresponding to linear regression 'scores', logit / probit 'probabilities' or random outcome from a binary event (i.e. whether an outcome takes place). Multinomial logit or probit regression objects return the random outcome from a finite set of possible outcomes.
 
-# 1. Basic Regression Objects: linear, logit and probit
+## 1. Basic Regression Objects: linear, logit and probit
 
-## 1.1 Creation of the regression objects
+### 1.1 Creation of the regression objects
 
 The [Demo07 demo](https://www.microsimulation.ac.uk/jas-mine/demo/demo07) example uses the LinearRegression and LogitRegression classes, and also the extra functionality provided by static methods in the RegressionUtils class.
 
@@ -62,7 +62,7 @@ Note that it is important, when using .xls files to hold regression coefficients
 | isMarried | Female | NotEmployed | -0.5590975 |
 | workIntercept | Female | NotEmployed | -10.48043 |
 
-## 1.2 How to use the Linear Regression objects
+### 1.2 How to use the Linear Regression objects
 
 Linear regression objects return the score of the linear regression, i.e. the inner product of the regression coefficients with the regressors (the sum over i of beta_i * x_i). This can be invoked as in the following example, where the Person object called 'ross' provides the regressor values (the 'x's) to the LinearRegression object, which holds the regression coefficients (the betas).
 
@@ -122,7 +122,7 @@ public double getDoubleValue(Enum<?> variableID) {
 
 There are other getScore() methods that also return the linear regression score but use different input arguments – see the [Javadocs](https://www.microsimulation.ac.uk/jas-mine/resources/api/) of JAS-mine-core's microsim.statistics.regression package.
 
-## 1.3 How to use the Logit and Probit regression objects
+### 1.3 How to use the Logit and Probit regression objects
 
 The logit and probit regression objects return the logit or probit transforms of the linear regression score, respectively. As these transforms produce numbers bounded in the interval [0, 1], they are often interpreted as 'probabilities' that an event occurs or not (an event with a binary outcome). Hence logit and probit regressions are used to model the outcome of binary events.
 
@@ -189,13 +189,13 @@ double getProbability(Object);
 
 The different versions employ the corresponding methods from the *LinearRegression* class to calculate the regression score, so their usage follows the same conventions outlined in the Javadocs extract in section 1.2.
 
-# 2. Multinomial logit and probit regression objects
+## 2. Multinomial logit and probit regression objects
 
 Multinomial logit and probit regressions are used to determine the outcome of random events, where the outcome is taken from a finite set of possible outcomes. Respectively, they are the multi-outcome analogues of the logit and probit regressions, which is only suitable at modelling binary outcomes. In the case for N possible outcomes, it works by comparing the logistic or probit transform of the linear regression scores for N-1 outcomes, with the Nth outcome deemed to have a score of 0. From this, it creates relative probabilities of outcomes, which can then be sampled to determine which of the N outcomes occurs.
 
 The following section discusses *MultiProbitRegression* objects, however *MultiLogitRegression* objects are used in the same way, the only difference being that the logistic transform is used to map the linear regression score to a probability, instead of the probit transform.
 
-## 2.1 Creation of the regression objects
+### 2.1 Creation of the regression objects
 
 The creation of *MultiProbitRegression* objects are slightly more involved as the *MultiProbitRegression* class accepts a HashMap of *MultiKeyCoefficientMaps* (each *MultiKeyCoefficientMap* stores regression coefficients corresponding to a unique outcome), so we need to create the Hashmap first.
 
@@ -218,7 +218,7 @@ educationCoefficientMap.put(Education.High, coeffEducationHigh);
 // Create the MultiProbitRegression objectMultiProbitRegression regEducationLevel = new MultiProbitRegression<Education>                                                                                                (educationCoefficientMap);
 ```
 
-## 2.2 How to use the regression objects
+### 2.2 How to use the regression objects
 
 The outcome of an event modelled by the *MultiProbitRegression* object is determined in the following way for a *Person* object 'ross':
 
@@ -238,13 +238,13 @@ T eventType(Object);
 
 The different versions employ the corresponding methods from the *LinearRegression* class to calculate the regression scores of each outcome, which are subsequently used to calculate the probit transforms of each outcome, so their usage follows the same conventions outlined in the Javadocs referenced in section 1.2.
 
-# 3. Bootstrap methods to address parameter uncertainty
+## 3. Bootstrap methods to address parameter uncertainty
 
 The sources of uncertainty within a simulation model are discussed in the [Uncertainty analysis](https://www.microsimulation.ac.uk/jas-mine/resources/focus/uncertainty-analysis/) page. In order to address the issue of parameter uncertainty, JAS-mine provides methods to 'bootstrap' the regression coefficients of the model easily. Bootstrapping involves sampling the set of regression coefficients of a regression object from a multivariate normal distribution whose vector of expected values (means) are the set of regression coefficients estimated from the data, with the covariance matrix derived from the statistical error of the estimates.
 
 The new sample of ('bootstrapped') regression coefficients can then be used in a simulation run and the output recorded. The process can then be repeated by sampling a new set of bootstrapped regression coefficients to be used in another simulation run. By repeating this many times, an understanding of how parameter uncertainty affects the dynamics of the model can be developed, and estimates of the uncertainty of the model evolution can be quantified and visualised as in the Figure of the [Uncertainty analysis](https://www.microsimulation.ac.uk/jas-mine/resources/focus/uncertainty-analysis/) page. The [MultiRun class](https://www.microsimulation.ac.uk/jas-mine/resources/cookbook/the-multirun-class/) can be used to execute the repeated run of simulations, as described in the tutorial [How to run a simulation many times (design of experiments)](https://www.microsimulation.ac.uk/jas-mine/resources/tutorials/run-a-simulation-many-times/).
 
-## 3.1 Linear or Binary choice (Logit / Probit) bootstrapping
+### 3.1 Linear or Binary choice (Logit / Probit) bootstrapping
 
 There are two methods to perform bootstrapping on a single set of regression coefficients, corresponding to a Linear, Logit or Probit regression class. The difference between the use of each method depends on if you want to submit the regression coefficients and covariance matrix as separate MultiKeyCoefficientMaps to the bootstrap method, or whether you have a single MultiKeyCoefficientMap containing the numbers for both coefficients and covariance matrix.
 
@@ -281,7 +281,7 @@ ProbitRegression regParticipationMales = new ProbitRegression(newCoeffParticipat
 
 The probit regression object is created in the same way as before.
 
-## 3.2 Multinomial bootstrapping (for Multinomial Logit / Probit Regressions)
+### 3.2 Multinomial bootstrapping (for Multinomial Logit / Probit Regressions)
 
 The bootstrap method for the case of multinomial regression is called 'bootstrapMultinomialRegression', and the method returns an object that is required by the constructor methods of the MultiLogitRegression or MultiProbitRegression classes in order to create the regression objects. As discussed in section 2.1, this object is a Map whose keys are enum constants representing the outcome of the multinomial regression, and whose values are MultiKeyCoefficientMaps storing the set of regression coefficients for the particular outcome key. The bootstrapMultinomialRegression method bootstraps the sets of regression coefficients in each MultiKeyCoefficientMap.
 

@@ -1,6 +1,6 @@
 # Querying the Database
 
-# 1. Querying the database at run-time
+## 1. Querying the database at run-time
 
 The database can be queried at runtime to provide inputs for the simulation. The representation of the sample population is fully adherent to the standards used in IT systems to store entities and relations between entities. Consequently, population modelling can be performed according to standard strategies for modelling object classes and their persistence on database. In particular, ORM requires relationships between objects to be implicitly modelled. The ORM engine translates these relationships into foreign keys in the relational model.
 
@@ -67,6 +67,6 @@ MultiKeyCoefficientMap coefficientA = ExcelAssistant.loadCoefficientMap("input/c
 
 Only the number of key columns and "value" columns need to be specified. Clearly this process is much easier but it does not allow for significant parameter typification (since Excel is not as rigid as a database). Moreover, it is more error prone as accidental modifications to the Excel sheet might lead to incorrect parameter loading.
 
-# 2. Inspecting the database before or after a simulation has completed
+## 2. Inspecting the database before or after a simulation has completed
 
 The user may wish to access the input database before or simulation has been executed or afterwards to view the output database. A simple way to inspect the database is via the 'Database explorer', which can be opened via the 'Tools' tab in menu of the JAS-mine Graphical User Interface (GUI). Another slightly more complicated way involves downloading and installing Hibernate's H2 Console and specifying the full location of the database to be inspected. Both methods open a web browser interface that allows the data from the database to be accessed via SQL-style commands.
