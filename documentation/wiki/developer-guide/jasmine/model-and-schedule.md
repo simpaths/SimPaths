@@ -39,13 +39,17 @@ In the example above a group of events (labeled *s*) is created to be run for th
 
 # 2. The Ordering of Events
 
-The signature of the *scheduleOnce*() method is:
+The signature of the `scheduleOnce()` method is:
 
-**scheduleOnce(Event event, double atTime, int withOrdering),**
+```java
+scheduleOnce(Event event, double atTime, int withOrdering)
+```
 
-whilst the signature of the scheduleRepeat() method is:
+whilst the signature of the `scheduleRepeat()` method is:
 
-**scheduleRepeat(Event event, double atTime, int withOrdering, double timeBetweenEvents).**
+```java
+scheduleRepeat(Event event, double atTime, int withOrdering, double timeBetweenEvents)
+```
 
 Note the use of the '*withOrdering*' integer field. This is used to specify the order in which events scheduled at the same time are fired; events with lower values of the *withOrdering* field will fire first. For example, if two events are scheduled to occur at time 10.52, then if event A was scheduled with the *withOrdering* field set to 0 whereas event B was scheduled with *withOrdering* set to -1, event B will fire before event A. If two events are scheduled with both the same *atTime* and *withOrdering*, the event that was added to the schedule earlier in the simulation will be fired first. It is therefore important that the ordering of events scheduled for the same time only share the same value of the *withOrdering* field if it doesn't matter what order the events need to be fired in.
 
