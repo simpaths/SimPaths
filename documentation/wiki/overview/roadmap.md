@@ -198,37 +198,9 @@ Planned documentation work includes a clearer account of input-data components, 
 Related: [data components and interdependencies](https://github.com/simpaths/SimPaths/issues/141) and [EQ-5D documentation and codebook coverage](https://github.com/simpaths/SimPaths/issues/152).
 </div>
 
-## Recently delivered
+## Recent progress
 
-### 2026 structural and empirical update
-
-The March 2026 release standardised variable names, revised the Education, Health, Partnership, and Social Care modules, updated transition estimates and alignment targets, and introduced new documentation and debugging support.
-
-[Read the 2026.03.07 release notes](https://github.com/simpaths/SimPaths/releases/tag/2026.03.07){ .md-button }
-
-### Health, wellbeing, and disability outcomes
-
-Recent work added SF-12 physical and mental health measures and life satisfaction, aligned the life-satisfaction scale with common ONS usage, and broadened the treatment of disability in initial populations and regression estimates.
-
-<div class="roadmap-meta" markdown>
-Related: [health and wellbeing outcomes](https://github.com/simpaths/SimPaths/issues/77), [life satisfaction](https://github.com/simpaths/SimPaths/issues/184), and disability definitions in the [initial population](https://github.com/simpaths/SimPaths/issues/170) and [estimates](https://github.com/simpaths/SimPaths/issues/171).
-</div>
-
-### Labour-market diagnostics and stability
-
-The model now includes additional employment statistics and changes designed to stabilise transitions into and out of work. These provide a stronger basis for the next round of labour-supply development.
-
-<div class="roadmap-meta" markdown>
-Related: [employment-transition investigation](https://github.com/simpaths/SimPaths/issues/163), [stabilising random draws](https://github.com/simpaths/SimPaths/issues/176), and [cross-sectional employment statistics](https://github.com/simpaths/SimPaths/issues/175).
-</div>
-
-### More consistent setup and execution
-
-Recent changes made model entry points and database setup more consistent across single runs, multiple runs, and automated tests.
-
-<div class="roadmap-meta" markdown>
-Related: [consistent model entry points](https://github.com/simpaths/SimPaths/issues/177) and [multirun database setup](https://github.com/simpaths/SimPaths/issues/180).
-</div>
+The March 2026 release standardised variable names, revised the Education, Health, Partnership, and Social Care modules, updated transition estimates and alignment targets, and introduced new documentation and debugging support. Alongside that release, recent work has expanded health, wellbeing, and disability outcomes, strengthened labour-market diagnostics, and made setup and execution more consistent. See the [2026.03.07 release notes](https://github.com/simpaths/SimPaths/releases/tag/2026.03.07) for details.
 
 ## How this roadmap is maintained
 
@@ -236,7 +208,7 @@ Related: [consistent model entry points](https://github.com/simpaths/SimPaths/is
 - This public page summarises work at the level most useful to researchers and users.
 - Public issue links are provided where they add useful technical detail.
 - The page should be reviewed quarterly and after significant releases.
-- Completed work should move into the release notes and the **Recently delivered** section.
+- Completed work should move into the release notes; this page should retain only a short progress summary.
 - New-feature descriptions and delivery timing should be confirmed by the responsible development leads before publication.
 
 ## Suggest a priority or collaborate
