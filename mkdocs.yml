@@ -41,7 +41,7 @@ theme:
     - content.code.annotate
 
 extra_css:
-  - assets/css/extra.css?v=20260827-sidebar-sticky-fix-roadmap
+  - assets/css/extra.css?v=20260827-path-tab-marker-search-start-here
 
 plugins:
   - search:
@@ -157,3 +157,5 @@ nav:
 
   - Funding:
       - funding/index.md
+
+  - New to SimPaths?: start-here.md
