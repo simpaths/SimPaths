@@ -1,6 +1,6 @@
 # The Graphical User Interface
 
-# 1. Introduction
+## 1. Introduction
 In this section, we discuss the different components that make up the JAS-mine Graphical User Interface (GUI).
 
 ![SimPaths GUI Screenshot](../figures/GUI/SimPaths%20GUI.png)
@@ -23,9 +23,78 @@ public static void main(String[] args) {
 }
 ```
 
-# 2. Components
+## 2. First GUI run with bundled training data
 
-## 1.1 Menus
+This procedure is for a fresh clone using the training data included with SimPaths. It creates the local database tables required by the model and then starts an interactive simulation. The training data are suitable for learning, testing, and development, but results produced from them should not be used for substantive analysis.
+
+### 2.1 Launch the interface
+
+Build the executable from the repository root if you have not already done so:
+
+```bash
+mvn clean package
+```
+
+Then launch the single-run interface:
+
+```bash
+java -jar singlerun.jar
+```
+
+On a fresh clone, complete the setup dialogs before clicking **Build simulation model** in the main interface. The bundled initial-population files are source data from which SimPaths must first construct its local H2 input database.
+
+### 2.2 Choose the start-up processes
+
+In the **Start-up Options** dialog, select these three options:
+
+- **Change country and/or simulation start year**
+- **Use UKMOD Light to alter description of tax and benefit systems**
+- **Load new input data for tax and benefit systems**
+
+Leave **Load new input data for starting populations** and **Select tax and benefit systems for analysis** unselected, as shown below, then click **next**.
+
+![The three start-up options selected for a first training-data run](../figures/GUI/First-run%20setup%20options.png)
+
+### 2.3 Select the country and start year
+
+Select **United Kingdom** and **2019**, then click **next**.
+
+![United Kingdom and 2019 selected in the country and start-year dialog](../figures/GUI/First-run%20country%20and%20year.png)
+
+The country selector is retained from earlier development. The 2019 start year is important when using the bundled training data because those data were generated for 2019. If no year is selected, SimPaths uses the default start year of 2011, for which the training database has no household table.
+
+!!! warning "Do not use the default 2011 start year with training data"
+    If setup is skipped or 2019 is not selected, building the model can fail with `Table "HOUSEHOLD_UK_2011" not found`. Return to the start-up dialogs, select the setup options above, and choose 2019.
+
+### 2.4 Build the input database
+
+The database build now starts. A progress window appears, and the console or IDE output reports `Building database tables for starting populations`.
+
+![Progress window while SimPaths builds the starting-population database](../figures/GUI/First-run%20database%20build.png)
+
+This is normally quick with the bundled training data. It can take longer when authorised research data are being processed, so allow the process to finish before interacting with the next dialog.
+
+### 2.5 Build the policy schedule
+
+When the policy-selection window appears, leave the policy systems unselected and click **Build new Policy Schedule**. Wait while SimPaths completes the remaining setup and opens the main JAS-mine interface.
+
+### 2.6 Build and start the simulation
+
+In the main interface:
+
+1. Click **Build simulation model**.
+2. When the model has finished building, click the green **Start simulation** button.
+
+![JAS-mine simulation controls, including Build simulation model and Start simulation](../figures/GUI/SimPaths-Buttons.png)
+
+The chart panels should begin updating as the simulation runs, while setup and run messages appear in the output stream. The controls are described in more detail in [Simulation Control Pane](#32-simulation-control-pane).
+
+!!! tip "Later runs"
+    Once the input database and policy schedule have been built, they can normally be reused. Repeat setup after replacing input data, changing donor policy files, or changing the policy schedule.
+
+## 3. Components
+
+### 3.1 Menus
 
 ![JAS-mine GUI Menu](https://www.microsimulation.ac.uk/wp-content/uploads/documentation/JAS-mine-GUI-menu.png)
 
@@ -35,7 +104,7 @@ There are three menu tabs at the top of the JAS-mine:
 * Tools – contains the '**[Database explorer](https://www.microsimulation.ac.uk/jas-mine/resources/cookbook/queries/)**' that opens up the web browser to interact with the simulation's input or output databases (if any).  This also includes the 'Print windows positions' tool that prints to the output stream window the co-ordinates of the corner positions of all widgets (parameter boxes and graphs) in the main graphical window.
 * Help – features the 'About JAS-mine' option that opens up a window containing credits for JAS-mine and the terms of the GNU LESSER GENERAL PUBLIC LICENSE, in addition to information about the system environment being used to run JAS-mine simulations such as the memory allocated to the Java Virtual Machine and the version of Java.
 
-## 1.2 Simulation Control Pane
+### 3.2 Simulation Control Pane
 
 ![JAS-mine Buttons](../figures/GUI/SimPaths-Buttons.png)
 
@@ -52,7 +121,7 @@ In addition, the toggle box **'Turn off database'** disables JAS-mine's [object-
 
 The sliding scale on the right labelled **'Simulation speed'** adjusts the real-time speed in which the simulation is executed. The default speed is set to the maximum (and so is only limited by the processor speed of the computer on which the simulation is running), however the simulation can be slowed down by dragging the slider to the left – this may be useful for example when demonstrating a model to an audience when it is desired to slow down the updates of the graphs.
 
-## 1.3 Parameter Boxes
+### 3.3 Parameter Boxes
 
 A JAS-mine model's *[GUI parameters](https://www.microsimulation.ac.uk/jas-mine/resources/cookbook/gui-parameters/)* appear in the parameter boxes below the Simulation Control Pane.  One parameter box for each of the '[Model-Collector-Observer](https://www.microsimulation.ac.uk/jas-mine/resources/focus/model-collector-observer/)' manager classes is displayed, as long as there are any variables in each of the manager classes that have the `@GUIparameter` annotation.
 
@@ -68,7 +137,7 @@ The type of parameters determines the way they are presented in the boxes, with 
 
 The GUI parameters can be adjusted from their default values before the model is built, or even during the execution of the simulation, although in this latter case the 'Update parameters in the live simulation' button in the Simulation Control Pane must be clicked for any parameters in the simulation to be updated. This is useful, for example, in seeing the impact of step changes in the parameters on the equilibrium state of a simulation model. Note that only parameters that are accessed by the model during the simulation after the update button has been clicked can have any impact on the simulation. For example, if a simulation uses a GUI parameter to determine the size of an agent population at the start of the simulation, and the population is subsequently evolved, the population size will not change despite the population size parameter having been updated if this parameter is only ever used by the model at the start of the simulation. In order to have a population size parameter that affects population size during the simulation, the model developer would need to explicitly code the simulation to check the size of the population at scheduled times during the simulation, and remove / add agents if the population size differs from the population size parameter.
 
-## 1.4 Graphical Widgets (Charts)
+### 3.4 Graphical Widgets (Charts)
 
 Below the parameter boxes in the main pane with the blue background, a variety of graphics can be produced in the JAS-mine GUI, including time-series plots, histograms and geographical maps. For information on the currently supported graphics, see the JAS-mine GUI's Plot, Colormap and Space packages in the [API](https://www.microsimulation.ac.uk/jas-mine/resources/api/) documentation; for how to feed the graphical widgets, see the JAS-mine [statistical package](https://www.microsimulation.ac.uk/jas-mine/resources/tutorials/how-to-use-the-jasmine-statistical-package/).
 
@@ -84,7 +153,7 @@ In addition, for a time series plot, it is possible to zoom in to areas of data 
 
 Finally, the time series plots can be saved as a PNG file, printed or copied by right clicking on the chart and selecting the relevant option.
 
-## 1.5 Output stream
+### 3.5 Output stream
 
 The output stream is the white coloured window at the bottom of the GUI. It contains the system and debugger out-stream data that would be printed out to the Command Prompt (in Windows), the Terminal (Linux), or in Eclipse if running in batch mode without the GUI. Such output includes any data produced by `System.out.println()` or `System.err.println()` commands in Java, and also information about the creation of database tables when building the project. The stack trace of any exceptions thrown will be printed out. The buttons on top of the output stream window include an option to save the text to file.
 

@@ -11,7 +11,7 @@ This section walks you through everything needed to run SimPaths for the first t
 
 SimPaths is a Java project. Before running simulations you need:
 
-- Java Development Kit (JDK) 19 or later
+- Java Development Kit (JDK) 25
 - Maven (for dependency management)
 - The required input data files (see [Input Data](data/index.md))
 

@@ -23,7 +23,7 @@ on:
       - develop  # Only publish when pushing to develop branch
 ```
 
-The code is checked out from the `develop` branch, Java 19 is installed, and SimPaths is compiled.
+The code is checked out from the `develop` branch, Java 25 is installed, and SimPaths is compiled.
 
 
 ```
@@ -35,12 +35,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
-      - name: Set up JDK 19
-        uses: actions/setup-java@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v5
         with:
-          java-version: '19'
+          java-version: '25'
           distribution: 'temurin'
           cache: maven
 
@@ -65,7 +65,7 @@ Finally, the generated documentation is deployed to the `javadoc` branch of the 
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           javadoc-branch: javadoc
-          java-version: 19
+          java-version: 25
           target-folder: javadoc # Specifies the folder in which the documentation is saved 
           project: maven
 ```
@@ -77,4 +77,3 @@ GitHub pages is combined with the GitHub Actions workflow to ensure that the doc
 - The `javadoc` branch contains the generated HTML API documentation.
 - GitHub Pages is configured to use this branch as the site’s content source.
 - Each time the GitHub Actions workflow updates the `javadoc` branch, GitHub Pages automatically refreshes the live site.
-

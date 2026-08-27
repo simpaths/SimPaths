@@ -4,11 +4,11 @@ This page covers the local software requirements, repository setup, and the firs
 
 ## 1. Local requirements
 
-- Java Development Kit (JDK) 19
+- Java Development Kit (JDK) 25
 - Apache Maven 3.8 or later
 - Git
 
-The project is compiled for Java 19 in `pom.xml`, so earlier Java versions will not build the code correctly.
+The current SimPaths development release is compiled for Java 25 in `pom.xml`, so earlier Java versions will not build the code correctly.
 
 It is worth checking the toolchain before going further:
 

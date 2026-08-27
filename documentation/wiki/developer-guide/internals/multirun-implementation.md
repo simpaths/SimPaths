@@ -8,7 +8,7 @@
 
 ### Prerequisites
 
-- Java 19
+- Java 25
 - Maven 3.8+
 - Optional IDE: IntelliJ IDEA (import as a Maven project)
 

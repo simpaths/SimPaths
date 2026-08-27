@@ -77,6 +77,8 @@ java -jar singlerun.jar
 
 In GUI mode, SimPaths opens the start-up dialog and then launches the JAS-mine shell. This is useful for interactive exploration, but it is less explicit than the headless route for a first installation check.
 
+For a fresh clone using the bundled training data, follow [First GUI run with bundled training data](../user-guide/gui.md#2-first-gui-run-with-bundled-training-data). It shows the exact start-up options, country, and 2019 start year required to build the local database before starting the simulation.
+
 ## What success looks like
 
 A successful first run should leave you with:
@@ -94,7 +96,7 @@ If the run fails before the simulation starts, the problem is usually in setup r
 - donor or initial-population files are missing
   - check the contents of `input/InitialPopulations/` and `input/EUROMODoutput/`
 - wrong Java version
-  - SimPaths targets Java 19
+  - SimPaths targets Java 25
 - setup succeeds but the run uses unexpected inputs
   - rebuild the database after changing donor files or the policy schedule
 
