@@ -11,6 +11,138 @@
   font-display: swap;
 }
 
+/* ═══════════════════════════════════════════════
+   DEVELOPMENT ROADMAP — EDITORIAL WORKSTREAM
+═══════════════════════════════════════════════ */
+
+.md-typeset .roadmap-page {
+  --roadmap-rule: rgba(42, 56, 72, 0.13);
+  padding-bottom: 1rem;
+}
+
+.md-typeset .roadmap-page p,
+.md-typeset .roadmap-page li {
+  text-align: left !important;
+  hyphens: none;
+  text-wrap: pretty;
+}
+
+.md-typeset .roadmap-page > p,
+.md-typeset .roadmap-page > ol,
+.md-typeset .roadmap-page > ul {
+  max-width: 44rem;
+}
+
+.md-typeset .roadmap-page > p,
+.md-typeset .roadmap-page > ol li,
+.md-typeset .roadmap-page > ul li,
+.md-typeset .roadmap-page h3 + p {
+  text-align: justify !important;
+  text-align-last: left;
+  text-justify: inter-word;
+  hyphens: auto;
+}
+
+.md-typeset .roadmap-page > ol li,
+.md-typeset .roadmap-page > ul li {
+  margin-bottom: 0.28rem;
+}
+
+.md-typeset .roadmap-page h2 {
+  margin: 2.35rem 0 0.72rem !important;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--roadmap-rule);
+  letter-spacing: -0.015em;
+}
+
+.md-typeset .roadmap-page h3 {
+  max-width: 44rem;
+  margin: 1.25rem 0 0.35rem !important;
+  padding-top: 0.92rem;
+  border-top: 1px solid var(--roadmap-rule);
+  color: var(--sp-midnight);
+  font-family: var(--md-text-font), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  font-size: 0.82rem !important;
+  font-weight: 720;
+  letter-spacing: -0.012em;
+  line-height: 1.35;
+}
+
+.md-typeset .roadmap-page h3 + p {
+  margin-top: 0.35rem;
+}
+
+.md-typeset .roadmap-impact {
+  max-width: 43rem;
+  margin: 0.48rem 0 0.3rem;
+  padding: 0.12rem 0 0.12rem 0.72rem;
+  border-left: 2px solid rgba(36, 120, 181, 0.52);
+  color: var(--sp-wine);
+  font-size: 0.75rem;
+  line-height: 1.55;
+}
+
+.md-typeset .roadmap-impact p,
+.md-typeset .roadmap-meta p {
+  margin: 0;
+}
+
+.md-typeset .roadmap-impact strong {
+  margin-right: 0.34rem;
+  color: var(--sp-accent);
+  font-size: 0.6rem;
+  font-weight: 760;
+  letter-spacing: 0.065em;
+  text-transform: uppercase;
+}
+
+.md-typeset .roadmap-target {
+  border-left-color: rgba(66, 86, 107, 0.42);
+}
+
+.md-typeset .roadmap-target strong {
+  color: var(--sp-wine-soft);
+}
+
+.md-typeset .roadmap-meta {
+  max-width: 43rem;
+  margin: 0.35rem 0 1.05rem;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.67rem;
+  line-height: 1.55;
+}
+
+.md-typeset .roadmap-meta a {
+  text-decoration-color: rgba(36, 120, 181, 0.25);
+  text-underline-offset: 0.12em;
+}
+
+/* Keep the roadmap contents useful without repeating every work item. */
+.md-main__inner:has(.roadmap-page) .md-sidebar--secondary .md-nav__item > .md-nav {
+  display: none;
+}
+
+.md-main__inner:has(.roadmap-page) .md-sidebar--secondary .md-nav__link {
+  margin-top: 0.55rem;
+  font-size: 0.7rem;
+  line-height: 1.36;
+}
+
+@media (max-width: 680px) {
+  .md-typeset .roadmap-page h2 {
+    margin-top: 2rem !important;
+  }
+
+  .md-typeset .roadmap-page h3 {
+    margin-top: 1.05rem !important;
+    font-size: 0.8rem !important;
+  }
+
+  .md-typeset .roadmap-impact {
+    padding-left: 0.62rem;
+  }
+}
+
 @font-face {
   font-family: "Newsreader";
   src: url("../fonts/Newsreader.woff2") format("woff2");
