@@ -121,8 +121,6 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
 
     private Ydses_c5 yHhQuintilesMonthC5;
 
-    private EDI edi; //Equivalised disposable income statistics
-
     private GrossLabourIncome grossLabourIncome;
 
     private DataExport exportPersons;
@@ -181,7 +179,6 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
             calculateGrossIncome();
         case CalculateEquivalisedHouseholdDisposableIncome:
             calculateEquivalisedHouseholdDisposableIncome();
-            calculateEDI();
             break;
         case CalculateGiniCoefficients:
             calculateGiniCoefficients();
@@ -309,7 +306,6 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
         }
 
         yHhQuintilesMonthC5 = new Ydses_c5();
-        edi = new EDI();
         grossLabourIncome = new GrossLabourIncome();
 
 
@@ -455,18 +451,6 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
             initialDistributionCalculated = true;
         }
     }
-
-    private class EDI {
-        final SimPathsModel model = (SimPathsModel) getManager();
-
-        public void update() {
-            var hh_edi_cs = new CrossSection<>(model::getBenefitUnits, BenefitUnit::getEquivalisedDisposableIncomeYearly);
-            var hh_edi_stats = new Stats(hh_edi_cs.get()).descrStats();
-            // Median equivalised household disposable income is already reported as yHhDispEquivP50.
-            // The legacy edi_p50 alias has been removed to keep the output consistent with the codebook.
-        }
-    }
-
 
     public class GiniPersonalGrossEarnings {
         //I calculate that the Gini coefficient for household-weights w_i and variables x_i:
@@ -739,10 +723,6 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
         giniPersonalGrossEarnings.update();
         giniEquivalisedHouseholdDisposableIncome.update();
 
-    }
-
-    private void calculateEDI() {
-        edi.update();
     }
 
     private void calculateGrossIncome() {
