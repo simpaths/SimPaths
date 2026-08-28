@@ -18,7 +18,7 @@ hide:
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
       </div>
       <div>
-        <p class="doc-pathway-kicker">New to SimPaths</p>
+        <p class="doc-pathway-kicker">Getting started</p>
         <h2>Set up and complete a first run</h2>
         <p>Use this route if you are installing SimPaths, checking the required inputs, or trying to get to a first successful run as quickly as possible.</p>
       </div>
