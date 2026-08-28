@@ -871,6 +871,7 @@ public class Parameters {
     public static boolean flagSocialCare;
     public static boolean flagSuppressChildcareCosts;
     public static boolean flagSuppressSocialCareCosts;
+    public static boolean flagSuppressUCTakeup;
     public static boolean donorPoolAveraging;
     public static boolean taxDonorUpratingByWage;
     public static boolean lifetimeIncomeImpute;
@@ -905,8 +906,9 @@ public class Parameters {
                                       boolean taxDonorUpratingByWage1, boolean fixTimeTrend, boolean defaultToTimeSeriesAverages,
                                       boolean taxDBMatches, Integer timeTrendStops, int startYearModel, int endYearModel,
                                       double interestRateInnov1, double disposableIncomeFromLabourInnov1,
-                                      boolean flagSuppressChildcareCosts1, boolean flagSuppressSocialCareCosts1,
+                                      boolean flagSuppressChildcareCosts1, boolean flagSuppressSocialCareCosts1, boolean flagSuppressUCTakeup1,
                                       boolean lifetimeIncomeImpute1) {
+
 
         // display a dialog box to let the user know what is happening
         System.out.println("Loading model parameters");
@@ -937,6 +939,7 @@ public class Parameters {
         flagSocialCare = projectSocialCare;
         flagSuppressChildcareCosts = flagSuppressChildcareCosts1;
         flagSuppressSocialCareCosts = flagSuppressSocialCareCosts1;
+        flagSuppressUCTakeup = flagSuppressUCTakeup1;
         donorPoolAveraging = donorPoolAveraging1;
         taxDonorUpratingByWage = taxDonorUpratingByWage1;
         realInterestRateInnov = interestRateInnov1;

@@ -672,10 +672,12 @@ Contemporaneous values of dhhtp_c4 are required for validation. Update and outpu
 
                         // Find best donor and convert gross income to disposable
                         MultiKey<? extends Labour> labourKey = new MultiKey<>(male.getLabourSupplyWeekly(), female.getLabourSupplyWeekly());
-                        TaxEvaluation evaluatedTransfers;
 
-                        double taxInnov = (Parameters.donorPoolAveraging) ? -1.0 : taxRandomUniform;
-                        evaluatedTransfers = new TaxEvaluation(model.getYear(), getIntValue(Regressors.MaximumAge), getIntValue(Regressors.NumberMembersOver17), getIntValue(Regressors.NumberChildren04), getIntValue(Regressors.NumberChildren59), getIntValue(Regressors.NumberChildren1017), labourKey.getKey(0).getHours(male), labourKey.getKey(1).getHours(female), male.getDisability(), female.getDisability(), 0, simulatedIncomeToConvertPerMonth, 0.0, 0.0, taxInnov);
+                        double hoursWorkedPerWeekM = labourKey.getKey(0).getHours(male);
+                        double hoursWorkedPerWeekF = labourKey.getKey(1).getHours(female);
+                        int dlltsdM = male.getDisability();
+                        int dlltsdF = female.getDisability();
+                        TaxEvaluation evaluatedTransfers = taxWrapper(hoursWorkedPerWeekM, hoursWorkedPerWeekF, dlltsdM, dlltsdF, simulatedIncomeToConvertPerMonth, 0.0);
 
                         yDispMonth = evaluatedTransfers.getDisposableIncomePerMonth();
                         yBenAmountMonth = evaluatedTransfers.getBenefitsReceivedPerMonth();
