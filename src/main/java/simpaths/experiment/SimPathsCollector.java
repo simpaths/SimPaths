@@ -462,7 +462,8 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
         public void update() {
             var hh_edi_cs = new CrossSection<>(model::getBenefitUnits, BenefitUnit::getEquivalisedDisposableIncomeYearly);
             var hh_edi_stats = new Stats(hh_edi_cs.get()).descrStats();
-            wealthIncomeStats.setEdi_p50(hh_edi_stats.getPercentile(50.0));
+            // Median equivalised household disposable income is already reported as yHhDispEquivP50.
+            // The legacy edi_p50 alias has been removed to keep the output consistent with the codebook.
         }
     }
 

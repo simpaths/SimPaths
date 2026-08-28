@@ -47,13 +47,12 @@ public class WealthIncomeStatistics {
 	@Column(name = "Gross_Labour_Income_p80")
 	private double yLabP80;
 
-	//Equivalised disposable income
-	@Column(name = "EDI_p50")
-	private double edi_p50;
+	//Equivalised disposable income is reported as the income median yHhDispEquivP50;
+	//the legacy edi_p50 alias is intentionally removed to match the codebook naming rules.
 
 	//Percentiles of SIndex:
-	@Column(name = "SIndex_p50")
-	private double sIndex_p50;
+	@Column(name = "statSIndexP50")
+	private double statSIndexP50;
 
 	//employment income, averaged over workers rather than over population, weekly and not equivalised
 	@Column(name = "labourIncome_perWorker_weekly_18_29")
@@ -167,12 +166,12 @@ public class WealthIncomeStatistics {
 		this.yHhQuintilesC5P80 = yHhQuintilesC5P80;
 	}
 
-	public double getSIndex_p50() {
-		return sIndex_p50;
+	public double getStatSIndexP50() {
+		return statSIndexP50;
 	}
 
-	public void setSIndex_p50(double sIndex_p50) {
-		this.sIndex_p50 = sIndex_p50;
+	public void setStatSIndexP50(double statSIndexP50) {
+		this.statSIndexP50 = statSIndexP50;
 	}
 
 	public double getYLabP20() {
@@ -205,14 +204,6 @@ public class WealthIncomeStatistics {
 
 	public void setYLabP80(double yLabP80) {
 		this.yLabP80 = yLabP80;
-	}
-
-	public double getEdi_p50() {
-		return edi_p50;
-	}
-
-	public void setEdi_p50(double edi_p50) {
-		this.edi_p50 = edi_p50;
 	}
 
 	public double getLabourIncomeWeeklyPerWorker18to29() {
