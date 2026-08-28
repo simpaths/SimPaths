@@ -28,205 +28,205 @@ public class AlignmentStatistics {
     // ------------------------------------------------------------------
     // Partnership
     // ------------------------------------------------------------------
-    @Column(name = "partnership_adj_factor")
-    private double partnershipAdjFactor;
+    @Column(name = "align_partner_adj")
+    private double alignPartnerAdj;
 
-    @Column(name = "share_cohabiting_sim")
-    private double shareCohabitingSim;
+    @Column(name = "align_partner_sim_share")
+    private double alignPartnerSimShare;
 
-    @Column(name = "share_cohabiting_tgt")
-    private double shareCohabitingTgt;
+    @Column(name = "align_partner_tgt_share")
+    private double alignPartnerTgtShare;
 
     // ------------------------------------------------------------------
     // Fertility
     // ------------------------------------------------------------------
-    @Column(name = "fertility_adj_factor")
-    private double fertilityAdjFactor;
+    @Column(name = "align_fert_adj")
+    private double alignFertAdj;
 
-    @Column(name = "fertility_rate_sim")
-    private double fertilityRateSim;
+    @Column(name = "align_fert_rate_sim")
+    private double alignFertRateSim;
 
-    @Column(name = "fertility_rate_tgt")
-    private double fertilityRateTgt;
+    @Column(name = "align_fert_rate_tgt")
+    private double alignFertRateTgt;
 
     // ------------------------------------------------------------------
     // In-school
     // ------------------------------------------------------------------
-    @Column(name = "in_school_adj_factor")
-    private double inSchoolAdjFactor;
+    @Column(name = "align_in_school_adj")
+    private double alignInSchoolAdj;
 
-    @Column(name = "in_school_share_sim")
-    private double inSchoolShareSim;
+    @Column(name = "align_in_school_sim_share")
+    private double alignInSchoolSimShare;
 
-    @Column(name = "in_school_share_tgt")
-    private double inSchoolShareTgt;
+    @Column(name = "align_in_school_tgt_share")
+    private double alignInSchoolTgtShare;
 
     // ------------------------------------------------------------------
     // Utility adjustment factors (one per occupancy type)
     // ------------------------------------------------------------------
-    @Column(name = "utility_adj_single_males")
-    private double utilityAdjSingleMales;
+    @Column(name = "align_util_adj_single_m")
+    private double alignUtilAdjSingleM;
 
-    @Column(name = "utility_adj_ac_males")
-    private double utilityAdjACMales;
+    @Column(name = "align_util_adj_ac_m")
+    private double alignUtilAdjACM;
 
-    @Column(name = "utility_adj_single_females")
-    private double utilityAdjSingleFemales;
+    @Column(name = "align_util_adj_single_f")
+    private double alignUtilAdjSingleF;
 
-    @Column(name = "utility_adj_ac_females")
-    private double utilityAdjACFemales;
+    @Column(name = "align_util_adj_ac_f")
+    private double alignUtilAdjACF;
 
-    @Column(name = "utility_adj_couples")
-    private double utilityAdjCouples;
+    @Column(name = "align_util_adj_couple")
+    private double alignUtilAdjCouple;
 
-    @Column(name = "utility_adj_single_dep_males")
-    private double utilityAdjSingleDepMales;
+    @Column(name = "align_util_adj_m_with_dep")
+    private double alignUtilAdjMWithDep;
 
-    @Column(name = "utility_adj_single_dep_females")
-    private double utilityAdjSingleDepFemales;
+    @Column(name = "align_util_adj_f_with_dep")
+    private double alignUtilAdjFWithDep;
 
     // ------------------------------------------------------------------
     // Employment shares — simulated
     // ------------------------------------------------------------------
-    @Column(name = "emp_share_sim_single_males")
-    private double empShareSimSingleMales;
+    @Column(name = "align_emp_sim_single_m_share")
+    private double alignEmpSimSingleMShare;
 
-    @Column(name = "emp_share_sim_single_females")
-    private double empShareSimSingleFemales;
+    @Column(name = "align_emp_sim_single_f_share")
+    private double alignEmpSimSingleFShare;
 
-    @Column(name = "emp_share_sim_ac_males")
-    private double empShareSimACMales;
+    @Column(name = "align_emp_sim_ac_m_share")
+    private double alignEmpSimACMShare;
 
-    @Column(name = "emp_share_sim_ac_females")
-    private double empShareSimACFemales;
+    @Column(name = "align_emp_sim_ac_f_share")
+    private double alignEmpSimACFShare;
 
-    @Column(name = "emp_share_sim_couples")
-    private double empShareSimCouples;
+    @Column(name = "align_emp_sim_couples_share")
+    private double alignEmpSimCouplesShare;
 
-    @Column(name = "emp_share_sim_single_dep_males")
-    private double empShareSimSingleDepMales;
+    @Column(name = "align_emp_sim_m_with_dep_share")
+    private double alignEmpSimMWithDepShare;
 
-    @Column(name = "emp_share_sim_single_dep_females")
-    private double empShareSimSingleDepFemales;
+    @Column(name = "align_emp_sim_f_with_dep_share")
+    private double alignEmpSimFWithDepShare;
 
     // ------------------------------------------------------------------
     // Employment shares — target
     // ------------------------------------------------------------------
-    @Column(name = "emp_share_tgt_single_males")
-    private double empShareTgtSingleMales;
+    @Column(name = "align_emp_tgt_single_m_share")
+    private double alignEmpTgtSingleMShare;
 
-    @Column(name = "emp_share_tgt_single_females")
-    private double empShareTgtSingleFemales;
+    @Column(name = "align_emp_tgt_single_f_share")
+    private double alignEmpTgtSingleFShare;
 
-    @Column(name = "emp_share_tgt_ac_males")
-    private double empShareTgtACMales;
+    @Column(name = "align_emp_tgt_ac_m_share")
+    private double alignEmpTgtACMShare;
 
-    @Column(name = "emp_share_tgt_ac_females")
-    private double empShareTgtACFemales;
+    @Column(name = "align_emp_tgt_ac_f_share")
+    private double alignEmpTgtACFShare;
 
-    @Column(name = "emp_share_tgt_couples")
-    private double empShareTgtCouples;
+    @Column(name = "align_emp_tgt_couples_share")
+    private double alignEmpTgtCouplesShare;
 
-    @Column(name = "emp_share_tgt_single_dep_males")
-    private double empShareTgtSingleDepMales;
+    @Column(name = "align_emp_tgt_m_with_dep_share")
+    private double alignEmpTgtMWithDepShare;
 
-    @Column(name = "emp_share_tgt_single_dep_females")
-    private double empShareTgtSingleDepFemales;
+    @Column(name = "align_emp_tgt_f_with_dep_share")
+    private double alignEmpTgtFWithDepShare;
 
 
     // ------------------------------------------------------------------
     // Getters and setters
     // ------------------------------------------------------------------
 
-    public double getPartnershipAdjFactor() { return partnershipAdjFactor; }
-    public void setPartnershipAdjFactor(double v) { partnershipAdjFactor = v; }
+    public double getAlignPartnerAdj() { return alignPartnerAdj; }
+    public void setAlignPartnerAdj(double v) { alignPartnerAdj = v; }
 
-    public double getShareCohabitingSim() { return shareCohabitingSim; }
-    public void setShareCohabitingSim(double v) { shareCohabitingSim = v; }
+    public double getAlignPartnerSimShare() { return alignPartnerSimShare; }
+    public void setAlignPartnerSimShare(double v) { alignPartnerSimShare = v; }
 
-    public double getShareCohabitingTgt() { return shareCohabitingTgt; }
-    public void setShareCohabitingTgt(double v) { shareCohabitingTgt = v; }
+    public double getAlignPartnerTgtShare() { return alignPartnerTgtShare; }
+    public void setAlignPartnerTgtShare(double v) { alignPartnerTgtShare = v; }
 
-    public double getFertilityAdjFactor() { return fertilityAdjFactor; }
-    public void setFertilityAdjFactor(double v) { fertilityAdjFactor = v; }
+    public double getAlignFertAdj() { return alignFertAdj; }
+    public void setAlignFertAdj(double v) { alignFertAdj = v; }
 
-    public double getFertilityRateSim() { return fertilityRateSim; }
-    public void setFertilityRateSim(double v) { fertilityRateSim = v; }
+    public double getAlignFertRateSim() { return alignFertRateSim; }
+    public void setAlignFertRateSim(double v) { alignFertRateSim = v; }
 
-    public double getFertilityRateTgt() { return fertilityRateTgt; }
-    public void setFertilityRateTgt(double v) { fertilityRateTgt = v; }
+    public double getAlignFertRateTgt() { return alignFertRateTgt; }
+    public void setAlignFertRateTgt(double v) { alignFertRateTgt = v; }
 
-    public double getInSchoolAdjFactor() { return inSchoolAdjFactor; }
-    public void setInSchoolAdjFactor(double v) { inSchoolAdjFactor = v; }
+    public double getAlignInSchoolAdj() { return alignInSchoolAdj; }
+    public void setAlignInSchoolAdj(double v) { alignInSchoolAdj = v; }
 
-    public double getInSchoolShareSim() { return inSchoolShareSim; }
-    public void setInSchoolShareSim(double v) { inSchoolShareSim = v; }
+    public double getAlignInSchoolSimShare() { return alignInSchoolSimShare; }
+    public void setAlignInSchoolSimShare(double v) { alignInSchoolSimShare = v; }
 
-    public double getInSchoolShareTgt() { return inSchoolShareTgt; }
-    public void setInSchoolShareTgt(double v) { inSchoolShareTgt = v; }
+    public double getAlignInSchoolTgtShare() { return alignInSchoolTgtShare; }
+    public void setAlignInSchoolTgtShare(double v) { alignInSchoolTgtShare = v; }
 
-    public double getUtilityAdjSingleMales() { return utilityAdjSingleMales; }
-    public void setUtilityAdjSingleMales(double v) { utilityAdjSingleMales = v; }
+    public double getAlignUtilAdjSingleM() { return alignUtilAdjSingleM; }
+    public void setAlignUtilAdjSingleM(double v) { alignUtilAdjSingleM = v; }
 
-    public double getUtilityAdjACMales() { return utilityAdjACMales; }
-    public void setUtilityAdjACMales(double v) { utilityAdjACMales = v; }
+    public double getAlignUtilAdjACM() { return alignUtilAdjACM; }
+    public void setAlignUtilAdjACM(double v) { alignUtilAdjACM = v; }
 
-    public double getUtilityAdjSingleFemales() { return utilityAdjSingleFemales; }
-    public void setUtilityAdjSingleFemales(double v) { utilityAdjSingleFemales = v; }
+    public double getAlignUtilAdjSingleF() { return alignUtilAdjSingleF; }
+    public void setAlignUtilAdjSingleF(double v) { alignUtilAdjSingleF = v; }
 
-    public double getUtilityAdjACFemales() { return utilityAdjACFemales; }
-    public void setUtilityAdjACFemales(double v) { utilityAdjACFemales = v; }
+    public double getAlignUtilAdjACF() { return alignUtilAdjACF; }
+    public void setAlignUtilAdjACF(double v) { alignUtilAdjACF = v; }
 
-    public double getUtilityAdjCouples() { return utilityAdjCouples; }
-    public void setUtilityAdjCouples(double v) { utilityAdjCouples = v; }
+    public double getAlignUtilAdjCouple() { return alignUtilAdjCouple; }
+    public void setAlignUtilAdjCouple(double v) { alignUtilAdjCouple = v; }
 
-    public double getUtilityAdjSingleDepMales() { return utilityAdjSingleDepMales; }
-    public void setUtilityAdjSingleDepMales(double v) { utilityAdjSingleDepMales = v; }
+    public double getAlignUtilAdjMWithDep() { return alignUtilAdjMWithDep; }
+    public void setAlignUtilAdjMWithDep(double v) { alignUtilAdjMWithDep = v; }
 
-    public double getUtilityAdjSingleDepFemales() { return utilityAdjSingleDepFemales; }
-    public void setUtilityAdjSingleDepFemales(double v) { utilityAdjSingleDepFemales = v; }
+    public double getAlignUtilAdjFWithDep() { return alignUtilAdjFWithDep; }
+    public void setAlignUtilAdjFWithDep(double v) { alignUtilAdjFWithDep = v; }
 
-    public double getEmpShareSimSingleMales() { return empShareSimSingleMales; }
-    public void setEmpShareSimSingleMales(double v) { empShareSimSingleMales = v; }
+    public double getAlignEmpSimSingleMShare() { return alignEmpSimSingleMShare; }
+    public void setAlignEmpSimSingleMShare(double v) { alignEmpSimSingleMShare = v; }
 
-    public double getEmpShareSimSingleFemales() { return empShareSimSingleFemales; }
-    public void setEmpShareSimSingleFemales(double v) { empShareSimSingleFemales = v; }
+    public double getAlignEmpSimSingleFShare() { return alignEmpSimSingleFShare; }
+    public void setAlignEmpSimSingleFShare(double v) { alignEmpSimSingleFShare = v; }
 
-    public double getEmpShareSimACMales() { return empShareSimACMales; }
-    public void setEmpShareSimACMales(double v) { empShareSimACMales = v; }
+    public double getAlignEmpSimACMShare() { return alignEmpSimACMShare; }
+    public void setAlignEmpSimACMShare(double v) { alignEmpSimACMShare = v; }
 
-    public double getEmpShareSimACFemales() { return empShareSimACFemales; }
-    public void setEmpShareSimACFemales(double v) { empShareSimACFemales = v; }
+    public double getAlignEmpSimACFShare() { return alignEmpSimACFShare; }
+    public void setAlignEmpSimACFShare(double v) { alignEmpSimACFShare = v; }
 
-    public double getEmpShareSimCouples() { return empShareSimCouples; }
-    public void setEmpShareSimCouples(double v) { empShareSimCouples = v; }
+    public double getAlignEmpSimCouplesShare() { return alignEmpSimCouplesShare; }
+    public void setAlignEmpSimCouplesShare(double v) { alignEmpSimCouplesShare = v; }
 
-    public double getEmpShareSimSingleDepMales() { return empShareSimSingleDepMales; }
-    public void setEmpShareSimSingleDepMales(double v) { empShareSimSingleDepMales = v; }
+    public double getAlignEmpSimMWithDepShare() { return alignEmpSimMWithDepShare; }
+    public void setAlignEmpSimMWithDepShare(double v) { alignEmpSimMWithDepShare = v; }
 
-    public double getEmpShareSimSingleDepFemales() { return empShareSimSingleDepFemales; }
-    public void setEmpShareSimSingleDepFemales(double v) { empShareSimSingleDepFemales = v; }
+    public double getAlignEmpSimFWithDepShare() { return alignEmpSimFWithDepShare; }
+    public void setAlignEmpSimFWithDepShare(double v) { alignEmpSimFWithDepShare = v; }
 
-    public double getEmpShareTgtSingleMales() { return empShareTgtSingleMales; }
-    public void setEmpShareTgtSingleMales(double v) { empShareTgtSingleMales = v; }
+    public double getAlignEmpTgtSingleMShare() { return alignEmpTgtSingleMShare; }
+    public void setAlignEmpTgtSingleMShare(double v) { alignEmpTgtSingleMShare = v; }
 
-    public double getEmpShareTgtSingleFemales() { return empShareTgtSingleFemales; }
-    public void setEmpShareTgtSingleFemales(double v) { empShareTgtSingleFemales = v; }
+    public double getAlignEmpTgtSingleFShare() { return alignEmpTgtSingleFShare; }
+    public void setAlignEmpTgtSingleFShare(double v) { alignEmpTgtSingleFShare = v; }
 
-    public double getEmpShareTgtACMales() { return empShareTgtACMales; }
-    public void setEmpShareTgtACMales(double v) { empShareTgtACMales = v; }
+    public double getAlignEmpTgtACMShare() { return alignEmpTgtACMShare; }
+    public void setAlignEmpTgtACMShare(double v) { alignEmpTgtACMShare = v; }
 
-    public double getEmpShareTgtACFemales() { return empShareTgtACFemales; }
-    public void setEmpShareTgtACFemales(double v) { empShareTgtACFemales = v; }
+    public double getAlignEmpTgtACFShare() { return alignEmpTgtACFShare; }
+    public void setAlignEmpTgtACFShare(double v) { alignEmpTgtACFShare = v; }
 
-    public double getEmpShareTgtCouples() { return empShareTgtCouples; }
-    public void setEmpShareTgtCouples(double v) { empShareTgtCouples = v; }
+    public double getAlignEmpTgtCouplesShare() { return alignEmpTgtCouplesShare; }
+    public void setAlignEmpTgtCouplesShare(double v) { alignEmpTgtCouplesShare = v; }
 
-    public double getEmpShareTgtSingleDepMales() { return empShareTgtSingleDepMales; }
-    public void setEmpShareTgtSingleDepMales(double v) { empShareTgtSingleDepMales = v; }
+    public double getAlignEmpTgtMWithDepShare() { return alignEmpTgtMWithDepShare; }
+    public void setAlignEmpTgtMWithDepShare(double v) { alignEmpTgtMWithDepShare = v; }
 
-    public double getEmpShareTgtSingleDepFemales() { return empShareTgtSingleDepFemales; }
-    public void setEmpShareTgtSingleDepFemales(double v) { empShareTgtSingleDepFemales = v; }
+    public double getAlignEmpTgtFWithDepShare() { return alignEmpTgtFWithDepShare; }
+    public void setAlignEmpTgtFWithDepShare(double v) { alignEmpTgtFWithDepShare = v; }
 
 
     // ------------------------------------------------------------------
@@ -238,7 +238,7 @@ public class AlignmentStatistics {
         int year = model.getYear() - 1;  // year just simulated (consistent with annual collector exports)
 
         // --- Partnership ---
-        setPartnershipAdjFactor(
+        setAlignPartnerAdj(
                 Parameters.getTimeSeriesValue(year, TimeSeriesVariable.PartnershipAdjustment)
                 + model.getPartnershipAdjustment(year));
         long numPersonsCohabEligible = model.getPersons().stream()
@@ -247,12 +247,12 @@ public class AlignmentStatistics {
         long numPersonsPartnered = model.getPersons().stream()
                 .filter(p -> Dcpst.Partnered.equals(p.getDemPartnerStatus()))
                 .count();
-        setShareCohabitingSim(numPersonsCohabEligible > 0
+        setAlignPartnerSimShare(numPersonsCohabEligible > 0
                 ? (double) numPersonsPartnered / numPersonsCohabEligible : 0.0);
-        setShareCohabitingTgt(Parameters.getTargetShare(year, TargetShares.Partnership));
+        setAlignPartnerTgtShare(Parameters.getTargetShare(year, TargetShares.Partnership));
 
         // --- Fertility ---
-        setFertilityAdjFactor(
+        setAlignFertAdj(
                 Parameters.getTimeSeriesValue(year, TimeSeriesVariable.FertilityAdjustment)
                 + model.getFertilityAdjustment(year));
         long numFertile = model.getPersons().stream()
@@ -261,11 +261,11 @@ public class AlignmentStatistics {
         long numBirths = model.getPersons().stream()
                 .filter(p -> p.getDemAge() < 1)
                 .count();
-        setFertilityRateSim(numFertile > 0 ? (double) numBirths / numFertile : 0.0);
-        setFertilityRateTgt(Parameters.getFertilityRateByYear(year));
+        setAlignFertRateSim(numFertile > 0 ? (double) numBirths / numFertile : 0.0);
+        setAlignFertRateTgt(Parameters.getFertilityRateByYear(year));
 
         // --- In-school ---
-        setInSchoolAdjFactor(Parameters.getTimeSeriesValue(year, TimeSeriesVariable.InSchoolAdjustment));
+        setAlignInSchoolAdj(Parameters.getTimeSeriesValue(year, TimeSeriesVariable.InSchoolAdjustment));
         long numStudents = model.getPersons().stream()
                 .filter(p -> p.getDemAge() >= Parameters.MIN_AGE_TO_LEAVE_EDUCATION
                         && p.getDemAge() <= Parameters.MAX_AGE_TO_STAY_IN_CONTINUOUS_EDUCATION
@@ -277,17 +277,17 @@ public class AlignmentStatistics {
                         && p.getDemAge() <= Parameters.MAX_AGE_TO_STAY_IN_CONTINUOUS_EDUCATION
                         && p.getLabC4() != null)
                 .count();
-        setInSchoolShareSim(numInSchoolAge > 0 ? (double) numStudents / numInSchoolAge : 0.0);
-        setInSchoolShareTgt(Parameters.getTargetShare(year, TargetShares.Students));
+        setAlignInSchoolSimShare(numInSchoolAge > 0 ? (double) numStudents / numInSchoolAge : 0.0);
+        setAlignInSchoolTgtShare(Parameters.getTargetShare(year, TargetShares.Students));
 
         // --- Utility adjustment factors ---
-        setUtilityAdjSingleMales(Parameters.getTimeSeriesValue(year, TimeSeriesVariable.UtilityAdjustmentSingleMales));
-        setUtilityAdjACMales(Parameters.getTimeSeriesValue(year, TimeSeriesVariable.UtilityAdjustmentACMales));
-        setUtilityAdjSingleFemales(Parameters.getTimeSeriesValue(year, TimeSeriesVariable.UtilityAdjustmentSingleFemales));
-        setUtilityAdjACFemales(Parameters.getTimeSeriesValue(year, TimeSeriesVariable.UtilityAdjustmentACFemales));
-        setUtilityAdjCouples(Parameters.getTimeSeriesValue(year, TimeSeriesVariable.UtilityAdjustmentCouples));
-        setUtilityAdjSingleDepMales(Parameters.getTimeSeriesValue(year, TimeSeriesVariable.UtilityAdjustmentSingleDepMen));
-        setUtilityAdjSingleDepFemales(Parameters.getTimeSeriesValue(year, TimeSeriesVariable.UtilityAdjustmentSingleDepWomen));
+        setAlignUtilAdjSingleM(Parameters.getTimeSeriesValue(year, TimeSeriesVariable.UtilityAdjustmentSingleMales));
+        setAlignUtilAdjACM(Parameters.getTimeSeriesValue(year, TimeSeriesVariable.UtilityAdjustmentACMales));
+        setAlignUtilAdjSingleF(Parameters.getTimeSeriesValue(year, TimeSeriesVariable.UtilityAdjustmentSingleFemales));
+        setAlignUtilAdjACF(Parameters.getTimeSeriesValue(year, TimeSeriesVariable.UtilityAdjustmentACFemales));
+        setAlignUtilAdjCouple(Parameters.getTimeSeriesValue(year, TimeSeriesVariable.UtilityAdjustmentCouples));
+        setAlignUtilAdjMWithDep(Parameters.getTimeSeriesValue(year, TimeSeriesVariable.UtilityAdjustmentSingleDepMen));
+        setAlignUtilAdjFWithDep(Parameters.getTimeSeriesValue(year, TimeSeriesVariable.UtilityAdjustmentSingleDepWomen));
 
         // --- Employment shares ---
         double[] totSM  = new double[2];  // [count, fracEmployed sum]
@@ -327,20 +327,20 @@ public class AlignmentStatistics {
             }
         }
 
-        setEmpShareSimSingleMales(  totSM[0]  > 0 ? totSM[1]  / totSM[0]  : 0.0);
-        setEmpShareSimSingleFemales(totSF[0]  > 0 ? totSF[1]  / totSF[0]  : 0.0);
-        setEmpShareSimACMales(      totACM[0] > 0 ? totACM[1] / totACM[0] : 0.0);
-        setEmpShareSimACFemales(    totACF[0] > 0 ? totACF[1] / totACF[0] : 0.0);
-        setEmpShareSimCouples(      totCou[0] > 0 ? totCou[1] / totCou[0] : 0.0);
-        setEmpShareSimSingleDepMales(  totSDM[0] > 0 ? totSDM[1] / totSDM[0] : 0.0);
-        setEmpShareSimSingleDepFemales(totSDF[0] > 0 ? totSDF[1] / totSDF[0] : 0.0);
+        setAlignEmpSimSingleMShare(  totSM[0]  > 0 ? totSM[1]  / totSM[0]  : 0.0);
+        setAlignEmpSimSingleFShare(totSF[0]  > 0 ? totSF[1]  / totSF[0]  : 0.0);
+        setAlignEmpSimACMShare(      totACM[0] > 0 ? totACM[1] / totACM[0] : 0.0);
+        setAlignEmpSimACFShare(    totACF[0] > 0 ? totACF[1] / totACF[0] : 0.0);
+        setAlignEmpSimCouplesShare(      totCou[0] > 0 ? totCou[1] / totCou[0] : 0.0);
+        setAlignEmpSimMWithDepShare(  totSDM[0] > 0 ? totSDM[1] / totSDM[0] : 0.0);
+        setAlignEmpSimFWithDepShare(totSDF[0] > 0 ? totSDF[1] / totSDF[0] : 0.0);
 
-        setEmpShareTgtSingleMales(  Parameters.getTargetShare(year, TargetShares.EmploymentSingleMales));
-        setEmpShareTgtSingleFemales(Parameters.getTargetShare(year, TargetShares.EmploymentSingleFemales));
-        setEmpShareTgtACMales(      Parameters.getTargetShare(year, TargetShares.EmploymentACMales));
-        setEmpShareTgtACFemales(    Parameters.getTargetShare(year, TargetShares.EmploymentACFemales));
-        setEmpShareTgtCouples(      Parameters.getTargetShare(year, TargetShares.EmploymentCouples));
-        setEmpShareTgtSingleDepMales(  Parameters.getTargetShare(year, TargetShares.EmploymentSingleDepMales));
-        setEmpShareTgtSingleDepFemales(Parameters.getTargetShare(year, TargetShares.EmploymentSingleDepFemales));
+        setAlignEmpTgtSingleMShare(  Parameters.getTargetShare(year, TargetShares.EmploymentSingleMales));
+        setAlignEmpTgtSingleFShare(Parameters.getTargetShare(year, TargetShares.EmploymentSingleFemales));
+        setAlignEmpTgtACMShare(      Parameters.getTargetShare(year, TargetShares.EmploymentACMales));
+        setAlignEmpTgtACFShare(    Parameters.getTargetShare(year, TargetShares.EmploymentACFemales));
+        setAlignEmpTgtCouplesShare(      Parameters.getTargetShare(year, TargetShares.EmploymentCouples));
+        setAlignEmpTgtMWithDepShare(  Parameters.getTargetShare(year, TargetShares.EmploymentSingleDepMales));
+        setAlignEmpTgtFWithDepShare(Parameters.getTargetShare(year, TargetShares.EmploymentSingleDepFemales));
     }
 }
