@@ -93,7 +93,7 @@ for (const [name, path] of routes) {
 
 test("homepage closes with primary routes and an editorial research band", async ({ page }) => {
   await page.setViewportSize({ width: 1512, height: 900 });
-  await page.goto("/", { waitUntil: "networkidle" });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
 
   await expect(page.locator(".simpaths-home-explore")).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Model overview" })).toBeVisible();
@@ -130,7 +130,7 @@ test("homepage closes with primary routes and an editorial research band", async
   expect(presentation.headerLeft).toBeLessThan(presentation.firstEntryLeft);
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.reload({ waitUntil: "networkidle" });
+  await page.reload({ waitUntil: "domcontentloaded" });
 
   const mobileFooter = await page.evaluate(() => {
     const inner = document.querySelector(".md-footer-meta__inner");
@@ -151,7 +151,7 @@ test("homepage closes with primary routes and an editorial research band", async
 
 test("documentation masthead integrates the SimPaths mark", async ({ page }) => {
   await page.setViewportSize({ width: 1512, height: 900 });
-  await page.goto("/documentation/", { waitUntil: "networkidle" });
+  await page.goto("/documentation/", { waitUntil: "domcontentloaded" });
 
   const desktop = await page.evaluate(() => {
     const masthead = document.querySelector(".docs-index__masthead");
@@ -213,7 +213,7 @@ test("documentation masthead integrates the SimPaths mark", async ({ page }) => 
   expect(darkMode.darkImageAspectRatio).toBeLessThan(1.9);
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.reload({ waitUntil: "networkidle" });
+  await page.reload({ waitUntil: "domcontentloaded" });
 
   const mobile = await page.evaluate(() => {
     const masthead = document.querySelector(".docs-index__masthead");
@@ -235,7 +235,7 @@ test("documentation masthead integrates the SimPaths mark", async ({ page }) => 
 });
 
 test("research citation is separated by hierarchy rather than rules", async ({ page }) => {
-  await page.goto("/research/", { waitUntil: "networkidle" });
+  await page.goto("/research/", { waitUntil: "domcontentloaded" });
 
   const referencePaper = page.locator(".research-page .reference-paper");
   const presentation = await referencePaper.evaluate((element) => {
@@ -262,7 +262,7 @@ test("research citation is separated by hierarchy rather than rules", async ({ p
 
 test("funding reads as a single institutional register", async ({ page }) => {
   await page.setViewportSize({ width: 1512, height: 900 });
-  await page.goto("/funding/", { waitUntil: "networkidle" });
+  await page.goto("/funding/", { waitUntil: "domcontentloaded" });
 
   const desktop = await page.evaluate(() => {
     const grid = document.querySelector(".funding-grid");
@@ -350,7 +350,7 @@ test("equations render without webfont-dependent blank states", async ({ page })
 test("simulated modules is a single collapsible model branch", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop", "The primary sidebar becomes a drawer on mobile.");
 
-  await page.goto("/overview/", { waitUntil: "networkidle" });
+  await page.goto("/overview/", { waitUntil: "domcontentloaded" });
 
   const branch = page.locator(
     '.md-sidebar--primary .md-nav__item--section:has(> nav > .md-nav__list > .md-nav__item > a[href*="/overview/modules/"])'
@@ -365,7 +365,7 @@ test("simulated modules is a single collapsible model branch", async ({ page }, 
   await expect(toggle).toBeChecked();
   await expect(childNavigation).toBeVisible();
 
-  await page.goto("/overview/modules/family-composition/", { waitUntil: "networkidle" });
+  await page.goto("/overview/modules/family-composition/", { waitUntil: "domcontentloaded" });
   await expect(toggle).toBeChecked();
   await expect(branch.getByRole("link", { name: "Family Composition" })).toHaveClass(/md-nav__link--active/);
 });
@@ -374,7 +374,7 @@ test("documentation filter stays integrated and functional", async ({ page }, te
   test.skip(testInfo.project.name !== "desktop", "The primary sidebar becomes a drawer on mobile.");
 
   await page.setViewportSize({ width: 1512, height: 900 });
-  await page.goto("/documentation/", { waitUntil: "networkidle" });
+  await page.goto("/documentation/", { waitUntil: "domcontentloaded" });
 
   const sidebar = page.locator(".md-sidebar--primary");
   const filter = sidebar.getByPlaceholder("Filter pages");
@@ -410,7 +410,7 @@ test("documentation filter stays integrated and functional", async ({ page }, te
 test("long documentation navigation remains clear of the footer", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop", "The primary sidebar becomes a drawer on mobile.");
 
-  await page.goto("/jasmine-reference/regression-library/", { waitUntil: "networkidle" });
+  await page.goto("/jasmine-reference/regression-library/", { waitUntil: "domcontentloaded" });
   await page.locator("footer").scrollIntoViewIfNeeded();
 
   await expect(page.getByRole("link", { name: "Matching Library" }).last()).toBeVisible();
