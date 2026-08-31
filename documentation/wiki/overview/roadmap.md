@@ -1,3 +1,8 @@
+---
+hide:
+  - toc
+---
+
 # Development Roadmap
 
 <div class="roadmap-page" markdown>
