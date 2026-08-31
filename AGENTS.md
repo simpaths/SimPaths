@@ -106,5 +106,5 @@ Defined in `.github/workflows/`:
 
 ## Development Notes
 
-- Java 19 target; Maven 3.8+ required
+- Java 25 target; Maven 3.8+ required
 - Adding a new country requires adding a `Country` enum value and corresponding input data files

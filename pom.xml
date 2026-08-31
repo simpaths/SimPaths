@@ -5,6 +5,8 @@
 	<version>1.0.0</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <argLine></argLine>
+        <mockito.version>5.23.0</mockito.version>
     </properties>
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
@@ -13,15 +15,28 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.10.1</version>
 				<configuration>
-					<source>19</source>
-					<target>19</target>
+					<source>25</source>
+					<target>25</target>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>3.10.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>properties</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.2.2</version>
 				<configuration>
+					<argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar}</argLine>
 					<excludes>
 						<exclude>**/*IntegrationTest.java</exclude>
 					</excludes>
@@ -189,20 +204,15 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>5.10.0</version>
+            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
         <!-- Mockito JUnit 5 Integration (Required for @Mock and extensions) -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>5.10.0</version>
+            <version>${mockito.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy</artifactId>
-            <version>1.17.8</version> <!-- Latest available -->
         </dependency>
 	</dependencies>
 	<repositories>

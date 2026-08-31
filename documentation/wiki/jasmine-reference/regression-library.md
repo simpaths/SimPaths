@@ -1,26 +1,20 @@
 # The JAS-mine Regression Library
 
-JAS-mine Core provides classes for applying externally estimated regression
-coefficients within a microsimulation. The classes do not estimate regression
-models: coefficients are normally estimated in statistical software, imported
-into Java, and evaluated for simulated agents.
+JAS-mine Core provides regression objects for applying externally estimated
+coefficients within a microsimulation. It does not estimate regression models:
+coefficients are normally estimated in statistical software, imported into
+Java, and then evaluated for simulated agents.
 
-This page describes the regression API used by SimPaths with JAS-mine Core
-4.3.25.
+The library used by SimPaths supports linear regression; binary logit and
+probit; ordered and generalised ordered logit and probit; and multinomial
+logit. Multinomial probit is not supported in JAS-mine Core 4.3.25.
 
-| Model | JAS-mine class | Regression type |
-|---|---|---|
-| Linear regression | `LinearRegression` | Not required by the constructor |
-| Binary logit | `BinomialRegression` | `Logit` |
-| Binary probit | `BinomialRegression` | `Probit` |
-| Ordered logit | `OrderedRegression` | `OrderedLogit` |
-| Ordered probit | `OrderedRegression` | `OrderedProbit` |
-| Generalised ordered logit | `GeneralisedOrderedRegression` | `GenOrderedLogit` |
-| Generalised ordered probit | `GeneralisedOrderedRegression` | `GenOrderedProbit` |
-| Multinomial logit | `MultinomialRegression` | `MultinomialLogit` |
-
-Multinomial probit is not currently supported. The regression classes are in
-the `microsim.statistics.regression` package.
+The relevant classes are in the `microsim.statistics.regression` package. A
+regression object stores the estimated coefficients (the beta values) and
+combines them with covariate values supplied by an agent. Depending on the
+model, it returns a linear score or probabilities over the possible outcomes.
+Drawing a random outcome from those probabilities is a separate step, described
+in [Section 2.5](#25-obtaining-probabilities-and-drawing-an-outcome).
 
 ## 1. Basic regression objects: linear, logit and probit
 
@@ -37,7 +31,8 @@ Regression parameters are stored in a `MultiKeyCoefficientMap`, part of the
 
 When a coefficient table is imported from Excel, the regressor-name column
 must be called `REGRESSOR` and the parameter column must be called
-`COEFFICIENT`.
+`COEFFICIENT`. These names are read by the regression and bootstrapping
+utilities; they are not merely presentation labels.
 
 ```java
 MultiKeyCoefficientMap coefficients =
@@ -47,9 +42,11 @@ MultiKeyCoefficientMap coefficients =
                 1);
 ```
 
-The final argument is the number of key columns. A simple coefficient map has
-one key column: `REGRESSOR`. Additional value columns can contain a covariance
-matrix for coefficient bootstrapping.
+The first two arguments identify the workbook and worksheet. The final
+argument is the number of leading key columns; all remaining columns are
+loaded as values. A simple regression map has one key column, `REGRESSOR`, and
+one value column, `COEFFICIENT`. Further value columns, named after the
+regressors, can hold the covariance matrix used for coefficient bootstrapping.
 
 An object evaluated by a regression normally implements `IDoubleSource`. It
 uses an enum to identify the values corresponding to the coefficient names:
@@ -78,9 +75,11 @@ regressor enum.
 
 `LinearRegression` evaluates the linear predictor:
 
-```text
-X beta = sum_k(x_k beta_k)
-```
+\[
+\eta(\mathbf{x})
+= \mathbf{x}^{\mathsf T}\boldsymbol{\beta}
+= \sum_{k=1}^{K} x_k\beta_k
+\]
 
 It is constructed directly from a coefficient map:
 
@@ -119,10 +118,14 @@ BinomialRegression<Indicator> regression =
 For a binary logit, use `RegressionType.Logit` instead. If `y_0` and `y_1` are
 the lower- and higher-valued alternatives, the probabilities are:
 
-```text
-P(Y = y_1 | X) = F(X beta)
-P(Y = y_0 | X) = 1 - F(X beta)
-```
+\[
+\begin{aligned}
+\Pr(Y=y_1 \mid \mathbf{x})
+  &= F\!\left(\mathbf{x}^{\mathsf T}\boldsymbol{\beta}\right), \\
+\Pr(Y=y_0 \mid \mathbf{x})
+  &= 1-F\!\left(\mathbf{x}^{\mathsf T}\boldsymbol{\beta}\right).
+\end{aligned}
+\]
 
 `F` is the logistic cumulative distribution function for a logit model and the
 standard normal cumulative distribution function for a probit model.
@@ -190,13 +193,15 @@ OrderedRegression<OutcomeLevel> regression =
 For an ordered probit, use `RegressionType.OrderedProbit`.
 
 For alternatives `y_0, ..., y_(J-1)`, the coefficient map must contain `J-1`
-increasing cut points named `Cut1`, `Cut2`, and so on. The class calculates
-category probabilities as differences between successive cumulative
-probabilities:
+increasing cut points named `Cut1`, `Cut2`, and so on. Writing these cut points
+as \(c_1, \ldots, c_{J-1}\), the class calculates category probabilities as
+differences between successive cumulative probabilities:
 
-```text
-P(Y = y_j | X) = F(Cut_j - X beta) - F(Cut_(j-1) - X beta)
-```
+\[
+\Pr(Y=y_j \mid \mathbf{x})
+= F\!\left(c_j-\mathbf{x}^{\mathsf T}\boldsymbol{\beta}\right)
+- F\!\left(c_{j-1}-\mathbf{x}^{\mathsf T}\boldsymbol{\beta}\right).
+\]
 
 The lower and upper endpoints are zero and one in probability space. If the
 cut points are not increasing, the class throws an exception because they do
@@ -217,18 +222,27 @@ case Cut1, Cut2, Cut3 -> 0.0;
 allowing coefficients to differ between cumulative equations. For ordered
 alternatives `y_0, ..., y_(J-1)`, it models:
 
-```text
-q_j(X) = P(Y > y_j | X) = F(X beta_j),  j = 0, ..., J - 2
-```
+\[
+q_j(\mathbf{x})
+= \Pr(Y>y_j \mid \mathbf{x})
+= F\!\left(\mathbf{x}^{\mathsf T}\boldsymbol{\beta}_j\right),
+\qquad j=0,\ldots,J-2.
+\]
 
 The category probabilities are recovered from adjacent cumulative
 probabilities:
 
-```text
-P(Y = y_0 | X)     = 1 - q_0(X)
-P(Y = y_j | X)     = q_(j-1)(X) - q_j(X)
-P(Y = y_(J-1) | X) = q_(J-2)(X)
-```
+\[
+\begin{aligned}
+\Pr(Y=y_0 \mid \mathbf{x})
+  &= 1-q_0(\mathbf{x}), \\
+\Pr(Y=y_j \mid \mathbf{x})
+  &= q_{j-1}(\mathbf{x})-q_j(\mathbf{x}),
+  && j=1,\ldots,J-2, \\
+\Pr(Y=y_{J-1} \mid \mathbf{x})
+  &= q_{J-2}(\mathbf{x}).
+\end{aligned}
+\]
 
 A generalised ordered logit is created as follows:
 
@@ -271,9 +285,9 @@ Because cumulative equations are evaluated separately, a generalised ordered
 model does not guarantee monotonic cumulative probabilities for every
 covariate pattern. A valid vector requires:
 
-```text
-q_0(X) >= q_1(X) >= ... >= q_(J-2)(X)
-```
+\[
+q_0(\mathbf{x}) \ge q_1(\mathbf{x}) \ge \cdots \ge q_{J-2}(\mathbf{x}).
+\]
 
 If adjacent cumulative probabilities cross, the current JAS-mine
 implementation returns `-1.0` for the affected category. This value is a
@@ -294,9 +308,15 @@ set. JAS-mine currently supports multinomial logit, but not multinomial probit.
 
 For each non-baseline alternative `j`, the class calculates:
 
-```text
-P(Y = j | X) = exp(X beta_j) / (1 + sum_(k != base) exp(X beta_k))
-```
+\[
+\Pr(Y=j \mid \mathbf{x})
+= \frac{\exp\!\left(\mathbf{x}^{\mathsf T}\boldsymbol{\beta}_j\right)}
+       {1+\displaystyle\sum_{k \ne b}
+       \exp\!\left(\mathbf{x}^{\mathsf T}\boldsymbol{\beta}_k\right)},
+\qquad j \ne b,
+\]
+
+where \(b\) denotes the baseline alternative.
 
 The baseline alternative has numerator one. A model with `J` alternatives
 therefore requires coefficient maps for exactly `J-1` alternatives.
@@ -338,6 +358,30 @@ Regression objects calculate probabilities; random outcome selection is a
 separate operation. A valid probability map can be sampled with
 `RegressionUtils.event(probabilities)` or with an application-specific helper
 such as SimPaths' `MultiValEvent`.
+
+Within SimPaths, `ManagerRegressions` is the project-level dispatch layer.
+Call it with a `RegressionName` rather than retrieving regression objects
+directly from `Parameters`:
+
+```java
+// Binary model: obtain the probability for one outcome.
+double healthProbability = ManagerRegressions.getProbability(
+        person,
+        RegressionName.HealthH2);
+
+// Ordered model: calculate the full distribution, then draw an outcome.
+Map<Dhe, Double> healthProbabilities = ManagerRegressions.getProbabilities(
+        person,
+        RegressionName.HealthH1);
+
+Dhe nextHealthState = new MultiValEvent<>(
+        healthProbabilities,
+        healthInnovation).eval();
+```
+
+This separation keeps model selection, probability calculation, and random
+outcome selection explicit. It also lets SimPaths reuse a supplied innovation
+when processes require correlated or reproducible random draws.
 
 ## 3. Bootstrap methods to address parameter uncertainty
 

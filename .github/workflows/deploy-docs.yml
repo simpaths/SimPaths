@@ -5,7 +5,10 @@ on:
     branches:
       - documentation
     paths:
+      - '.github/workflows/deploy-docs.yml'
       - 'documentation/wiki/**'
+      - 'documentation/scripts/**'
+      - 'documentation/visual-tests/**'
       - 'mkdocs.yml'
   workflow_dispatch:
 
@@ -35,8 +38,38 @@ jobs:
       - name: Install MkDocs and dependencies
         run: pip install "mkdocs>=1.6,<2.0" mkdocs-material
 
+      - name: Check documentation CSS architecture
+        run: bash documentation/scripts/check-docs-css.sh
+
       - name: Build documentation site
         run: mkdocs build --strict
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: documentation/visual-tests/package-lock.json
+
+      - name: Install documentation layout-test dependencies
+        working-directory: documentation/visual-tests
+        run: npm ci
+
+      - name: Install Chromium for layout tests
+        working-directory: documentation/visual-tests
+        run: npx playwright install --with-deps chromium
+
+      - name: Run documentation layout tests
+        working-directory: documentation/visual-tests
+        run: npm test
+
+      - name: Upload documentation layout screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation-layout-screenshots
+          path: documentation/visual-tests/test-results/
+          if-no-files-found: ignore
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

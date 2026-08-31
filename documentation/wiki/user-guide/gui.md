@@ -47,7 +47,7 @@ On a fresh clone, complete the setup dialogs before clicking **Build simulation 
 
 In the **Start-up Options** dialog, select these three options:
 
-- **Change country and/or simulation start year**
+- **Change simulation start year**
 - **Use UKMOD Light to alter description of tax and benefit systems**
 - **Load new input data for tax and benefit systems**
 
@@ -55,13 +55,13 @@ Leave **Load new input data for starting populations** and **Select tax and bene
 
 ![The three start-up options selected for a first training-data run](../figures/GUI/First-run%20setup%20options.png)
 
-### 2.3 Select the country and start year
+### 2.3 Select the start year
 
-Select **United Kingdom** and **2019**, then click **next**.
+Select **2019**, then click **next**.
 
-![United Kingdom and 2019 selected in the country and start-year dialog](../figures/GUI/First-run%20country%20and%20year.png)
+![2019 selected in the simulation start-year dialog](../figures/GUI/First-run%20start%20year.png)
 
-The country selector is retained from earlier development. The 2019 start year is important when using the bundled training data because those data were generated for 2019. If no year is selected, SimPaths uses the default start year of 2011, for which the training database has no household table.
+The 2019 start year is important when using the bundled training data because those data were generated for 2019. If no year is selected, SimPaths uses the default start year of 2011, for which the training database has no household table.
 
 !!! warning "Do not use the default 2011 start year with training data"
     If setup is skipped or 2019 is not selected, building the model can fail with `Table "HOUSEHOLD_UK_2011" not found`. Return to the start-up dialogs, select the setup options above, and choose 2019.

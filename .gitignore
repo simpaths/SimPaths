@@ -146,6 +146,9 @@ $RECYCLE.BIN/
 /target/
 /output/
 /site/
+/documentation/visual-tests/node_modules/
+/documentation/visual-tests/playwright-report/
+/documentation/visual-tests/test-results/
 /classes/
 input/input.h2.db
 input/input.h2.db

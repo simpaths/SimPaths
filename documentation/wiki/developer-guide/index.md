@@ -91,7 +91,7 @@ hide:
     position: relative;
     font-family: var(--sp-heading-font) !important;
     font-size: 1.06rem;
-    font-weight: 500;
+    font-weight: 680;
     letter-spacing: 0.005em;
     color: var(--sp-midnight);
     background: rgba(255,255,255,0.99) !important;
