@@ -49,9 +49,9 @@
 .md-typeset .roadmap-sequence a {
   position: relative;
   display: flex;
+  align-items: center;
   min-width: 0;
-  flex-direction: column;
-  gap: 0.12rem;
+  min-height: 2.85rem;
   padding: 0.72rem 1.25rem 0.7rem 0;
   color: var(--sp-midnight) !important;
   text-decoration: none;
@@ -79,19 +79,10 @@
   text-underline-offset: 0.14em;
 }
 
-.md-typeset .roadmap-sequence__horizon {
-  color: var(--sp-wine-soft) !important;
-  font-size: 0.56rem;
-  font-weight: 700;
-  letter-spacing: 0.085em;
-  line-height: 1.2;
-  text-transform: uppercase;
-}
-
 .md-typeset .roadmap-sequence__name {
   overflow-wrap: anywhere;
-  font-size: 0.68rem;
-  font-weight: 620;
+  font-size: 0.72rem;
+  font-weight: 640;
   line-height: 1.35;
   transition: color 150ms ease;
 }

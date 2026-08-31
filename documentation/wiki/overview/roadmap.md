@@ -2,7 +2,7 @@
 
 <div class="roadmap-page" markdown>
 
-<p class="roadmap-lede">SimPaths development is organised across four planning horizons. The sequence shows what is active now, what is expected to follow, which larger capabilities remain in the pipeline, and the foundation work that supports every stage.</p>
+<p class="roadmap-lede">SimPaths development is organised into work underway, work expected next, longer-term capabilities, and the foundations that support every stage.</p>
 
 <div class="roadmap-status">
   <span>Last reviewed August 2026</span>
@@ -12,11 +12,11 @@
   <span>Later horizons are directional rather than delivery commitments</span>
 </div>
 
-<nav class="roadmap-sequence" aria-label="Roadmap planning horizons">
-  <a href="#now-active-work"><span class="roadmap-sequence__horizon">Now</span><span class="roadmap-sequence__name">Active work</span></a>
-  <a href="#next-planned-priorities"><span class="roadmap-sequence__horizon">Next</span><span class="roadmap-sequence__name">Planned priorities</span></a>
-  <a href="#later-capability-pipeline"><span class="roadmap-sequence__horizon">Later</span><span class="roadmap-sequence__name">Capability pipeline</span></a>
-  <a href="#continuous-model-foundations"><span class="roadmap-sequence__horizon">Continuous</span><span class="roadmap-sequence__name">Model foundations</span></a>
+<nav class="roadmap-sequence" aria-label="Roadmap stages">
+  <a href="#working-on-now"><span class="roadmap-sequence__name">Working on now</span></a>
+  <a href="#working-on-next"><span class="roadmap-sequence__name">Working on next</span></a>
+  <a href="#longer-term-capabilities"><span class="roadmap-sequence__name">Longer-term capabilities</span></a>
+  <a href="#model-foundations"><span class="roadmap-sequence__name">Model foundations</span></a>
 </nav>
 
 <div class="roadmap-stage roadmap-stage--now" markdown>
@@ -27,7 +27,7 @@
 
 <div class="roadmap-stage__heading" markdown>
 
-## Now: active work
+## Working on now
 
 These items have active development tasks and the clearest near-term scope.
 
@@ -79,7 +79,7 @@ Add modifiers estimated from longitudinal employment histories to the health mod
 
 <div class="roadmap-stage__heading" markdown>
 
-## Next: planned priorities
+## Working on next
 
 These priorities are expected to follow active work. Their order depends on data, estimation work, and related model changes.
 
@@ -141,7 +141,7 @@ Estimate alignment adjustments once for reuse across scenarios, compare alternat
 
 <div class="roadmap-stage__heading" markdown>
 
-## Later: capability pipeline
+## Longer-term capabilities
 
 These capabilities would materially extend the questions SimPaths can address, but their scope and timing are not yet fixed.
 
@@ -205,7 +205,7 @@ Add multidimensional wellbeing outcomes, SIPHER-7 measures, and a mortality proc
 
 <div class="roadmap-stage__heading" markdown>
 
-## Continuous: model foundations
+## Model foundations
 
 Cross-cutting architecture, consistency, testing, and documentation work progresses alongside every planning horizon.
 
