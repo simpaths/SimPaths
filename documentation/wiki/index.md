@@ -65,13 +65,12 @@ hide:
 <div class="simpaths-home-paths__inner">
   <header class="simpaths-home-paths__header">
     <h2>Use SimPaths</h2>
-    <p>Read the model as a research framework, run and configure the UK implementation, or work directly with its code.</p>
+    <p>Start with the model, run the UK implementation, or work directly with its code.</p>
   </header>
 
   <nav class="simpaths-home-paths__routes" aria-label="Common SimPaths tasks">
     <article class="simpaths-home-paths__route">
       <h3><a href="overview/">Understand the model</a></h3>
-      <p>Review the model's scope, the life-course processes it simulates, and the assumptions used to parameterise them.</p>
       <div class="simpaths-home-paths__links">
         <a href="overview/model-description/">Model description</a>
         <a href="overview/modules/ageing/">Simulated modules</a>
@@ -81,7 +80,6 @@ hide:
 
     <article class="simpaths-home-paths__route">
       <h3><a href="getting-started/">Install and run</a></h3>
-      <p>Prepare the Java environment and input data, then run a first UK simulation.</p>
       <div class="simpaths-home-paths__links">
         <a href="getting-started/environment-setup/">Environment setup</a>
         <a href="getting-started/data/">Input data</a>
@@ -91,7 +89,6 @@ hide:
 
     <article class="simpaths-home-paths__route">
       <h3><a href="user-guide/">Configure and analyse</a></h3>
-      <p>Control individual or batch runs, tax-benefit settings, and uncertainty analysis.</p>
       <div class="simpaths-home-paths__links">
         <a href="user-guide/single-runs/">Single runs</a>
         <a href="user-guide/multiple-runs/">Multiple runs</a>
@@ -101,7 +98,6 @@ hide:
 
     <article class="simpaths-home-paths__route">
       <h3><a href="developer-guide/">Develop and extend</a></h3>
-      <p>Trace the repository structure and implementation before changing or extending the model.</p>
       <div class="simpaths-home-paths__links">
         <a href="developer-guide/repository-guide/">Repository guide</a>
         <a href="developer-guide/internals/">SimPaths internals</a>

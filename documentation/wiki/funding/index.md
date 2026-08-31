@@ -15,7 +15,7 @@ hide:
 
 <div class="funding-grid">
 
-  <section class="funding-panel">
+  <section class="funding-panel funding-panel--current">
     <h2>Current funding</h2>
     <ul class="funding-list">
       <li>
@@ -64,7 +64,7 @@ hide:
     </ul>
   </section>
 
-  <section class="funding-panel">
+  <section class="funding-panel funding-panel--past">
     <h2>Past funding</h2>
     <ul class="funding-list">
       <li>

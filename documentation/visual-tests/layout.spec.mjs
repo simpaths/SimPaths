@@ -223,6 +223,10 @@ test("homepage provides useful task routes and an editorial research band", asyn
       pathHeight: paths.getBoundingClientRect().height,
       pathColumns: getComputedStyle(routes).gridTemplateColumns.split(" ").length,
       pathBorders: routeItems.map((item) => getComputedStyle(item).borderTopWidth),
+      pathFrameBackground: getComputedStyle(routes).backgroundColor,
+      pathRouteBackgrounds: routeItems.map((item) => getComputedStyle(item).backgroundColor),
+      pathRouteHeights: routeItems.map((item) => Math.round(item.getBoundingClientRect().height)),
+      pathDescriptionCount: document.querySelectorAll(".simpaths-home-paths__route > p").length,
       pathBeforeResearch: paths.getBoundingClientRect().bottom <= band.getBoundingClientRect().top,
       bandHeight: band.getBoundingClientRect().height,
       columns: getComputedStyle(list).gridTemplateColumns.split(" ").length,
@@ -230,6 +234,9 @@ test("homepage provides useful task routes and an editorial research band", asyn
       entryHeights: entries.map((entry) => Math.round(entry.getBoundingClientRect().height)),
       entryBorders: entries.map((entry) => getComputedStyle(entry).borderTopWidth),
       entryBackgrounds: entries.map((entry) => getComputedStyle(entry).backgroundColor),
+      entryCursors: entries.map((entry) => getComputedStyle(entry).cursor),
+      entryHrefs: entries.map((entry) => entry.href),
+      entryArrows: entries.map((entry) => getComputedStyle(entry, "::after").content),
       titleWeights: titles.map((title) => Number(getComputedStyle(title).fontWeight)),
       labelColors: labels.map((label) => getComputedStyle(label).color),
       journalColors: journals.map((journal) => getComputedStyle(journal).color),
@@ -240,9 +247,14 @@ test("homepage provides useful task routes and an editorial research band", asyn
     };
   });
 
-  expect(presentation.pathHeight).toBeGreaterThan(500);
-  expect(presentation.pathColumns).toBe(2);
+  expect(presentation.pathHeight).toBeGreaterThan(420);
+  expect(presentation.pathHeight).toBeLessThan(550);
+  expect(presentation.pathColumns).toBe(4);
   expect(presentation.pathBorders).toEqual(["0px", "0px", "0px", "0px"]);
+  expect(presentation.pathFrameBackground).toBe("rgb(222, 218, 208)");
+  expect(new Set(presentation.pathRouteBackgrounds)).toEqual(new Set(["rgb(255, 254, 250)"]));
+  expect(new Set(presentation.pathRouteHeights).size).toBe(1);
+  expect(presentation.pathDescriptionCount).toBe(0);
   expect(presentation.pathBeforeResearch).toBe(true);
   expect(presentation.bandHeight).toBeGreaterThan(500);
   expect(presentation.columns).toBe(3);
@@ -254,12 +266,27 @@ test("homepage provides useful task routes and an editorial research band", asyn
     "rgb(255, 255, 255)",
     "rgb(255, 255, 255)"
   ]);
+  expect(presentation.entryCursors).toEqual(["pointer", "pointer", "pointer"]);
+  expect(presentation.entryHrefs.every((href) => href.startsWith("https://"))).toBe(true);
+  expect(presentation.entryArrows.every((arrow) => arrow !== "none")).toBe(true);
   expect(presentation.titleWeights.every((weight) => weight < 600)).toBe(true);
   expect(new Set(presentation.labelColors).size).toBe(3);
   expect(new Set(presentation.journalColors)).toEqual(new Set(["rgb(82, 97, 113)"]));
   expect(new Set(presentation.authorColors)).toEqual(new Set(["rgb(102, 113, 125)"]));
   expect(presentation.summaryCount).toBe(0);
   expect(presentation.headerLeft).toBeLessThan(presentation.firstEntryLeft);
+
+  const firstResearchEntry = page.locator(".simpaths-home-research-band .research-entry").first();
+  await firstResearchEntry.hover();
+  await page.waitForTimeout(250);
+  const hoverState = await firstResearchEntry.evaluate((entry) => ({
+    background: getComputedStyle(entry).backgroundColor,
+    arrowBackground: getComputedStyle(entry, "::after").backgroundColor,
+    titleDecoration: getComputedStyle(entry.querySelector(".research-title")).textDecorationLine
+  }));
+  expect(hoverState.background).not.toBe("rgb(255, 255, 255)");
+  expect(hoverState.arrowBackground).toBe("rgb(255, 255, 255)");
+  expect(hoverState.titleDecoration).toContain("underline");
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.reload({ waitUntil: "domcontentloaded" });
@@ -397,53 +424,65 @@ test("research citation is separated by hierarchy rather than rules", async ({ p
   });
 });
 
-test("funding reads as a single institutional register", async ({ page }) => {
+test("funding distinguishes active programmes from the completed archive", async ({ page }) => {
   await page.setViewportSize({ width: 1512, height: 900 });
   await page.goto("/funding/", { waitUntil: "domcontentloaded" });
 
   const desktop = await page.evaluate(() => {
     const grid = document.querySelector(".funding-grid");
-    const panels = [...document.querySelectorAll(".funding-panel")];
-    const firstList = panels[0].querySelector(".funding-list");
-    const entries = [...document.querySelectorAll(".funding-list > li")];
-    const firstTitle = entries[0].querySelector(".funding-title");
+    const current = document.querySelector(".funding-panel--current");
+    const past = document.querySelector(".funding-panel--past");
+    const currentList = current.querySelector(".funding-list");
+    const pastList = past.querySelector(".funding-list");
+    const currentEntries = [...currentList.children];
+    const pastEntries = [...pastList.children];
+    const allEntries = [...currentEntries, ...pastEntries];
+    const firstTitle = currentEntries[0].querySelector(".funding-title");
     const titleStyles = getComputedStyle(firstTitle);
     const pager = document.querySelector(".md-footer__inner");
 
     return {
       gridDisplay: getComputedStyle(grid).display,
-      panelDisplays: panels.map((panel) => getComputedStyle(panel).display),
-      panelColumns: panels.map((panel) => getComputedStyle(panel).gridTemplateColumns),
-      listDisplay: getComputedStyle(firstList).display,
-      listGap: parseFloat(getComputedStyle(firstList).rowGap),
-      panelTopBorders: panels.map((panel) => getComputedStyle(panel).borderTopWidth),
-      panelPositions: panels.map((panel) => Math.round(panel.getBoundingClientRect().top)),
-      headingLeft: Math.round(panels[0].querySelector("h2").getBoundingClientRect().left),
-      titleLefts: entries.map((entry) =>
-        Math.round(entry.querySelector(".funding-title").getBoundingClientRect().left)
-      ),
-      metadataFollowsTitle: entries.every((entry) => {
+      gridGap: parseFloat(getComputedStyle(grid).rowGap),
+      currentColumns: getComputedStyle(currentList).gridTemplateColumns.split(" ").length,
+      currentBackground: getComputedStyle(current).backgroundColor,
+      currentEntryBackgrounds: currentEntries.map((entry) => getComputedStyle(entry).backgroundColor),
+      currentMetadataAboveTitle: currentEntries.every((entry) => {
         const title = entry.querySelector(".funding-title").getBoundingClientRect();
         const metadata = entry.querySelector(".funding-meta").getBoundingClientRect();
-        return metadata.top > title.top && metadata.top >= title.bottom;
+        return metadata.bottom <= title.top;
       }),
-      entryTopBorders: entries.map((entry) => getComputedStyle(entry).borderTopWidth),
+      pastColumns: getComputedStyle(pastList).gridTemplateColumns.split(" ").length,
+      pastBackground: getComputedStyle(pastList).backgroundColor,
+      pastItemColumns: pastEntries.map((entry) => getComputedStyle(entry).gridTemplateColumns.split(" ").length),
+      pastMetadataLeftOfTitle: pastEntries.every((entry) => {
+        const title = entry.querySelector(".funding-title").getBoundingClientRect();
+        const metadata = entry.querySelector(".funding-meta").getBoundingClientRect();
+        return metadata.right < title.left;
+      }),
+      panelPositions: [current, past].map((panel) => Math.round(panel.getBoundingClientRect().top)),
+      entryTopBorders: allEntries.map((entry) => getComputedStyle(entry).borderTopWidth),
+      currentCount: currentEntries.length,
+      pastCount: pastEntries.length,
       titleFontSize: parseFloat(titleStyles.fontSize),
       titleFontWeight: parseFloat(titleStyles.fontWeight),
       pagerDisplay: pager ? getComputedStyle(pager).display : "missing"
     };
   });
 
-  expect(desktop.gridDisplay).toBe("block");
-  expect(desktop.panelDisplays).toEqual(["grid", "grid"]);
-  expect(desktop.panelColumns.every((columns) => columns.split(" ").length === 2)).toBe(true);
-  expect(desktop.listDisplay).toBe("grid");
-  expect(desktop.listGap).toBeGreaterThanOrEqual(32);
-  expect(desktop.panelTopBorders).toEqual(["0px", "0px"]);
+  expect(desktop.gridDisplay).toBe("grid");
+  expect(desktop.gridGap).toBeGreaterThanOrEqual(60);
+  expect(desktop.currentColumns).toBe(2);
+  expect(desktop.currentBackground).toBe("rgb(240, 237, 230)");
+  expect(new Set(desktop.currentEntryBackgrounds)).toEqual(new Set(["rgb(255, 254, 250)"]));
+  expect(desktop.currentMetadataAboveTitle).toBe(true);
+  expect(desktop.pastColumns).toBe(1);
+  expect(desktop.pastBackground).toBe("rgb(246, 244, 239)");
+  expect(desktop.pastItemColumns.every((columns) => columns === 2)).toBe(true);
+  expect(desktop.pastMetadataLeftOfTitle).toBe(true);
   expect(desktop.panelPositions[1]).toBeGreaterThan(desktop.panelPositions[0]);
-  expect(new Set(desktop.titleLefts).size).toBe(1);
-  expect(desktop.titleLefts[0]).toBeGreaterThan(desktop.headingLeft + 120);
-  expect(desktop.metadataFollowsTitle).toBe(true);
+  expect(desktop.currentCount).toBe(6);
+  expect(desktop.pastCount).toBe(5);
   expect(new Set(desktop.entryTopBorders)).toEqual(new Set(["0px"]));
   expect(desktop.titleFontSize).toBeGreaterThanOrEqual(16);
   expect(desktop.titleFontSize).toBeLessThanOrEqual(19);
@@ -454,19 +493,22 @@ test("funding reads as a single institutional register", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
 
   const mobile = await page.evaluate(() => {
-    const panel = document.querySelector(".funding-panel");
-    const heading = panel.querySelector("h2").getBoundingClientRect();
-    const title = panel.querySelector(".funding-title").getBoundingClientRect();
+    const currentList = document.querySelector(".funding-panel--current .funding-list");
+    const pastEntry = document.querySelector(".funding-panel--past .funding-list > li");
+    const metadata = pastEntry.querySelector(".funding-meta").getBoundingClientRect();
+    const title = pastEntry.querySelector(".funding-title").getBoundingClientRect();
 
     return {
-      columns: getComputedStyle(panel).gridTemplateColumns,
-      alignedLeft: Math.abs(heading.left - title.left) < 2,
+      currentColumns: getComputedStyle(currentList).gridTemplateColumns.split(" ").length,
+      pastItemColumns: getComputedStyle(pastEntry).gridTemplateColumns.split(" ").length,
+      metadataAboveTitle: metadata.bottom <= title.top,
       overflow: document.documentElement.scrollWidth - window.innerWidth
     };
   });
 
-  expect(mobile.columns.split(" ").length).toBe(1);
-  expect(mobile.alignedLeft).toBe(true);
+  expect(mobile.currentColumns).toBe(1);
+  expect(mobile.pastItemColumns).toBe(1);
+  expect(mobile.metadataAboveTitle).toBe(true);
   expect(mobile.overflow).toBe(0);
 });
 
