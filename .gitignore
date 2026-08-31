@@ -1,54 +1,14 @@
-# Created by https://www.toptal.com/developers/gitignore/api/intellij+iml,windows,java
-# Edit at https://www.toptal.com/developers/gitignore?templates=intellij+iml,windows,java
-
-### Intellij+iml ###
-# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
-# Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
-
-# User-specific stuff
-.idea/**/workspace.xml
-.idea/**/tasks.xml
-.idea/**/usage.statistics.xml
-.idea/**/dictionaries
-.idea/**/shelf
-
-# AWS User-specific
-.idea/**/aws.xml
-
-# Generated files
-.idea/**/contentModel.xml
-
-# Sensitive or high-churn files
-.idea/**/dataSources/
-.idea/**/dataSources.ids
-.idea/**/dataSources.local.xml
-.idea/**/sqlDataSources.xml
-.idea/**/dynamic.xml
-.idea/**/uiDesigner.xml
-.idea/**/dbnavigator.xml
-
-# Gradle
-.idea/**/gradle.xml
-.idea/**/libraries
-
-# Gradle and Maven with auto-import
-# When using Gradle or Maven with auto-import, you should exclude module files,
-# since they will be recreated, and may cause churn.  Uncomment if using
-# auto-import.
-.idea/artifacts
-.idea/compiler.xml
-.idea/jarRepositories.xml
-.idea/modules.xml
-.idea/*.iml
-.idea/modules
-*.iml
-*.ipr
+# IDE and build related files
+/.idea
+/.idea_modules/
+/.classpath
+/.factorypath
+/.project
+/.settings/
+/target/
 
 # CMake
 cmake-build-*/
-
-# Mongo Explorer plugin
-.idea/**/mongoSettings.xml
 
 # File-based project format
 *.iws
@@ -56,17 +16,8 @@ cmake-build-*/
 # IntelliJ
 out/
 
-# mpeltonen/sbt-idea plugin
-.idea_modules/
-
 # JIRA plugin
 atlassian-ide-plugin.xml
-
-# Cursive Clojure plugin
-.idea/replstate.xml
-
-# SonarLint plugin
-.idea/sonarlint/
 
 # Crashlytics plugin (for Android Studio and IntelliJ)
 com_crashlytics_export_strings.xml
@@ -74,18 +25,11 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
-# Editor-based Rest Client
-.idea/httpRequests
-
-# Android studio 3.1+ serialized cache file
-.idea/caches/build_file_checksums.ser
-
 ### Intellij+iml Patch ###
 # Reason: https://github.com/joeblau/gitignore.io/issues/186#issuecomment-249601023
 
 *.iml
 modules.xml
-.idea/misc.xml
 *.ipr
 
 ### Java ###
@@ -97,9 +41,6 @@ modules.xml
 
 # BlueJ files
 *.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
 
 # Package Files #
 *.jar
@@ -140,41 +81,26 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/intellij+iml,windows,java
-
 #Other files specific to the model
-/target/
 /output/
 /classes/
 input/input.h2.db
-input/input.h2.db
 input/input.trace.db
 /input/input.mv.db
-.idea/compiler.xml
-.idea/dataSources.local.xml
-.idea/encodings.xml
-.idea/libraries/Maven__colt_colt_1_2_0.xml
-.idea/libraries/Maven__commons_beanutils_commons_beanutils_20030211_134440.xml
-.idea/misc.xml
-model.iml
 src/main/resources/log4j/log.out
 
 
 
 # eclipse specific
 *.pydevproject
-.project
 .metadata
-bin/**
-tmp/**
-tmp/**/*
+bin/
+tmp/
 *.tmp
 *.bak
 *.swp
 *~.nib
 local.properties
-.classpath
-.settings/
 .loadpath
 
 # External tool builders
@@ -185,7 +111,6 @@ local.properties
 input/~$reg_socialcare.xlsx
 input/InitialPopulations/compile/data/pool_indall.dta
 input/~$scenario_uprating_factor.xlsx
-.idea/dataSources.local.xml
 /input/EUROMODoutput/*.txt
 /input/InitialPopulations/*.csv
 /input/population_IT.csv
@@ -197,7 +122,6 @@ input/input.mv.db.new
 input/input.mv.db.old
 input/input.mv.db.original
 dependency-reduced-pom.xml
-.idea/vcs.xml
 input/EUROMODoutput/augmented1/
 input/EUROMODoutput/original/
 *.stswp
@@ -207,28 +131,6 @@ input/programming test database/EUROMODpolicySchedule.xlsx
 input/programming test database/input.mv.db
 /input/databases
 /input/EUROMODoutput/base
-analysis/temp0.dta
-analysis/temp1.dta
-analysis/zero0.dta
-analysis/zero1.dta
-analysis/base1.dta
-analysis/base0.dta
-analysis/childcarebase.dta
-analysis/childcarenaive.dta
-analysis/childcarezero.dta
-analysis/link.dta
-analysis/naive0.dta
-analysis/naive1.dta
-analysis/ignore0.dta
-analysis/ignore1.dta
-analysis/test_base.dta
-analysis/test_naive.dta
-analysis/test_base_noalign.dta
-analysis/test_naive_noalign.dta
-analysis/test1.dta
-analysis/test2.dta
-.idea/dataSources.xml
-.idea/*
 *.dta
 src/main/java/simpaths/data/startingpop/DataParser.new
 src/main/java/simpaths/data/startingpop/DataParser.old
@@ -242,7 +144,6 @@ input/EUROMODoutput/baseline/*
 
 # macOS
 .DS_Store
-**/.DS_Store
 
-# IntelliJ
-.idea/
+input/InitialPopulations/original/*
+input/InitialPopulations/base/*

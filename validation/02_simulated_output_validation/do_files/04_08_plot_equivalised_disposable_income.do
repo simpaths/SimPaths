@@ -2,12 +2,19 @@
 * PROJECT:  		SimPaths UK 
 * SECTION:			Validation
 * OBJECT: 			Equivalised disposable income
-* AUTHORS:			Ashley Burdett 
-* LAST UPDATE:		Jan 2026
-* COUNTRY: 			UK 
+* AUTHORS:			Ashley Burdett
+* LAST UPDATE:		Aug 2026
+* COUNTRY: 			UK
+* DESCRIPTION: 		Plots validation graphs comparing simulated vs. UKHLS
+* 					equivalised benefit-unit disposable income (modified
+* 					OECD scale), ages 16+. Section 1: time-series means with
+* 					a shaded band (mean +/- 1.96*SD across $max_n_runs
+* 					runs). Section 2: histograms of the cross-sectional
+* 					distribution by year. Section 3: histograms by year and
+* 					weekly labour-supply category. Same standalone structure
+* 					as 04_03-04_07.
 ********************************************************************************
-* NOTES: 			This do file plots simulated and UKHLS equivalised 
-* 					disposable income, per benefit unit
+* NOTES: 			Amounts in 2015 prices, top/bottom percentiles trimmed.
 ********************************************************************************
 
 ********************************************************************************
@@ -85,7 +92,7 @@ twoway (rarea sim_yDispEquivYear_high sim_yDispEquivYear_low year, ///
 	xlabel(,labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: Equivalised disposable income computed by the modified OECD scale. Top and bottom percentiles trimmed. Amounts" "annual, in 2015 prices.", ///
+	note("Notes: Equivalised disposable income computed by the modified OECD scale. Top and bottom percentiles trimmed. Amounts" "annual, in 2015 prices." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))
 
 graph export ///
@@ -152,7 +159,10 @@ append using "$dir_data/temp_valid_stats.dta"
 
 qui sum year
 local min_year = 2011
-local max_year = 2023 
+if "$min_sim_year" != "" local min_year = $min_sim_year
+local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' {
 	
@@ -181,7 +191,7 @@ forval year = `min_year'/`max_year' {
 graph drop _all 	
 
 ********************************************************************************
-* 2 : Histograms by year, and by category of weekly labour supply, ben unit 
+* 3 : Histograms by year, and by category of weekly labour supply, ben unit 
 ********************************************************************************
 
 * Prepare validation data
@@ -203,7 +213,10 @@ if "$trim_outliers" == "true" {
 * Prepare info needed for dynamic y axis labels 
 qui sum year
 local min_year = 2011
+if "$min_sim_year" != "" local min_year = $min_sim_year
 local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' { 
 
@@ -254,7 +267,10 @@ append using "$dir_data/temp_valid_stats.dta"
 
 qui sum year
 local min_year = 2011
-local max_year = 2023  
+if "$min_sim_year" != "" local min_year = $min_sim_year
+local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' {
 	
@@ -327,7 +343,10 @@ forval year = `min_year'/`max_year' {
 
 qui sum year
 local min_year = 2011
-local max_year = 2023  
+if "$min_sim_year" != "" local min_year = $min_sim_year
+local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forvalues year = `min_year'/`max_year' {
 	

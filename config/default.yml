@@ -1,8 +1,18 @@
 # SimPaths multi-run configuration file.
 # Uncomment and edit any field to override its default value.
 # CLI flags take final precedence over anything set here.
+#
+# Commented-out keys show the class default; uncommenting one overrides it.
+# An unrecognised key is not an error - it logs a stack trace and is ignored,
+# so a mistyped or renamed key silently leaves the default in place.
+#
+# Only int, long, boolean, double and String fields can be set from this file.
+# Fields of other types (for example the UnionMatchingMethod enum behind union
+# matching) are not settable here and will fail at startup if added.
 
-# ── Top-level run arguments ────────────────────────────────────────────────────
+# ── Top-level run arguments ───────────────────────────────────────────────────
+# Unlike the sections below, these are active settings rather than documented
+# defaults - they override the SimPathsMultiRun defaults on every run.
 
 maxNumberOfRuns: 1        # number of sequential simulation runs
 executeWithGui: false     # true = launch JAS-mine GUI; false = headless (required on servers/CI)
@@ -10,7 +20,7 @@ randomSeed: 606           # seed for the first run; incremented automatically if
 startYear: 2019           # first year of simulation (must have matching input/donor data)
 endYear: 2022             # last year of simulation (inclusive)
 popSize: 50000            # simulated population size (larger = more accurate, slower)
-# countryString: "United Kingdom"   # "United Kingdom" or "Italy" (auto-detected from donor DB if omitted)
+# countryString: "United Kingdom"   # Auto-detected from donor DB if omitted
 # integrationTest: false            # true = write output to a fixed folder for comparison in CI tests
 
 
@@ -23,8 +33,9 @@ model_args:
   # --- Time trend controls ---
 #    maxAge: 130                              # maximum age kept in simulation; persons above this are removed
 #    fixTimeTrend: true                       # if true, freezes the time trend in regression equations
-#    timeTrendStopsIn: 2017                   # year at which the time trend is frozen (if fixTimeTrend: true)
-#    timeTrendStopsInMonetaryProcesses: 2017  # same freeze year applied to monetary/income regressions only
+#    timeTrendStopsIn: 2023                   # year at which the time trend is frozen (if fixTimeTrend: true)
+#    timeTrendStopsInMonetaryProcesses: 2023  # same freeze year for monetary/income regressions;
+                                             # defaults to whatever timeTrendStopsIn is set to
 
   # --- Random number controls ---
 #    fixRandomSeed: true                      # if true, each run uses the same fixed seed (randomSeedIfFixed)
@@ -32,7 +43,7 @@ model_args:
   # --- Income security (S-Index) ---
   # The S-Index is an economic (in)security index computed from a rolling window of
   # equivalised consumption, discounted and weighted by a risk-aversion parameter.
-  # SIndex_p50 is reported in Statistics1.csv each year.
+  # SIndex_p50 is reported in WealthIncomeStatistics.csv each year.
 #    sIndexTimeWindow: 5      # length of rolling window in years (default 5)
 #    sIndexAlpha: 2           # coefficient of relative risk aversion (higher = more sensitivity to drops)
 #    sIndexDelta: 0.98        # annual discount factor applied to past consumption observations
@@ -48,7 +59,10 @@ model_args:
 #    useWeights: false        # if true, apply survey weights in alignment and statistics calculations
 
   # --- Matching method ---
-#    useSBAMMatching:         # if true, use SBAM instead of standard union-matching algorithm
+  # Union matching is controlled by the UnionMatchingMethod enum field
+  # `unionMatchingMethod` (default ParametricNoRegion; alternatives Parametric, SBAM).
+  # It cannot be set from this file - enum fields are not supported by the config
+  # loader - so change it in SimPathsModel or via the GUI.
 
   # --- Demographic projections ---
 #    projectMortality: true   # if false, disables stochastic mortality (population does not die)
@@ -56,10 +70,10 @@ model_args:
   # --- Alignment flags ---
   # See model-concepts.md for a full explanation of what alignment does.
 #    alignPopulation: true        # align age-sex-region totals to official population projections
-#    alignFertility: true         # scale birth probabilities to match projected fertility rates
+#    alignFertility: false        # scale birth probabilities to match projected fertility rates
 #    alignEducation: false        # align completed education distribution to targets
 #    alignInSchool: false         # align school participation rate (age 16–29) to targets
-#    alignCohabitation: false     # align share of cohabiting individuals to targets
+#    alignCohabitation: true      # align share of cohabiting individuals to targets
 #    alignEmployment: false       # align employment share to targets
 
   # --- Labour market modules ---
@@ -68,13 +82,18 @@ model_args:
 
   # --- Social care and childcare ---
 #    projectFormalChildcare: true          # simulate formal childcare costs
-#    projectSocialCare: false              # simulate social care receipt and provision module
+#    projectSocialCare: true               # simulate social care receipt and provision module
 #    flagSuppressChildcareCosts: false     # if true, set formal childcare costs to zero (scenario use)
 #    flagSuppressSocialCareCosts: false    # if true, set social care costs to zero (scenario use)
 
   # --- Tax-benefit imputation ---
 #    donorPoolAveraging: true    # if true, average disposable income over k nearest-neighbour donors
                                  # rather than using the single closest donor; reduces imputation volatility
+#    taxDonorUpratingByWage: false  # if true, scale simulated income by nominal wage growth (compound of
+                                    # WageGrowth and Inflation indices). before matching to the tax donor
+                                    # database, instead of price growth only. Imputed financial flows are
+                                    # always deflated back to BASE_PRICE_YEAR (2015) using Inflation only,
+                                    # regardless of this setting.
 
   # --- Regression stochasticity ---
 #    addRegressionStochasticComponent: true   # include the residual draw in regression predictions
@@ -89,12 +108,12 @@ model_args:
   # Enables backward-induction life-cycle solution for consumption and labour supply.
   # Decision grids are pre-computed in year 0; agents look up optimal choices each year.
   # Computationally intensive — disabled by default.
-#    enableIntertemporalOptimisations: true
+#    enableIntertemporalOptimisations: false
 
   # IO state-space: which characteristics agents respond to when choosing labour/consumption.
   # Each flag adds a dimension to the grid and increases solve time.
 #    responsesToHealth: true          # include physical health in IO state space
-#    responsesToDisability: false     # include disability status in IO state space
+#    responsesToDisability: true      # include disability status in IO state space
 #    responsesToEducation: true       # include student and education level in IO state space
 #    responsesToPension: false        # include private pension wealth in IO state space
 #    responsesToRetirement: false     # include retirement state (and private pension) in IO state space
@@ -116,6 +135,19 @@ model_args:
 
   # --- Population load ---
 #    ignoreTargetsAtPopulationLoad: false  # if true, skip alignment-target checks when loading the initial population
+
+  # --- Lifetime income projection ---
+  # Optional module that projects lifetime income paths for synthetic birth cohorts,
+  # run once at model build time before the simulation starts. Off by default.
+#    lifetimeIncomeGenerate: false     # generate a new set of lifetime incomes
+#    lifetimeIncomeStartBirthYear:     # first birth cohort to project (no default; required if generating)
+#    lifetimeIncomeEndBirthYear:       # last birth cohort to project (no default; required if generating)
+#    lifetimeIncomeEndAge:             # age at which each cohort's projection stops (no default)
+#    lifetimeIncomeCohortSize: 10000   # number of synthetic individuals per birth cohort
+#    lifetimeIncomeWriteToCSV: false   # write the projected lifetime incomes to CSV
+#    lifetimeIncomeRandomSeed: 505     # seed for the lifetime income projection
+#    lifetimeIncomeAge0StdDev: 0.9     # standard deviation of the initial income draw at age 0
+#    lifetimeIncomeImpute: false       # impute lifetime income for the initial population at load
 
 
 # ── innovation_args: parameter variation across sequential runs ────────────────
@@ -140,24 +172,31 @@ innovation_args:
 # ── collector_args: output collection and export ───────────────────────────────
 # Controls what SimPathsCollector writes to CSV / database each year.
 #
-# Output files:
-#   Statistics1.csv    — income distribution: Gini coefficients, income percentiles, median EDI, S-Index
-#   Statistics2.csv    — demographic validation: partnership rates, employment, health, disability by age/gender
-#   Statistics3.csv    — alignment diagnostics: simulated vs target rates and adjustment factors
-#   EmploymentStatistics.csv — labour market transitions and participation rates
-#   HealthStatistics.csv     — health measures (SF-12, GHQ-12, EQ-5D) by age/gender
+# Output files (one row per year unless noted):
+#   WealthIncomeStatistics.csv — income and wealth: Gini coefficients, income percentiles,
+#                        median EDI, S-Index, and income/wealth by age band (18-29, 30-54, 55-74)
+#   DemographicStatistics.csv  — demographics by age band: partnership rates, dependent children,
+#                        population counts
+#   HealthStatistics.csv       — population health by age band: self-rated health and disability shares
+#   LabourStatistics.csv       — labour market transitions, participation rates, and
+#                        full-time/part-time shares by age band
+#   AlignmentStatistics.csv    — alignment diagnostics: factors, simulated shares, and target shares
+#   WellbeingByGender.csv      — wellbeing and health-related quality of life (SF-12, GHQ-12, EQ-5D),
+#                        ages 25-64, three rows per year: Total, Male, Female
 
 collector_args:
 #    calculateGiniCoefficients: false   # compute Gini coefficients (also populates GUI charts); off by default for speed
 #    exportToDatabase: false            # write outputs to H2 database (in addition to or instead of CSV)
 #    exportToCSV: true                  # write outputs to CSV files under output/<run>/csv/
-#    persistStatistics: true            # write Statistics1.csv (income distribution)
-#    persistStatistics2: true           # write Statistics2.csv (demographic validation outputs)
-#    persistStatistics3: true           # write Statistics3.csv (alignment diagnostics)
-#    persistPersons: false              # write one row per person per year (large files)
-#    persistBenefitUnits: false         # write one row per benefit unit per year (large files)
-#    persistHouseholds: false           # write one row per household per year
-#    persistEmploymentStatistics: false # write EmploymentStatistics.csv
+#    persistWealthIncomeStatistics: true      # write WealthIncomeStatistics.csv (income and wealth)
+#    persistDemographicStatistics: true       # write DemographicStatistics.csv (demographics by age band)
+#    persistAlignmentStatistics: true         # write AlignmentStatistics.csv (alignment diagnostics)
+#    persistLabourStatistics: true            # write LabourStatistics.csv (labour market outcomes)
+#    persistHealthStatistics: true            # write HealthStatistics.csv (population health by age band)
+#    persistWellbeingByGender: true           # write WellbeingByGender.csv (wellbeing by gender, ages 25-64)
+#    persistPersons: true               # write one row per person per year (large files)
+#    persistBenefitUnits: true          # write one row per benefit unit per year (large files)
+#    persistHouseholds: true            # write one row per household per year (large files)
 #    dataDumpStartTime: 0L              # first year to write output (0 = startYear)
 #    dataDumpTimePeriod: 1.0            # output frequency in years (1.0 = every year)
 

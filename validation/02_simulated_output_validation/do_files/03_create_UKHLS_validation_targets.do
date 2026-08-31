@@ -5,12 +5,21 @@
 * AUTHORS:			Ashley Burdett
 * LAST UPDATE:		Feb 2026
 * COUNTRY: 			UK  
-* DESCRIPTION:      This file creates the validation target variables 
-* 					using UKHLS initial populations data. 
+* DESCRIPTION: 		Constructs UKHLS validation targets, mirroring the
+* 					variable set built by 02_create_simulated_variables.do
+* 					so simulated and survey statistics are directly
+* 					comparable: demographics, education, health, labour
+* 					market, income (IHS-transformed amounts converted to
+* 					annual levels), and social care. Also computes
+* 					equivalised disposable income via the Modified OECD
+* 					equivalence scale. Saves the result to
+* 					ukhls_validation_sample.dta.
 ********************************************************************************
-* NOTES: 			The income amounts in annual terms.  
-* 					Currently construct gross income from components. 
-* 
+* NOTES: 			Income amounts are in annual terms. Negative values in
+* 					raw UKHLS variables denote missing/non-response codes
+* 					and are recoded to missing throughout. Gross income is
+* 					currently constructed by summing components rather than
+* 					taken from a single UKHLS variable.
 *******************************************************************************/
 
 * Generate/Tidy required variables
@@ -62,7 +71,7 @@ replace ageGroup = 6 if demAge >= 40 & demAge < 60
 replace ageGroup = 7 if demAge >= 60 & demAge < 80
 replace ageGroup = 8 if demAge >= 80 & demAge <= 100
 
-label def ageGrou /// 
+label def ageGroup /// 
 	0 "ageGroup_0_14" ///
 	1 "ageGroup_15_19" ///
 	2 "ageGroup_20_24" ///
@@ -198,7 +207,7 @@ rename lhw labHrsWorkWeek
 
 gen valid_labHrsWorkWeek = labHrsWorkWeek
 
-* Hours workd weekly (categories)
+* Hours worked weekly (categories)
 /*
 "This version uses 7 labour supply alternatives:")
 ("0 hours ==> non-employment alternative.")
@@ -462,7 +471,7 @@ gen valid_careProvideFlag = (valid_careHrsProvidedWeek > 0 & ///
 	valid_careHrsProvidedWeek != . ) 
 replace valid_careProvideFlag = . if valid_careHrsProvidedWeek == . 
 
-* Restrict sample to relevant valdiation years 
+* Restrict sample to relevant validation years 
 drop if year < ${min_sim_year}
 drop if year > ${max_sim_year}
 	

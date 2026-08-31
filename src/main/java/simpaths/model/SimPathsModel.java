@@ -4,6 +4,7 @@ package simpaths.model;
 // import Java packages
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 import jakarta.persistence.Transient;
@@ -19,7 +20,6 @@ import microsim.event.EventListener;
 import microsim.matching.IterativeSimpleMatching;
 import microsim.matching.MatchingClosure;
 import microsim.matching.MatchingScoreClosure;
-import org.apache.commons.collections4.MapIterator;
 import org.apache.commons.collections4.keyvalue.MultiKey;
 import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.commons.collections4.map.MultiKeyMap;
@@ -27,7 +27,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.commons.math3.util.Pair;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import simpaths.data.*;
 import simpaths.data.startingpop.Processed;
@@ -82,7 +83,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     private boolean isFirstRun = true;		// set default to true - this is required to support single run simulations
 
     // default simulation parameters
-    private static Logger log = Logger.getLogger(SimPathsModel.class);
+    private static Logger log = LogManager.getLogger(SimPathsModel.class);
 
     //@GUIparameter(description = "Country to be simulated")
     private Country country; // = Country.UK;
@@ -202,6 +203,9 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
     @GUIparameter(description = "Average over donor pool when imputing transfer payments")
     public boolean donorPoolAveraging = true;
+
+    @GUIparameter(description = "Scale simulated income by wage growth when imputing taxes and benefits")
+    public boolean taxDonorUpratingByWage = false;
 
     private int ordering = Parameters.MODEL_ORDERING;    //Used in Scheduling of model events.  Schedule model events at the same time as the collector and observer events, but a lower order, so will be fired before the collector and observer have updated.
 
@@ -329,6 +333,8 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     private static String RunDatabasePath;
     private static String PersistDatabasePath;
     private static boolean PersistPopulation = false;
+    private static EntityManagerFactory emfStartingPopulationRun = null;
+    private static EntityManagerFactory emfStartingPopulationPersist = null;
 
 
 
@@ -377,9 +383,9 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
         // load model parameters
         Parameters.loadParameters(country, maxAge, enableIntertemporalOptimisations, projectFormalChildcare,
-                projectSocialCare, donorPoolAveraging, fixTimeTrend, flagDefaultToTimeSeriesAverages, saveImperfectTaxDBMatches,
-                timeTrendStopsIn, startYear, endYear, interestRateInnov, disposableIncomeFromLabourInnov, flagSuppressChildcareCosts,
-                flagSuppressSocialCareCosts, lifetimeIncomeImpute);
+                projectSocialCare, donorPoolAveraging, taxDonorUpratingByWage, fixTimeTrend, flagDefaultToTimeSeriesAverages,
+                saveImperfectTaxDBMatches, timeTrendStopsIn, startYear, endYear, interestRateInnov,
+                disposableIncomeFromLabourInnov, flagSuppressChildcareCosts, flagSuppressSocialCareCosts, lifetimeIncomeImpute);
         if (lifetimeIncomeGenerate) {
             ManagerProjectLifetimeIncomes.run(log, lifetimeIncomeStartBirthYear,
                     lifetimeIncomeEndBirthYear, lifetimeIncomeEndAge, lifetimeIncomeCohortSize, lifetimeIncomeWriteToCSV,
@@ -452,7 +458,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                 }
             }
         }
-        scalingFactor = (double)popSizeBaseYear / (double)persons.size();
+        scalingFactor = popSizeBaseYear / (double)persons.size();
         System.out.println("Scaling factor is " + scalingFactor);
 
         //Set up tests class
@@ -502,8 +508,8 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         addEventToAllYears(Processes.GarbageCollection);
         if (enableIntertemporalOptimisations)
             yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.UpdateWealth);
-        addCollectionEventToAllYears(benefitUnits, BenefitUnit.Processes.Update);
-        addCollectionEventToAllYears(persons, Person.Processes.Update);
+        yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.Update);
+        yearlySchedule.addCollectionEvent(persons, Person.Processes.Update);
 
         yearlySchedule.addCollectionEvent(persons, Person.Processes.Aging);
 
@@ -516,15 +522,18 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         yearlySchedule.addCollectionEvent(persons, Person.Processes.ConsiderRetirement, false);
 
         // EDUCATION MODULE
+        // In School alignment — runs before InSchool decisions so the solved adjustment applies in the same year
+        yearlySchedule.addEvent(this, Processes.InSchoolAlignment);
+
         // Check In School - check whether still in education, and if leaving school, reset Education Level
         yearlySchedule.addCollectionEvent(persons, Person.Processes.InSchool);
-
-        // In School alignment
-        yearlySchedule.addEvent(this, Processes.InSchoolAlignment);
         yearlySchedule.addCollectionEvent(persons, Person.Processes.LeavingSchool);
 
         // Align the level of education if required
         addEventToAllYears(Processes.EducationLevelAlignment);
+
+        // Check whether adult children leave the parental home - runs after education so that those in continuous education are excluded
+        yearlySchedule.addCollectionEvent(persons, Person.Processes.ConsiderLeavingHome);
 
         // Homeownership status
         yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.Homeownership);
@@ -559,6 +568,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         yearlySchedule.addEvent(this, Processes.FertilityAlignment);        //Align to fertility rates implied by projected population statistics.
         yearlySchedule.addCollectionEvent(persons, Person.Processes.Fertility);
         yearlySchedule.addCollectionEvent(persons, Person.Processes.GiveBirth, false);        //Cannot use read-only collection schedule as newborn children cause concurrent modification exception.  Need to specify false in last argument of Collection event.
+        addCollectionEventToAllYears(benefitUnits, BenefitUnit.Processes.UpdateDemographics);
 
         // TIME USE MODULE
         // Social care
@@ -620,7 +630,6 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         yearlySchedule.addEvent(this, Processes.CheckForImperfectTaxDBMatches);
         addEventToAllYears(tests, Tests.Processes.RunTests); //Run tests
         addCollectionEventToAllYears(persons, Person.Processes.UpdateOutputVariables); // Update idPartner, dhhtp_c4
-        addCollectionEventToAllYears(benefitUnits, BenefitUnit.Processes.UpdateOutputVariables); // Update dhhtp_c4
         addEventToAllYears(Processes.EndYear);
 
         // UPDATE YEAR
@@ -719,6 +728,8 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             pw.println(line);
             line = "donorPoolAveraging: " + donorPoolAveraging;
             pw.println(line);
+            line = "taxDonorUpratingByWage: " + taxDonorUpratingByWage;
+            pw.println(line);
             line = "initialisePotentialEarningsFromDatabase: " + initialisePotentialEarningsFromDatabase;
             pw.println(line);
             line = "useWeights: " + useWeights;
@@ -794,7 +805,6 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         EndYear,
         UnionMatching,
         LabourMarketAndIncomeUpdate,
-        SocialCareMarketClearing,
 
         //Alignment Processes
         FertilityAlignment,
@@ -873,9 +883,6 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                     unionMatchingNoRegion(false); //Run matching again relaxing regions this time
                 }
                 if (commentsOn) log.info("Union matching complete.");
-            }
-            case SocialCareMarketClearing -> {
-                socialCareMarketClearing();
             }
             case FertilityAlignment -> {
 
@@ -1481,16 +1488,16 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
                             @Override
                             public boolean getOutcome(Person agent) {
-                                return agent.getDhe() == 1.; //TODO: Check the new continuous health status
+                                return agent.getHealthSelfRated() == 1.; //TODO: Check the new continuous health status
                             }
 
                             @Override
                             public void resample(Person agent) {
                                 //Swap health status
-                                if (agent.getDhe() > 1.) {
-                                    agent.setDhe(1.);
+                                if (agent.getHealthSelfRated() > 1.) {
+                                    agent.setHealthSelfRated(1.);
                                 } else {
-                                    agent.setDhe(3.); //TODO: What numerical value should correspond to "good" health?
+                                    agent.setHealthSelfRated(3.); //TODO: What numerical value should correspond to "good" health?
                                 }
                             }
 
@@ -1510,7 +1517,6 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     int malesUnmatched = 0;
     int femalesUnmatched = 0;
 
-    @SuppressWarnings("unchecked")
     private void unionMatchingSBAM() {
 
         int malesToBePartnered = 0;
@@ -1537,7 +1543,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         MultiKeyCoefficientMap marriageTypesToAdjustMap = Parameters.getMarriageTypesFrequency().clone(); //Clone the original map loaded from Excel to adjust frequencies on a copy
 
         //Create a set of keys on which the types are defined: currently Gender, Region, Education, Age Group
-        Set<MultiKey> keysMultiKeySet = new LinkedHashSet<MultiKey>();
+        var keysMultiKeySet = new LinkedHashSet<MultiKey<Object>>();
         Set<String> keysStringSet = new LinkedHashSet<String>();
         for(Gender gender : Gender.values()) {
 
@@ -1555,7 +1561,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                         String tmpKeyString = gender + " " + region + " " + education + " " + ageGroup; //MultiKey defined above, but for most methods we use a composite String key instead as MultiKeyMap has a limit of keys
                         for (Person person : tmpPersonsSet) {
 
-                            if (person.getDeh_c4().equals(education) && person.getDemAgeGroup() == ageGroup) tmpPersonsSet2.add(person); //If education level matches add person to the set
+                            if (person.getEduHighestC4().equals(education) && person.getDemAgeGroup() == ageGroup) tmpPersonsSet2.add(person); //If education level matches add person to the set
                         }
 
                         personsToMatch2.put(tmpKeyString, tmpPersonsSet2); //Add a key and set of people to set of persons to match. Each key corresponds to a set of people of certain Gender, Region, and Education who want to match
@@ -1565,11 +1571,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
                         //Create a set containing row keys of marriageTypesToAdjust:
                         Set<String> tmpKeysStringSet = new LinkedHashSet<String>();
-                        MapIterator frequenciesIterator = marriageTypesToAdjustMap.mapIterator();
-                        while (frequenciesIterator.hasNext()) {
-
-                            frequenciesIterator.next();
-                            MultiKey tmpKeyMultiKey = (MultiKey) frequenciesIterator.getKey();
+                        for (var tmpKeyMultiKey : marriageTypesToAdjustMap.keySet()) {
                             String key0String = tmpKeyMultiKey.getKey(0).toString();
                             tmpKeysStringSet.add(key0String); //The only types not in the set should be those that don't have any matches in the data
                         }
@@ -1577,7 +1579,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                         if(tmpKeysStringSet.contains(tmpKeyString)) { //Check if the target is contained in frequencies from the data - if not, 0 entries cannot be adjusted anyway
 
                             marriageTargetsByKey.put(tmpKeyString, tmpTargetDouble); //Update marriageTargetByKey
-                            MultiKey tmpKeyMultiKey = new MultiKey(gender, region, education, ageGroup);
+                            var tmpKeyMultiKey = new MultiKey<Object>(gender, region, education, ageGroup);
                             keysMultiKeySet.add(tmpKeyMultiKey); //Add MultiKey to set of keys
                             keysStringSet.add(tmpKeyString);
                         }
@@ -1590,7 +1592,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         //theoretically could occur? (i.e. no same sex matches, and no cross-region matches) but were not observed in the data.
         if(adjustZeroEntries) {
 
-            for (MultiKey key1 : keysMultiKeySet) { //For each row in the frequency matrix
+            for (var key1 : keysMultiKeySet) { //For each row in the frequency matrix
 
                 Gender gender1 = (Gender) key1.getKey(0);
                 Region region1 = (Region) key1.getKey(1);
@@ -1598,7 +1600,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                 int ageGroup1 = (int) key1.getKey(3);
                 String key1String = gender1 + " " + region1 + " " + education1 + " " + ageGroup1;
                 // System.out.println();
-                for(MultiKey key2 : keysMultiKeySet) { //For each column
+                for(var key2 : keysMultiKeySet) { //For each column
 
                     Gender gender2 = (Gender) key2.getKey(0);
                     Region region2 = (Region) key2.getKey(1);
@@ -1638,23 +1640,12 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             //Instead of iterating through rows and columns, go through every element of the map and add to the row / col sum depending on key1 and key2
             //marriageTypesToAdjust is a map, where key is a MultiKey with two values (Strings): first value identifies one type, second value identifies second type, value stores the frequency of matches.
             //Instead of iterating through rows and columns, can iterate through each cell of the map and add it to rowSum (and later on to colSum).
-            MapIterator frequenciesIterator = marriageTypesToAdjustMap.mapIterator();
-
-            while (frequenciesIterator.hasNext()) {
-
-                frequenciesIterator.next();
-                MultiKey tmpKeyMultiKey = (MultiKey) frequenciesIterator.getKey(); //Get MultiKey identifying each cell (mk.getKey(0) is row, mk.getKey(1) is column)
-                double tmpValueDouble = 0.;
-                if (rowSumsMap.get(tmpKeyMultiKey.getKey(0).toString()) == null) { //If null value in rowSumsMap, then just put the current value, otherwise add
-
-                    tmpValueDouble = ((Number) frequenciesIterator.getValue()).doubleValue();
-                } else {
-
-                    tmpValueDouble = rowSumsMap.get(tmpKeyMultiKey.getKey(0).toString()) + ((Number) frequenciesIterator.getValue()).doubleValue();
-                }
-
-                //To get row sums add value to a map where key0 is the key
-                rowSumsMap.put(tmpKeyMultiKey.getKey(0).toString(), tmpValueDouble);
+            for (var mapEntry : marriageTypesToAdjustMap.entrySet()) {
+                var tmpKeyMultiKey = mapEntry.getKey(); //Get MultiKey identifying each cell (mk.getKey(0) is row, mk.getKey(1) is column)
+                var keyStr = tmpKeyMultiKey.getKey(0).toString();
+                double tmpValueDouble = ((Number) mapEntry.getValue()).doubleValue();
+                tmpValueDouble += rowSumsMap.getOrDefault(keyStr, 0.0);
+                rowSumsMap.put(keyStr, tmpValueDouble);
             }
             //Get target by key and divide by row sum for that key to get row multiplier, same for column later on
             marriageTargetsByKey.keySet().iterator().forEachRemaining(key -> rowMprMap.put(key, marriageTargetsByKey.get(key)/rowSumsMap.get(key)));
@@ -1667,11 +1658,11 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             });
 
             //Now knowing the row multiplier, multiply entries in the frequency map (marriageTypesToAdjust)
-            frequenciesIterator = marriageTypesToAdjustMap.mapIterator();
+            var frequenciesIterator = marriageTypesToAdjustMap.mapIterator();
             while (frequenciesIterator.hasNext()) {
 
                 frequenciesIterator.next();
-                MultiKey tmpKeyMultiKey = (MultiKey) frequenciesIterator.getKey();
+                var tmpKeyMultiKey = frequenciesIterator.getKey();
                 double tmpValueDouble = ((Number) frequenciesIterator.getValue()).doubleValue();
                 tmpValueDouble *= rowMprMap.get(tmpKeyMultiKey.getKey(0).toString());
                 frequenciesIterator.setValue(tmpValueDouble);
@@ -1682,7 +1673,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             while (frequenciesIterator.hasNext()) {
 
                 frequenciesIterator.next();
-                MultiKey tmpKeyMultiKey = (MultiKey) frequenciesIterator.getKey();
+                var tmpKeyMultiKey = frequenciesIterator.getKey();
                 double tmpValueDouble = 0.;
                 if (colSumsMap.get(tmpKeyMultiKey.getKey(1).toString()) == null) {
 
@@ -1710,7 +1701,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             while (frequenciesIterator.hasNext()) {
 
                 frequenciesIterator.next();
-                MultiKey tmpKeyMultiKey = (MultiKey) frequenciesIterator.getKey();
+                var tmpKeyMultiKey = frequenciesIterator.getKey();
                 double tmpValueDouble = ((Number) frequenciesIterator.getValue()).doubleValue();
                 tmpValueDouble *= colMprMap.get(tmpKeyMultiKey.getKey(1).toString());
                 frequenciesIterator.setValue(tmpValueDouble);
@@ -1734,6 +1725,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         /*
          * Use matching method provided with JAS-mine:
          */
+        var ism = new IterativeSimpleMatching<Person>();
         for(String key : keysStringSet) {
 
             for(String keyOther : keysStringSet) {
@@ -1774,10 +1766,9 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                                         " people in Q1 and " + unmatchedQ2.size() + " in Q2. (Originally Q2 had " + unmatchedQ2full.size() + " people.");
                     unmatchedQ2.stream().iterator().forEachRemaining(persontodisp -> System.out.println("PID " + persontodisp.getKey().getId() + " HHID " + persontodisp.getHousehold().getKey().getId()));
                      */
-                    Pair<Set<Person>, Set<Person>> unmatchedSetsPair = new Pair<>(unmatchedQ1Set, unmatchedQ2Set);
                     //System.out.println("People in Q1 = " + unmatched.getFirst().size() + " People in Q2 = " + unmatched.getSecond().size());
-                    unmatchedSetsPair = IterativeSimpleMatching.getInstance().matching(
-                            unmatchedSetsPair.getFirst(), null, null, unmatchedSetsPair.getSecond(), null,
+                    ism.matching(
+                            unmatchedQ1Set, null, null, unmatchedQ2Set, null,
 
                             //This closure calculates the score for potential couple
                             new MatchingScoreClosure<Person>() {
@@ -1900,21 +1891,6 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                 }
             }
             matches.addAll(matchesHere);
-        }
-    }
-
-    private void socialCareMarketClearing() {
-
-        // adjust provision so that aggregate provision broadly matches aggregate receipt
-        double careProvisionAdjustment = Parameters.getTimeSeriesValue(getYear(),TimeSeriesVariable.CareProvisionAdjustment);
-        SocialCareAlignment socialCareAlignment = new SocialCareAlignment(persons, careProvisionAdjustment);
-        double[] startVal = new double[] {careProvisionAdjustment};
-        double[] lowerBound = new double[] {careProvisionAdjustment - 1.5};
-        double[] upperBound = new double[] {careProvisionAdjustment + 1.5};
-        RootSearch search = new RootSearch(lowerBound, upperBound, startVal, socialCareAlignment, 1.0E-2, 0.001);
-        search.evaluate();
-        if (search.isTargetAltered()) {
-            Parameters.putTimeSeriesValue(getYear(), search.getTarget()[0], TimeSeriesVariable.CareProvisionAdjustment);
         }
     }
 
@@ -2157,79 +2133,6 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
 
     /**
-     * PROCESS - ALIGN THE SHARE OF EMPLOYED IN THE SIMULATED POPULATION
-     */
-
-    private void employmentAlignment() {
-
-        //Create a nested map to store persons by gender and region
-        LinkedHashMap<Gender, LinkedHashMap<Region, Set<Person>>> personsByGenderAndRegion;
-        personsByGenderAndRegion = new LinkedHashMap<Gender, LinkedHashMap<Region, Set<Person>>>();
-
-        EnumSet<Region> regionEnumSet = null;
-        if (country.equals(Country.IT)) {
-            regionEnumSet = EnumSet.of(Region.ITC, Region.ITH, Region.ITI, Region.ITF, Region.ITG);
-        } else if (country.equals(Country.UK)) {
-            regionEnumSet = EnumSet.of(Region.UKC, Region.UKD, Region.UKE, Region.UKF, Region.UKG, Region.UKH, Region.UKI, Region.UKJ, Region.UKK, Region.UKL, Region.UKM, Region.UKN);
-        }
-
-        for (Gender gender : Gender.values()) {
-            personsByGenderAndRegion.put(gender, new LinkedHashMap<Region, Set<Person>>());
-            for (Region region : regionEnumSet) {
-                personsByGenderAndRegion.get(gender).put(region, new LinkedHashSet<Person>());
-            }
-        }
-
-        //Iterate over persons and add them to the nested map above
-        for (Person person : persons) {
-            if (person.getDemAge() >= 18 && person.getDemAge() <= 64) {
-                personsByGenderAndRegion.get(person.getDemMaleFlag()).get(person.getRegion()).add(person);
-            }
-        }
-
-        //For all gender and region combinations, compare the share of employed persons with the alignment target
-        for (Gender gender : Gender.values()) {
-            for (Region region : regionEnumSet) {
-                double numberEmployed = 0;
-                Set<Person> personsToIterateOver = personsByGenderAndRegion.get(gender).get(region);
-
-                for (Person person : personsToIterateOver) {
-                    numberEmployed += person.getEmployed();
-                }
-
-                double sizeSimulatedSet = personsToIterateOver.size();
-
-                double shareEmployedSimulated = numberEmployed/sizeSimulatedSet;
-                double shareEmployedTargeted = Parameters.getTimeSeriesValue(year, gender.toString(), region.toString(), TimeSeriesVariable.EmploymentAlignment);
-
-                int targetNumberEmployed = (int) (shareEmployedTargeted*sizeSimulatedSet);
-
-
-                //Simulated share of employment exceeds projections => move some individuals at random to non-employment
-                if ((int) numberEmployed > targetNumberEmployed) {
-                    new ResamplingAlignment<Person>().align(
-                            personsToIterateOver,
-                            null,
-                            new AlignmentOutcomeClosure<Person>() {
-                                @Override
-                                public boolean getOutcome(Person person) {
-                                    return person.getLes_c4().equals(Les_c4.EmployedOrSelfEmployed);
-                                }
-
-                                @Override
-                                public void resample(Person person) {
-                                    person.setLes_c4(Les_c4.NotEmployed);
-                                    person.setLabourSupplyWeekly(Labour.ZERO);
-                                }
-                            },
-                            targetNumberEmployed);
-                }
-            }
-        }
-
-    }
-
-    /**
      *
      * PROCESS - ALIGN THE SHARE OF STUDENTS IN THE SIMULATED POPULATION
      *
@@ -2335,11 +2238,10 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         }
 
         lastInSchoolAdjustment = search.getTarget()[0];
-        // update and exit
-        if (search.isTargetAltered()) {
-            Parameters.putTimeSeriesValue(getYear(), search.getTarget()[0], TimeSeriesVariable.InSchoolAdjustment); // If adjustment is altered from the initial value, update the map
-            System.out.println("InSchool adjustment value was " + search.getTarget()[0]);
-        }
+        // Always persist the solved value for the current year so the InSchool process (which runs next in the
+        // schedule and reads timeseries[year] via getInSchoolAdjustment) applies exactly this adjustment.
+        Parameters.putTimeSeriesValue(getYear(), search.getTarget()[0], TimeSeriesVariable.InSchoolAdjustment);
+        System.out.println("InSchool adjustment value was " + search.getTarget()[0]);
     }
 
 
@@ -2370,10 +2272,10 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             for(Person person : persons) {
                 if( person.getDemMaleFlag().equals(gender) && person.getDemAge() >= 16 && person.getDemAge() <= 45) {        //Alignment projections are based only on persons younger than 66 years old
                     if (person.isToLeaveSchool()) { //Align only people leaving school?
-                        if(person.getDeh_c4() != null) {
-                            if (person.getDeh_c4().equals(Education.Low)) {
+                        if(person.getEduHighestC4() != null) {
+                            if (person.getEduHighestC4().equals(Education.Low)) {
                                 numPersonsOfThisGenderWithLowEduPreAlignment++;
-                            } else if (person.getDeh_c4().equals(Education.High)) {
+                            } else if (person.getEduHighestC4().equals(Education.High)) {
                                 numPersonsOfThisGenderWithHighEduPreAlignment++;
                             }
                             numPersonsOfThisGender++;
@@ -2404,7 +2306,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             int countHigh = 0, countLow = 0;
             for(Person schoolLeaver : personsLeavingEducation.get(gender)) {        //This tries to maintain the naturally generated number of school-leavers with medium education, so that an increase in the number of school-leavers with high education is achieved through a reduction in the number of school-leavers with low education.  However, in the event that the number of school-leavers with either high or medium education are more than the total number of school leavers (in this year), we end up having no school leavers with low education and we have to reduce the number of school leavers with medium education
 
-                if (schoolLeaver.getDeh_c4().equals(Education.Medium)) {
+                if (schoolLeaver.getEduHighestC4().equals(Education.Medium)) {
                     if(numPersonsOfThisGenderWithHighEduPreAlignment + countHigh < numPersonsWithHighEduAlignmentTarget) {                //Only align if number of people in population with high education is too low.
                         schoolLeaver.setEducation(Education.High);            //As the personsLeavingEducation list is sorted by descending age, the oldest people leaving education are assigned to have high education levels
                         countHigh++;
@@ -2412,12 +2314,12 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                         schoolLeaver.setEducation(Education.Low);        //When the number of high education level people have been assigned, the next oldest people are assigned to have medium education levels
                         countLow++;
                     }
-                } else if (schoolLeaver.getDeh_c4().equals(Education.High)) {
+                } else if (schoolLeaver.getEduHighestC4().equals(Education.High)) {
                     if (numPersonsOfThisGenderWithHighEduPreAlignment + countHigh > numPersonsWithHighEduAlignmentTarget) { //If too many people with high education
                         schoolLeaver.setEducation(Education.Medium);
                         countHigh--;
                     }
-                } else if (schoolLeaver.getDeh_c4().equals(Education.Low)) {
+                } else if (schoolLeaver.getEduHighestC4().equals(Education.Low)) {
                     if (numPersonsOfThisGenderWithLowEduPreAlignment + countLow > numPersonsWithLowEduAlignmentTarget) {
                         schoolLeaver.setEducation(Education.Medium);
                         countLow--;
@@ -2434,10 +2336,10 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                 for(Person person : persons) {
                     if( person.getDemMaleFlag().equals(gender) && (person.getDemAge() <= 65) ) {        //Alignment projections are based only on persons younger than 66 years old
                         if (person.isToLeaveSchool()) {
-                            if(person.getDeh_c4() != null) {
-                                if(person.getDeh_c4().equals(Education.High)) {
+                            if(person.getEduHighestC4() != null) {
+                                if(person.getEduHighestC4().equals(Education.High)) {
                                     countHighEdPeople++;
-                                } else if(person.getDeh_c4().equals(Education.Medium)) {
+                                } else if(person.getEduHighestC4().equals(Education.Medium)) {
                                     countMediumEdPeople++;
                                 }
                             }
@@ -2930,6 +2832,8 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     public void setProjectFormalChildcare(boolean projectFormalChildcare) { this.projectFormalChildcare = projectFormalChildcare; }
     public boolean getDonorPoolAveraging() { return donorPoolAveraging; }
     public void setDonorPoolAveraging(boolean val) { donorPoolAveraging = val; }
+    public boolean getTaxDonorUpratingByWage() { return taxDonorUpratingByWage; }
+    public void setTaxDonorUpratingByWage(boolean val) { taxDonorUpratingByWage = val; }
 
     public Integer getPopSize() {
         return popSize;
@@ -3228,8 +3132,16 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         return unionMatchingMethod;
     }
 
+    public void setUnionMatchingMethod(String value) {
+        this.unionMatchingMethod = (value == null || value.isBlank())
+                ? UnionMatchingMethod.ParametricNoRegion
+                : UnionMatchingMethod.valueOf(value);
+    }
+
     public void setUnionMatchingMethod(UnionMatchingMethod unionMatchingMethod) {
-        this.unionMatchingMethod = unionMatchingMethod;
+        this.unionMatchingMethod = unionMatchingMethod == null
+                ? UnionMatchingMethod.ParametricNoRegion
+                : unionMatchingMethod;
     }
 
     public boolean isAlignFertility() {
@@ -3262,6 +3174,12 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     }
 
     public boolean isAlignInSchool() { return alignInSchool;    }
+
+    public boolean isAlignPopulation() { return alignPopulation; }
+
+    public boolean isAlignEducation() { return alignEducation; }
+
+    public boolean isEnableIntertemporalOptimisations() { return enableIntertemporalOptimisations; }
 
     public double getInSchoolAdjustment() {
         if (!alignInSchool) {
@@ -3467,7 +3385,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             try {
 
                 // access database and obtain donor pool
-                Map propertyMap = new HashMap();
+                var propertyMap = new HashMap<String, String>();
                 propertyMap.put("hibernate.connection.url", "jdbc:h2:file:" + RunDatabasePath + ";TRACE_LEVEL_FILE=0;TRACE_LEVEL_SYSTEM_OUT=0;AUTO_SERVER=TRUE");
                 EntityManager em = Persistence.createEntityManagerFactory("tax-database", propertyMap).createEntityManager();
                 txn = em.getTransaction();
@@ -3599,7 +3517,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
             // query database
             String fileName = Parameters.getInputDirectory() + "input";
-            Map propertyMap = new HashMap();
+            var propertyMap = new HashMap<String, String>();
             propertyMap.put("hibernate.connection.url", "jdbc:h2:file:" + fileName + ";TRACE_LEVEL_FILE=0;TRACE_LEVEL_SYSTEM_OUT=0;AUTO_SERVER=TRUE");
             EntityManager em = Persistence.createEntityManagerFactory("lifetime-incomes", propertyMap).createEntityManager();
             txn = em.getTransaction();
@@ -3633,15 +3551,16 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     private Processed getProcessed(Country country, int startYear, int popSize, boolean ignoreTargetsAtPopulationLoad) {
 
         Processed processed = null;
-        Processed processed_return = null;
 
         EntityTransaction txn = null;
         try {
 
             // query database
-            Map propertyMap = new HashMap();
+            var propertyMap = new HashMap<String, String>();
             propertyMap.put("hibernate.connection.url", "jdbc:h2:file:" + getPersistDatabasePath() + ";TRACE_LEVEL_FILE=0;TRACE_LEVEL_SYSTEM_OUT=0;AUTO_SERVER=TRUE");
-            EntityManager em = Persistence.createEntityManagerFactory("starting-population", propertyMap).createEntityManager();
+            if (emfStartingPopulationPersist == null)
+                emfStartingPopulationPersist = Persistence.createEntityManagerFactory("starting-population", propertyMap);
+            EntityManager em = emfStartingPopulationPersist.createEntityManager();
             txn = em.getTransaction();
             txn.begin();
 //            String query = "SELECT DISTINCT processed FROM Processed processed LEFT JOIN FETCH processed.households households LEFT JOIN FETCH households.benefitUnits benefitUnits LEFT JOIN FETCH benefitUnits.members members WHERE processed.startYear = " + startYear + " AND processed.popSize = " + popSize + " AND processed.country = " + country + " AND processed.noTargets = " + ignoreTargetsAtPopulationLoad + " ORDER BY households.key.id";
@@ -3655,16 +3574,15 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                 if (processedList.size()>1)
                     throw new RuntimeException("more than one relevant dataset returned from database");
                 processed = processedList.get(0);
+                // force-initialize lazy collections within the open session (triggers SUBSELECT batch loads)
                 processed.resetDependents();
 
-//                // Now fetch households for THIS specific Processed instance only
-                processed_return = em.createQuery(
+                em.createQuery(
                                 "SELECT p FROM Processed p LEFT JOIN FETCH p.households h WHERE p = :proc ORDER BY h.key.id",
                                 Processed.class)
                         .setParameter("proc", processed)
-                        .getSingleResult();
-
-                processed_return.resetDependents();
+                        .getSingleResult()
+                        .resetDependents();
             }
 
             // close database connection
@@ -3687,9 +3605,11 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         EntityTransaction txn = null;
         try {
 
-            Map propertyMap = new HashMap();
+            var propertyMap = new HashMap<String, String>();
             propertyMap.put("hibernate.connection.url", "jdbc:h2:file:" + RunDatabasePath + ";TRACE_LEVEL_FILE=0;TRACE_LEVEL_SYSTEM_OUT=0;AUTO_SERVER=TRUE");
-            EntityManager em = Persistence.createEntityManagerFactory("starting-population", propertyMap).createEntityManager();
+            if (emfStartingPopulationRun == null)
+                emfStartingPopulationRun = Persistence.createEntityManagerFactory("starting-population", propertyMap);
+            EntityManager em = emfStartingPopulationRun.createEntityManager();
             txn = em.getTransaction();
             txn.begin();
             String query = "SELECT households FROM Household households";
@@ -3697,6 +3617,13 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             log.info("Submitting SQL query: " + query);
             households = em.createQuery(query).getResultList();
             log.info("Query complete");
+
+            // force-initialize lazy collections within the open session (triggers SUBSELECT batch loads)
+            for (Household hh : households) {
+                for (BenefitUnit bu : hh.getBenefitUnits()) {
+                    bu.getMembers().size();
+                }
+            }
 
             // close database connection
             em.close();
@@ -3720,9 +3647,11 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         EntityTransaction txn = null;
         try {
 
-            Map propertyMap = new HashMap();
+            var propertyMap = new HashMap<String, String>();
             propertyMap.put("hibernate.connection.url", "jdbc:h2:file:" + getPersistDatabasePath() + ";TRACE_LEVEL_FILE=0;TRACE_LEVEL_SYSTEM_OUT=0;AUTO_SERVER=TRUE");
-            EntityManager em = Persistence.createEntityManagerFactory("starting-population", propertyMap).createEntityManager();
+            if (emfStartingPopulationPersist == null)
+                emfStartingPopulationPersist = Persistence.createEntityManagerFactory("starting-population", propertyMap);
+            EntityManager em = emfStartingPopulationPersist.createEntityManager();
             txn = em.getTransaction();
             txn.begin();
 

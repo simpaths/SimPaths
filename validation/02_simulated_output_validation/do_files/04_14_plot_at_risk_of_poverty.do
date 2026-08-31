@@ -1,12 +1,19 @@
 /*******************************************************************************
 * PROJECT:  		SimPaths UK 
 * SECTION:			Validation
-* OBJECT: 			Risk of poverty 
-* AUTHORS:			Ashley Burdett 
-* LAST UPDATE:		Jan 2026
-* COUNTRY: 			UK 
+* OBJECT: 			Risk of poverty
+* AUTHORS:			Ashley Burdett
+* LAST UPDATE:		Aug 2026
+* COUNTRY: 			UK
+* DESCRIPTION: 		Plots validation graphs comparing simulated vs. UKHLS
+* 					at-risk-of-poverty rates: share of individuals with
+* 					equivalised disposable income below 60% of the
+* 					within-year median (computed separately for UKHLS and
+* 					SimPaths), for ages 18-65 (1.1) and ages 18+ (1.2), with
+* 					a shaded band (mean +/- 1.96*SD across $max_n_runs runs).
 ********************************************************************************
-* NOTES: 			 
+* NOTES: 			Poverty line recalculated within each year and dataset;
+* 					not a shared external threshold.
 *******************************************************************************/
 
 ********************************************************************************
@@ -35,7 +42,10 @@ if "$trim_outliers" == "true" {
 
 qui sum year
 local min_year = 2011
-local max_year = r(max)  
+if "$min_sim_year" != "" local min_year = $min_sim_year
+local max_year = r(max)
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 gen poverty_line = .
 forval year = `min_year'/`max_year' {
@@ -99,17 +109,17 @@ twoway (rarea arop_sim_high arop_sim_low year, sort color(green%20) ///
 	ylabel(, labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Note: Poverty line calculated within each year as 60% of the median equivalised disposable income of benefit unit. Calculated" "using individual level observations.", ///
+	note("Note: Poverty line calculated within each year as 60% of the median equivalised disposable income of benefit unit. Calculated" "using individual level observations. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))
 
 * Save figure
-graph export "$dir_output_files/poverty/validation_${country}_at_risk_of_poverty_18_${max_age}.jpg", ///
+graph export "$dir_output_files/poverty/validation_${country}_at_risk_of_poverty_18_65.jpg", ///
 	replace width(2560) height(1440) quality(100)
 
 	
 	
 ********************************************************************************
-* 1.1 : Mean values over time, 18+ 
+* 1.2 : Mean values over time, 18+ 
 ********************************************************************************
 
 * Prepare validation data
@@ -131,7 +141,10 @@ if "$trim_outliers" == "true" {
 
 qui sum year
 local min_year = 2011
-local max_year = r(max)  
+if "$min_sim_year" != "" local min_year = $min_sim_year
+local max_year = r(max)
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 gen poverty_line = .
 
@@ -199,7 +212,7 @@ twoway (rarea arop_sim_high arop_sim_low year, sort color(green%20) ///
 	ylabel(, labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Note: Poverty line calculated within each year as 60% of the median equivalised disposable income of benefit unit. Calculated" "using individual level observations.", ///
+	note("Note: Poverty line calculated within each year as 60% of the median equivalised disposable income of benefit unit. Calculated" "using individual level observations.Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))
 
 * Save figure

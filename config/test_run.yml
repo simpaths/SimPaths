@@ -10,9 +10,9 @@ popSize: 20000
 integrationTest: true
 
 collector_args:
-    persistStatistics: true
-    persistStatistics2: true
-    persistStatistics3: true
+    persistWealthIncomeStatistics: true
+    persistDemographicStatistics: true
+    persistAlignmentStatistics: true
     persistPersons: false
     persistBenefitUnits: false
     persistHouseholds: false

@@ -173,7 +173,7 @@ use "${dir_working_data}/bu_empl_shares_${country}_allsubgroups_initpopdata.dta"
 sort year
 
 * Create/overwrite Excel file that will hold all sheets
-putexcel set "${dir_output}/employment_targets.xlsx", replace
+putexcel set "${dir_output}/alignment_targets_employment.xlsx", replace
 
 * Identify all BU group codes
 levelsof group_code, local(groups)
@@ -188,7 +188,7 @@ foreach g of local groups {
 	mkmat year empl_share, matrix(M)
 	
 	* Point putexcel at the output file and the group-specific sheet
-	putexcel set "${dir_output}/employment_targets.xlsx", sheet("`g'") modify
+	putexcel set "${dir_output}/alignment_targets_employment.xlsx", sheet("`g'") modify
 
 	* Write headers
 	putexcel A1=("year") B1=("empl_share")
@@ -198,3 +198,27 @@ foreach g of local groups {
 
 	restore
 }
+
+* Add metadata sheet so workbook provenance survives regeneration
+putexcel set "${dir_output}/alignment_targets_employment.xlsx", sheet("Info") modify
+putexcel A1=("Field") B1=("Value")
+putexcel A2=("Workbook") B2=("alignment_targets_employment.xlsx")
+putexcel A3=("Data sheets") B3=("Couples, SingleDep_Males, SingleDep_Females, Single_male, SingleAC_Males, Single_female, SingleAC_Females")
+putexcel A4=("Relevant do file") B4=("input/DoFilesTarget/01_employment_shares_initpopdata.do")
+putexcel A5=("Source data") B5=("input/InitialPopulations/population_initial_UK_2011.csv to population_initial_UK_2023.csv")
+putexcel A6=("Years covered") B6=("2011-2023")
+putexcel A7=("Unit of analysis") B7=("Benefit unit (BU)")
+putexcel A8=("Responsible adults") B8=("Responsible male and female adults are identified from adults aged 18+ within each BU")
+putexcel A9=("At-risk definition") B9=("Sex-specific at-risk flag requires age 16-75 inclusive and labc4 not equal to 2 or 4")
+putexcel A10=("Weighting") B10=("BU weight equals the sum of wgthhcross across people in the BU")
+putexcel A11=("How target is computed") B11=("For each BU: bu_fracemployed = (bu_male_emp + bu_female_emp) / bu_nresp after non-at-risk responsible adults are set to non-employed; then collapse (mean) empl_share = bu_target_emp [pw = bu_w] by year and group_code")
+putexcel A12=("AC meaning") B12=("AC denotes adult child status from demadultchildflag")
+putexcel A13=("SingleDep note") B13=("SingleDep_Males and SingleDep_Females cannot exceed 0.5 by construction")
+putexcel A15=("Group") B15=("Definition")
+putexcel A16=("Couples") B16=("Couple BU with at least one at-risk male and at least one at-risk female")
+putexcel A17=("SingleDep_Males") B17=("Couple BU where only the male side is at risk")
+putexcel A18=("SingleDep_Females") B18=("Couple BU where only the female side is at risk")
+putexcel A19=("Single_male") B19=("Single-male BU with demadultchildflag = 0")
+putexcel A20=("SingleAC_Males") B20=("Single-male BU with demadultchildflag = 1")
+putexcel A21=("Single_female") B21=("Single-female BU with demadultchildflag = 0")
+putexcel A22=("SingleAC_Females") B22=("Single-female BU with demadultchildflag = 1")

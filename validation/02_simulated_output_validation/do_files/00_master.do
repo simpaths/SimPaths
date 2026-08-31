@@ -1,22 +1,51 @@
 /*******************************************************************************
 * PROJECT:  		SimPaths UK
-* SECTION:			Validation
+* SECTION:			Validation - Internal 
 * OBJECT: 			Master file
-* AUTHORS:			Ashley Burdett 
-* LAST UPDATE:		Jan 2026
-* COUNTRY: 			UK 
-* DESCRIPTION: 		This master file sets the globals, directories and 
-* 					parameters, and runs the do files to construct the 
-* 					validation datasets and plots the comparison graphs. 
+* AUTHORS:			Ashley Burdett
+* LAST UPDATE:		Aug 2026
+* COUNTRY: 			UK
+* DESCRIPTION: 		Entry point for the SimPaths UK validation pipeline. Sets
+* 					globals and parameters, then loops over each alignment
+* 					configuration listed in `alignments' to: (1) prepare
+* 					simulated output data, (2) build UKHLS validation
+* 					targets from initial-populations (UID) data, and
+* 					(3) produce comparison graphs for the 18 validation
+* 					modules (04_01-04_18). 
 ********************************************************************************
-* NOTES: 			UKHLS initial populations data is used to create the 
-* 					validaton targets. 
+* REQUIRES: 		- UK UID data "UKHLS_pooled_ipop.dta".
+* 					- SimPaths simulated output CSVs, one folder per run, at:
+* 					  simulated_outputs/[alignment]/[folder]_[run_n]/csv/xx.csv
+********************************************************************************
+* SETUP:			1. In the DEFINE DIRECTORIES block below, point `dir_ind'
+* 					   to the main folder that contains "do_files" (this
+* 					   file's own folder). Its "data" and "graphs" output
+* 					   subfolders are created automatically if they don't
+* 					   already exist (see CREATE TOP-LEVEL OUTPUT FOLDERS).
+*					   Only need to update the file paths where you see	
+*  					   ">>> EDIT <<<".
+* 					2. In the DEFINE PARAMETERS block, set `folder' to the
+* 					   condensed run-date stamp of the simulation you want to
+* 					   validate (e.g. 20260327) -- it must match an existing
+* 					   `[folder]_[run_n]' subfolder contained in the folder 
+* 					   containing the simulated output csv files. Set 
+* 					   `max_n_runs' to how many run folders exist under that 
+* 					   stamp (runs are numbered from 0).
+* 					3. In the DYNAMIC SET UP block, set local `alignments' to
+* 					   list of folder names of outputs from different model 
+* 	 				   set-ups that  you want to validate (e.g. "0_default").  
+* 					   Each set-up gets its own graphs/[alignment]/ output tree, 
+* 					   created automatically.
+* 					4. Run the whole file: do "do_files/00_master.do"
+********************************************************************************
+* NOTES: 
+* 	- Folders only needs to be created once. "mkdir" does not overwrite folders. 
+* 	- Income amounts throughout are in annual terms.
 *******************************************************************************/
 clear all
 
 set logtype smcl
 set more off
-set mem 200m
 set type double
 
 
@@ -30,75 +59,80 @@ set type double
 
 global country = "UK"		 						
 global country_lower = "uk"
-display in y "Country selected: ${country}"
-
-global silc_UDB = "UDB_c"	
 
 
 /*******************************************************************************
 * DEFINE DIRECTORIES
 *******************************************************************************/
 
-/*
-"/Users/ashleyburdett/Library/CloudStorage/Box-Box/CeMPA shared area/_SimPaths/_SimPathsUK"
-"C:\Users\aburde\Box\CeMPA shared area\_SimPaths\_SimPathsUK"
-*/
-
 * Individual directory 
-global dir_ind "/Users/ashleyburdett/Library/CloudStorage/Box-Box/CeMPA shared area/_SimPaths/_SimPathsUK"
+* >>> EDIT <<<
+global dir_ind ".../_SimPathsUK"
 
 * Main folder
+* >>> EDIT <<<
 global path "$dir_ind/validation/02_simulated_output_validation"
 
 * Do files folder 
+* Folder contianing this do-file 
 global dir_do_files "$path/do_files" 
 
-* Output files folder 
+* Output data folder 
 global dir_work "$path/data" 
 
-* UKHLS dataset folder 
-global dir_UKHLS_data "$dir_ind/input 2026.03.04"
-
-* Data folder 
 global dir_data "$path/data"
+
+* Input data: UID dataset folder 
+* >>> EDIT <<<
+global dir_UKHLS_data "$dir_ind/input_processing/initial_populations/data"
 
 
 /*******************************************************************************
-* DEFINE SAMPLE PARAMETERS
+* DEFINE PARAMETERS
 *******************************************************************************/
 
 global use_assert "0"
 
-* Trim outliers
+* Trim outliers (top and bottom percentiles)
 global trim_outliers true
 
 * Observations up to and including this simulated year to be kept in the sample
-global min_sim_year 2011
+global min_sim_year 2013
 global max_sim_year 2023
 
-* Define age to become responsible as defined in the simulation
+* Define age to become fully responsible as defined in the simulation i.e.
+* can form a partnership, work, have children etc. 
 global age_become_responsible 18
 
 * Set labour supply categories 
+/*
+Note: This works because the categories are symmetric across the genders.
+*/ 
 global ls_cat "ZERO TEN TWENTY THIRTY THIRTY_EIGHT FORTY_FIVE FIFTY_FIVE" 
-// works if the genders are symmetric
-// still need to alter code in specific do files to print graphs 
 
 global ls_cat_labour ///
 	"TEN TWENTY THIRTY THIRTY_EIGHT FORTY_FIVE FIFTY_FIVE" 
 
-* Number of runs (N-1 because numbering starts at 0)
+* Number of runs (N-1 since numbering starts at 0)
 global max_n_runs 4
 
-* Run commons folder name 
-global folder 20260306
+* Run's common folder name in which data across runs is deposited
+global folder 20260816
 
 
 /*******************************************************************************
-* RUN DO FILES 
+* CREATE TOP-LEVEL OUTPUT FOLDERS
 *******************************************************************************/
 
-* Prepare observed data
+cap mkdir "$path/data"
+cap mkdir "$path/graphs"
+
+
+/*******************************************************************************
+* RUN DO FILES
+*******************************************************************************/
+
+* Prepare UKHLS data
 do "${dir_do_files}/03_create_UKHLS_validation_targets.do"
 
 
@@ -106,16 +140,15 @@ do "${dir_do_files}/03_create_UKHLS_validation_targets.do"
 * 2 - DYNAMIC SET UP 
 *******************************************************************************/
 
-* List of SimPath Set ups to loop through 
 /*
-Permits looping over output from multiple different model set-ups e.g. with and 
-without ferility alignment, with and without employemnet alignment
+This section defines which model outputs to validate. It permits multiple model 
+set-ups to be validated by looping over the name of the folders containing 
+the output csv file(s). The workflow automatically generates folders with the 
+same names as the output data folders containing the relevant validation graphs. 
 */
-local alignments "0_default"
 
-/*
-  0_default 1_all_alignments_off 2_pop_on 3_pop_fertility_on 4_pop_fertility_inschool_on  5_pop_fertility_inschool_cohabit_on 6_pop_fertility_inschool_cohabit_empl_on
-*/
+* Folder name(s) to validate 
+local alignments "care_provision"
 
 foreach align in `alignments' {
 	
@@ -125,7 +158,8 @@ foreach align in `alignments' {
 *******************************************************************************/
 
 	* Simulated data CSV files folder
-	global dir_simulated_data "${dir_ind}/_new_release/output/`align'"
+	* >>> EDIT <<<
+	global dir_simulated_data "${dir_ind}/simulated_outputs/`align'"
 		
 	* Graphs folder 
 	global dir_output_files "$path/graphs/`align'" 	
@@ -133,35 +167,31 @@ foreach align in `alignments' {
 
 /*******************************************************************************
 * CREATE OUTPUT FOLDERS
-*******************************************************************************/	
-	
-	/*
-	mkdir "$path/graphs/`align'"
+*******************************************************************************/
 
-	mkdir "$path/graphs/`align'/children" 
-	mkdir "$path/graphs/`align'/correlations" 
-	mkdir "$path/graphs/`align'/disability" 
-	mkdir "$path/graphs/`align'/economic_activity" 
-	mkdir "$path/graphs/`align'/education"
-	mkdir "$path/graphs/`align'/health" 
-	mkdir "$path/graphs/`align'/hours_worked" 
-	mkdir "$path/graphs/`align'/income"
-	mkdir "$path/graphs/`align'/income/capital_income"
-	mkdir "$path/graphs/`align'/income/pension_income"
-	mkdir "$path/graphs/`align'/income/disposable_income"
-	mkdir "$path/graphs/`align'/income/equivalised_disposable_income"
-	mkdir "$path/graphs/`align'/income/gross_income"
-	mkdir "$path/graphs/`align'/income/gross_labour_income"
-	mkdir "$path/graphs/`align'/income/income_shares"
-	mkdir "$path/graphs/`align'/inequality" 
-	mkdir "$path/graphs/`align'/partnership" 
-	mkdir "$path/graphs/`align'/poverty" 
-	mkdir "$path/graphs/`align'/wages" 
-	mkdir "$path/graphs/`align'/social_care" 
-	
-}
-	*/
-	
+	cap mkdir "$path/graphs/`align'"
+
+	cap mkdir "$path/graphs/`align'/children"
+	cap mkdir "$path/graphs/`align'/correlations"
+	cap mkdir "$path/graphs/`align'/disability"
+	cap mkdir "$path/graphs/`align'/economic_activity"
+	cap mkdir "$path/graphs/`align'/education"
+	cap mkdir "$path/graphs/`align'/health"
+	cap mkdir "$path/graphs/`align'/hours_worked"
+	cap mkdir "$path/graphs/`align'/income"
+	cap mkdir "$path/graphs/`align'/income/capital_income"
+	cap mkdir "$path/graphs/`align'/income/pension_income"
+	cap mkdir "$path/graphs/`align'/income/disposable_income"
+	cap mkdir "$path/graphs/`align'/income/equivalised_disposable_income"
+	cap mkdir "$path/graphs/`align'/income/gross_income"
+	cap mkdir "$path/graphs/`align'/income/gross_labour_income"
+	cap mkdir "$path/graphs/`align'/income/income_shares"
+	cap mkdir "$path/graphs/`align'/inequality"
+	cap mkdir "$path/graphs/`align'/partnership"
+	cap mkdir "$path/graphs/`align'/poverty"
+	cap mkdir "$path/graphs/`align'/wages"
+	cap mkdir "$path/graphs/`align'/social_care"
+
 
 /*******************************************************************************
 * RUN DO FILES 
@@ -169,6 +199,7 @@ foreach align in `alignments' {
 
 	* Prepare simulated data
 	do "${dir_do_files}/01_prepare_simulated_data.do"
+		
 	do "${dir_do_files}/02_create_simulated_variables.do"
 
 
@@ -192,9 +223,5 @@ foreach align in `alignments' {
 	do "${dir_do_files}/04_16_plot_number_children.do"
 	do "${dir_do_files}/04_17_plot_disability.do"
 	do "${dir_do_files}/04_18_plot_social_care.do"
-
-
-	* Calculate other statistics
-	//do "${dir_do_files}/07_01_correlations.do"
 
 }

@@ -2,11 +2,18 @@
 * PROJECT:  		SimPaths UK 
 * SECTION:			Validation
 * OBJECT: 			Health
-* AUTHORS:			Ashley Burdett 
-* LAST UPDATE:		Jan 2026
-* COUNTRY: 			UK 
+* AUTHORS:			Ashley Burdett
+* LAST UPDATE:		Aug 2026
+* COUNTRY: 			UK
+* DESCRIPTION: 		Plots validation graphs comparing simulated vs. UKHLS
+* 					health measures, ages 16-65: self-rated health (1-5
+* 					Likert scale, sections 1.1-1.3), PCS physical component
+* 					score (1.4-1.6), and MCS mental component score
+* 					(1.7-1.9) -- each split by all/gender/age-group-by-gender,
+* 					with a shaded band (mean +/- 1.96*SD across $max_n_runs
+* 					runs). Section 2: histograms of self-rated health only.
 ********************************************************************************
-* NOTES: 			
+* NOTES:
 *******************************************************************************/
 
 ********************************************************************************
@@ -42,7 +49,6 @@ collapse (mean) healthSelfRated ///
 		 (sd) healthSelfRated_sd = healthSelfRated ///
 		 , by(year)		 
 
-* Compute 95% confidence interval 		 
 foreach varname in healthSelfRated {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -65,7 +71,7 @@ twoway (rarea healthSelfRated_high healthSelfRated_low year, ///
 	xlabel(,labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: The health variable is a self-assessed variable and follows a 5-point Likert scale (1 = poor, ..., 5 = excellent). ", ///
+	note("Notes: The health variable is a self-assessed variable and follows a 5-point Likert scale (1 = poor, ..., 5 = excellent)." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))
 
 graph export ///
@@ -90,7 +96,8 @@ collapse (mean) health [aw = dwt], by(year demMaleFlag)
 save "$dir_data/temp_valid_stats.dta", replace
 
 * Prepare simulation data
-use run year sim_healthSelfRated demAge demMaleFlag run using "$dir_data/simulation_sample.dta", clear
+use run year sim_healthSelfRated demAge demMaleFlag run using ///
+	"$dir_data/simulation_sample.dta", clear
 
 keep if inrange(demAge,16,65)
 
@@ -102,7 +109,6 @@ collapse (mean) healthSelfRated ///
 		 (sd) healthSelfRated_sd = healthSelfRated ///
 		 , by(year demMaleFlag)		 
 
-* Compute 95% confidence interval 		 		 
 foreach varname in healthSelfRated {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -146,7 +152,7 @@ grc1leg health_female health_male, ///
 	legendfrom(health_female) rows(1) ///
 	graphregion(color(white)) ///
 	ycomm ///
-note("Notes: The health variable is a self-assessed variable and follows a 5-point Likert scale (1 = poor, ..., 5 = excellent). ", ///
+note("Notes: The health variable is a self-assessed variable and follows a 5-point Likert scale (1 = poor, ..., 5 = excellent)." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))
 
 graph export ///
@@ -334,7 +340,7 @@ grc1leg health_f_1 health_f_2 health_f_3 health_f_4 health_f_5 ///
 	legendfrom(health_f_1) ///
 	graphregion(color(white)) ///
 	ycomm ///
-note("Notes: The health variable is a self-assessed variable and follows a 5-point Likert scale (1 = poor, ..., 5 = excellent). ", ///
+note("Notes: The health variable is a self-assessed variable and follows a 5-point Likert scale (1 = poor, ..., 5 = excellent)." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall)) 	
 
 graph export ///
@@ -349,7 +355,7 @@ grc1leg health_m_1 health_m_2 health_m_3 health_m_4 health_m_5 ///
 	legendfrom(health_m_1) ///
 	graphregion(color(white)) ///
 	ycomm ///
-note("Notes: The health variable is a self-assessed variable and follows a 5-point Likert scale (1 = poor, ..., 5 = excellent). ", ///
+note("Notes: The health variable is a self-assessed variable and follows a 5-point Likert scale (1 = poor, ..., 5 = excellent)." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall)) 	
 	
 graph export ///
@@ -384,7 +390,6 @@ collapse (mean) sim_healthPhysicalPcs ///
 		 (sd) sim_healthPhysicalPcs_sd = sim_healthPhysicalPcs ///
 		 , by(year)		 
 
-* Compute 95% confidence interval 		 
 foreach varname in sim_healthPhysicalPcs {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -407,7 +412,7 @@ twoway (rarea sim_healthPhysicalPcs_high sim_healthPhysicalPcs_low year, ///
 	xlabel(,labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: PCS is the SF-12 Physical Health Component. This is a measure of physical function ranging from 0 (low functioning)" "to 100 (high functioning).  ", ///
+	note("Notes: PCS is the SF-12 Physical Health Component. This is a measure of physical function ranging from 0 (low functioning)" "to 100 (high functioning)." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))
 
 graph export ///
@@ -441,7 +446,6 @@ collapse (mean) sim_healthPhysicalPcs ///
 		 (sd) sim_healthPhysicalPcs_sd = sim_healthPhysicalPcs ///
 		 , by(year demMaleFlag)		 
 
-* Compute 95% confidence interval 		 		 
 foreach varname in sim_healthPhysicalPcs {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -484,7 +488,7 @@ grc1leg health_female health_male, ///
 	legendfrom(health_female) rows(1) ///
 	graphregion(color(white)) ///
 	ycomm ///
-	note("Notes: PCS is the SF-12 Physical Health Component. This is a measure of physical function ranging from 0 (low functioning)" "to 100 (high functioning).  ", ///
+	note("Notes: PCS is the SF-12 Physical Health Component. This is a measure of physical function ranging from 0 (low functioning)" "to 100 (high functioning)." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))
 
 graph export ///
@@ -550,7 +554,6 @@ collapse (mean) health* ///
 		 (sd) health_f_8_sd = health_f8 /// 
 		 , by(year)
 		 
-* Compute 19% confidence intervals		 
 forvalues i=1(1)8 {
 	
 	gen health_f_`i'_sim_high = health_f`i' + 1.96*health_f_`i'_sd
@@ -671,7 +674,7 @@ grc1leg health_f_1 health_f_2 health_f_3 health_f_4 health_f_5 ///
 	legendfrom(health_f_1) ///
 	graphregion(color(white)) ///
 	ycomm ///
-	note("Notes: PCS is the SF-12 Physical Health Component. This is a measure of physical function ranging from 0 (low functioning) to" "100 (high functioning). ", ///
+	note("Notes: PCS is the SF-12 Physical Health Component. This is a measure of physical function ranging from 0 (low functioning) to" "100 (high functioning)." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall)) 	
 
 graph export ///
@@ -686,7 +689,7 @@ grc1leg health_m_1 health_m_2 health_m_3 health_m_4 health_m_5 ///
 	legendfrom(health_m_1) ///
 	graphregion(color(white)) ///
 	ycomm ///
-	note("Notes: PCS is the SF-12 Physical Health Component. This is a measure of physical function ranging from 0 (low functioning) to" "100 (high functioning). ", ///
+	note("Notes: PCS is the SF-12 Physical Health Component. This is a measure of physical function ranging from 0 (low functioning) to" "100 (high functioning)." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall)) 	
 	
 graph export ///
@@ -721,7 +724,6 @@ collapse (mean) sim_healthMentalMcs ///
 		 (sd) sim_healthMentalMcs_sd = sim_healthMentalMcs ///
 		 , by(year)		 
 
-* Compute 95% confidence interval 		 
 foreach varname in sim_healthMentalMcs {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -744,7 +746,7 @@ twoway (rarea sim_healthMentalMcs_high sim_healthMentalMcs_low year, ///
 	xlabel(,labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: mcs is the SF-12 Mental Health Component. This is a measure of Mental function ranging from 0 (low functioning)" "to 100 (high functioning).  ", ///
+	note("Notes: mcs is the SF-12 Mental Health Component. This is a measure of Mental function ranging from 0 (low functioning)" "to 100 (high functioning)." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))
 
 graph export ///
@@ -778,7 +780,6 @@ collapse (mean) sim_healthMentalMcs ///
 		 (sd) sim_healthMentalMcs_sd = sim_healthMentalMcs ///
 		 , by(year demMaleFlag)		 
 
-* Compute 95% confidence interval 		 		 
 foreach varname in sim_healthMentalMcs {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -821,7 +822,7 @@ grc1leg health_female health_male, ///
 	legendfrom(health_female) rows(1) ///
 	graphregion(color(white)) ///
 	ycomm ///
-	note("Notes: mcs is the SF-12 Mental Health Component. This is a measure of Mental function ranging from 0 (low functioning)" "to 100 (high functioning).  ", ///
+	note("Notes: mcs is the SF-12 Mental Health Component. This is a measure of Mental function ranging from 0 (low functioning)" "to 100 (high functioning)." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))
 
 graph export ///
@@ -889,7 +890,6 @@ collapse (mean) health* ///
 		 (sd) health_f_8_sd = health_f8 ///
 		 , by(year)
 		 
-* Compute 19% confidence intervals		 
 forvalues i = 1(1)8 {
 	
 	gen health_f_`i'_sim_high = health_f`i' + 1.96*health_f_`i'_sd
@@ -1010,7 +1010,7 @@ grc1leg health_f_1 health_f_2 health_f_3 health_f_4 health_f_5 ///
 	legendfrom(health_f_1) ///
 	graphregion(color(white)) ///
 	ycomm ///
-	note("Notes: mcs is the SF-12 Mental Health Component. This is a measure of Mental function ranging from 0 (low functioning) to" "100 (high functioning). ", ///
+	note("Notes: mcs is the SF-12 Mental Health Component. This is a measure of Mental function ranging from 0 (low functioning) to" "100 (high functioning)." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall)) 	
 
 graph export ///
@@ -1025,7 +1025,7 @@ grc1leg health_m_1 health_m_2 health_m_3 health_m_4 health_m_5 ///
 	legendfrom(health_m_1) ///
 	graphregion(color(white)) ///
 	ycomm ///
-	note("Notes: mcs is the SF-12 Mental Health Component. This is a measure of Mental function ranging from 0 (low functioning) to" "100 (high functioning). ", ///
+	note("Notes: mcs is the SF-12 Mental Health Component. This is a measure of Mental function ranging from 0 (low functioning) to" "100 (high functioning)." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall)) 	
 	
 graph export ///
@@ -1078,7 +1078,7 @@ twoway (hist healthSelfRated, width(0.2) color(green%30) ///
 	ylabel(,labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: The health variable is a self-assessed variable and follows a 5-point Likert scale (1 = poor, ..., 5 = excellent). ", ///
+	note("Notes: The health variable is a self-assessed variable and follows a 5-point Likert scale (1 = poor, ..., 5 = excellent).", ///
 	size(vsmall)) 
 
 graph export ///
@@ -1147,7 +1147,7 @@ grc1leg health_female health_male, ///
 	legendfrom(health_male) rows(1) ///
 	graphregion(color(white)) ///
 	ycomm ///
-	note("Notes: The health variable is a self-assessed variable and follows a 5-point Likert scale (1 = poor, ..., 5 = excellent). ", ///
+	note("Notes: The health variable is a self-assessed variable and follows a 5-point Likert scale (1 = poor, ..., 5 = excellent).", ///
 	size(vsmall)) 
 	
 

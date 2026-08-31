@@ -6,8 +6,8 @@
 
 ## Requirements
 
-- Java Development Kit (JDK) 19 (the project targets Java 19 — earlier versions will not compile)
-- Apache Maven 3.8 or later
+- Java Development Kit (JDK) 25 or later
+- Apache Maven 3.9.16 or later
 - Git
 
 ## Cloning the repository

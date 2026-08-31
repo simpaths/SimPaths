@@ -21,25 +21,7 @@ global seedBase = 3141592
 global seedAdjust = 0
 
 global careWageRate_minyear = 2010
-* social care wage rates (real 2015 prices for consistency with inflation figures)
-matrix careHourlyWageRates = (9.04 \ ///	2010
-9.12 \ ///	2011
-8.91 \ ///	2012
-8.71 \ ///	2013
-8.58 \ ///	2014
-8.79 \ ///	2015
-9.13 \ ///	2016
-9.22 \ ///	2017
-9.37 \ ///	2018
-9.61 \ ///	2019
-9.97 \ ///	2020
-9.92 \ ///	2021
-10.01 \ ///  2022
-10.01 \ ///  2023
-10.01 \ ///  2024
-10.01) ///  2025
- 
-/*TO UPDATE FOR RECENT YEARS */
+
 
 /**********************************************************************
 *	start analysis
@@ -459,23 +441,10 @@ tab formal_socare_hrs if rec_care2==3
 * evaluate formal care costs
 *************************************************************************************/
 cap gen formal_socare_cost = -9
-//replace formal_socare_cost = $careHourlyWageRates[`year' - $careWageRate_minyear + 1] * formal_socare_hrs if (formal_socare_hrs>0)
-replace formal_socare_cost = 9.04 * formal_socare_hrs if (formal_socare_hrs>0) & stm==2010
-replace formal_socare_cost = 9.12 * formal_socare_hrs if (formal_socare_hrs>0) & stm==2010
-replace formal_socare_cost = 8.91 * formal_socare_hrs if (formal_socare_hrs>0) & stm==2011
-replace formal_socare_cost = 8.71 * formal_socare_hrs if (formal_socare_hrs>0) & stm==2012
-replace formal_socare_cost = 8.58 * formal_socare_hrs if (formal_socare_hrs>0) & stm==2013
-replace formal_socare_cost = 8.79 * formal_socare_hrs if (formal_socare_hrs>0) & stm==2014
-replace formal_socare_cost = 9.13 * formal_socare_hrs if (formal_socare_hrs>0) & stm==2016
-replace formal_socare_cost = 9.22 * formal_socare_hrs if (formal_socare_hrs>0) & stm==2017
-replace formal_socare_cost = 9.37 * formal_socare_hrs if (formal_socare_hrs>0) & stm==2018
-replace formal_socare_cost = 9.61 * formal_socare_hrs if (formal_socare_hrs>0) & stm==2019
-replace formal_socare_cost = 9.97 * formal_socare_hrs if (formal_socare_hrs>0) & stm==2020		  
-replace formal_socare_cost = 9.92 * formal_socare_hrs if (formal_socare_hrs>0) & stm==2021
-replace formal_socare_cost = 10.01 * formal_socare_hrs if (formal_socare_hrs>0) & stm==2022
-replace formal_socare_cost = 10.01 * formal_socare_hrs if (formal_socare_hrs>0) & stm==2023
-replace formal_socare_cost = 10.01 * formal_socare_hrs if (formal_socare_hrs>0) & stm==2024
-replace formal_socare_cost = 10.01 * formal_socare_hrs if (formal_socare_hrs>0) & stm==2025
+forvalues yy = $careWageRate_minyear/$careWageRate_maxyear {
+
+	replace formal_socare_cost = formal_socare_hrs * careHourlyWageRates[`yy'-${careWageRate_minyear},1] if (formal_socare_hrs>0) & stm==`yy'
+}
 
 
 /**************************************************************************************

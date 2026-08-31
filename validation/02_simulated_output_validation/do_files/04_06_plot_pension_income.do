@@ -2,13 +2,18 @@
 * PROJECT:  		SimPaths UK 
 * SECTION:			Validation
 * OBJECT: 			Pension income
-* AUTHORS:			Ashley Burdett 
-* LAST UPDATE:		9/25 (AB)
-* COUNTRY: 			UK 
-
-* NOTES: 			This do file plots simulated and UKHLS private penson 
-*					income, per benefit unit
-
+* AUTHORS:			Ashley Burdett
+* LAST UPDATE:		Aug 2026
+* COUNTRY: 			UK
+* DESCRIPTION: 		Plots validation graphs comparing simulated vs. UKHLS
+* 					benefit-unit private pension income, restricted to
+* 					benefit units with an individual aged 65+. Section 1:
+* 					time-series means (1.1) and share with zero pension
+* 					income (1.2). Section 2: histograms of the cross-sectional 
+* 					distribution. Same standalone structure as 04_03-04_05 (no 
+* 					reusable program define blocks).
+********************************************************************************
+* NOTES: 			Amounts in 2015 prices.
 ********************************************************************************
 
 ********************************************************************************
@@ -23,7 +28,8 @@
 use year idBu demAge dwt valid_yPensBuGrossLevelYear using /// 
 	"$dir_data/ukhls_validation_sample.dta", clear
 
-keep if demAge < 65
+* Sample selection 	
+drop if demAge < 65
 
 * Keep one observation per benefit unit
 bysort year idBu: gen first_person = (_n == 1)
@@ -94,7 +100,7 @@ twoway (rarea sim_yPensBuGrossLevelYear_high sim_yPensBuGrossLevelYear_low ///
 	xlabel(,labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: Series represents average benefit unit private pension income. Amounts in 2015 prices. Top and bottom" "percentiles trimmed. Those 65+ maintained in sample.", ///
+	note("Notes: Series represents average benefit unit private pension income. Amounts in 2015 prices. Top and bottom" "percentiles trimmed. Those 65+ maintained in sample." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))
 
 * Save figure
@@ -187,13 +193,14 @@ twoway (rarea sim_no_pension_high sim_no_pension_low year, sort ///
 	xlabel(,labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: Share of benefit unit units with individual 65+ with no private pension income. Top and bottom percentiles trimmed.", ///
+	note("Notes: Share of benefit unit units with individual 65+ with no private pension income. Top and bottom percentiles trimmed." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))
 
 * Save figure
 graph export ///
 "$dir_output_files/income/pension_income/validation_${country}_no_pension_income_bu_ts_65plus.jpg", ///
 	replace width(2400) height(1350) quality(100)
+	
 	
 
 ********************************************************************************
@@ -255,7 +262,10 @@ append using "$dir_data/temp_valid_stats.dta"
 
 qui sum year
 local min_year = 2011
-local max_year = 2023 
+if "$min_sim_year" != "" local min_year = $min_sim_year
+local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' {
 	
@@ -344,7 +354,10 @@ append using "$dir_data/temp_valid_stats.dta"
 
 qui sum year
 local min_year = 2011
-local max_year = 2023  
+if "$min_sim_year" != "" local min_year = $min_sim_year
+local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' {
 	

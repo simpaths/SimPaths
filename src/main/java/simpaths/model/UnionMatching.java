@@ -68,8 +68,8 @@ public class UnionMatching {
 
     public void evaluateIRM() {
 
-        // unmatched = IterativeSimpleMatching.getInstance().matching(
-        unmatched = IterativeRandomMatching.getInstance().matching(
+        var ism = new IterativeRandomMatching<Person>();
+        unmatched = ism.matching(
 
             unmatched.getFirst(),    //Males.  Allows to iterate (initially it is personsToMatch.get(Gender.Male).get(region))
             null,                    //No need for filter sub-population as group is already filtered by gender and region.
@@ -100,8 +100,8 @@ public class UnionMatching {
     // EVALUATE MATCHES BY GLOBAL MATCHING
     public void evaluateGM() {
 
-        // unmatched = IterativeSimpleMatching.getInstance().matching(
-        unmatched = GlobalMatching.getInstance().matching(
+        var gm = new GlobalMatching<Person>();
+        unmatched = gm.matching(
 
             unmatched.getFirst(),
             null,

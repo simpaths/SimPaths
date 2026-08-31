@@ -2,15 +2,19 @@
 * PROJECT:  		SimPaths UK 
 * SECTION:			Validation
 * OBJECT: 			Income shares
-* AUTHORS:			Patryk Bronka, Ashley Burdett 
-* LAST UPDATE:		Jan 2026 
-* COUNTRY: 			UK 
+* AUTHORS:			Patryk Bronka, Ashley Burdett
+* LAST UPDATE:		Aug 2026
+* COUNTRY: 			UK
+* DESCRIPTION: 		Plots validation graphs comparing simulated vs. UKHLS
+* 					gross-income deciles: mean income level per decile and
+* 					income composition shares (employment, capital, pension)
+* 					per decile, for all ages, ages up to 65, and ages 66+.
+* 					Deciles computed on non-benefit gross income
+* 					(sim_yNonBenBuGrossLevelYear). Unlike other 04_NN
+* 					modules, this file is a linear script without numbered
+* 					subsections.
 ********************************************************************************
-* NOTES: 			This do file plots simulated and observed income shares and 
-* 					incomes by deciles of gross income
-* 					Altered pension age to 65 
-
-					TO UPDATE
+* NOTES: 			Pension age set to 65 in the age-based splits.
 *******************************************************************************/
 
 ** SimPaths output 
@@ -59,7 +63,7 @@ tab zero_gross
 Equal shares in deciles. 
 */
 
-* Genrate share variables 
+* Generate share variables
 gen sim_share_emp = sim_yEmpBuGrossLevelYear / sim_yNonBenBuGrossLevelYear
 gen sim_share_cap = sim_yCapitalBuLevelYear / sim_yNonBenBuGrossLevelYear
 gen sim_share_pen = sim_yPensBuGrossLevelYear / sim_yNonBenBuGrossLevelYear
@@ -227,7 +231,7 @@ tab zero_gross
 Non-equal shares in in bottom two deciles
 */
 
-* Genrate share variables 
+* Generate share variables
 gen valid_share_emp = valid_yEmpBuGrossLevelYear / valid_yNonBenBuGrossLevelYear
 gen valid_share_cap = valid_yCapitalBuLevelYear / valid_yNonBenBuGrossLevelYear
 gen valid_share_pen = valid_yPensBuGrossLevelYear / valid_yNonBenBuGrossLevelYear
@@ -426,7 +430,7 @@ grc1leg simulated_income_share_upto65 UKHLS_income_share_upto65, ///
 	size(vsmall)) 
 	
 graph export ///
-	"$dir_output_files/income/income_shares/validation_${country}_income_sharess_upto65.png", ///
+	"$dir_output_files/income/income_shares/validation_${country}_income_shares_upto65.png", ///
 		replace width(2400) height(1350) 		
 		
 
@@ -441,7 +445,7 @@ grc1leg simulated_income_share_66plus UKHLS_income_share_66plus, ///
 	size(vsmall)) 
 	
 graph export ///
-	"$dir_output_files/income/income_shares/validation_${country}_income_sharess_66plus.png", ///
+	"$dir_output_files/income/income_shares/validation_${country}_income_shares_66plus.png", ///
 		replace width(2400) height(1350) 				
 			
 

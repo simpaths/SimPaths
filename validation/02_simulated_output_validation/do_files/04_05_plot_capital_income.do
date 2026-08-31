@@ -2,13 +2,18 @@
 * PROJECT:  		SimPaths UK 
 * SECTION:			Validation
 * OBJECT: 			Capital income
-* AUTHORS:			Ashley Burdett 
-* LAST UPDATE:		9/25 (AB)
-* COUNTRY: 			UK 
+* AUTHORS:			Ashley Burdett
+* LAST UPDATE:		Aug 2026
+* COUNTRY: 			UK
+* DESCRIPTION: 		Plots validation graphs comparing simulated vs. UKHLS
+* 					benefit-unit capital income. Section 1: time-series means
+* 					(1.1) and share with zero capital income (1.2). Section 2: 
+* 					histograms of the cross-sectional distribution. Same 
+* 					standalone structureas 04_03/04_04 (no reusable programs).
+* 					Unlike other income modules, outlier trimming is
+* 					disabled for capital income (see section 1.1).
 ********************************************************************************
-* NOTES: 			This do file plots simulated and UKHLS capital income, 
-*					per benefit unit
-
+* NOTES: 			Amounts in 2015 prices.
 ********************************************************************************
 
 ********************************************************************************
@@ -97,7 +102,7 @@ twoway (rarea sim_yCapitalBuLevelYear_high sim_yCapitalBuLevelYear_low year, ///
 	xlabel(,labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: Series represents average benefit unit capital income per year. Amounts in 2015 prices.", ///
+	note("Notes: Series represents average benefit unit capital income per year. Amounts in 2015 prices." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))
 
 * Save figure
@@ -193,7 +198,7 @@ twoway (rarea sim_no_capital_high sim_no_capital_low year, sort ///
 	xlabel(,labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: ", ///
+	note("Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))
 
 * Save figure
@@ -259,7 +264,10 @@ append using "$dir_data/temp_valid_stats.dta"
 
 qui sum year
 local min_year = 2011
+if "$min_sim_year" != "" local min_year = $min_sim_year
 local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' {
 	
@@ -344,7 +352,10 @@ append using "$dir_data/temp_valid_stats.dta"
 
 qui sum year
 local min_year = 2011
-local max_year = 2023  
+if "$min_sim_year" != "" local min_year = $min_sim_year
+local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' {
 	

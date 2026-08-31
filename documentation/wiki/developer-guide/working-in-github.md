@@ -5,8 +5,8 @@
 In this page, the various steps that are necessary to make changes to SimPaths and for them to be correctly implemented in the code and committed via GitHub (_i.e._, made available to other users) are explained.
 
 **Requirements**
+- a [working environment](../getting-started/environment-setup.md)
 - GitHub account
-- Java Development Kit (JDK)
 - IDE (Integrated Development Environment)
 
 In the following sections, explanatory screenshots are presented from both the GitHub browser and GitHub Desktop. While the latter is not required, GitHub Desktop provides a very user-friendly graphical user interface (GUI). It clearly visualises commits, branches, changes, and merge conflicts, and it is ideal for beginners or those who prefer not to use the command line. Additionally, it is designed for a quick setup and a seamless GitHub account integration. Thus, for the sake of contributing to SimPaths development, GitHub Desktop is a complete tool. However, it is not necessary; the user can entirely operate with the browser version in combination with the IDE or any other Git-integrated tool, _e.g._, GitKraken (GUI) or Git CLI (Command Line).

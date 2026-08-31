@@ -176,7 +176,7 @@ global scProvWaves "f g h i j k l m n o" //Next time available in wave 16 p
 global firstSimYear = 2010
 global lastSimYear = 2024
 global wealthStartYear = 2015
-global wealthEndYear = 2019
+global wealthEndYear = 2021
 
 
 * Define threshold ages
@@ -217,6 +217,65 @@ global age_have_child_max 49  	// allow this to be led by the data
 
        
 /**************************************************************************************
+* INFLATION FOR DEFLATING FINANCIALS TO REFERENCE YEAR 
+
+CPIH INDEX 00: ALL ITEMS 2015=100
+CDID	L522
+Source dataset ID	MM23
+PreUnit	
+Unit	Index, base year = 100
+Release date	20-03-2024
+Next release	17 April 2024
+https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/l522/mm23
+**************************************************************************************/
+global inflation_minyear = 2008
+global inflation_maxyear = 2025
+matrix inflation = ( ///
+0.862 \ /// 2009
+0.879 \ /// 2009
+0.901 \ /// 2010
+0.936 \ /// 2011
+0.96  \ /// 2012
+0.982 \ /// 2013
+0.996 \ /// 2014
+1     \ /// 2015
+1.01  \ /// 2016
+1.036 \ /// 2017
+1.06  \ /// 2018
+1.078 \ /// 2019
+1.089 \ /// 2020
+1.116 \ /// 2021
+1.205 \ /// 2022
+1.286 \ /// 2023
+1.329 \ /// 2024 
+1.329)  /// 2025 //to update when becomes available  
+
+
+/**************************************************************************************
+* social care wage rates (real 2015 prices for consistency with inflation figures)
+**************************************************************************************/
+global careWageRate_minyear = 2010
+global careWageRate_maxyear = 2025
+matrix careHourlyWageRates = ( ///
+9.04 \ ///	2010
+9.12 \ ///	2011
+8.91 \ ///	2012
+8.71 \ ///	2013
+8.58 \ ///	2014
+8.79 \ ///	2015
+9.13 \ ///	2016
+9.22 \ ///	2017
+9.37 \ ///	2018
+9.61 \ ///	2019
+9.97 \ ///	2020
+9.92 \ ///	2021
+10.01 \ ///  2022
+10.01 \ ///  2023
+10.01 \ ///  2024
+10.01)  ///  2025
+
+       
+/**************************************************************************************
 * ROUTE TO WORKER FILES 
 **************************************************************************************/
 /* prepare simulated and observed data */
@@ -230,7 +289,6 @@ do "${dir_do}/04_social_care_provided.do"
 do "${dir_do}/05_create_benefit_units.do"
 * reweight data and slice into yearly segments
 do "${dir_do}/06_reweight_and_slice.do"
-
 * impute wealth data for selected years
 do "${dir_do}/07_was_wealth_data.do"
 forvalues year = $wealthStartYear / $wealthEndYear {

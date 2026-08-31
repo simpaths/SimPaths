@@ -17,6 +17,11 @@ foreach var in idhh idperson idpartner idfather idmother dct drgn1 dwt dnc02 dnc
         qui recode `var' (-9/-1=.)
 }
 
+* Set data
+xtset idperson swv
+sort idperson swv
+
+
 *==================================================
 * Student flag
 *==================================================
@@ -27,26 +32,85 @@ replace Dst = 1 if les_c3 == 2
 replace Dst = . if les_c3 == .
 
 *==================================================
-* Age transformations
+* In first education spell 
+*==================================================
+gen Ded       = ded
+gen eduSampleFlag = ded
+gen eduSampleFlagL1 = l.ded
+
+
+*==================================================
+* Sex and Age transformations
 *==================================================
 
-gen Dag    = dag
+/*--------------------------------------------------*/
+/* Sex                                               */
+/*--------------------------------------------------*/
+
+gen Dgn = dgn
+gen demMaleFlag = dgn
+
+
+/*--------------------------------------------------*/
+/* Raw age variables                                */
+/*--------------------------------------------------*/
+
+gen Dag = dag
 gen Dag_sq = dagsq
+
 gen Age = dag
-gen AgeSquared = dag^2
+gen AgeSquared = dag^2 if !missing(dag)
 
-gen Dag_c    = dag - 23
-gen Dag_c_sq = Dag_c^2
+gen demAge = dag
+gen demAgeSq = dagsq
 
-gen Dag_post25 = (dag > 25) * (dag - 25)
 
-gen Dag_post21    = (dag > 21) * (dag - 21)
-gen Dag_post18_sq = (dag > 18) * (dag - 18)^2
-gen Dag_post21_sq = (dag > 21) * (dag - 21)^2
-gen Dag_post25_sq = (dag > 25) * (dag - 25)^2
-gen Dag_post26_sq = (dag > 26) * (dag - 26)^2
+/*--------------------------------------------------*/
+/* Centered age terms                               */
+/*--------------------------------------------------*/
+
+gen Dag_c = dag - 23 if !missing(dag)
+gen Dag_c_sq = Dag_c^2 if !missing(Dag_c)
+
+
+/*--------------------------------------------------*/
+/* Piecewise linear age terms                       */
+/*--------------------------------------------------*/
+
+gen Dag_post21 = (dag > 21) * (dag - 21) if !missing(dag)
+gen Dag_post25 = (dag > 25) * (dag - 25) if !missing(dag)
+
+
+/*--------------------------------------------------*/
+/* Piecewise quadratic age terms                    */
+/*--------------------------------------------------*/
+
+gen Dag_post18_sq = (dag > 18) * (dag - 18)^2 if !missing(dag)
+gen Dag_post21_sq = (dag > 21) * (dag - 21)^2 if !missing(dag)
+gen Dag_post25_sq = (dag > 25) * (dag - 25)^2 if !missing(dag)
+gen Dag_post26_sq = (dag > 26) * (dag - 26)^2 if !missing(dag)
+
+
+/*--------------------------------------------------*/
+/* Restricted cubic splines                         */
+/*--------------------------------------------------*/
 
 mkspline rcs = dag, cubic knots(18 21 23 26)
+
+
+/*--------------------------------------------------*/
+/* Pension age eligibility                          */
+/*--------------------------------------------------*/
+
+gen Elig_pen = dagpns
+gen Elig_pen_L1 = L1.dagpns
+
+gen Reached_Retirement_Age = dagpns
+gen Reached_Retirement_Age_Sp = dagpns_sp
+
+gen demPensAgeFlag = dagpns
+gen demPensPartnerAgeFlag = dagpns_sp
+
 
 *==================================================
 * Time transformations
@@ -69,33 +133,153 @@ gen Year_transformed = stm
 gen Year = stm
 gen YearSquared = stm^2
 
-*==================================================
-* Income variables
-*==================================================
+*refactored 
 
-gen receives_ypncp = ypncp > 0 & !missing(ypncp) //capital income
+gen demYearTransformed = stm
 
-gen receives_ypnoab = ypnoab > 0 & !missing(ypnoab) //private pension income 
+gen demYear= stm
+foreach y of numlist 11/25 {
+    gen demYear20`y' = (demYear == `y')
+	}
 
-recode ynbcpdf_dv (-999 = .)
+/*==================================================*/
+/* INCOME                                           */
+/*==================================================*/
 
-tab ydses_c5 , gen(Ydses_c5_Q)
+/*--------------------------------------------------*/
+/* Raw income variables                             */
+/*--------------------------------------------------*/
 
-*==================================================
-* Education recoding
-*==================================================
-cap drop deh_c3_recoded
-recode deh_c3 (1 = 3) (3 = 1), gen(deh_c3_recoded)
+gen Ydses_c5 = ydses_c5
 
-cap lab define deh_c3_recoded   1 "Low" 2 "Medium" 3 "High"
-label values deh_c3_recoded deh_c3_recoded
+gen Ypncp = ypncp
+gen Ypnoab = ypnoab
+gen Yplgrs_dv = yplgrs_dv
+gen Ypnbihs_dv = ypnbihs_dv
+gen Ypnbihs_dv_sq = ypnbihs_dv^2 if !missing(ypnbihs_dv)
+gen Ynbcpdf_dv = ynbcpdf_dv
+gen Yptciihs_dv = yptciihs_dv
+
+
+/*--------------------------------------------------*/
+/* Income receipt indicators                        */
+/*--------------------------------------------------*/
+
+gen receives_ypncp = (ypncp > 0) if !missing(ypncp)
+gen receives_ypnoab = (ypnoab > 0) if !missing(ypnoab)
+
+
+/*--------------------------------------------------*/
+/* Household income quintiles                       */
+/*--------------------------------------------------*/
+
+gen Ydses_c5_Q1 = (ydses_c5 == 1) if !missing(ydses_c5)
+gen Ydses_c5_Q2 = (ydses_c5 == 2) if !missing(ydses_c5)
+gen Ydses_c5_Q3 = (ydses_c5 == 3) if !missing(ydses_c5)
+gen Ydses_c5_Q4 = (ydses_c5 == 4) if !missing(ydses_c5)
+gen Ydses_c5_Q5 = (ydses_c5 == 5) if !missing(ydses_c5)
+
+gen L_Ydses_c5 = L1.ydses_c5
+
+gen L_Ydses_c5_Q1 = (L1.ydses_c5 == 1) if !missing(L1.ydses_c5)
+gen L_Ydses_c5_Q2 = (L1.ydses_c5 == 2) if !missing(L1.ydses_c5)
+gen L_Ydses_c5_Q3 = (L1.ydses_c5 == 3) if !missing(L1.ydses_c5)
+gen L_Ydses_c5_Q4 = (L1.ydses_c5 == 4) if !missing(L1.ydses_c5)
+gen L_Ydses_c5_Q5 = (L1.ydses_c5 == 5) if !missing(L1.ydses_c5)
+
+gen yHhQuintilesMonthC5 = ydses_c5
+
+gen yHhQuintilesMonthC5Q1 = (ydses_c5 == 1) if !missing(ydses_c5)
+gen yHhQuintilesMonthC5Q2 = (ydses_c5 == 2) if !missing(ydses_c5)
+gen yHhQuintilesMonthC5Q3 = (ydses_c5 == 3) if !missing(ydses_c5)
+gen yHhQuintilesMonthC5Q4 = (ydses_c5 == 4) if !missing(ydses_c5)
+gen yHhQuintilesMonthC5Q5 = (ydses_c5 == 5) if !missing(ydses_c5)
+
+gen yHhQuintilesMonthC5L1 = L1.ydses_c5
+
+gen yHhQuintilesMonthC5Q1L1 = (L1.ydses_c5 == 1) if !missing(L1.ydses_c5)
+gen yHhQuintilesMonthC5Q2L1 = (L1.ydses_c5 == 2) if !missing(L1.ydses_c5)
+gen yHhQuintilesMonthC5Q3L1 = (L1.ydses_c5 == 3) if !missing(L1.ydses_c5)
+gen yHhQuintilesMonthC5Q4L1 = (L1.ydses_c5 == 4) if !missing(L1.ydses_c5)
+gen yHhQuintilesMonthC5Q5L1 = (L1.ydses_c5 == 5) if !missing(L1.ydses_c5)
+
+
+/*--------------------------------------------------*/
+/* Continuous income variables                      */
+/*--------------------------------------------------*/
+
+gen yNonBenPersGrossMonth = Ypnbihs_dv
+gen yNonBenPersGrossMonthL1 = L1.Ypnbihs_dv
+
+gen yPersAndPartnerGrossDiffMonth = Ynbcpdf_dv
+gen yPersAndPartnerGrossDiffMonthL1 = L1.Ynbcpdf_dv
+
+
+/*--------------------------------------------------*/
+/* Capital income                                   */
+/*--------------------------------------------------*/
+
+sum ypncp, detail
+
+scalar p99 = r(p99)
+
+replace ypncp = . if ypncp >= p99 & !missing(ypncp)
+replace Ypncp = . if Ypncp >= p99 & !missing(Ypncp)
+
+
+gen yCapitalPersMonth = ypncp
+gen yCapitalPersMonthL1 = L1.ypncp
+gen yCapitalPersMonthL2 = L2.ypncp
+
+
+/*--------------------------------------------------*/
+/* Employment income                                */
+/*--------------------------------------------------*/
+
+gen yEmpPersGrossMonth = yplgrs_dv
+
+gen yEmpPersGrossMonthL1 = L1.yplgrs_dv
+gen yEmpPersGrossMonthL2 = L2.yplgrs_dv
+gen yEmpPersGrossMonthL3 = L3.yplgrs_dv
+
+
+/*--------------------------------------------------*/
+/* Pension income                                   */
+/*--------------------------------------------------*/
+
+sum ypnoab, detail
+
+scalar p99 = r(p99)
+
+replace ypnoab = . if ypnoab >= p99 & !missing(ypnoab)
+replace Ypnoab = . if Ypnoab >= p99 & !missing(Ypnoab)
+
+gen yPensPersGrossMonth = ypnoab
+gen yPensPersGrossMonthL1 = L1.ypnoab
+gen yPensPersGrossMonthL2 = L2.ypnoab
+
+
+/*--------------------------------------------------*/
+/* Miscellaneous income                             */
+/*--------------------------------------------------*/
+
+gen yMiscPersGrossMonth = yptciihs_dv
+gen yMiscPersGrossMonthL1 = L1.yptciihs_dv
+
+
+/*--------------------------------------------------*/
+/* Housing wealth                                   */
+/*--------------------------------------------------*/
+
+gen Dhh_owned = dhh_owned
+
+gen wealthPrptyFlag = dhh_owned
+gen wealthPrptyFlagL1 = L1.dhh_owned
 
 
 *==================================================
 * Region dummies
 *==================================================
-
-gen Dgn = dgn
 tab drgn1, gen(UK)
 
 rename UK1  UKC
@@ -111,81 +295,334 @@ rename UK10 UKL
 rename UK11 UKM
 rename UK12 UKN
 
+*refactored 
+gen demRgn = drgn1
+
+tab drgn1, gen(demRgn_)
+
+rename demRgn_1  demRgnUKC
+rename demRgn_2  demRgnUKD
+rename demRgn_3  demRgnUKE
+rename demRgn_4  demRgnUKF
+rename demRgn_5  demRgnUKG
+rename demRgn_6  demRgnUKH
+rename demRgn_7  demRgnUKI
+rename demRgn_8  demRgnUKJ
+rename demRgn_9  demRgnUKK
+rename demRgn_10 demRgnUKL
+rename demRgn_11 demRgnUKM
+rename demRgn_12 demRgnUKN
+
+
 *==================================================
 * Employment dummies
 *==================================================
 
-tab les_c3, gen(Les_c3_)
-rename Les_c3_1 Les_c3_Employed
-rename Les_c3_2 Les_c3_Student
-rename Les_c3_3 Les_c3_NotEmployed
+/*--------------------------------------------------
+Own labour status C3
+--------------------------------------------------*/
+gen Les_c3 = les_c3
+gen L1les_c3 = l.les_c3
 
-tab lessp_c3, gen(Lessp_c3_)
-rename Lessp_c3_1 Lessp_c3_Employed
-rename Lessp_c3_2 Lessp_c3_Student
-rename Lessp_c3_3 Lessp_c3_NotEmployed
+gen Les_c3_Employed = (les_c3 == 1) if !missing(les_c3)
+gen Les_c3_Student = (les_c3 == 2) if !missing(les_c3)
+gen Les_c3_NotEmployed = (les_c3 == 3) if !missing(les_c3)
 
-tab les_c4, gen(Les_c4_)
-rename Les_c4_1 Les_c4_Employed
-rename Les_c4_2 Les_c4_Student
-rename Les_c4_3 Les_c4_NotEmployed
-rename Les_c4_4 Les_c4_Retired
+gen labStatusC3 = les_c3
+gen labStatusC3L1 = L1.les_c3
 
-tab lesdf_c4, gen(Lesdf_c4_)
-rename Lesdf_c4_1 Lesdf_c4_BothEmployed
-rename Lesdf_c4_2 Lesdf_c4_EmpSpouseNotEmp
-rename Lesdf_c4_3 Lesdf_c4_NotEmpSpouseEmp
-rename Lesdf_c4_4 Lesdf_c4_BothNotEmployed
+gen labStatusC3Employed    = (les_c3 == 1) if !missing(les_c3)
+gen labStatusC3Student     = (les_c3 == 2) if !missing(les_c3)
+gen labStatusC3NotEmployed = (les_c3 == 3) if !missing(les_c3)
+
+gen labStatusC3EmployedL1    = (L1.les_c3 == 1) if !missing(L1.les_c3)
+gen labStatusC3StudentL1     = (L1.les_c3 == 2) if !missing(L1.les_c3)
+gen labStatusC3NotEmployedL1 = (L1.les_c3 == 3) if !missing(L1.les_c3)
+
+
+/*--------------------------------------------------
+Partner labour status C3
+--------------------------------------------------*/
+
+gen Lessp_c3_Employed    = (lessp_c3 == 1) if !missing(lessp_c3)
+gen Lessp_c3_Student     = (lessp_c3 == 2) if !missing(lessp_c3)
+gen Lessp_c3_NotEmployed = (lessp_c3 == 3) if !missing(lessp_c3)
+
+gen labStatusPartnerC3 = lessp_c3
+gen labStatusPartnerC3L1 = L1.lessp_c3
+
+gen labStatusPartnerC3Employed    = (lessp_c3 == 1) if !missing(lessp_c3)
+gen labStatusPartnerC3Student     = (lessp_c3 == 2) if !missing(lessp_c3)
+gen labStatusPartnerC3NotEmployed = (lessp_c3 == 3) if !missing(lessp_c3)
+
+gen labStatusPartnerC3EmployedL1    = (L1.lessp_c3 == 1) if !missing(L1.lessp_c3)
+gen labStatusPartnerC3StudentL1     = (L1.lessp_c3 == 2) if !missing(L1.lessp_c3)
+gen labStatusPartnerC3NotEmployedL1 = (L1.lessp_c3 == 3) if !missing(L1.lessp_c3)
+
+
+/*--------------------------------------------------
+Own labour status C4
+--------------------------------------------------*/
+
+gen Les_c4 = les_c4
+gen Les_c4_Employed = (les_c4 == 1) if !missing(les_c4)
+gen Les_c4_Student = (les_c4 == 2) if !missing(les_c4)
+gen Les_c4_NotEmployed = (les_c4 == 3) if !missing(les_c4)
+gen Les_c4_Retired = (les_c4 == 4) if !missing(les_c4)
+
+/* lagged */
+gen L_Les_c4 = L1.les_c4
+gen L_Les_c4_Employed = (L1.les_c4 == 1) if !missing(L1.les_c4)
+gen L_Les_c4_Student = (L1.les_c4 == 2) if !missing(L1.les_c4)
+gen L_Les_c4_NotEmployed = (L1.les_c4 == 3) if !missing(L1.les_c4)
+gen L_Les_c4_Retired = (L1.les_c4 == 4) if !missing(L1.les_c4)
+
+gen labStatusC4 = les_c4
+gen labStatusC4L1 = L1.les_c4
+
+gen labStatusC4Employed    = (les_c4 == 1) if !missing(les_c4)
+gen labStatusC4Student     = (les_c4 == 2) if !missing(les_c4)
+gen labStatusC4NotEmployed = (les_c4 == 3) if !missing(les_c4)
+gen labStatusC4Retired     = (les_c4 == 4) if !missing(les_c4)
+
+gen labStatusC4EmployedL1    = (L1.les_c4 == 1) if !missing(L1.les_c4)
+gen labStatusC4StudentL1     = (L1.les_c4 == 2) if !missing(L1.les_c4)
+gen labStatusC4NotEmployedL1 = (L1.les_c4 == 3) if !missing(L1.les_c4)
+gen labStatusC4RetiredL1     = (L1.les_c4 == 4) if !missing(L1.les_c4)
+
+
+/*--------------------------------------------------
+Joint labour status
+--------------------------------------------------*/
+gen Lesdf_c4 = lesdf_c4
+gen Lesdf_c4_BothEmployed = (lesdf_c4 == 1) if !missing(lesdf_c4)
+gen Lesdf_c4_EmpSpouseNotEmp = (lesdf_c4 == 2) if !missing(lesdf_c4)
+gen Lesdf_c4_NotEmpSpouseEmp = (lesdf_c4 == 3) if !missing(lesdf_c4)
+gen Lesdf_c4_BothNotEmployed = (lesdf_c4 == 4) if !missing(lesdf_c4)
+
+gen labStatusPartnerAndOwnC4 = lesdf_c4
+gen labStatusPartnerAndOwnC4L1 = L1.lesdf_c4
+
+gen labStatusPartnerAndOwnC41 = (lesdf_c4 == 1) if !missing(lesdf_c4)
+gen labStatusPartnerAndOwnC42 = (lesdf_c4 == 2) if !missing(lesdf_c4)
+gen labStatusPartnerAndOwnC43 = (lesdf_c4 == 3) if !missing(lesdf_c4)
+gen labStatusPartnerAndOwnC44 = (lesdf_c4 == 4) if !missing(lesdf_c4)
+
+gen labStatusPartnerAndOwnC41L1 = (L1.lesdf_c4 == 1) if !missing(L1.lesdf_c4)
+gen labStatusPartnerAndOwnC42L1 = (L1.lesdf_c4 == 2) if !missing(L1.lesdf_c4)
+gen labStatusPartnerAndOwnC43L1 = (L1.lesdf_c4 == 3) if !missing(L1.lesdf_c4)
+gen labStatusPartnerAndOwnC44L1 = (L1.lesdf_c4 == 4) if !missing(L1.lesdf_c4)
+
+
+/*--------------------------------------------------
+Interactions with sex
+--------------------------------------------------*/
+
+gen labStatusC4Employed_Male    = Dgn * labStatusC4Employed
+gen labStatusC4Student_Male     = Dgn * labStatusC4Student
+gen labStatusC4NotEmployed_Male = Dgn * labStatusC4NotEmployed
+gen labStatusC4Retired_Male     = Dgn * labStatusC4Retired
+
+gen labStatusC4Employed_MaleL1    = L1.labStatusC4Employed_Male
+gen labStatusC4Student_MaleL1     = L1.labStatusC4Student_Male
+gen labStatusC4NotEmployed_MaleL1 = L1.labStatusC4NotEmployed_Male
+gen labStatusC4Retired_MaleL1     = L1.labStatusC4Retired_Male
+
 
 *==================================================
 * Education dummies
 *==================================================
 
-tab deh_c3, gen(Deh_c3_)
-rename Deh_c3_1 Deh_c3_High
-rename Deh_c3_2 Deh_c3_Medium
-rename Deh_c3_3 Deh_c3_Low
+/*--------------------------------------------------
+Education recoding C3
+--------------------------------------------------*/
+cap drop deh_c3_recoded
+recode deh_c3 (1 = 3) (3 = 1), gen(deh_c3_recoded)
 
-tab deh_c4, gen(Deh_c4_)
-rename Deh_c4_1 Deh_c4_Na
-rename Deh_c4_2 Deh_c4_High
-rename Deh_c4_3 Deh_c4_Medium
-rename Deh_c4_4 Deh_c4_Low
+cap lab define deh_c3_recoded   1 "Low" 2 "Medium" 3 "High"
+label values deh_c3_recoded deh_c3_recoded
 
-tab dehmf_c3, gen(Dehmf_c3_)
-rename Dehmf_c3_1 Dehmf_c3_High
-rename Dehmf_c3_2 Dehmf_c3_Medium
-rename Dehmf_c3_3 Dehmf_c3_Low
 
-tab dehsp_c3, gen(Dehsp_c3_)
-rename Dehsp_c3_1 Dehsp_c3_High
-rename Dehsp_c3_2 Dehsp_c3_Medium
-rename Dehsp_c3_3 Dehsp_c3_Low
+/*--------------------------------------------------
+Own education C3
+--------------------------------------------------*/
+
+gen eduHighestC3 = deh_c3
+gen eduHighestC3L1 = L1.deh_c3
+
+gen eduHighestC3High   = (deh_c3 == 1) if !missing(deh_c3)
+gen eduHighestC3Medium = (deh_c3 == 2) if !missing(deh_c3)
+gen eduHighestC3Low    = (deh_c3 == 3) if !missing(deh_c3)
+
+gen eduHighestC3HighL1   = (L1.deh_c3 == 1) if !missing(L1.deh_c3)
+gen eduHighestC3MediumL1 = (L1.deh_c3 == 2) if !missing(L1.deh_c3)
+gen eduHighestC3LowL1    = (L1.deh_c3 == 3) if !missing(L1.deh_c3)
+
+
+/*--------------------------------------------------
+Own education C4
+--------------------------------------------------*/
+gen Deh_c4_Na = (deh_c4 == 0) if !missing(deh_c4)
+gen Deh_c4_High = (deh_c4 == 1) if !missing(deh_c4)
+gen Deh_c4_Medium = (deh_c4 == 2) if !missing(deh_c4)
+gen Deh_c4_Low = (deh_c4 == 3) if !missing(deh_c4)
+
+gen eduHighestC4 = deh_c4
+gen eduHighestC4L1 = L1.deh_c4
+
+gen eduHighestC4Na     = (deh_c4 == 0) if !missing(deh_c4)
+gen eduHighestC4High   = (deh_c4 == 1) if !missing(deh_c4)
+gen eduHighestC4Medium = (deh_c4 == 2) if !missing(deh_c4)
+gen eduHighestC4Low    = (deh_c4 == 3) if !missing(deh_c4)
+
+gen eduHighestC4NaL1     = (L1.deh_c4 == 0) if !missing(L1.deh_c4)
+gen eduHighestC4HighL1   = (L1.deh_c4 == 1) if !missing(L1.deh_c4)
+gen eduHighestC4MediumL1 = (L1.deh_c4 == 2) if !missing(L1.deh_c4)
+gen eduHighestC4LowL1    = (L1.deh_c4 == 3) if !missing(L1.deh_c4)
+
+
+/*--------------------------------------------------
+Partner education C3
+--------------------------------------------------*/
+
+gen Dehsp_c3_High = (dehsp_c3 == 1) if !missing(dehsp_c3)
+gen Dehsp_c3_Medium = (dehsp_c3 == 2) if !missing(dehsp_c3)
+gen Dehsp_c3_Low = (dehsp_c3 == 3) if !missing(dehsp_c3)
+
+gen eduHighestPartnerC3 = dehsp_c3
+gen eduHighestPartnerC3L1 = L1.dehsp_c3
+
+gen eduHighestPartnerC3High   = (dehsp_c3 == 1) if !missing(dehsp_c3)
+gen eduHighestPartnerC3Medium = (dehsp_c3 == 2) if !missing(dehsp_c3)
+gen eduHighestPartnerC3Low    = (dehsp_c3 == 3) if !missing(dehsp_c3)
+
+gen eduHighestPartnerC3HighL1   = (L1.dehsp_c3 == 1) if !missing(L1.dehsp_c3)
+gen eduHighestPartnerC3MediumL1 = (L1.dehsp_c3 == 2) if !missing(L1.dehsp_c3)
+gen eduHighestPartnerC3LowL1    = (L1.dehsp_c3 == 3) if !missing(L1.dehsp_c3)
+
+
+/*--------------------------------------------------
+Highest parental education
+--------------------------------------------------*/
+gen Dehmf_c3_High = (dehmf_c3 == 1) if !missing(dehmf_c3)
+gen Dehmf_c3_Medium = (dehmf_c3 == 2) if !missing(dehmf_c3)
+gen Dehmf_c3_Low = (dehmf_c3 == 3) if !missing(dehmf_c3)
+
+gen L_Dehmf_c3 = L1.dehmf_c3
+
+gen L_Dehmf_c3_High = (L1.dehmf_c3 == 1) if !missing(L1.dehmf_c3)
+gen L_Dehmf_c3_Medium = (L1.dehmf_c3 == 2) if !missing(L1.dehmf_c3)
+gen L_Dehmf_c3_Low = (L1.dehmf_c3 == 3) if !missing(L1.dehmf_c3)
+
+gen eduHighestParentC3 = dehmf_c3
+gen eduHighestParentC3L1 = L1.dehmf_c3
+
+gen eduHighestParentC3High   = (dehmf_c3 == 1) if !missing(dehmf_c3)
+gen eduHighestParentC3Medium = (dehmf_c3 == 2) if !missing(dehmf_c3)
+gen eduHighestParentC3Low    = (dehmf_c3 == 3) if !missing(dehmf_c3)
+
+gen eduHighestParentC3HighL1   = (L1.dehmf_c3 == 1) if !missing(L1.dehmf_c3)
+gen eduHighestParentC3MediumL1 = (L1.dehmf_c3 == 2) if !missing(L1.dehmf_c3)
+gen eduHighestParentC3LowL1    = (L1.dehmf_c3 == 3) if !missing(L1.dehmf_c3)
+
+
 
 *==================================================
 * Health dummies
 *==================================================
-cap lab define dhe 1 "Poor" 2 "Fair" 3 "Good" 4 "VeryGood" 5 "Excellent" , modify 
-lab values dhe dhe 
-
-tab dhe, gen(Dhe_)
-rename Dhe_1 Dhe_Poor
-rename Dhe_2 Dhe_Fair
-rename Dhe_3 Dhe_Good
-rename Dhe_4 Dhe_VeryGood
-rename Dhe_5 Dhe_Excellent
-
-tab dhesp, gen(Dhesp_)
-rename Dhesp_1 Dhesp_Poor
-rename Dhesp_2 Dhesp_Fair
-rename Dhesp_3 Dhesp_Good
-rename Dhesp_4 Dhesp_VeryGood
-rename Dhesp_5 Dhesp_Excellent
-
+gen Dhe       = dhe
 gen Dhe_pcs   = dhe_pcs
 gen Dhe_mcs   = dhe_mcs
 gen Dhe_pcssp = dhe_pcssp
 gen Dhe_mcssp = dhe_mcssp
+
+/*--------------------------------------------------
+Value labels
+--------------------------------------------------*/
+
+cap lab define dhe ///
+    1 "Poor" ///
+    2 "Fair" ///
+    3 "Good" ///
+    4 "VeryGood" ///
+    5 "Excellent", modify
+
+lab values dhe dhe
+
+/*--------------------------------------------------
+Own self-rated health
+--------------------------------------------------*/
+gen Dhe_Poor = (dhe == 1) if !missing(dhe)
+gen Dhe_Fair = (dhe == 2) if !missing(dhe)
+gen Dhe_Good = (dhe == 3) if !missing(dhe)
+gen Dhe_VeryGood = (dhe == 4) if !missing(dhe)
+gen Dhe_Excellent = (dhe == 5) if !missing(dhe)
+
+gen healthSelfRated = dhe
+gen healthSelfRatedL1 = L1.dhe
+
+gen healthSelfRatedPoor      = (dhe == 1) if !missing(dhe)
+gen healthSelfRatedFair      = (dhe == 2) if !missing(dhe)
+gen healthSelfRatedGood      = (dhe == 3) if !missing(dhe)
+gen healthSelfRatedVeryGood  = (dhe == 4) if !missing(dhe)
+gen healthSelfRatedExcellent = (dhe == 5) if !missing(dhe)
+
+gen healthSelfRatedPoorL1      = (L1.dhe == 1) if !missing(L1.dhe)
+gen healthSelfRatedFairL1      = (L1.dhe == 2) if !missing(L1.dhe)
+gen healthSelfRatedGoodL1      = (L1.dhe == 3) if !missing(L1.dhe)
+gen healthSelfRatedVeryGoodL1  = (L1.dhe == 4) if !missing(L1.dhe)
+gen healthSelfRatedExcellentL1 = (L1.dhe == 5) if !missing(L1.dhe)
+
+/*--------------------------------------------------
+Partner self-rated health
+--------------------------------------------------*/
+
+gen Dhesp_Poor = (dhesp == 1) if !missing(dhesp)
+gen Dhesp_Fair = (dhesp == 2) if !missing(dhesp)
+gen Dhesp_Good = (dhesp == 3) if !missing(dhesp)
+gen Dhesp_VeryGood = (dhesp == 4) if !missing(dhesp)
+gen Dhesp_Excellent = (dhesp == 5) if !missing(dhesp)
+
+gen healthPartnerSelfRated = dhesp
+gen healthPartnerSelfRatedL1 = L1.dhesp
+
+gen healthPartnerSelfRatedPoor      = (dhesp == 1) if !missing(dhesp)
+gen healthPartnerSelfRatedFair      = (dhesp == 2) if !missing(dhesp)
+gen healthPartnerSelfRatedGood      = (dhesp == 3) if !missing(dhesp)
+gen healthPartnerSelfRatedVeryGood  = (dhesp == 4) if !missing(dhesp)
+gen healthPartnerSelfRatedExcellent = (dhesp == 5) if !missing(dhesp)
+/*
+gen healthPartnerSelfRatedPoorL1      = (L1.dhesp == 1) if !missing(L1.dhesp)
+gen healthPartnerSelfRatedFairL1      = (L1.dhesp == 2) if !missing(L1.dhesp)
+gen healthPartnerSelfRatedGoodL1      = (L1.dhesp == 3) if !missing(L1.dhesp)
+gen healthPartnerSelfRatedVeryGoodL1  = (L1.dhesp == 4) if !missing(L1.dhesp)
+gen healthPartnerSelfRatedExcelL1 = (L1.dhesp == 5) if !missing(L1.dhesp)
+*/
+
+/*--------------------------------------------------
+Continuous health measures
+--------------------------------------------------*/
+foreach v in dhe dhe_pcs dhe_mcs {
+    gen l_`v' = L.`v'
+}
+
+gen L_Dhe      = l_dhe
+gen L_Dhe_pcs  = l_dhe_pcs
+gen L_Dhe_mcs  = l_dhe_mcs
+
+
+gen healthPhysicalPcs = dhe_pcs
+gen healthMentalMcs   = dhe_mcs
+
+gen healthPhysicalPcsL1 = L1.dhe_pcs
+gen healthMentalMcsL1   = L1.dhe_mcs
+
+gen healthPhysicalPartnerPcs = dhe_pcssp
+gen healthMentalPartnerMcs   = dhe_mcssp
+
+gen healthPhysicalPartnerPcsL1 = L1.dhe_pcssp
+gen healthMentalPartnerMcsL1   = L1.dhe_mcssp
+
 
 *==================================================
 * Long-term sick or disabled
@@ -194,6 +631,13 @@ gen Dhe_mcssp = dhe_mcssp
 gen Dlltsd   = dlltsd
 gen Dlltsd01 = dlltsd01
 
+gen L_Dlltsd01 = l.dlltsd01
+
+gen Dlltsdsp   = dlltsd_sp
+gen Dlltsd01sp = dlltsd01_sp
+					
+gen healthDsblLongtermFlag = dlltsd01
+gen healthDsblLongtermFlagL1 = l.dlltsd01
 
 *==================================================
 * Ethnicity
@@ -205,147 +649,338 @@ rename dot_2 Ethn_Asian
 rename dot_3 Ethn_Black
 rename dot_4 Ethn_Other
 
+gen demEthnC4 = dot 
+tab demEthnC4, gen(demEthnC4_)
+
+rename demEthnC4_1 demEthnC4White
+rename demEthnC4_2 demEthnC4Asian
+rename demEthnC4_3 demEthnC4Black
+rename demEthnC4_4 demEthnC4Other
+	
+	
 *==================================================
 * Household type and relationship dynamics
 *==================================================
 
-tab dhhtp_c4, gen(Dhhtp_c4_)
-rename Dhhtp_c4_1 Dhhtp_c4_CoupleNoChildren
-rename Dhhtp_c4_2 Dhhtp_c4_CoupleChildren
-rename Dhhtp_c4_3 Dhhtp_c4_SingleNoChildren
-rename Dhhtp_c4_4 Dhhtp_c4_SingleChildren
-
-tab dhhtp_c8, gen(Dhhtp_c8_)
+/*--------------------------------------------------*/
+/* Raw variables                                    */
+/*--------------------------------------------------*/
 
 gen New_rel = new_rel
 
-tab dcpst, gen(Dcpst_)
-rename Dcpst_1 Dcpst_Partnered
-rename Dcpst_2 Dcpst_Single
-gen Partnered = Dcpst_Partnered
-gen Single = Dcpst_Single
+gen Dnc = dnc
+gen Dnc02 = dnc02
 
-*==================================================
-* Explicit lags
-*==================================================
-cap drop l_* L_*
+gen Dcpyy = dcpyy
+gen Dcpagdf = dcpagdf
 
-xtset idperson swv
-
-foreach v in ydses_c5 dhe dhe_pcs dhe_mcs les_c3 les_c4 dhhtp_c4 dlltsd01 need_socare dehmf_c3 {
-    gen l_`v' = L.`v'
-}
-
-gen L_Ydses_c5 = l_ydses_c5
-gen L_Dhe      = l_dhe
-gen L_Dhe_pcs  = l_dhe_pcs
-gen L_Dhe_mcs  = l_dhe_mcs
-gen L_Dlltsd01 = l_dlltsd01
-gen L_Need_socare = l_need_socare
-gen L_Dehmf_c3 = l_dehmf_c3
-
-tab l_les_c4, gen(L_Les_c4_)
-rename L_Les_c4_1 L_Les_c4_Employed
-rename L_Les_c4_2 L_Les_c4_Student
-rename L_Les_c4_3 L_Les_c4_NotEmployed
-rename L_Les_c4_4 L_Les_c4_Retired
-
-tab l_ydses_c5, gen(L_Ydses_c5_Q)
-
-tab l_dhhtp_c4, gen(L_Dhhtp_c4_)
-rename L_Dhhtp_c4_1 L_Dhhtp_c4_CoupleNoChildren
-rename L_Dhhtp_c4_2 L_Dhhtp_c4_CoupleChildren
-rename L_Dhhtp_c4_3 L_Dhhtp_c4_SingleNoChildren
-rename L_Dhhtp_c4_4 L_Dhhtp_c4_SingleChildren
-
-tab l_dehmf_c3, gen(L_Dehmf_c3_)
-rename L_Dehmf_c3_1 L_Dehmf_c3_High
-rename L_Dehmf_c3_2 L_Dehmf_c3_Medium
-rename L_Dehmf_c3_3 L_Dehmf_c3_Low
-
-
-
-*==================================================
-* Copy variables for nice labels 
-*==================================================
-gen Dnc       = dnc
-gen Dnc02     = dnc02
-gen Ded       = ded
-gen Dhe       = dhe
-gen Ydses_c5  = ydses_c5
-gen Dcpyy     = dcpyy
-gen Dcpagdf   = dcpagdf
+gen fertilityRate = dukfr
 gen FertilityRate = dukfr
-gen Dhh_owned = dhh_owned
 
-gen Elig_pen    = dagpns
-gen Elig_pen_L1 = l.dagpns
+/*--------------------------------------------------*/
+/* Household type C4                                */
+/*--------------------------------------------------*/
 
-gen Reached_Retirement_Age    = dagpns
-gen Reached_Retirement_Age_Sp = dagpns_sp
+gen Dhhtp_c4_CoupleNoChildren = (dhhtp_c4 == 1) if !missing(dhhtp_c4)
+gen Dhhtp_c4_CoupleChildren = (dhhtp_c4 == 2) if !missing(dhhtp_c4)
+gen Dhhtp_c4_SingleNoChildren = (dhhtp_c4 == 3) if !missing(dhhtp_c4)
+gen Dhhtp_c4_SingleChildren = (dhhtp_c4 == 4) if !missing(dhhtp_c4)
 
-gen Dlltsdsp   = dlltsd_sp
-gen Dlltsd01sp = dlltsd01_sp
+gen L_Dhhtp_c4 = L1.dhhtp_c4
 
-gen Ypncp = ypncp
-gen Ypnoab =  ypnoab
-gen Yplgrs_dv = yplgrs_dv
-gen Ypnbihs_dv = ypnbihs_dv
-gen Ypnbihs_dv_sq = ypnbihs_dv^2
-gen Ynbcpdf_dv   = ynbcpdf_dv
-gen Yptciihs_dv  = yptciihs_dv
+gen L_Dhhtp_c4_CoupleNoChildren = (L1.dhhtp_c4 == 1) if !missing(L1.dhhtp_c4)
+gen L_Dhhtp_c4_CoupleChildren = (L1.dhhtp_c4 == 2) if !missing(L1.dhhtp_c4)
+gen L_Dhhtp_c4_SingleNoChildren = (L1.dhhtp_c4 == 3) if !missing(L1.dhhtp_c4)
+gen L_Dhhtp_c4_SingleChildren = (L1.dhhtp_c4 == 4) if !missing(L1.dhhtp_c4)
+
+gen demCompHhC4 = dhhtp_c4
+
+gen demCompHhC4L1 = L1.dhhtp_c4
+
+gen demCompHhC4CoupleNoChL1 = (L1.dhhtp_c4 == 1) if !missing(L1.dhhtp_c4)
+gen demCompHhC4CoupleChL1 = (L1.dhhtp_c4 == 2) if !missing(L1.dhhtp_c4)
+gen demCompHhC4SingleNoChL1 = (L1.dhhtp_c4 == 3) if !missing(L1.dhhtp_c4)
+gen demCompHhC4SingleChL1 = (L1.dhhtp_c4 == 4) if !missing(L1.dhhtp_c4)
+
+gen householdTypeC4 = dhhtp_c4
+gen householdTypeC4L1 = L1.dhhtp_c4
+
+gen householdTypeC4CoupleNoCh = (dhhtp_c4 == 1) if !missing(dhhtp_c4)
+gen householdTypeC4CoupleCh = (dhhtp_c4 == 2) if !missing(dhhtp_c4)
+gen householdTypeC4SingleNoC = (dhhtp_c4 == 3) if !missing(dhhtp_c4)
+gen householdTypeC4SingleCh = (dhhtp_c4 == 4) if !missing(dhhtp_c4)
+
+gen householdTypeC4CoupleNoChL1 = (L1.dhhtp_c4 == 1) if !missing(L1.dhhtp_c4)
+gen householdTypeC4CoupleChL1 = (L1.dhhtp_c4 == 2) if !missing(L1.dhhtp_c4)
+gen householdTypeC4SingleNoChL1 = (L1.dhhtp_c4 == 3) if !missing(L1.dhhtp_c4)
+gen householdTypeC4SingleCh1 = (L1.dhhtp_c4 == 4) if !missing(L1.dhhtp_c4)
 
 
-*==================================================
-* Interactions
-*==================================================
-cap drop Les_c4_*_Dgn Ded_* Reached_Retirement_Age_Les
+/*--------------------------------------------------*/
+/* Household type C8                                */
+/*--------------------------------------------------*/
 
-gen Les_c4_Student_Dgn     = Dgn * Les_c4_Student
-gen Les_c4_NotEmployed_Dgn = Dgn * Les_c4_NotEmployed
-gen Les_c4_Retired_Dgn     = Dgn * Les_c4_Retired
+gen Dhhtp_c8_1 = (dhhtp_c8 == 1) if !missing(dhhtp_c8)
+gen Dhhtp_c8_2 = (dhhtp_c8 == 2) if !missing(dhhtp_c8)
+gen Dhhtp_c8_3 = (dhhtp_c8 == 3) if !missing(dhhtp_c8)
+gen Dhhtp_c8_4 = (dhhtp_c8 == 4) if !missing(dhhtp_c8)
+gen Dhhtp_c8_5 = (dhhtp_c8 == 5) if !missing(dhhtp_c8)
+gen Dhhtp_c8_6 = (dhhtp_c8 == 6) if !missing(dhhtp_c8)
+gen Dhhtp_c8_7 = (dhhtp_c8 == 7) if !missing(dhhtp_c8)
+gen Dhhtp_c8_8 = (dhhtp_c8 == 8) if !missing(dhhtp_c8)
 
-gen Ded_Dag    = Ded * Dag
-gen Ded_Dag_sq = Ded * Dag_sq
-gen Ded_Dgn    = Ded * Dgn
+gen householdTypeC8 = dhhtp_c8
 
-gen Ded_Dnc_L1_  = Ded * l.Dnc
-gen Ded_Dnc02_L1 = Ded * l.Dnc02
+gen demCompHhC8 = dhhtp_c8
+gen demCompHhC8L1 = L1.dhhtp_c8
+
+gen demCompHhC81 = (dhhtp_c8 == 1) if !missing(dhhtp_c8)
+gen demCompHhC82 = (dhhtp_c8 == 2) if !missing(dhhtp_c8)
+gen demCompHhC83 = (dhhtp_c8 == 3) if !missing(dhhtp_c8)
+gen demCompHhC84 = (dhhtp_c8 == 4) if !missing(dhhtp_c8)
+gen demCompHhC85 = (dhhtp_c8 == 5) if !missing(dhhtp_c8)
+gen demCompHhC86 = (dhhtp_c8 == 6) if !missing(dhhtp_c8)
+gen demCompHhC87 = (dhhtp_c8 == 7) if !missing(dhhtp_c8)
+gen demCompHhC88 = (dhhtp_c8 == 8) if !missing(dhhtp_c8)
+
+
+gen demCompHhC81L1 = (L1.dhhtp_c8 == 1) if !missing(L1.dhhtp_c8)
+gen demCompHhC82L1 = (L1.dhhtp_c8 == 2) if !missing(L1.dhhtp_c8)
+gen demCompHhC83L1 = (L1.dhhtp_c8 == 3) if !missing(L1.dhhtp_c8)
+gen demCompHhC84L1 = (L1.dhhtp_c8 == 4) if !missing(L1.dhhtp_c8)
+gen demCompHhC85L1 = (L1.dhhtp_c8 == 5) if !missing(L1.dhhtp_c8)
+gen demCompHhC86L1 = (L1.dhhtp_c8 == 6) if !missing(L1.dhhtp_c8)
+gen demCompHhC87L1 = (L1.dhhtp_c8 == 7) if !missing(L1.dhhtp_c8)
+gen demCompHhC88L1 = (L1.dhhtp_c8 == 8) if !missing(L1.dhhtp_c8)
+
+
+/*--------------------------------------------------*/
+/* Relationship status                              */
+/*--------------------------------------------------*/
+gen mar = (dcpst == 1)
+
+gen Dcpst = dcpst
+
+gen Partnered = (dcpst == 1) if !missing(dcpst)
+gen Single = (dcpst == 2) if !missing(dcpst)
+
+gen Dcpst_Partnered = (dcpst == 1) if !missing(dcpst)
+gen Dcpst_Single = (dcpst == 2) if !missing(dcpst)
+
+gen demPartnerStatus = dcpst
+gen demPartnerStatusL1 = L1.dcpst
+
+gen demPartnerStatusPartnered = (dcpst == 1) if !missing(dcpst)
+gen demPartnerStatusSingle = (dcpst == 2) if !missing(dcpst)
+
+gen demPartnerStatusPartneredL1 = (L1.dcpst == 1) if !missing(L1.dcpst)
+gen demPartnerStatusSingleL1 = (L1.dcpst == 2) if !missing(L1.dcpst)
+
+
+/*--------------------------------------------------*/
+/* Relationship dynamics                            */
+/*--------------------------------------------------*/
+
+gen demPartnerNYear = dcpyy
+gen demPartnerNYearL1 = L1.dcpyy
+
+gen demEnterPartnerFlag = new_rel
+gen demEnterPartnerFlagL1 = L1.new_rel
+
+gen demAgePartnerDiff = dcpagdf
+gen demAgePartnerDiffL1 = L1.dcpagdf
+
+
+/*--------------------------------------------------*/
+/* Children                                         */
+/*--------------------------------------------------*/
+cap drop child 
+gen child = (dnc>0)
+
+gen demNChild = dnc
+gen demNChild0to2 = dnc02
+
+gen demNChildL1 = L1.dnc
+gen demNChild0to2L1 = L1.dnc02
+
+gen demDChild = (dnc > 0) if !missing(dnc)
+gen demDChild0to2 = (dnc02 > 0) if !missing(dnc02)
+
+gen demDChildL1 = (L1.dnc > 0) if !missing(L1.dnc)
+gen demDChild0to2L1 = (L1.dnc02 > 0) if !missing(L1.dnc02)
+
+
+
+/*==================================================*/
+/* INTERACTIONS          */
+/*==================================================*/
+
+/*--------------------------------------------------*/
+/* Education × demographics                         */
+/*--------------------------------------------------*/
+
+gen Ded_Dag = Ded * Dag if !missing(Ded, Dag)
+
+gen Ded_Dag_sq = Ded * Dag_sq if !missing(Ded, Dag_sq)
+
+gen Ded_Dgn = Ded * Dgn if !missing(Ded, Dgn)
+
+gen eduSampleFlag_demMaleFlag = eduSampleFlag * demMaleFlag if !missing(eduSampleFlag, demMaleFlag)
+
+gen eduSampleFlag_Male = eduSampleFlag * demMaleFlag if !missing(eduSampleFlag, demMaleFlag)
+
+
+/*--------------------------------------------------*/
+/* Education × children                             */
+/*--------------------------------------------------*/
+
+gen Ded_Dnc_L1_ = Ded * L1.Dnc if !missing(Ded, L1.Dnc)
+
+gen Ded_Dnc02_L1 = Ded * L1.Dnc02 if !missing(Ded, L1.Dnc02)
+
+gen eduSampleFlag_demNChildL1 = eduSampleFlag * demNChildL1 if !missing(eduSampleFlag, demNChildL1)
+
+gen eduSampleFlag_demNChild0to2L1 = eduSampleFlag * demNChild0to2L1 if !missing(eduSampleFlag, demNChild0to2L1)
+
+
+/*--------------------------------------------------*/
+/* Education × partnership status                   */
+/*--------------------------------------------------*/
+
+gen Ded_Dcpst_Single = Dcpst_Single * Ded if !missing(Dcpst_Single, Ded)
+
+gen Ded_Dcpst_Single_L1 = L1.Dcpst_Single * Ded if !missing(L1.Dcpst_Single, Ded)
+
+gen eduSampleFlag_Single = eduSampleFlag * demPartnerStatusSingle if !missing(eduSampleFlag, demPartnerStatusSingle)
+
+
+/*--------------------------------------------------*/
+/* Education × income quintiles                     */
+/*--------------------------------------------------*/
 
 forvalues i = 1/5 {
-    gen Ded_Ydses_c5_Q`i'_L1 = Ded * l.Ydses_c5_Q`i'
+    gen Ded_Ydses_c5_Q`i'_L1 = Ded * L1.Ydses_c5_Q`i' if !missing(Ded, L1.Ydses_c5_Q`i')
 }
 
-gen Ded_Dehsp_c3_Medium_L1 = l.Dehsp_c3_Medium * Ded
-gen Ded_Dehsp_c3_Low_L1    = l.Dehsp_c3_Low * Ded
+gen eduSampleFlag_Q2L1 = eduSampleFlag * yHhQuintilesMonthC5Q2L1 if !missing(eduSampleFlag, yHhQuintilesMonthC5Q2L1)
 
-gen Ded_Dhesp_Good_L1 = l.Dhesp_Good * Ded
-gen Ded_Dhesp_Fair_L1 = l.Dhesp_Fair * Ded
+gen eduSampleFlag_Q3L1 = eduSampleFlag * yHhQuintilesMonthC5Q3L1 if !missing(eduSampleFlag, yHhQuintilesMonthC5Q3L1)
 
-gen Ded_Dhe_Fair_L1      = l.Dhe_Fair * Ded
-gen Ded_Dhe_Good_L1      = l.Dhe_Good * Ded
-gen Ded_Dhe_VeryGood_L1  = l.Dhe_VeryGood * Ded
-gen Ded_Dhe_Excellent_L1 = l.Dhe_Excellent * Ded
+gen eduSampleFlag_Q4L1 = eduSampleFlag * yHhQuintilesMonthC5Q4L1 if !missing(eduSampleFlag, yHhQuintilesMonthC5Q4L1)
 
-gen Ded_Dhe_pcs = Ded * Dhe_pcs
-gen Ded_Dhe_mcs = Ded * Dhe_mcs
+gen eduSampleFlag_Q5L1 = eduSampleFlag * yHhQuintilesMonthC5Q5L1 if !missing(eduSampleFlag, yHhQuintilesMonthC5Q5L1)
 
-gen Ded_Dhe             = Dhe * Ded
-gen Ded_Dcpst_Single    = Dcpst_Single * Ded
-gen Ded_Dcpst_Single_L1 = l.Dcpst_Single * Ded
 
-gen Reached_Retirement_Age_Les = Reached_Retirement_Age * l.Les_c3_NotEmployed
+/*--------------------------------------------------*/
+/* Education × spouse education                     */
+/*--------------------------------------------------*/
 
-gen Ded_Ypncp= Ded * Ypncp
-gen Ded_Yplgrs_dv = Ded *Yplgrs_dv
+gen Ded_Dehsp_c3_Medium_L1 = L1.Dehsp_c3_Medium * Ded if !missing(L1.Dehsp_c3_Medium, Ded)
+
+gen Ded_Dehsp_c3_Low_L1 = L1.Dehsp_c3_Low * Ded if !missing(L1.Dehsp_c3_Low, Ded)
+
+
+/*--------------------------------------------------*/
+/* Education × health                               */
+/*--------------------------------------------------*/
+
+gen Ded_Dhesp_Good_L1 = L1.Dhesp_Good * Ded if !missing(L1.Dhesp_Good, Ded)
+
+gen Ded_Dhesp_Fair_L1 = L1.Dhesp_Fair * Ded if !missing(L1.Dhesp_Fair, Ded)
+
+gen Ded_Dhe_Fair_L1 = L1.Dhe_Fair * Ded if !missing(L1.Dhe_Fair, Ded)
+
+gen Ded_Dhe_Good_L1 = L1.Dhe_Good * Ded if !missing(L1.Dhe_Good, Ded)
+
+gen Ded_Dhe_VeryGood_L1 = L1.Dhe_VeryGood * Ded if !missing(L1.Dhe_VeryGood, Ded)
+
+gen Ded_Dhe_Excellent_L1 = L1.Dhe_Excellent * Ded if !missing(L1.Dhe_Excellent, Ded)
+
+gen Ded_Dhe_pcs = Ded * Dhe_pcs if !missing(Ded, Dhe_pcs)
+
+gen Ded_Dhe_mcs = Ded * Dhe_mcs if !missing(Ded, Dhe_mcs)
+
+gen Ded_Dhe = Dhe * Ded if !missing(Dhe, Ded)
+
+
+/*--------------------------------------------------*/
+/* Retirement interactions                          */
+/*--------------------------------------------------*/
+
+gen Reached_Retirement_Age_Les = Reached_Retirement_Age * L1.Les_c3_NotEmployed if !missing(Reached_Retirement_Age, L1.Les_c3_NotEmployed)
+
+gen demPensAgeFlag_NotEmployedL1 = demPensAgeFlag * labStatusC3NotEmployedL1 if !missing(demPensAgeFlag, labStatusC3NotEmployedL1)
+
+
+/*--------------------------------------------------*/
+/* Education × income                               */
+/*--------------------------------------------------*/
+
+gen Ded_Ypncp = Ded * Ypncp if !missing(Ded, Ypncp)
+
+gen Ded_Yplgrs_dv = Ded * Yplgrs_dv if !missing(Ded, Yplgrs_dv)
+
+gen eduSampleFlag_yCapitalPers = eduSampleFlag * yCapitalPersMonth if !missing(eduSampleFlag, yCapitalPersMonth)
+
+gen eduSampleFlag_yCapitalPersL1 = L1.eduSampleFlag_yCapitalPers
+
+gen eduSampleFlag_yCapitalPersL2 = L2.eduSampleFlag_yCapitalPers
+
+gen eduSampleFlag_yEmpPersGross = eduSampleFlag * yEmpPersGrossMonth if !missing(eduSampleFlag, yEmpPersGrossMonth)
+
+gen eduSampleFlag_yEmpPersGrossL1 = L1.eduSampleFlag_yEmpPersGross
+
+gen eduSampleFlag_yEmpPersGrossL2 = L2.eduSampleFlag_yEmpPersGross
+
+
+/*--------------------------------------------------*/
+/* Education × health scores                        */
+/*--------------------------------------------------*/
+
+gen eduSampleFlag_Pcs = eduSampleFlag * healthPhysicalPcs if !missing(eduSampleFlag, healthPhysicalPcs)
+
+gen eduSampleFlag_Mcs = eduSampleFlag * healthMentalMcs if !missing(eduSampleFlag, healthMentalMcs)
+
+gen eduSampleFlag_PcsL1 = L1.eduSampleFlag_Pcs
+
+gen eduSampleFlag_McsL1 = L1.eduSampleFlag_Mcs
+
+
+/*--------------------------------------------------*/
+/* Education × age                                  */
+/*--------------------------------------------------*/
+
+gen eduHighestC4Na_demAge = eduHighestC4Na * dag if !missing(eduHighestC4Na, dag)
+
+gen eduHighestC4Low_demAge = eduHighestC4Low * dag if !missing(eduHighestC4Low, dag)
+
+gen eduHighestC4Medium_demAge = eduHighestC4Medium * dag if !missing(eduHighestC4Medium, dag)
+
+gen eduHighestC4High_demAge = eduHighestC4High * dag if !missing(eduHighestC4High, dag)
+
+gen eduHighestC4NaL1_demAge = eduHighestC4NaL1 * demAge if !missing(eduHighestC4NaL1, demAge)
+
+gen eduHighestC4LowL1_demAge = eduHighestC4LowL1 * demAge if !missing(eduHighestC4LowL1, demAge)
+
+gen eduHighestC4MediumL1_demAge = eduHighestC4MediumL1 * demAge if !missing(eduHighestC4MediumL1, demAge)
+
+gen eduHighestC4HighL1_demAge = eduHighestC4HighL1 * demAge if !missing(eduHighestC4HighL1, demAge)
+
+
+/*--------------------------------------------------*/
+/* Part-time work indicator                         */
+/*--------------------------------------------------*/
+
+gen pt = (lhw > 0 & lhw <= 25) if !missing(lhw)
+gen labPt = (lhw > 0 & lhw <= 25) if !missing(lhw)
 
 
 *==================================================
 * Prepare data for social care regressions 
 *==================================================
 * Care received variables (Processes S2)
-
-rename need_socare need_care
+gen need_care = need_socare
+//rename need_socare need_care
 
 gen receive_formal_care = formal_socare_hrs > 0
 gen receive_informal_care = (partner_socare_hrs + daughter_socare_hrs + son_socare_hrs + other_socare_hrs) > 0
@@ -388,7 +1023,8 @@ replace dage10prime = 2 if (dag>44 & dag<55)
 replace dage10prime = 3 if (dag>54 & dag<65)
 replace dage10prime = 4 if (dag>64)
 //table dage10prime, stat(min dag) stat(max dag)
-table dage10prime, c(min dag max dag)
+//table dage10prime, c(min dag max dag)
+tabstat dag, by(dage10prime) stat(min max)
 
 * - Categorical: 65-66, 67-68, 69-70, 71-72..., 85+
 gen dage2old = 0
@@ -397,7 +1033,8 @@ forval ii = 1/10 {
 }
 replace dage2old = 11 if (dag >= 85)
 //table dage2old, stat(min dag) stat(max dag)
-table dage2old, c(min dag max dag)
+//table dage2old, c(min dag max dag)
+tabstat dag, by(dage2old) stat(min max)
 
 * Poor health flag
 gen poor_health = (dhe == 1)
@@ -433,7 +1070,8 @@ cap rename Age_16 Age85plus
 
 tab dage10prime, gen(Age_)
 //table dage10prime, stat(min dag) stat(max dag)	// RMK: AgeXX categories start at 1, hence shifted by 1
-table dage10prime, c(min dag max dag)	
+//table dage10prime, c(min dag max dag)	
+tabstat dag, by(dage10prime) stat(min max)
 drop Age_1
 rename Age_2 Age35to44
 rename Age_3 Age45to54
@@ -442,7 +1080,8 @@ rename Age_5 Age65plus
 
 tab dage2old, gen(Age_)
 //table dage2old, stat(min dag) stat(max dag)	// RMK: AgeXX categories start at 1, hence shifted by 1
-table dage2old, c(min dag max dag)
+//table dage2old, c(min dag max dag)
+tabstat dag, by(dage2old) stat(min max)
 drop Age_1	
 rename Age_2 Age65to66
 rename Age_3 Age67to68
@@ -495,6 +1134,78 @@ keep if _merge == 1 | _merge==3
 drop _merge
 
 erase "$dir_work/partner.dta"
+
+
+* refactoring social care 
+xtset idperson stm
+
+gen demAge20to24 = Age20to24
+gen demAge25to29 = Age25to29
+gen demAge30to34 = Age30to34
+gen demAge35to39 = Age35to39
+gen demAge40to44 = Age40to44
+gen demAge45to49 = Age45to49
+gen demAge50to54 = Age50to54
+gen demAge55to59 = Age55to59
+gen demAge60to64 = Age60to64
+gen demAge65to69 = Age65to69
+gen demAge70to74 = Age70to74
+gen demAge75to79 = Age75to79
+gen demAge80to84 = Age80to84
+cap confirm variable Age85plus
+if !_rc gen demAge85plus = Age85plus
+
+
+gen demAge65to66 = Age65to66
+gen demAge67to68 = Age67to68
+gen demAge69to70 = Age69to70
+gen demAge71to72 = Age71to72
+gen demAge73to74 = Age73to74
+gen demAge75to76 = Age75to76
+gen demAge77to78 = Age77to78
+gen demAge79to80 = Age79to80
+gen demAge81to82 = Age81to82
+gen demAge83to84 = Age83to84
+
+gen careMarket = CareMarket
+gen careMarketL1 = l.careMarket
+
+
+gen careMarketInformal = (careMarket == 2) if !missing(careMarket)
+gen careMarketMixed    = (careMarket == 3) if !missing(careMarket)
+gen careMarketFormal   = (careMarket == 4) if !missing(careMarket)
+
+gen careMarketInformalL1 = (L1.careMarket == 2) if !missing(L1.careMarket)
+gen careMarketMixedL1    = (L1.careMarket == 3) if !missing(L1.careMarket)
+gen careMarketFormalL1   = (L1.careMarket == 4) if !missing(L1.careMarket)
+
+gen careHrsInformalIhs = HrsReceivedInformalIHS
+gen careHrsInformalIhsL1 = l.HrsReceivedInformalIHS
+
+gen careHrsFormalIhs = HrsReceivedFormalIHS 
+gen careHrsFormalIhsL1 = l.HrsReceivedFormalIHS
+
+
+gen careNeedFlag = NeedCare	
+gen careNeedFlagL1 = l.NeedCare
+
+gen careReceivedFlag = ReceiveCare 
+gen careReceivedFlagL1 = l.ReceiveCare 
+
+gen careProvidedFlag = ProvideCare	
+gen careProvidedFlagL1 = l.ProvideCare
+
+gen careNeedPartnerFlag = NeedCarePartner
+gen careReceivedPartnerFlag = ReceiveCarePartner 
+
+gen careMarketInformalPartner = CareMarketInformalPartner
+gen careMarketMixedPartner = CareMarketMixedPartner
+gen careMarketFormalPartner = CareMarketFormalPartner 
+
+gen careHrsProvidedWeekIhs = HrsProvidedInformalIHS 
+gen careHrsProvidedWeekIhsL1 = l.HrsProvidedInformalIHS 
+
+
 
 
 /*********************************************************************
@@ -632,4 +1343,8 @@ replace lhw_c5=40 if (lhw>=36 & lhw!=.)
 label define lhwsp 0 "Zero" 10 "Ten" 20 "Twenty" 30 "Thirty" 40 "Forty"
 label value lhw_c5 lhwsp
 la var lhw_c5 "Hours worked per week (category)"
+
+*==================================================
+* End  
+*==================================================
 

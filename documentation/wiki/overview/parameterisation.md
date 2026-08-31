@@ -26,9 +26,14 @@ Source: [Github](https://github.com/simpaths/SimPaths/tree/develop/input).
 Files listed below contain alignment targets.
 
 * align_educLevel.xlsx
-* align_employment.xlsx 
 * align_popProjections.xlsx 
-* align_student_under30.xlsx
+
+**alignment_targets_ files**  
+Files listed below contain alignment targets for in-school, partnership, and employment shares.
+
+* alignment_targets_employment.xlsx
+* alignment_targets_inSchool.xlsx
+* alignment_targets_partnered_share.xlsx
 
 **projections_ files**  
 Files listed below contain demographic projections.

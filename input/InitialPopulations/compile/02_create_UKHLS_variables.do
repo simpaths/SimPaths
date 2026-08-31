@@ -2107,36 +2107,12 @@ replace moecd_eq = 0.3*dnc013 + 0.5*dnc1418 + 1 if dhhtp_c4 == 4
 drop dnc013 dnc1418
 
 
-/************************Income CPI********************************************/ 
-/*CPIH INDEX 00: ALL ITEMS 2015=100
-CDID	L522
-Source dataset ID	MM23
-PreUnit	
-Unit	Index, base year = 100
-Release date	20-03-2024
-Next release	17 April 2024
-https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/l522/mm23
-*/
+/************************Inflation deflators********************************************/ 
 gen CPI = .
-replace CPI = 0.879 if intdaty_dv == 2009
-replace CPI = 0.901 if intdaty_dv == 2010
-replace CPI = 0.936 if intdaty_dv == 2011
-replace CPI = 0.96  if intdaty_dv == 2012
-replace CPI = 0.982 if intdaty_dv == 2013
-replace CPI = 0.996 if intdaty_dv == 2014
-replace CPI = 1     if intdaty_dv == 2015
-replace CPI = 1.01  if intdaty_dv == 2016
-replace CPI = 1.036 if intdaty_dv == 2017
-replace CPI = 1.06  if intdaty_dv == 2018
-replace CPI = 1.078 if intdaty_dv == 2019
-replace CPI = 1.089 if intdaty_dv == 2020
-replace CPI = 1.116 if intdaty_dv == 2021
-replace CPI = 1.205 if intdaty_dv == 2022
-replace CPI = 1.286 if intdaty_dv == 2023
-replace CPI = 1.329 if intdaty_dv == 2024 
-replace CPI = 1.329 if intdaty_dv == 2025 //to update when becomes available  
+forvalues yy = $inflation_minyear/$inflation_maxyear {
 
-
+	replace CPI = inflation[`yy'-${inflation_minyear}+1,1] if intdaty_dv == `yy'
+}
 
 
 /**************************** Hourly labour income ***************************************/
@@ -3480,6 +3456,11 @@ gen total_wealth = -9
 gen total_pensions = -9
 gen housing_wealth = -9
 gen mortgage_debt = -9
+gen unsecured_low_debt = -9
+gen unsecured_high_debt = -9
+gen contRateOPEe = -9
+gen contRateOPEr = -9
+gen contRatePP = -9
 gen smp = -9
 gen rnk = -9
 gen mtc = -9
@@ -3487,6 +3468,8 @@ label var total_wealth "total wealth net of liabilities of benefit unit includin
 label var total_pensions "value of all private (personal and occupational) pensions of benefit unit"
 label var housing_wealth "value of main home gross of mortgage debt of benefit unit"
 label var mortgage_debt "total mortgage debt owed on main home of benefit unit"
+label var unsecured_low_debt "low-cost unsecured debt"
+label var unsecured_high_debt "high-cost unsecured debt"
 
 *check for duplicates in the pooled dataset 
 duplicates tag idperson idhh swv, gen(dup)

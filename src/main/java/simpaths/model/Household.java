@@ -2,6 +2,9 @@ package simpaths.model;
 
 import jakarta.persistence.*;
 import microsim.data.db.PanelEntityKey;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import simpaths.data.startingpop.Processed;
@@ -9,7 +12,6 @@ import simpaths.experiment.SimPathsCollector;
 import microsim.engine.SimulationEngine;
 import microsim.event.EventListener;
 import microsim.statistics.IDoubleSource;
-import org.apache.log4j.Logger;
 import simpaths.model.enums.SampleEntry;
 
 import java.util.LinkedHashSet;
@@ -27,7 +29,7 @@ from the data, on the basis of the idhh.
 @Entity
 public class Household implements EventListener, IDoubleSource {
 
-    @Transient private static Logger log = Logger.getLogger(Household.class);
+    @Transient private static Logger log = LogManager.getLogger(Household.class);
     @Transient private final SimPathsModel model;
     @Transient private final SimPathsCollector collector;
     @Transient public static long householdIdCounter = 1; //Because this is static all instances of a household access and increment the same counter
@@ -63,7 +65,7 @@ public class Household implements EventListener, IDoubleSource {
                 model = (SimPathsModel) SimulationEngine.getInstance().getManager(SimPathsModel.class.getCanonicalName());
                 collector = (SimPathsCollector) SimulationEngine.getInstance().getManager(SimPathsCollector.class.getCanonicalName());
                 key  = new PanelEntityKey(originalHousehold.getId());
-                this.idHhOriginal = originalHousehold.getIdOriginalHH();
+                this.idHhOriginal = originalHousehold.getIdHhOriginal();
             }
             default -> {
                 model = (SimPathsModel) SimulationEngine.getInstance().getManager(SimPathsModel.class.getCanonicalName());
@@ -83,7 +85,7 @@ public class Household implements EventListener, IDoubleSource {
     /*
     METHODS
      */
-    public Long getIdOriginalHH() {return idHhOriginal;}
+    public Long getIdHhOriginal() {return idHhOriginal;}
 
     public void resetWeights(double newWeight) {
 

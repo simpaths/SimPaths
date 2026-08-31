@@ -76,7 +76,7 @@ public class Matches {
         try {
             String filePath = fileDirectory + File.separator + fileName;
             BufferedWriter writer = Files.newBufferedWriter(Paths.get(filePath));
-            CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setHeader(HEADERS).build();
+            var csvFormat = CSVFormat.DEFAULT.builder().setHeader(HEADERS).get();
             CSVPrinter printer = new CSVPrinter(writer, csvFormat);
 
             for (Match match : set) {
@@ -101,7 +101,7 @@ public class Matches {
             throw new RuntimeException("failed to find csv file to read: " + filePath);
 
         Reader reader = new FileReader(filePath);
-        CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setHeader(HEADERS).setSkipHeaderRecord(true).build();
+        var csvFormat = CSVFormat.DEFAULT.builder().setHeader(HEADERS).setSkipHeaderRecord(true).get();
         Iterable<CSVRecord> records = csvFormat.parse(reader);
         for (CSVRecord record : records) {
             int key0 = Integer.parseInt(record.get("key"));

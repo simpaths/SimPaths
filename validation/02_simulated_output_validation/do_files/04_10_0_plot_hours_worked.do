@@ -2,18 +2,29 @@
 * PROJECT:  		SimPaths UK 
 * SECTION:			Validation
 * OBJECT: 			Hours worked per week
-* AUTHORS:			Ashley Burdett 
-* LAST UPDATE:		Jan 2026
-* COUNTRY: 			UK 
+* AUTHORS:			Ashley Burdett
+* LAST UPDATE:		Aug 2026
+* COUNTRY: 			UK
+* DESCRIPTION: 		Plots validation graphs comparing simulated vs. UKHLS
+* 					weekly hours worked, using a uniform-heterogeneity
+* 					imputation for hours in the top labour-supply category
+* 					(ages 16-65 and 16-75, both overall and by gender).
+* 					Section 1: time-series means with a shaded band
+* 					(mean +/- 1.96*SD across $max_n_runs runs). Section 2:
+* 					histograms of the cross-sectional distribution by year.
+* 					ONLY lines 1-744 are active. Everything after that
+* 					(log-normal heterogeneity + a dependent "round to 40
+* 					hours" adjustment) is out of scope -- do not run or rely on 
+* 					it as-is.
 ********************************************************************************
-* NOTES: 			Current implementation explores the impact how the 
-* 					heterogeneity of the upper most category is instructed.
+* NOTES: 			Amounts/statistics restricted to employed and
+* 					self-employed individuals.
 ********************************************************************************
 
 set seed  12345
 
 ********************************************************************************
-* UNIFORM HETEROGENIETY
+* UNIFORM HETEROGENEITY
 ********************************************************************************
 
 ********************************************************************************
@@ -56,7 +67,6 @@ collapse (mean) sim_labHrsWorkWeek ///
 		 (sd) sim_labHrsWorkWeek_sd = sim_labHrsWorkWeek ///
 		 , by(year)
 
-* Approx 95% confidence interval 	 
 foreach varname in sim_labHrsWorkWeek {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -72,7 +82,8 @@ merge 1:1 year using "$dir_data/temp_valid_stats.dta", keep(3) nogen
 * Plot figure
 twoway (rarea sim_labHrsWorkWeek_high sim_labHrsWorkWeek_low year, sort ///
 	color(green%20) legend(label(1 "SimPaths"))) ///
-(line valid_labHrsWorkWeek year, sort color(green) legend(label(2 "UKHLS"))), ///
+(line valid_labHrsWorkWeek year, sort color(green) ///
+	legend(label(2 "UKHLS"))), ///
 	title("Average Weekly Hours Worked") ///
 	subtitle("Ages 16-65") ///
 	xtitle("Year", size(small)) ///
@@ -81,7 +92,7 @@ twoway (rarea sim_labHrsWorkWeek_high sim_labHrsWorkWeek_low year, sort ///
 	xlabel(,labsize(small)) ///
 	legend(size(small)) ///	
 	graphregion(color(white)) ///
-	note("Note: Statistics calculated on sample of working age employed and self-employed individuals.", ///
+	note("Note: Statistics calculated on sample of working age employed and self-employed individuals." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))		
 
 * Save figure
@@ -123,7 +134,6 @@ collapse (mean) sim_labHrsWorkWeek ///
 		 (sd) sim_labHrsWorkWeek_sd = sim_labHrsWorkWeek ///
 		 , by(year demMaleFlag)
 		 
-* Approx 95% confidence interval		 
 foreach varname in sim_labHrsWorkWeek {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -143,7 +153,8 @@ keep if demMaleFlag == 1
 
 twoway (rarea sim_labHrsWorkWeek_high sim_labHrsWorkWeek_low year, sort ///
 	color(green%20) legend(label(1 "SimPaths"))) ///
-(line valid_labHrsWorkWeek year, sort color(green) legend(label(2 "UKHLS"))), ///
+(line valid_labHrsWorkWeek year, sort color(green) ///
+	legend(label(2 "UKHLS"))), ///
 	title("Average Weekly Hours Worked") ///
 	subtitle("Males, ages 16-65") ///
 	xtitle("Year", size(small)) ///
@@ -152,7 +163,7 @@ twoway (rarea sim_labHrsWorkWeek_high sim_labHrsWorkWeek_low year, sort ///
 	xlabel(,labsize(small)) ///
 	legend(size(small)) ///	
 	graphregion(color(white)) ///
-	note("Note: Statistics calculated on sample of working age employed and self-employed individuals.", ///
+	note("Note: Statistics calculated on sample of working age employed and self-employed individuals." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))		
 
 * Save figure
@@ -168,7 +179,8 @@ keep if demMaleFlag == 0
 
 twoway (rarea sim_labHrsWorkWeek_high sim_labHrsWorkWeek_low year, sort ///
 	color(green%20) legend(label(1 "SimPaths"))) ///
-(line valid_labHrsWorkWeek year, sort color(green) legend(label(2 "UKHLS"))), ///
+(line valid_labHrsWorkWeek year, sort color(green) ///
+	legend(label(2 "UKHLS"))), ///
 	title("Average Weekly Hours Worked") ///
 	subtitle("Females, ages 16-65") ///
 	xtitle("Year", size(small)) ///
@@ -177,7 +189,7 @@ twoway (rarea sim_labHrsWorkWeek_high sim_labHrsWorkWeek_low year, sort ///
 	xlabel(,labsize(small)) ///
 	legend(size(small)) ///	
 	graphregion(color(white)) ///
-	note("Note: Statistics calculated on sample of working age employed and self-employed individuals.", ///
+	note("Note: Statistics calculated on sample of working age employed and self-employed individuals." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))		
 
 * Save figure
@@ -220,7 +232,6 @@ collapse (mean) sim_labHrsWorkWeek ///
 		 (sd) sim_labHrsWorkWeek_sd = sim_labHrsWorkWeek ///
 		 , by(year)
 
-* Approx 95% confidence interval 	 
 foreach varname in sim_labHrsWorkWeek {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -245,7 +256,7 @@ twoway (rarea sim_labHrsWorkWeek_high sim_labHrsWorkWeek_low year, sort ///
 	xlabel(,labsize(small)) ///
 	legend(size(small)) ///	
 	graphregion(color(white)) ///
-	note("Note: Statistics calculated on sample of working age employed and self-employed individuals.", ///
+	note("Note: Statistics calculated on sample of working age employed and self-employed individuals." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))		
 
 * Save figure
@@ -255,7 +266,7 @@ graph export ///
 		
 
 ********************************************************************************
-* 1.2 : Mean values over time - Ages 16-75, by gender
+* 1.4 : Mean values over time - Ages 16-75, by gender
 ********************************************************************************
 
 * Prepare validation data
@@ -287,7 +298,6 @@ collapse (mean) sim_labHrsWorkWeek ///
 		 (sd) sim_labHrsWorkWeek_sd = sim_labHrsWorkWeek ///
 		 , by(year demMaleFlag)
 		 
-* Approx 95% confidence interval		 
 foreach varname in sim_labHrsWorkWeek {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -316,7 +326,7 @@ twoway (rarea sim_labHrsWorkWeek_high sim_labHrsWorkWeek_low year, sort ///
 	xlabel(,labsize(small)) ///
 	legend(size(small)) ///	
 	graphregion(color(white)) ///
-	note("Note: Statistics calculated on sample of working age employed and self-employed individuals.", ///
+	note("Note: Statistics calculated on sample of working age employed and self-employed individuals." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))		
 
 * Save figure
@@ -342,7 +352,7 @@ twoway (rarea sim_labHrsWorkWeek_high sim_labHrsWorkWeek_low year, ///
 	xlabel(,labsize(small)) ///
 	legend(size(small)) ///	
 	graphregion(color(white)) ///
-	note("Note: Statistics calculated on sample of working age employed and self-employed individuals.", ///
+	note("Note: Statistics calculated on sample of working age employed and self-employed individuals." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))		
 
 * Save figure
@@ -370,7 +380,10 @@ keep if inrange(demAge,16,65)
 * Prepare info needed for dynamic y axis labels 
 qui sum year
 local min_year = 2011
-local max_year = 2023  
+if "$min_sim_year" != "" local min_year = $min_sim_year
+local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' { 
 
@@ -402,7 +415,10 @@ append using "$dir_data/temp_valid_stats.dta"
 
 qui sum year
 local min_year = 2011
-local max_year = 2023  
+if "$min_sim_year" != "" local min_year = $min_sim_year
+local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' {
 	
@@ -461,7 +477,10 @@ keep if inrange(demAge,16,65)
 * Prepare info needed for dynamic y axis labels 
 qui sum year
 local min_year = 2011
-local max_year = 2023  
+if "$min_sim_year" != "" local min_year = $min_sim_year
+local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' { 
 
@@ -495,7 +514,10 @@ append using "$dir_data/temp_valid_stats.dta"
 * Plot by year 
 qui sum year
 local min_year = 2011
-local max_year = 2023  
+if "$min_sim_year" != "" local min_year = $min_sim_year
+local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' {
 	
@@ -551,7 +573,10 @@ keep if inrange(demAge,16,65)
 * Prepare info needed for dynamic y axis labels 
 qui sum year
 local min_year = 2011
-local max_year = 2023  
+if "$min_sim_year" != "" local min_year = $min_sim_year
+local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' { 
 
@@ -584,7 +609,10 @@ append using "$dir_data/temp_valid_stats.dta"
 
 qui sum year
 local min_year = 2011
-local max_year = 2023  
+if "$min_sim_year" != "" local min_year = $min_sim_year
+local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' {
 	
@@ -644,7 +672,10 @@ keep if inrange(demAge,16,75)
 * Prepare info needed for dynamic y axis labels 
 qui sum year
 local min_year = 2011
-local max_year = 2023  
+if "$min_sim_year" != "" local min_year = $min_sim_year
+local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' { 
 
@@ -676,7 +707,10 @@ append using "$dir_data/temp_valid_stats.dta"
 
 qui sum year
 local min_year = 2011
-local max_year = 2023  
+if "$min_sim_year" != "" local min_year = $min_sim_year
+local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' {
 	
@@ -846,7 +880,6 @@ collapse (mean) sim_labHrsWorkWeek ///
 		 (sd) sim_labHrsWorkWeek_sd = sim_labHrsWorkWeek ///
 		 , by(year)
 
-* Approx 95% confidence interval 	 
 foreach varname in sim_labHrsWorkWeek {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -925,7 +958,6 @@ collapse (mean) sim_labHrsWorkWeek ///
 		 (sd) sim_labHrsWorkWeek_sd = sim_labHrsWorkWeek ///
 		 , by(year)
 		 
-* Approx 95% confidence interval		 
 foreach varname in sim_labHrsWorkWeek {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -999,7 +1031,6 @@ collapse (mean) sim_labHrsWorkWeek ///
 		 (sd) sim_labHrsWorkWeek_sd = sim_labHrsWorkWeek ///
 		 , by(year)
 		 
-* Approx 95% confidnece interval 		 
 foreach varname in sim_labHrsWorkWeek {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -1051,7 +1082,9 @@ keep if inrange(demAge,16,65)
 * Prepare info needed for dynamic y axis labels 
 qui sum year
 local min_year = 2019
-local max_year = r(max)  
+local max_year = r(max)
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' { 
 
@@ -1091,7 +1124,9 @@ append using "$dir_data/temp_valid_stats.dta"
 
 qui sum year
 local min_year = 2019
-local max_year = r(max)  
+local max_year = r(max)
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' {
 	
@@ -1150,7 +1185,9 @@ keep if inrange(demAge,16,65)
 * Prepare info needed for dynamic y axis labels 
 qui sum year
 local min_year = 2019
-local max_year = r(max)  
+local max_year = r(max)
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' { 
 
@@ -1191,7 +1228,9 @@ append using "$dir_data/temp_valid_stats.dta"
 * Plot by year 
 qui sum year
 local min_year = 2019
-local max_year = r(max)  
+local max_year = r(max)
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' {
 	
@@ -1247,7 +1286,9 @@ keep if inrange(demAge,16,65)
 * Prepare info needed for dynamic y axis labels 
 qui sum year
 local min_year = 2019
-local max_year = r(max)  
+local max_year = r(max)
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' { 
 
@@ -1287,7 +1328,9 @@ append using "$dir_data/temp_valid_stats.dta"
 
 qui sum year
 local min_year = 2019
-local max_year = r(max)  
+local max_year = r(max)
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' {
 	
@@ -1530,7 +1573,6 @@ collapse (mean) sim_labHrsWorkWeek ///
 		 (sd) sim_labHrsWorkWeek_sd = sim_labHrsWorkWeek ///
 		 , by(year)
 
-* Approx 95% confidence interval 	 
 foreach varname in sim_labHrsWorkWeek {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -1612,7 +1654,6 @@ collapse (mean) sim_labHrsWorkWeek ///
 		 (sd) sim_labHrsWorkWeek_sd = sim_labHrsWorkWeek ///
 		 , by(year)
 		 
-* Approx 95% confidence interval		 
 foreach varname in sim_labHrsWorkWeek {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -1690,7 +1731,6 @@ collapse (mean) sim_labHrsWorkWeek ///
 		 (sd) sim_labHrsWorkWeek_sd = sim_labHrsWorkWeek ///
 		 , by(year)
 		 
-* Approx 95% confidnece interval 		 
 foreach varname in sim_labHrsWorkWeek {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -1742,7 +1782,9 @@ keep if inrange(demAge,16,65)
 * Prepare info needed for dynamic y axis labels 
 qui sum year
 local min_year = 2019
-local max_year = r(max)  
+local max_year = r(max)
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' { 
 
@@ -1784,7 +1826,9 @@ append using "$dir_data/temp_valid_stats.dta"
 
 qui sum year
 local min_year = 2019
-local max_year = r(max)  
+local max_year = r(max)
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' {
 	
@@ -1844,7 +1888,9 @@ keep if inrange(demAge,16,65)
 * Prepare info needed for dynamic y axis labels 
 qui sum year
 local min_year = 2019
-local max_year = r(max)  
+local max_year = r(max)
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' { 
 
@@ -1886,7 +1932,9 @@ append using "$dir_data/temp_valid_stats.dta"
 * Plot by year 
 qui sum year
 local min_year = 2019
-local max_year = r(max)  
+local max_year = r(max)
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' {
 	
@@ -1943,7 +1991,9 @@ keep if inrange(demAge,16,65)
 * Prepare info needed for dynamic y axis labels 
 qui sum year
 local min_year = 2019
-local max_year = r(max)  
+local max_year = r(max)
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' { 
 
@@ -1984,7 +2034,9 @@ append using "$dir_data/temp_valid_stats.dta"
 
 qui sum year
 local min_year = 2019
-local max_year = r(max)  
+local max_year = r(max)
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' {
 	

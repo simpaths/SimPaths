@@ -37,7 +37,7 @@ global seedAdjust = 0
 *********************************************************************/
 use "population_initial_fs_UK_$yearWealth", clear
 sort idperson
-drop total_wealth total_pensions housing_wealth mortgage_debt smp rnk mtc
+drop total_wealth total_pensions housing_wealth mortgage_debt unsecured_low_debt unsecured_high_debt contRateOPEe contRateOPEr contRatePP smp rnk mtc
 
 
 /**********************************************************************
@@ -207,6 +207,22 @@ drop if (bu_rp==0)
 *keep if (year==$yearWealth)
 keep if (year>=$yearWealth-1 & year<=$yearWealth+1)
 
+capture confirm variable unsec_debt_total
+if _rc {
+	di as error "was_wealthdata.dta must include unsec_debt_total for initial unsecured debt stocks"
+	exit 111
+}
+capture confirm variable highcost_debt_proxy
+if _rc {
+	di as error "was_wealthdata.dta must include highcost_debt_proxy for initial unsecured debt stocks"
+	exit 111
+}
+recode unsec_debt_total highcost_debt_proxy (missing=0)
+gen unsec_high = highcost_debt_proxy
+replace unsec_high = 0 if (unsec_high<0 | unsec_high>=.)
+gen unsec_low = lowcost_debt
+replace unsec_low = 0 if (unsec_low<0 | unsec_low>=.)
+
 * limit sample
 gen chk = 0
 sort bu
@@ -295,6 +311,10 @@ gen wealthi = -9
 gen tot_peni = -9
 gen housingi = -9
 gen mortgagei = -9
+gen unsec_lowi = -9
+gen unsec_highi = -9
+gen op_membui = -9
+gen pp_membui = -9
 qui {
 	sum treat, mean
 	local nn = r(mean) * r(N)
@@ -370,12 +390,20 @@ forval kk = 1/`nn' {
 			local pw = tot_pen[1]
 			local hw = dvhvalue[1]
 			local mm = main_mort[1]
+			local ul = unsec_low[1]
+			local uh = unsec_high[1]
+			local op = op_membu[1]
+			local pp = pp_membu[1]
 			restore
 			replace mtc=`mtc' if (_n==`kk')
 			replace wealthi = `ww' if (_n==`kk')
 			replace tot_peni = `pw' if (_n==`kk')
 			replace housingi = `hw' if (_n==`kk')
 			replace mortgagei = `mm' if (_n==`kk')
+			replace unsec_lowi = `ul' if (_n==`kk')
+			replace unsec_highi = `uh' if (_n==`kk')
+			replace op_membui = `op' if (_n==`kk')
+			replace pp_membui = `pp' if (_n==`kk')
 		}
 		replace rnk=`rnk' if (_n==`kk')
 		drop chk
@@ -394,18 +422,42 @@ recode wealthi (mis=0)
 recode tot_peni (mis=0)
 recode housingi (mis=0)
 recode mortgagei (mis=0)
+recode unsec_lowi (mis=0)
+recode unsec_highi (mis=0)
+recode op_membui (mis=0)
+recode pp_membui (mis=0)
 by bu: egen total_wealth = sum(wealthi)
 by bu: egen total_pensions = sum(tot_peni)
 by bu: egen housing_wealth = sum(housingi)
 by bu: egen mortgage_debt = sum(mortgagei)
+by bu: egen unsecured_low_debt = sum(unsec_lowi)
+by bu: egen unsecured_high_debt = sum(unsec_highi)
+drop op_membu pp_membu
+by bu: egen op_membu = sum(op_membui)
+by bu: egen pp_membu = sum(pp_membui)
+gen contRateOPEe = 0
+replace contRateOPEe = 0.05 if ((treat & op_membu==1) | (op_membu==2 & (dag>17)))
+gen contRateOPEr = contRateOPEe
+gen contRatePP = 0
+replace contRatePP = 0.05 if ((treat & pp_membu==1) | (pp_membu==2 & (dag>17)))
+
 recode total_wealth (-9=0)
 recode total_pensions (-9=0)
 recode housing_wealth (-9=0)
 recode mortgage_debt (-9=0)
+recode unsecured_low_debt (-9=0)
+recode unsecured_high_debt (-9=0)
+recode op_membu (-9=0)
+recode pp_membu (-9=0)
 label var total_wealth "total wealth net of liabilities of benefit unit including housing, business and private (personal and occupational) pensions"
 label var total_pensions "value of all private (personal and occupational) pensions of benefit unit"
 label var housing_wealth "value of main home gross of mortgage debt of benefit unit"
 label var mortgage_debt "total mortgage debt owed on main home of benefit unit"
+label var unsecured_low_debt "low-cost unsecured debt of benefit unit"
+label var unsecured_high_debt "high-cost unsecured debt of benefit unit"
+label var contRateOPEe "Employee contribution rate to occupational pension"
+label var contRateOPEr "Employer contribution rate to occupational pension"
+label var contRatePP "Employee contribution rate to personal pension"
 save ukhls_wealthtemp3, replace
 
 /*
@@ -427,7 +479,8 @@ sum total_wealth [fweight=dwt2], detail
 use ukhls_wealthtemp3, clear
 drop dvage17 year gor gor2 sex nk na dhe2 dhesp2 grad gradsp emp empsp inci inc nk04i nk04 idnk04 dhe2grad dhe2ngrad ///
 dlltsdgrad dlltsdngrad empage single_woman single_man couple single ee ee2 was bu couple_ref pct dwt2 treat case person_id ///
-p_healths dlltsdsp healths wealth bu_rp tt dhe3 dhe4 dvage07 nk2 nk3 gor3 gor4 pct2 wealthi tot_peni housingi mortgagei
+p_healths dlltsdsp healths wealth bu_rp tt dhe3 dhe4 dvage07 nk2 nk3 gor3 gor4 pct2 ///
+wealthi tot_peni housingi mortgagei unsec_low unsec_high unsec_lowi unsec_highi
 recode rnk smp mtc (missing = -9)
 label var rnk "matching level: 1 = most fine, 2, 3 = most coarse, 4=no match"
 label var smp "matching sample - number of matched candidates to choose from"

@@ -5,14 +5,15 @@
 * AUTHORS:			Ashley Burdett
 * LAST UPDATE:		Feb 2026
 * COUNTRY: 			UK  
-* DESCRIPTION:      This file creates variables from the simulated data
-* 					that are used to generate in the comparison plots. 
+* DESCRIPTION: 		Constructs validation variables from the simulated panel:
+* 					demographics (gender, age bands, partnership, children),
+* 					education, health, labour market (activity status, hours,
+* 					wages), income (IHS-transformed amounts converted to
+* 					annual levels), and social care. Saves the result to
+* 					simulation_sample.dta.
 ********************************************************************************
 * NOTES: 			Income amounts are converted from IHS to levels and from 
 * 					monthly to annual. 
-* 					Two datasets are saved, one containing all observations 
-* 					(..._full) and one containing only the adult population 
-* 					(18-65 inc).
 *******************************************************************************/
 
 * Generate/Tidy required variables

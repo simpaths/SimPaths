@@ -206,7 +206,7 @@ public class ManagerFileGrids {
                 "married", "gender", "consumptionshare", "employment1", "employment2", "valuefunction"};
         try {
             BufferedWriter writer = Files.newBufferedWriter(Paths.get(filePath));
-            CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setHeader(HEADERS).build();
+            var csvFormat = CSVFormat.DEFAULT.builder().setHeader(HEADERS).get();
             CSVPrinter printer = new CSVPrinter(writer, csvFormat);
 
             for (WriteGridsBean bean : beans) {

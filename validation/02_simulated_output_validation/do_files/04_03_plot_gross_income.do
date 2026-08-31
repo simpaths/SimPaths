@@ -2,11 +2,20 @@
 * PROJECT:  		SimPaths UK 
 * SECTION:			Validation
 * OBJECT: 			Gross income
-* AUTHORS:			Ashley Burdett 
-* LAST UPDATE:		Jan 2026
-* COUNTRY: 			UK 
+* AUTHORS:			Ashley Burdett
+* LAST UPDATE:		Aug 2026
+* COUNTRY: 			UK
+* DESCRIPTION: 		Plots validation graphs comparing simulated vs. UKHLS gross
+* 					income (sum of capital, private pension, and employment
+* 					income; 2015 prices; top/bottom percentiles trimmed).
+* 					Section 1: time-series means (benefit-unit and individual
+* 					level, by gender). Section 2: histograms of the 
+* 					cross-sectional distribution by year and income category. 
+* 					Unlike 04_01/04_02, plots here are standalone (no reusable 
+* 					program define blocks).
 ********************************************************************************
-* NOTES: 			
+* NOTES: 			Amounts throughout are in 2015 prices, with top/bottom
+* 					percentiles trimmed.
 ********************************************************************************
 
 ********************************************************************************
@@ -93,7 +102,7 @@ twoway ///
 	xlabel(,labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: Series represents average benefit unit gross income through time. Gross income is the sum of captial income, private" "pension income and employment income. One observation per benefit unit plotted. Amounts in 2015 prices. Top and" "bottom percentiles trimmed.", ///
+	note("Notes: Series represents average benefit unit gross income through time. Gross income is the sum of capital income, private" "pension income and employment income. One observation per benefit unit plotted. Amounts in 2015 prices. Top and" "bottom percentiles trimmed. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))
 
 graph export ///
@@ -174,7 +183,7 @@ twoway ///
 	xlabel(,labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: Series represents average individual gross income through time. Gross income is the sum of captial income, private pension" "income and employment income. Values in 2015 prices. Top and bottom percentiles trimmed.", ///
+	note("Notes: Series represents average individual gross income through time. Gross income is the sum of capital income, private pension" "income and employment income. Values in 2015 prices. Top and bottom percentiles trimmed." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))
 		
 graph export ///
@@ -255,7 +264,7 @@ twoway ///
 	xlabel(,labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: Series represents average individual gross income through time. Gross income is the sum of captial income, private pension" "income and employment income. Values in 2015 prices. Top and bottom percentiles trimmed.", ///
+	note("Notes: Series represents average individual gross income through time. Gross income is the sum of capital income, private pension" "income and employment income. Values in 2015 prices. Top and bottom percentiles trimmed." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))
 		
 graph export ///
@@ -336,7 +345,7 @@ twoway ///
 	xlabel(,labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: Series represents average individual gross through time. Gross income is the sum of captial income, private pension" "income and employment income. Values in 2015 prices. Top and bottom percentiles trimmed.", ///
+	note("Notes: Series represents average individual gross income through time. Gross income is the sum of capital income, private pension" "income and employment income. Values in 2015 prices. Top and bottom percentiles trimmed." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))
 		
 graph export ///
@@ -375,7 +384,10 @@ if "$trim_outliers" == "true" {
 * Prepare info needed for dynamic y axis labels 
 qui sum year
 local min_year = 2011
+if "$min_sim_year" != "" local min_year = $min_sim_year
 local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' {
 
@@ -426,8 +438,11 @@ append using "$dir_data/temp_valid_stats.dta"
 
 * Plot sub-figures 
 qui sum year
-local min_year = 2011  
-local max_year = 2023 
+local min_year = 2011
+if "$min_sim_year" != "" local min_year = $min_sim_year
+local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 //local year = 2010
 
@@ -443,9 +458,15 @@ forval year = `min_year'/`max_year' {
 	gen max_value = max_d_valid_`year' if max_d_valid_`year' > max_d_sim 
 	replace max_value = max_d_sim if max_value == . 
 
-	sum max_value 
-	local max_y = 1.25*r(max)
-	local steps = `max_y'/3	
+	quietly sum max_value, meanonly
+	if (r(N) == 0 | missing(r(max)) | r(max) <= 0) {
+		local max_y = 1
+		local steps = 0.3333333
+	}
+	else {
+		local max_y = 1.25*r(max)
+		local steps = `max_y'/3
+	}
 
 	
 	twoway (hist sim_yGrossBuLevelYear if year == `year', width(2500) ///
@@ -476,9 +497,15 @@ forval year = `min_year'/`max_year' {
 			max_d_valid_`year'_`ls' > max_d_sim 
 		replace max_value = max_d_sim if max_value == . 
 
-		sum max_value 
-		local max_y = 1.25*r(max)
-		local steps = `max_y'/3	
+		quietly sum max_value, meanonly
+		if (r(N) == 0 | missing(r(max)) | r(max) <= 0) {
+			local max_y = 1
+			local steps = 0.3333333
+		}
+		else {
+			local max_y = 1.25*r(max)
+			local steps = `max_y'/3
+		}
 	
 		* Plot by weekly hours work
 		twoway (hist sim_yGrossBuLevelYear if year == `year' & ///
@@ -504,7 +531,10 @@ forval year = `min_year'/`max_year' {
 * Combine plots by year 
 qui sum year
 local min_year = 2011
-local max_year = 2023 
+if "$min_sim_year" != "" local min_year = $min_sim_year
+local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forvalues year = `min_year'/`max_year' {
 	
@@ -573,7 +603,9 @@ if "$trim_outliers" == "true" {
 * Prepare info needed for dynamic y axis labels 
 qui sum year
 local min_year = 2011   
-local max_year = r(max) 
+local max_year = r(max)
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' { 
 
@@ -629,7 +661,10 @@ append using "$dir_data/temp_valid_stats.dta"
 * Plot sub-figures 
 qui sum year
 local min_year = 2011
+if "$min_sim_year" != "" local min_year = $min_sim_year
 local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year =  `min_year'/`max_year' { 
 
@@ -643,9 +678,15 @@ forval year =  `min_year'/`max_year' {
 	gen max_value = max_d_valid_`year' if max_d_valid_`year' > max_d_sim 
 	replace max_value = max_d_sim if max_value == . 
 
-	sum max_value 
-	local max_y = 1.25*r(max)
-	local steps = `max_y'/3	
+	quietly sum max_value, meanonly
+	if (r(N) == 0 | missing(r(max)) | r(max) <= 0) {
+		local max_y = 1
+		local steps = 0.3333333
+	}
+	else {
+		local max_y = 1.25*r(max)
+		local steps = `max_y'/3
+	}
 	
 	* Plot all hours
 	twoway (hist sim_yGrossBuLevelYear if year == `year', width(2500) ///
@@ -676,9 +717,15 @@ forval year =  `min_year'/`max_year' {
 			max_d_valid_`year'_`ls' > max_d_sim 
 		replace max_value = max_d_sim if max_value == . 
 
-		sum max_value 
-		local max_y = 1.25*r(max)
-		local steps = `max_y'/3	
+		quietly sum max_value, meanonly
+		if (r(N) == 0 | missing(r(max)) | r(max) <= 0) {
+			local max_y = 1
+			local steps = 0.3333333
+		}
+		else {
+			local max_y = 1.25*r(max)
+			local steps = `max_y'/3
+		}
 		
 		* Plot by weekly hours work
 		twoway (hist sim_yGrossBuLevelYear if year == `year' & ///
@@ -703,8 +750,11 @@ forval year =  `min_year'/`max_year' {
 
 * Combine plots by year 
 qui sum year
-local min_year = 2011   
-local max_year = 2023 
+local min_year = 2011
+if "$min_sim_year" != "" local min_year = $min_sim_year
+local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forvalues year = `min_year'/`max_year' {
 	
@@ -770,7 +820,10 @@ if "$trim_outliers" == "true" {
 * Prepare info needed for dynamic y axis labels 
 qui sum year
 local min_year = 2011
-local max_year = 2023 
+if "$min_sim_year" != "" local min_year = $min_sim_year
+local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' { 
 
@@ -826,7 +879,10 @@ append using "$dir_data/temp_valid_stats.dta"
 * Plot sub-figures 
 qui sum year
 local min_year = 2011
-local max_year = 2023 
+if "$min_sim_year" != "" local min_year = $min_sim_year
+local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' { 
 
@@ -901,8 +957,11 @@ forval year = `min_year'/`max_year' {
 
 * Combine plots by year 
 qui sum year
-local min_year = 2011  
-local max_year = 2023 
+local min_year = 2011
+if "$min_sim_year" != "" local min_year = $min_sim_year
+local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forvalues year = `min_year'/`max_year' {
 	

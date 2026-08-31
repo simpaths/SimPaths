@@ -1,12 +1,20 @@
 ********************************************************************************
-* PROJECT:  		SimPath UK 
+* PROJECT:  		SimPaths UK
 * SECTION:			Validation
 * OBJECT: 			Inequality
-* AUTHORS:			Ashley Burdett 
-* LAST UPDATE:		9/2025 (AB)
-* COUNTRY: 			UK 
+* AUTHORS:			Ashley Burdett
+* LAST UPDATE:		Aug 2026
+* COUNTRY: 			UK
+* DESCRIPTION: 		Plots validation graphs comparing simulated vs. UKHLS
+* 					inequality in equivalised disposable income, ages 18-65:
+* 					P90/P50 ratio (1.1), P90/P10 ratio (1.2), Gini
+* 					coefficient (1.3, via ineqdeco), and net transfers
+* 					(1.4). Time-series plots use a shaded band (mean
+* 					+/- 1.96*SD across $max_n_runs runs).
+* 					REQUIRES: community-contributed ineqdeco (ssc install
+* 					ineqdeco) for the Gini calculation.
 ********************************************************************************
-* NOTES: 			Equivalized disposable income used to created ratios 
+* NOTES: 			Equivalised disposable income used throughout.
 ********************************************************************************
 
 //ssc install ineqdeco
@@ -85,7 +93,8 @@ merge 1:1 year using "$dir_data/temp_valid_stats.dta", keep(3) nogen
 * Plot figure
 twoway (rarea p90_p50_ratio_disp_high p90_p50_ratio_disp_low year, sort ///
 	color(green%20) legend(label(1 "SimPaths") position(6) rows(1))) ///
-(line p90_p50_ratio_disp_obs year, sort color(green)legend(label(2 "UKHLS"))), ///
+(line p90_p50_ratio_disp_obs year, sort ///
+	color(green)legend(label(2 "UKHLS"))), ///
 	title("P90/P50 Disposable Income Ratio") ///
 	subtitle("Ages 18-65") ///
 	xtitle("Year", size(small)) ///
@@ -94,16 +103,17 @@ twoway (rarea p90_p50_ratio_disp_high p90_p50_ratio_disp_low year, sort ///
 	ylabel(, labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: Ratios computed using individual observations of benefit unit measure of equivalized disposable income.", ///
+	note("Notes: Ratios computed using individual observations of benefit unit measure of equivalized disposable income." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall)) 
 
 * Save figure
-graph export "$dir_output_files/inequality/validation_${country}_p90p50.jpg", ///
+graph export ///
+	"$dir_output_files/inequality/validation_${country}_p90p50.jpg", ///
 	replace width(2400) height(1350) quality(100)	
 	
 	
 ********************************************************************************
-* 1.1 : Income ratio, 90/10
+* 1.2 : Income ratio, 90/10
 ********************************************************************************
 
 * Prepare validation data
@@ -172,7 +182,8 @@ merge 1:1 year using "$dir_data/temp_valid_stats.dta", keep(3) nogen
 * Plot figure
 twoway (rarea p90_p10_ratio_disp_high p90_p10_ratio_disp_low year, sort ///
 	color(green%20) legend(label(1 "SimPaths") position(6) rows(1))) ///
-(line p90_p10_ratio_disp_obs year, sort color(green)legend(label(2 "UKHLS"))), ///
+(line p90_p10_ratio_disp_obs year, sort ///
+	color(green)legend(label(2 "UKHLS"))), ///
 	title("P90/P10 Disposable Income Ratio") ///
 	subtitle("Ages 18-65") ///
 	xtitle("Year", size(small)) ///
@@ -181,16 +192,17 @@ twoway (rarea p90_p10_ratio_disp_high p90_p10_ratio_disp_low year, sort ///
 	ylabel(, labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: Ratios computed using individual observations of benefit unit measure of equivalized disposable income.", ///
+	note("Notes: Ratios computed using individual observations of benefit unit measure of equivalized disposable income." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall)) 
 	
 * Save figure
-graph export "$dir_output_files/inequality/validation_${country}_p90p10.jpg", ///
+graph export ///
+	"$dir_output_files/inequality/validation_${country}_p90p10.jpg", ///
 	replace width(2400) height(1350) quality(100)
 	
 
 ********************************************************************************
-* 1.3 : Gini coefficeint 
+* 1.3 : Gini coefficient
 ********************************************************************************	
 	
 * Prepare validation data
@@ -209,7 +221,7 @@ if "$trim_outliers" == "true" {
 
 }
 
-* Calulate gini for each year 	
+* Calculate gini for each year 	
 statsby gini = r(gini), by(year) clear: ineqdeco valid_yDispBuEquivYear [aw=dwt]	
 	
 save "$dir_data/temp_valid_stats.dta", replace
@@ -238,7 +250,6 @@ statsby gini = r(gini), by(year run) clear: ineqdeco sim_yDispEquivYear
 collapse (mean) gini ///
 	(sd) gini_sd = gini, by(year)
 	
-* Compute the 95% confidence interval 
 gen gini_high = gini + 1.96 * gini_sd
 gen gini_low  = gini - 1.96 * gini_sd
 
@@ -256,7 +267,7 @@ twoway (rarea gini_high gini_low year, sort ///
 	ylabel(, labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: Gini coefficient computed using individual observations of benefit unit measure of equivalized disposable income.", ///
+	note("Notes: Gini coefficient computed using individual observations of benefit unit measure of equivalized disposable income." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall)) 
 	
 * Save figure
@@ -424,7 +435,7 @@ grc1leg2 simulated_net_trans_all valid_net_trans_all, ///
 	size(vsmall)) 
 	
 graph export ///
-	"$dir_output_files/inequality/validation_${country}_net_transfers_all.png", ///
+"$dir_output_files/inequality/validation_${country}_net_transfers_all.png", ///
 	replace width(2400) height(1350) 	
 		
 		
@@ -437,7 +448,7 @@ grc1leg2 simulated_net_trans_upto65 valid_net_trans_upto65 , ///
 	size(vsmall)) 
 	
 graph export ///
-	"$dir_output_files/inequality/validation_${country}_net_transfers_upto65.png", ///
+"$dir_output_files/inequality/validation_${country}_net_transfers_upto65.png", ///
 	replace width(2400) height(1350) 	
 		
 		
@@ -450,7 +461,7 @@ grc1leg2 simulated_net_trans_66plus valid_net_trans_66plus , ///
 	size(vsmall)) 
 	
 graph export ///
-	"$dir_output_files/inequality/validation_${country}_net_transfers_66plus.png", ///
+"$dir_output_files/inequality/validation_${country}_net_transfers_66plus.png", ///
 		replace width(2400) height(1350) 			
 	
 graph drop _all 	

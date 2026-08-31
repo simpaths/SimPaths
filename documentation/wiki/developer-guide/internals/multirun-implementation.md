@@ -8,8 +8,7 @@
 
 ### Prerequisites
 
-- Java 19
-- Maven 3.8+
+- a [working environment](../../getting-started/environment-setup.md)
 - Optional IDE: IntelliJ IDEA (import as a Maven project)
 
 ### Build and run

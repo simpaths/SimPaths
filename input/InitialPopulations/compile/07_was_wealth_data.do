@@ -7,11 +7,12 @@
 * DATA:         	    UKHLS EUL version - UKDA-6614-stata [to wave o]
 *                       WAS EUL version - UKDA-7215-stata [to wave 7]
 * AUTHORS: 				Liang Shi (LS), Justin van de Ven (JV), Daria Popova (DP)
-* LAST UPDATE:          06/02/2026 (LS)
+* LAST UPDATE:          22/07/2026 (JV)
 * NOTE:					Called from 00_master.do - see master file for further details
 *
 *	File currently compiles data to merge from 2016
-*	This could be extended to at least 2011 and up to round 8 
+*	This could be extended to at least 2011
+*   Builds synthetic longitudinal ID: was_pid
 *
 *	Approach involves identifying total net wealth (wealth), 
 *	total private pension wealth (personal and occupational), gross 
@@ -32,6 +33,7 @@
 		WAVE 5: 2014 (7385), 2015  (9480), 2016 (2173)
 		WAVE 6: 2016 (6884), 2017  (8970), 2018 (2175)
 		WAVE 7: 2018 (6855), 2019  (8756), 2020 (1923)
+		WAVE 8: 2020 (7634), 2021 (6362),  2022 (1132)
 
 		LS: In the parentheses are numbers of households involved in WAS waves
         To obtain such statistics (for example wave 5), use:
@@ -52,8 +54,6 @@ log using "${dir_log}/07_was_wealth_data.log", replace
 /**************************************************************/
 cd "${dir_data}"
 disp "analysing WAS wealth data"
-clear all
-set maxvar 10000
 
 
 /**************************************************************/
@@ -62,9 +62,10 @@ set maxvar 10000
 *
 /**************************************************************/
 local ww = 5
-foreach file in "$dir_was_data\was_round_5_hhold_eul_feb_20.dta" ///
-				"$dir_was_data\was_round_6_hhold_eul_april_2022.dta" ///
-				"$dir_was_data\was_round_7_hhold_eul_march_2022.dta" {
+foreach file in "${dir_was_data}/was_round_5_hhold_eul_feb_20.dta" ///
+				"${dir_was_data}/was_round_6_hhold_eul_april_2022.dta" ///
+				"${dir_was_data}/was_round_7_hhold_eul_march_2022.dta" ///
+				"${dir_was_data}/was_round_8_hhold_eul_may_2025_230525.dta" {
 	
 	use "`file'", clear
 	rename *, l
@@ -116,7 +117,7 @@ foreach file in "$dir_was_data\was_round_5_hhold_eul_feb_20.dta" ///
 	keep case year dvhvalue main_mort flat room house_d house_s house_t accm_o accm_m accm_r accm_f hrp_manager hrp_intermediate
 	
 	sort case
-	save "$dir_data\was_temp_hh`ww'.dta", replace
+	save "${dir_data}/was_temp_hh`ww'.dta", replace
 	local ww = `ww' + 1
 }
 
@@ -128,9 +129,10 @@ foreach file in "$dir_was_data\was_round_5_hhold_eul_feb_20.dta" ///
 /**************************************************************/
 local ww = 5
 local ww0 = 5
-foreach file in "$dir_was_data\was_round_5_person_eul_oct_2020.dta" ///
-				"$dir_was_data\was_round_6_person_eul_april_2022.dta" ///
-				"$dir_was_data\was_round_7_person_eul_june_2022.dta" {
+foreach file in "${dir_was_data}/was_round_5_person_eul_oct_2020.dta" ///
+				"${dir_was_data}/was_round_6_person_eul_april_2022.dta" ///
+				"${dir_was_data}/was_round_7_person_eul_june_2022.dta" ///
+				"${dir_was_data}/was_round_8_person_eul_may_2025_230525.dta" {
 
 	disp "compiling WAS wealth data for wave `ww'"
 	qui {
@@ -139,50 +141,125 @@ foreach file in "$dir_was_data\was_round_5_person_eul_oct_2020.dta" ///
 		rename *, l
 		
 		if (`ww' < 6) {
-			keep caser`ww' personw`ww' partnow`ww' dvage17r`ww' hasdepw`ww' dvgiser`ww' dvgippenr`ww' dvgiinvr`ww' dvoigrrannualr`ww'_i dvoiggtannualr`ww'_i dvoigegannualr`ww'_i ///
-				dvoigfrannualr`ww'_i dvoigmaannualr`ww'_i dvoigroannualr`ww'_i dvoigopannualr`ww'_i dvmrdfr`ww' isdepw`ww' p_flag4w`ww' r`ww'xshhwgt ///
-				btype1w`ww' qhealth1w`ww' lsillw`ww' dvisavalr`ww'_sum edlevelr`ww' enrollw`ww' coursew`ww' dvgiempr`ww' dvgiser`ww' statr`ww' ftptwkw`ww' dvecactr`ww' ///
-				pemoffw`ww' pemelgw`ww' pemmemw`ww' poctyp1w`ww' poctyp2w`ww' dvbenefitannualr`ww'_i dvgippenr`ww' dvgiinvr`ww' bval* dvhsevalr`ww' dvhsedebtr`ww' ///
-				dvbldvalr`ww' dvblddebtr`ww' dvlukvalr`ww' dvlukdebtr`ww' dvlosvalr`ww' dvlosdebtr`ww' dvoprvalr`ww' dvoprdebtr`ww' dvffassetsr`ww' dvfinfvalr`ww' ///
-				dvvaldcosr`ww' dvpavcuvr`ww' dvpfcurvalr`ww' dvppvalr`ww' dvpfddvr`ww' dvspenr`ww' dvpinpvalr`ww' pincinpr`ww' totccr`ww'_sum dvffassetsr`ww' dvfinfvalr`ww' tothpr`ww' ///
-				tot_losr`ww' totmor`ww' dvvaldbtr`ww' dvdbrwealthvalr`ww' gorr`ww' sexr`ww'
+			keep caser`ww' personw`ww' partnow`ww' dvage17r`ww' hasdepw`ww' dvgiser`ww' dvgippenr`ww' dvgiinvr`ww' dvoigrrannualr`ww'_i ///
+				dvoiggtannualr`ww'_i dvoigegannualr`ww'_i dvoigfrannualr`ww'_i dvoigmaannualr`ww'_i dvoigroannualr`ww'_i dvoigopannualr`ww'_i ///
+				dvmrdfr`ww' isdepw`ww' p_flag4w`ww' r`ww'xshhwgt btype1w`ww' qhealth1w`ww' lsillw`ww' dvisavalr`ww'_sum edlevelr`ww' ///
+				enrollw`ww' coursew`ww' dvgiempr`ww' dvgiser`ww' statr`ww' ftptwkw`ww' dvecactr`ww' pprgam1w`ww' pprgam2w`ww' pprgam3w`ww' ///
+				pprgpe1w`ww' pprgpe2w`ww' pprgpe3w`ww' pplsta1w`ww' pplsta2w`ww' pplsta3w`ww' pplstp1w`ww' pplstp2w`ww' pplstp3w`ww' ///
+				pocnfr1w`ww' pocnfr2w`ww' pemoffw`ww' pemelgw`ww' pemmemw`ww' poctyp1w`ww' poctyp2w`ww' dvbenefitannualr`ww'_i dvgippenr`ww' ///
+				dvgiinvr`ww' bval* dvhsevalr`ww' dvhsedebtr`ww' dvbldvalr`ww' dvblddebtr`ww' dvlukvalr`ww' dvlukdebtr`ww' dvlosvalr`ww' ///
+				dvlosdebtr`ww' dvoprvalr`ww' dvoprdebtr`ww' dvffassetsr`ww'_sum dvfinfvalr`ww' dvvaldcosr`ww' dvpavcuvr`ww' dvpfcurvalr`ww' ///
+				dvppvalr`ww' dvpfddvr`ww' dvspenr`ww' dvpinpvalr`ww' pincinpr`ww' totccr`ww'_sum dvffassetsr`ww'_sum dvfinfvalr`ww' ///
+				tothpr`ww'_sum tot_losr`ww' tot_los_exc_slcr`ww' totmor`ww'_sum dvvaldbtr`ww' dvdbrwealthvalr`ww' gorr`ww' sexr`ww' ///
+				dltype*w`ww' dlint*w`ww' dnewltype*w`ww' dnewlowe*w`ww' lnos*r`ww' flns*r`ww'
 			rename totccr`ww'_sum totcscr`ww'_sum
+			rename dvffassetsr`ww'_sum dvffassetsr`ww'
 			recode partnow`ww' (missing=17)
 			recode partnow`ww' (-7=17)
 		}
 		else if (`ww' == 6) {
-			keep caser`ww' personw`ww' partnow`ww' dvage17r`ww' hasdepw`ww' dvgiser`ww' dvgippenr`ww' dvgiinvr`ww' dvoigrrannualr`ww'_i dvoiggtannualr`ww'_i dvoigegannualr`ww'_i ///
-				dvoigfrannualr`ww'_i dvoigmaannualr`ww'_i dvoigroannualr`ww'_i dvoigopannualr`ww'_i dvmrdfr`ww' isdepw`ww' p_flag4w`ww' r`ww'xshhwgt ///
-				btype1w`ww' qhealth1w`ww' lsillw`ww' dvisavalr`ww'_sum edlevelr`ww' enrollw`ww' coursew`ww' dvgiempr`ww' dvgiser`ww' statr`ww' ftptwkw`ww' dvecactr`ww' ///
-				pemoffw`ww' pemelgw`ww' pemmemw`ww' poctyp1w`ww' poctyp2w`ww' dvbenefitannualr`ww'_i dvgippenr`ww' dvgiinvr`ww' bval* dvhsevalr`ww' dvhsedebtr`ww' ///
-				dvbldvalr`ww' dvblddebtr`ww' dvlukvalr`ww' dvlukdebtr`ww' dvlosvalr`ww' dvlosdebtr`ww' dvoprvalr`ww' dvoprdebtr`ww' dvffassetsr`ww' dvfinfvalr`ww' ///
-				dvvaldcosr`ww' dvpavcuvr`ww' dvpfcurvalr`ww' dvppvalr`ww' dvpfddvr`ww' dvspenr`ww' dvpinpvalr`ww' pincinpr`ww' totcscr`ww'_sum dvffassetsr`ww' dvfinfvalr`ww' tothpr`ww' ///
-				tot_losr`ww' totmor`ww' dvvaldbtr`ww' dvdbrwealthvalr`ww' gorr`ww' sexr`ww'
+			keep caser`ww' personw`ww' caser5 personw5 partnow`ww' dvage17r`ww' hasdepw`ww' dvgiser`ww' dvgippenr`ww' dvgiinvr`ww' ///
+				dvoigrrannualr`ww'_i dvoiggtannualr`ww'_i dvoigegannualr`ww'_i dvoigfrannualr`ww'_i dvoigmaannualr`ww'_i ///
+				dvoigroannualr`ww'_i dvoigopannualr`ww'_i dvmrdfr`ww' isdepw`ww' p_flag4w`ww' r`ww'xshhwgt btype1w`ww' qhealth1w`ww' ///
+				lsillw`ww' dvisavalr`ww'_sum edlevelr`ww' enrollw`ww' coursew`ww' dvgiempr`ww' dvgiser`ww' statr`ww' ftptwkw`ww' ///
+				dvecactr`ww' pprgam1w`ww' pprgam2w`ww' pprgam3w`ww' pprgpe1w`ww' pprgpe2w`ww' pprgpe3w`ww' pplsta1w`ww' pplsta2w`ww' ///
+				pplsta3w`ww' pplstp1w`ww' pplstp2w`ww' pplstp3w`ww' pcontppw`ww' dvemeeamt1w`ww' dvemeeamt2w`ww' dvcontocc_emee_dc1r`ww' ///
+				dvcontocc_emee_dc2r`ww' pocnfr1w`ww' pocnfr2w`ww' pemoffw`ww' pemelgw`ww' pemmemw`ww' poctyp1w`ww' poctyp2w`ww' ///
+				dvbenefitannualr`ww'_i dvgippenr`ww' dvgiinvr`ww' bval* dvhsevalr`ww' dvhsedebtr`ww' dvbldvalr`ww' dvblddebtr`ww' ///
+				dvlukvalr`ww' dvlukdebtr`ww' dvlosvalr`ww' dvlosdebtr`ww' dvoprvalr`ww' dvoprdebtr`ww' dvffassetsr`ww'_sum dvfinfvalr`ww' ///
+				dvvaldcosr`ww' dvpavcuvr`ww' dvpfcurvalr`ww' dvppvalr`ww' dvpfddvr`ww' dvspenr`ww' dvpinpvalr`ww' pincinpr`ww' ///
+				totcscr`ww'_sum totcsc_transr`ww'_sum totcsc_persr`ww'_sum dvffassetsr`ww'_sum dvfinfvalr`ww' tothpr`ww'_sum tot_losr`ww' ///
+				tot_los_exc_slcr`ww' totmor`ww'_sum dvvaldbtr`ww' dvdbrwealthvalr`ww' gorr`ww' sexr`ww' dltype*w`ww' dlint*w`ww' ///
+				dnewltype*w`ww' dnewlowe*w`ww' lnos*r`ww' flns*r`ww'
+			rename dvffassetsr`ww'_sum dvffassetsr`ww'
 			recode partnow`ww' (missing=17)
 		}
-		else {
-			keep caser`ww' personr`ww' partnor`ww' dvage17r`ww' hasdepr`ww' dvgiser`ww' dvgippenr`ww' dvgiinvr`ww' dvoigrrannualr`ww'_i dvoiggtannualr`ww'_i dvoigegannualr`ww'_i ///
-				dvoigfrannualr`ww'_i dvoigmaannualr`ww'_i dvoigroannualr`ww'_i dvoigopannualr`ww'_i dvmrdfr`ww' isdepr`ww' p_flag4r`ww' r`ww'xshhwgt ///
-				btype1r`ww' qhealth1r`ww' lsillr`ww' dvisavalr`ww'_sum edlevelr`ww' enrollr`ww' courser`ww' dvgiempr`ww' dvgiser`ww' statr`ww' ftptwkr`ww' dvecactr`ww' ///
-				pemoffr`ww' pemelgr`ww' pemmemr`ww' poctyp1r`ww' poctyp2r`ww' dvbenefitannualr`ww'_i dvgippenr`ww' dvgiinvr`ww' bval* dvhsevalr`ww' dvhsedebtr`ww' ///
-				dvbldvalr`ww' dvblddebtr`ww' dvlukvalr`ww' dvlukdebtr`ww' dvlosvalr`ww' dvlosdebtr`ww' dvoprvalr`ww' dvoprdebtr`ww' dvffassetsr`ww'_sum dvfinfvalr`ww' ///
-				dvvaldcosr`ww' dvpavcuvr`ww' dvppvalr`ww' dvspenr`ww' dvpinpvalr`ww' pincinpr`ww' totcscr`ww'_sum dvfinfvalr`ww' tothpr`ww' tot_losr`ww' ///
-				totmor`ww' dvvaldbtr`ww' dvdbincallr`ww' gorr`ww' sexr`ww' dvretdc_noaccessr`ww' dvretdc_accessr`ww'
+		else if (`ww' == 7) {
+			keep caser`ww' personr`ww' caser6 personw6 caser5 personw5 partnor`ww' dvage17r`ww' hasdepr`ww' dvgiser`ww' dvgippenr`ww' ///
+				dvgiinvr`ww' dvoigrrannualr`ww'_i dvoiggtannualr`ww'_i dvoigegannualr`ww'_i dvoigfrannualr`ww'_i dvoigmaannualr`ww'_i ///
+				dvoigroannualr`ww'_i dvoigopannualr`ww'_i dvmrdfr`ww' isdepr`ww' p_flag4r`ww' r`ww'xshhwgt btype1r`ww' qhealth1r`ww' ///
+				lsillr`ww' dvisavalr`ww'_sum edlevelr`ww' enrollr`ww' courser`ww' dvgiempr`ww' dvgiser`ww' statr`ww' ftptwkr`ww' dvecactr`ww' ///
+				pcontppr`ww' pprgam1r`ww' pprgam2r`ww' pprgam3r`ww' pprgpe1r`ww' pprgpe2r`ww' pprgpe3r`ww' pplsta1r`ww' pplsta2r`ww' ///
+				pplsta3r`ww' pplstp1r`ww' pplstp2r`ww' pplstp3r`ww' dvemeeamt1r`ww' dvemeeamt2r`ww' dvcontocc_emee_dc1r`ww' ///
+				dvcontocc_emee_dc2r`ww' pocnfr1r`ww'_i pocnfr2r`ww'_i pemoffr`ww' pemelgr`ww' pemmemr`ww' poctyp1r`ww' poctyp2r`ww' ///
+				dvbenefitannualr`ww'_i dvgippenr`ww' dvgiinvr`ww' bval* dvhsevalr`ww' dvhsedebtr`ww' dvbldvalr`ww' dvblddebtr`ww' ///
+				dvlukvalr`ww' dvlukdebtr`ww' dvlosvalr`ww' dvlosdebtr`ww' dvoprvalr`ww' dvoprdebtr`ww' dvffassetsr`ww'_sum dvfinfvalr`ww' ///
+				dvvaldcosr`ww' dvpavcuvr`ww' dvppvalr`ww' dvspenr`ww' dvpinpvalr`ww' pincinpr`ww' totcscr`ww'_sum totcsc_transr`ww'_sum ///
+				totcsc_persr`ww'_sum dvfinfvalr`ww' tothpr`ww'_sum tot_losr`ww' tot_los_exc_slcr`ww' totmor`ww'_sum dvvaldbtr`ww' ///
+				dvdbincallr`ww' gorr`ww' sexr`ww' dvretdc_noaccessr`ww' dvretdc_accessr`ww' dltype*r`ww' dlint*r`ww' dnewltype*r`ww' ///
+				dnewlowe*r`ww' lnos*r`ww' flns*r`ww'
 			rename dvffassetsr`ww'_sum dvffassetsr`ww'
 			rename dvdbincallr`ww' dvdbrwealthvalr`ww'
 			gen dvpfcurvalr`ww' = dvretdc_accessr`ww' + dvretdc_noaccessr`ww'
 			gen dvpfddvr`ww' = 0
 			recode partnor`ww' (missing=17)
 		}
+		else { // for round/wave 8 and above
+			keep caser`ww' personr`ww' caser7 personr7 caser6 personw6 caser5 personw5 partnor`ww' dvage17r`ww' hasdepr`ww' dvgiser`ww' ///
+				dvgippenr`ww' dvgiinvr`ww' dvoigrrannualr`ww'_i dvoiggtannualr`ww'_i dvoigegannualr`ww'_i dvoigfrannualr`ww'_i ///
+				dvoigmaannualr`ww'_i dvoigroannualr`ww'_i dvoigopannualr`ww'_i dvmrdfr`ww' isdepr`ww' p_flag4r`ww' r`ww'xshhwgt ///
+				btype1r`ww' dvisavalr`ww'_sum edlevelr`ww' enrollr`ww' courser`ww' dvgiempr`ww' dvgiser`ww' statr`ww' ftptwkr`ww' dvecactr`ww' ///
+				pcontppr`ww' pprgam1r`ww' pprgam2r`ww' pprgam3r`ww' pprgpe1r`ww' pprgpe2r`ww' pprgpe3r`ww' pplsta1r`ww' pplsta2r`ww' ///
+				pplsta3r`ww' pplstp1r`ww' pplstp2r`ww' pplstp3r`ww' dvemeeamt1r`ww' dvemeeamt2r`ww' dvcontocc_emee_dc1r`ww' ///
+				dvcontocc_emee_dc2r`ww' pocnfr1r`ww'_i pocnfr2r`ww'_i pemoffr`ww' pemelgr`ww' pemmemr`ww' poctyp1r`ww' poctyp2r`ww' ///
+				dvbenefitannualr`ww'_i dvgippenr`ww' dvgiinvr`ww' bval* dvhsevalr`ww' dvhsedebtr`ww' dvbldvalr`ww' dvblddebtr`ww' ///
+				dvlukvalr`ww' dvlukdebtr`ww' dvlosvalr`ww' dvlosdebtr`ww' dvoprvalr`ww' dvoprdebtr`ww' dvffassetsr`ww'_sum dvfinfvalr`ww'_sum ///
+				dvvaldcosr`ww' dvpavcuvr`ww' dvppvalr`ww' dvspen_oldr`ww' dvpinpval_oldr`ww' pincinp_oldr`ww' totcscr`ww'_sum ///
+				totcsc_transr`ww'_sum totcsc_persr`ww'_sum tothpr`ww'_sum tot_losr`ww' tot_los_exc_slcr`ww' totmor`ww'_sum dvvaldbt_oldr`ww' ///
+				dvdbincallr`ww' gorr`ww' sexr`ww' dvretdc_noaccessr`ww' dvretdc_accessr`ww' dltype*r`ww' dlint*r`ww' dnewltype*r`ww' ///
+				dnewlowe*r`ww' lnos*r`ww' flns*r`ww'
+			rename dvffassetsr`ww'_sum dvffassetsr`ww'   // similar rename as round 7
+			rename dvfinfvalr`ww'_sum dvfinfvalr`ww'     
+			rename dvvaldbt_oldr`ww' dvvaldbtr`ww'       // Total value of defined benefit occupational scheme - Previous pension methodology
+			rename dvspen_oldr`ww' dvspenr`ww'           // Value of pensions expected from former spouse/partner - Previous pension methodology
+			rename dvpinpval_oldr`ww' dvpinpvalr`ww'
+			rename pincinp_oldr`ww' pincinpr`ww'
+			rename dvdbincallr`ww' dvdbrwealthvalr`ww'   // similar remane as round 7 
+			gen dvpfcurvalr`ww' = dvretdc_accessr`ww' + dvretdc_noaccessr`ww'
+			gen dvpfddvr`ww' = 0
+			// Round 8 person file has no direct counterpart to qhealth1r`ww' / lsillr`ww'.
+			gen qhealth1r`ww' = .        // removed 
+			gen lsillr`ww' = .           // 
+			recode partnor`ww' (missing=17)
+		}
 		if (`ww' < 7) {
 			rename *w`ww'* **
 		}
 		rename *r`ww'* **
+
+		// Standardise unsecured-debt stock variables across rounds.
+		// Round 5 has total card balances but not persistent/transient splits.
+		foreach uv in totcsc_trans_sum totcsc_pers_sum tot_los_exc_slc tothp_sum totmo_sum {
+			capture confirm variable `uv'
+			if _rc gen `uv' = .
+		}
+		foreach stem in dltype dlint dnewltype dnewlowe lnos flns {
+			forvalues ii = 1/9 {
+				capture confirm variable `stem'`ii'
+				if _rc gen `stem'`ii' = .
+			}
+		}
+
+		// Ensure linkage variables exist in all rounds (missing where unavailable)
+		foreach lv in caser5 caser6 caser7 personw5 personw6 personr7 {
+			capture confirm variable `lv'
+			if _rc gen `lv' = .
+		}
+
 		keep if (!missing(case) & !missing(person))
+		gen was_round = `ww'
+		label var was_round "WAS round number"
 			
 		// merge with household level data
 		sort case person
-		merge m:1 case using "$dir_data\was_temp_hh`ww'.dta", nogen sorted
+		merge m:1 case using "${dir_data}/was_temp_hh`ww'.dta", gen(merge_hh) sorted keep(master match)
+
+        * Expect every person-record case to have a matching household record
+        count if merge_hh == 1
+        assert r(N) == 0
+        tab merge_hh
+
+        drop merge_hh
 		
 		// ypnbihs
 		recode dvgiemp dvgise dvgippen dvgiinv dvoigrrannual_i dvoiggtannual_i dvoigegannual_i dvoigfrannual_i dvoigmaannual_i dvoigroannual_i dvoigopannual_i (missing=0)
@@ -222,6 +299,16 @@ foreach file in "$dir_was_data\was_round_5_person_eul_oct_2020.dta" ///
 		gsort case person                       /* allow for children of non-reference adults */
 		by case: replace bu=bu[_n-1] if (chld==1) & (bu==person_id)
 		label var bu "benefit unit number"
+		replace bu = person_id if missing(bu)
+		gen bu_rp = (person_id==bu)
+		label var bu_rp "benefit unit reference person"
+		bysort was_round case bu: egen n_rp = total(bu_rp==1)
+		bysort was_round case bu (person_id): replace bu_rp = 1 if n_rp==0 & _n==1
+		replace bu_rp = 0 if missing(bu_rp)
+		drop n_rp
+		bysort was_round case bu: egen n_rp = total(bu_rp==1)
+		assert n_rp==1
+		drop n_rp
 		gsort case bu
 		by case bu: egen hrp_bu = sum(hrp)
 
@@ -276,6 +363,79 @@ foreach file in "$dir_was_data\was_round_5_person_eul_oct_2020.dta" ///
 		replace earnings = earnings + dvgise if ((dvgise<.) & (dvgise>0))
 		label var earnings "gross earnings"
 
+		// private pension contributions: core (regular) and fallback (last contribution)
+		foreach vv in pprgam1 pprgam2 pprgam3 pprgpe1 pprgpe2 pprgpe3 pplsta1 pplsta2 pplsta3 pplstp1 pplstp2 pplstp3 pcontpp dvcontocc_emee_dc1 dvcontocc_emee_dc2 pocnfr1 pocnfr2 dvemeeamt1 dvemeeamt2 {
+			capture confirm variable `vv'
+			if _rc gen `vv' = .
+			capture replace `vv' = . if `vv' < 0
+		}
+
+		foreach jj in 1 2 3 {
+			gen pp_core_ann_`jj' = .
+			replace pp_core_ann_`jj' = pprgam`jj' * (52.0 / pprgpe`jj') if pprgam`jj'>=0 & inlist(pprgpe`jj',1,2,3,4,13,26,52)
+			replace pp_core_ann_`jj' = pprgam`jj' * 12 if pprgam`jj'>=0 & pprgpe`jj'==5
+			replace pp_core_ann_`jj' = pprgam`jj' * pprgpe`jj' if pprgam`jj'>=0 & inlist(pprgpe`jj',8,9,10)
+
+			gen pp_fallback_ann_`jj' = .
+			replace pp_fallback_ann_`jj' = pplsta`jj' * (52.0 / pplstp`jj') if pplsta`jj'>=0 & inlist(pplstp`jj',1,2,3,4,13,26,52)
+			replace pp_fallback_ann_`jj' = pplsta`jj' * 12 if pplsta`jj'>=0 & pplstp`jj'==5
+			replace pp_fallback_ann_`jj' = pplsta`jj' * pplstp`jj' if pplsta`jj'>=0 & inlist(pplstp`jj',8,9,10)
+		}
+
+		egen pp_core_annual = rowtotal(pp_core_ann_1 pp_core_ann_2 pp_core_ann_3)
+		egen pp_fallback_annual = rowtotal(pp_fallback_ann_1 pp_fallback_ann_2 pp_fallback_ann_3)
+		gen pp_contrib_annual = pp_core_annual
+		replace pp_contrib_annual = pp_fallback_annual if (missing(pp_contrib_annual) | pp_contrib_annual<=0) & pp_fallback_annual>0
+		replace pp_contrib_annual = 0 if missing(pp_contrib_annual)
+		gen chk = pp_contrib_annual * (earnings < 0.01)
+		gsort was_round bu
+		by was_round bu: egen chk2 = sum(chk)
+		by was_round bu: egen earn_max = max(earnings)
+		gen pp_reallocate = 0
+		replace pp_reallocate = chk2 if (earnings == earn_max & earnings > 0.01)
+		gen pp_contrib_annual2 = pp_contrib_annual + pp_reallocate
+		replace pp_contrib_annual2 = 0 if (chk==1)
+		gen pp_contrate = 0
+		replace pp_contrate = pp_contrib_annual2 / (earnings) * 100 if (pp_contrib_annual2>=0 & pp_contrib_annual2<. & earnings>0 & earnings<.)
+		gen pp_membi = (pp_contrate>0.01) * (pp_contrate<.) * (adlt)
+		egen pp_membu = sum(pp_membi), by (case bu)
+
+		//gen ocdc_contrate_emee = dvcontocc_emee_dc1 * (dvcontocc_emee_dc1<.) + dvcontocc_emee_dc2 * (dvcontocc_emee_dc2 <.)
+		//gen ocdc_contrate_emer = dvcontocc_emer_dc1 * (dvcontocc_emer_dc1<.) + dvcontocc_emer_dc2 * (dvcontocc_emer_dc2 <.)
+		
+
+		gen byte pp_contrib_source_core = (pp_core_annual>0)
+		gen byte pp_contrib_source_fallback = (pp_core_annual<=0 & pp_fallback_annual>0)
+		label var pp_core_annual "Personal pension annual contribution (core regular amount-period)"
+		label var pp_fallback_annual "Personal pension annual contribution (fallback last contribution amount-period)"
+		label var pp_contrib_annual "Personal pension annual contribution (core with fallback)"
+		label var pp_contrib_annual2 "Personal pension annual contribution (core with fallback and reallocation)"
+		label var pp_contrib_source_core "1 if pp_contrib_annual sourced from core regular contribution"
+		label var pp_contrib_source_fallback "1 if pp_contrib_annual sourced from fallback last contribution"
+		label var pp_contrate "Personal pension contribution rate (% of gross employment income)"
+// 		label var ocdc_contrate_emee "DC occupational employee pension contribution rate (% of gross employment income)"
+// 		label var ocdc_contrate_emer "DC occupational employer pension contribution rate (% of gross employment income)"
+		label var pp_membu "number of personal pension members in benefit unit"
+
+		gen occ_emp_contrib_rate = .
+		replace occ_emp_contrib_rate = max(dvcontocc_emee_dc1,0) + max(dvcontocc_emee_dc2,0) if !missing(dvcontocc_emee_dc1) | !missing(dvcontocc_emee_dc2)
+		replace occ_emp_contrib_rate = max(pocnfr1,0) + max(pocnfr2,0) if missing(occ_emp_contrib_rate) & (!missing(pocnfr1) | !missing(pocnfr2))
+		gen occ_emp_contrib_annual = .
+		replace occ_emp_contrib_annual = dvemeeamt1 + dvemeeamt2 if (dvemeeamt1>=0 | dvemeeamt2>=0)
+		replace occ_emp_contrib_annual = earnings * occ_emp_contrib_rate / 100 if missing(occ_emp_contrib_annual) & earnings>=0 & occ_emp_contrib_rate>=0
+		replace occ_emp_contrib_annual = 0 if missing(occ_emp_contrib_annual)
+		label var occ_emp_contrib_rate "Occupational DC employee contribution rate (%)"
+		label var occ_emp_contrib_annual "Occupational DC employee annual contribution"
+
+		gen pp_contrib_rate_income = .
+		replace pp_contrib_rate_income = pp_contrib_annual / inc if inc>0
+		gen priv_total_contrib_rate_inc = .
+		replace priv_total_contrib_rate_inc = (pp_contrib_annual + occ_emp_contrib_annual) / inc if inc>0
+		label var pp_contrib_rate_income "Personal pension contribution rate relative to annual private income"
+		label var priv_total_contrib_rate_inc "Personal + occupational employee contribution rate relative to annual private income"
+
+		drop pp_core_ann_1 pp_core_ann_2 pp_core_ann_3 pp_fallback_ann_1 pp_fallback_ann_2 pp_fallback_ann_3
+
 		// individual labour force status
 		gen sempi=(stat==2)
 		gen fti= (stat==1 & ftptwk==1)
@@ -306,6 +466,9 @@ foreach file in "$dir_was_data\was_round_5_person_eul_oct_2020.dta" ///
 
 		gen op_memb = (pemmem==1)
 		label var op_memb "whether member of occupational pension"
+		gen op_membui = op_memb * adlt
+		egen op_membu = sum(op_membui), by (case bu)
+		label var op_membu "number of occupational pension members in benefit unit"
 
 		gen op_db = (((poctyp1==2) + (poctyp2==2))>0) * op_memb
 		label var op_db "whether has current defined benefit scheme"
@@ -369,8 +532,85 @@ foreach file in "$dir_was_data\was_round_5_person_eul_oct_2020.dta" ///
 		// financial and non-financial assets
 		desc dvffassets
 		desc dvfinfval
-		replace totcsc_sum = 0 if (totcsc_sum>=.)
-		gen assts = dvffassets + dvfinfval - totcsc_sum - tothp - tot_los - totmo
+		replace totcsc_sum = 0 if missing(totcsc_sum)
+		replace tothp_sum = 0 if missing(tothp_sum)
+		replace tot_los = 0 if missing(tot_los)
+		replace totmo_sum = 0 if missing(totmo_sum)
+
+		gen cc_debt_i = totcsc_sum
+		gen cc_debt_trans_i = totcsc_trans_sum
+		gen cc_debt_pers_i = totcsc_pers_sum
+		gen hp_debt_i = tothp_sum
+		gen loan_debt_i = tot_los
+		gen loan_debt_exc_slc_i = tot_los_exc_slc
+		gen mail_debt_i = totmo_sum
+		gen loan_doorstep_i = 0
+		gen loan_pawnbroker_i = 0
+		gen loan_payday_i = 0
+		gen informal_loan_debt_i = 0
+
+		forvalues ii = 1/9 {
+			replace loan_doorstep_i = loan_doorstep_i + lnos`ii' ///
+				if dltype`ii' == 2 & lnos`ii' > 0 & (missing(dlint`ii') | dlint`ii' != 1)
+			replace loan_pawnbroker_i = loan_pawnbroker_i + lnos`ii' ///
+				if dltype`ii' == 3 & lnos`ii' > 0 & (missing(dlint`ii') | dlint`ii' != 1)
+			replace loan_payday_i = loan_payday_i + lnos`ii' ///
+				if dltype`ii' == 10 & lnos`ii' > 0 & (missing(dlint`ii') | dlint`ii' != 1)
+			replace informal_loan_debt_i = informal_loan_debt_i + flns`ii' ///
+				if dltype`ii' == 7 & flns`ii' > 0
+
+			replace loan_doorstep_i = loan_doorstep_i + dnewlowe`ii' ///
+				if dnewltype`ii' == 2 & dnewlowe`ii' > 0
+			replace loan_pawnbroker_i = loan_pawnbroker_i + dnewlowe`ii' ///
+				if dnewltype`ii' == 3 & dnewlowe`ii' > 0
+			replace loan_payday_i = loan_payday_i + dnewlowe`ii' ///
+				if dnewltype`ii' == 10 & dnewlowe`ii' > 0
+			replace informal_loan_debt_i = informal_loan_debt_i + dnewlowe`ii' ///
+				if dnewltype`ii' == 7 & dnewlowe`ii' > 0
+		}
+		gen highcost_loan_debt_i = loan_doorstep_i + loan_pawnbroker_i + loan_payday_i
+
+		egen cc_debt = sum(cc_debt_i), by (case bu)
+		egen cc_debt_trans = sum(cc_debt_trans_i), by (case bu)
+		egen cc_debt_pers = sum(cc_debt_pers_i), by (case bu)
+		egen hp_debt = sum(hp_debt_i), by (case bu)
+		egen loan_debt = sum(loan_debt_i), by (case bu)
+		egen loan_debt_exc_slc = sum(loan_debt_exc_slc_i), by (case bu)
+		egen mail_debt = sum(mail_debt_i), by (case bu)
+		egen loan_doorstep = sum(loan_doorstep_i), by (case bu)
+		egen loan_pawnbroker = sum(loan_pawnbroker_i), by (case bu)
+		egen loan_payday = sum(loan_payday_i), by (case bu)
+		egen informal_loan_debt = sum(informal_loan_debt_i), by (case bu)
+		egen highcost_loan_debt = sum(highcost_loan_debt_i), by (case bu)
+		gen loan_debt_slc = loan_debt - loan_debt_exc_slc if !missing(loan_debt) & !missing(loan_debt_exc_slc)
+		gen unsec_debt_total = cc_debt + hp_debt + loan_debt + mail_debt
+		gen unsec_debt_core = cc_debt + loan_debt_exc_slc
+		gen highcost_debt_proxy = cc_debt_pers + mail_debt + highcost_loan_debt
+		gen lowcost_debt = hp_debt + loan_debt_exc_slc - highcost_loan_debt
+
+		replace cc_debt_trans = . if was_round == 5
+		replace cc_debt_pers = . if was_round == 5
+		replace highcost_debt_proxy = . if was_round == 5
+
+		label var cc_debt "Benefit-unit total credit/store/charge card debt"
+		label var cc_debt_trans "Benefit-unit total transient card debt (waves 6-8)"
+		label var cc_debt_pers "Benefit-unit total persistent card debt (waves 6-8)"
+		label var hp_debt "Benefit-unit total hire purchase debt"
+		label var loan_debt "Benefit-unit total formal/informal/SLC loan debt"
+		label var loan_debt_exc_slc "Benefit-unit total formal/informal loan debt excluding SLC"
+		label var loan_debt_slc "Benefit-unit student loan component of loan debt"
+		label var loan_doorstep "Benefit-unit cash-home-collector loan debt"
+		label var loan_pawnbroker "Benefit-unit pawnbroker/cash-converter loan debt"
+		label var loan_payday "Benefit-unit payday-lender loan debt"
+		label var informal_loan_debt "Benefit-unit informal friend/family/private loan debt"
+		label var highcost_loan_debt "Benefit-unit explicit high-cost loan debt"
+		label var mail_debt "Benefit-unit total mail order debt"
+		label var unsec_debt_total "Benefit-unit total unsecured debt"
+		label var unsec_debt_core "Benefit-unit unsecured debt: cards + non-SLC loans"
+		label var highcost_debt_proxy "Benefit-unit proxy high-cost debt: persistent cards + mail order + explicit high-cost loans"
+		label var lowcost_debt "Benefit-unit proxy low-cost debt: hire-purchase agreements and non-student/non-high-cost loans"
+
+		gen assts = dvffassets + dvfinfval - cc_debt_i - hp_debt_i - loan_debt_i - mail_debt_i
 		egen assets = sum(assts), by (case bu)
 		label var assets "net value of financial and non-financial (non-property) assets"
 
@@ -388,7 +628,7 @@ foreach file in "$dir_was_data\was_round_5_person_eul_oct_2020.dta" ///
 		egen tot_open = sum(op_tot), by (case bu)
 		label var tot_open "value of aggregate occupational pension rights"
 		gen tot_pp = tot_pen - tot_open
-		label var tot_pp "value of aggregate private pension rights" // Added by LS, private/personal pension rights (non-occupational)
+		label var tot_pp "value of aggregate personal pension rights"
 		gen pi_temp = pincinp * (pincinp>0.01) // If pincinp is greater than 0.01, pi_temp = pincinp; otherwise, pi_temp = 0.
 		egen pinc_now = sum(pi_temp), by (case bu)
 
@@ -401,10 +641,10 @@ foreach file in "$dir_was_data\was_round_5_person_eul_oct_2020.dta" ///
 		replace ww = ww - main_mort if ( main_mort<.)
 		label var ww "net wealth excluding ISAs and business equity"
 		
-		save "$dir_data\chk.dta", replace
+		save "${dir_data}/chk.dta", replace
 
 		// partner characteristics
-		save "$dir_data\was_temp.dta", replace
+		save "${dir_data}/was_temp.dta", replace
 		keep case bu person_id person partno healths dlltsd grad emp
 		drop if (partno==17)
 
@@ -420,7 +660,7 @@ foreach file in "$dir_was_data\was_round_5_person_eul_oct_2020.dta" ///
 		drop person
 		rename partno person
 
-		merge 1:1 case person using "$dir_data\was_temp.dta"
+		merge 1:1 case person using "${dir_data}/was_temp.dta"
 		tab partno _m
 		drop if _m==1
 		drop _m
@@ -430,6 +670,7 @@ foreach file in "$dir_was_data\was_round_5_person_eul_oct_2020.dta" ///
 		// weight
 		gen dwt = round(xshhwgt*10,1)
 		label var dwt "cross-sectional household weight"
+		drop if missing(dwt)
 
 		/*
 		dhe2 = 1 very good or better - reference
@@ -437,17 +678,17 @@ foreach file in "$dir_was_data\was_round_5_person_eul_oct_2020.dta" ///
 		dhe2 = 3 fair
 		dhe2 = 4 bad / very bad
 		*/
-		gen dhe2 = 0
-		replace dhe2=1 if (healths<2)
+		gen dhe2 = .
+		replace dhe2=1 if (!missing(healths) & healths<2)
 		replace dhe2=2 if (healths==2)
 		replace dhe2=3 if (healths==3)
-		replace dhe2=4 if (healths>3)
+		replace dhe2=4 if (!missing(healths) & healths>3)
 		label var dhe2 "General health (4 categories)"
-		gen dhesp2 = 0
-		replace dhesp2=1 if (p_healths<2)
+		gen dhesp2 = .
+		replace dhesp2=1 if (!missing(p_healths) & p_healths<2)
 		replace dhesp2=2 if (p_healths==2)
 		replace dhesp2=3 if (p_healths==3)
-		replace dhesp2=4 if (p_healths>3)
+		replace dhesp2=4 if (!missing(p_healths) & p_healths>3)
 		rename gor gor2
 		rename p_grad gradsp
 		rename p_emp empsp
@@ -473,12 +714,20 @@ foreach file in "$dir_was_data\was_round_5_person_eul_oct_2020.dta" ///
 
 		sort bu
 
-		gen bu_rp = person_id == bu
+		replace bu_rp = person_id == bu
+		bysort was_round case bu: egen n_rp = total(bu_rp==1)
+		bysort was_round case bu (person_id): replace bu_rp = 1 if n_rp==0 & _n==1
+		drop n_rp
+		bysort was_round case bu: egen n_rp = total(bu_rp==1)
+		assert n_rp==1
+		drop n_rp
 		gen single_woman = bu_rp * (na==1) * (sex==2)
 		gen single_man = bu_rp * (na==1) * (sex==1)
 		gen couple_ref = bu_rp * (na==2)
 		gen couple = (na==2)
 		gen single = (na==1)
+
+		xtile qtl = inc [fweight=dwt], nq(5)
 		
 		gen pct = .
 		xtile pct1 = inc [fweight=dwt] if (single_woman & grad), nq(10)
@@ -499,16 +748,38 @@ foreach file in "$dir_was_data\was_round_5_person_eul_oct_2020.dta" ///
 		xtile pct1 = inc [fweight=dwt] if (couple_ref & grad==0), nq(10)
 		replace pct = pct1 if (pct1<.)
 		drop pct1
+		
+		// inflation adjust
+		gen CPI = .
+		forvalues yy = $inflation_minyear/$inflation_maxyear {
+
+			replace CPI = inflation[`yy'-${inflation_minyear}+1,1] if year == `yy'
+		}
+		foreach var in tot_pen dvhvalue main_mort wealth inc {
+			
+			replace `var' = `var' / CPI
+		}
+		
 
 		// save control data
-		// Variables below: total value of ISAs, net value of own-business assets, net value of financial and non-financial (non-property) assets, aggregate occupational pension rights, ww, private/personal pension rights (non‑occupational)
-		keep case person_id bu bu_rp year sex grad gradsp dvage17 na nk* single_man ///
+		// Variables below: total value of ISAs, net value of own-business assets, net value of financial and non-financial (non-property) assets, aggregate occupational pension rights, ww, private/personal pension rights (non-occupational)
+		keep was_round case person person_id bu bu_rp year sex grad gradsp dvage17 na nk* single_man ///
 			single_woman couple couple_ref gor2 dhe2 healths p_healths dlltsd dlltsdsp ///
-			idnk04 pct emp empsp tot_pen dvhvalue main_mort wealth inc was dwt
+			idnk04 pct qtl emp empsp tot_pen dvhvalue main_mort wealth inc was dwt  ///
+			isa_fam bus_assets assets tot_open ww tot_pp oprop db_op dc_op dc_pen pinc_now benefits ///
+			totcsc_sum totcsc_trans_sum totcsc_pers_sum tothp_sum tot_los tot_los_exc_slc totmo_sum ///
+			cc_debt cc_debt_trans cc_debt_pers hp_debt loan_debt loan_debt_exc_slc loan_debt_slc ///
+			loan_doorstep loan_pawnbroker loan_payday informal_loan_debt highcost_loan_debt ///
+			mail_debt unsec_debt_total unsec_debt_core highcost_debt_proxy lowcost_debt ///
+			op_memb pp_membu op_membu op_db op_dc ///
+			pp_core_annual pp_fallback_annual pp_contrib_annual pp_contrib_rate_income priv_total_contrib_rate_inc ///
+			pp_contrib_source_core pp_contrib_source_fallback occ_emp_contrib_rate occ_emp_contrib_annual ///
+			caser5 caser6 caser7 personw5 personw6 personr7
 		if (`ww' > `ww0') {
-			append using "$dir_data\was_wealthdata.dta"
+			append using "${dir_data}/was_wealthdata.dta"
 		}
-		save "$dir_data\was_wealthdata.dta", replace
+		drop if missing(was_round)
+		save "${dir_data}/was_wealthdata.dta", replace
 		local ww = `ww' + 1
 	}
 }
@@ -516,12 +787,221 @@ foreach file in "$dir_was_data\was_round_5_person_eul_oct_2020.dta" ///
 
 /**************************************************************/
 *
+*	CONSTRUCT LONGITUDINAL LINKAGE ACROSS WAS ROUNDS 5-8
+*
+/**************************************************************/
+
+use "${dir_data}/was_wealthdata.dta", clear
+
+* Build round-specific person keys (current round key + backward links carried in later rounds)
+gen long obs_id = _n
+label var obs_id "Row identifier before longitudinal linkage assignment"
+
+gen case_r5 = .
+gen person_r5 = .
+replace case_r5 = case if was_round==5
+replace person_r5 = person if was_round==5
+replace case_r5 = caser5 if missing(case_r5)
+replace person_r5 = personw5 if missing(person_r5)
+
+gen case_r6 = .
+gen person_r6 = .
+replace case_r6 = case if was_round==6
+replace person_r6 = person if was_round==6
+replace case_r6 = caser6 if missing(case_r6)
+replace person_r6 = personw6 if missing(person_r6)
+
+gen case_r7 = .
+gen person_r7_link = .
+replace case_r7 = case if was_round==7
+replace person_r7_link = person if was_round==7
+replace case_r7 = caser7 if missing(case_r7)
+replace person_r7_link = personr7 if missing(person_r7_link)
+
+gen case_r8 = .
+gen person_r8 = .
+replace case_r8 = case if was_round==8
+replace person_r8 = person if was_round==8
+
+gen str40 key_r5 = ""
+replace key_r5 = "r5:" + trim(string(case_r5, "%20.0f")) + ":" + trim(string(person_r5, "%8.0f")) if !missing(case_r5) & !missing(person_r5)
+
+gen str40 key_r6 = ""
+replace key_r6 = "r6:" + trim(string(case_r6, "%20.0f")) + ":" + trim(string(person_r6, "%8.0f")) if !missing(case_r6) & !missing(person_r6)
+
+gen str40 key_r7 = ""
+replace key_r7 = "r7:" + trim(string(case_r7, "%20.0f")) + ":" + trim(string(person_r7_link, "%8.0f")) if !missing(case_r7) & !missing(person_r7_link)
+
+gen str40 key_r8 = ""
+replace key_r8 = "r8:" + trim(string(case_r8, "%20.0f")) + ":" + trim(string(person_r8, "%8.0f")) if !missing(case_r8) & !missing(person_r8)
+
+* Pairwise one-to-one linkage propagation across adjacent rounds
+* This replaces the earlier "earliest available key wins" anchor approach.
+tempfile r5_lookup r6_lookup r7_lookup assign_r5 assign_r6 assign_r7 assign_r8 assign_all
+
+* Round 5 lookup / assignments (base chains)
+preserve
+    keep if was_round==5
+    keep obs_id sex key_r5
+    keep if key_r5!=""
+    rename key_r5 r5_key
+    isid r5_key
+    gen str40 chain_key = r5_key
+    rename sex sex_r5_lookup
+    save `r5_lookup', replace
+
+    keep obs_id chain_key
+    gen byte edge56_ok = .
+    gen byte edge56_sex_bad = .
+    gen byte edge67_ok = .
+    gen byte edge67_sex_bad = .
+    gen byte edge78_ok = .
+    gen byte edge78_sex_bad = .
+    save `assign_r5', replace
+restore
+
+* Round 6: link to R5 via (caser5, personw5)
+preserve
+    keep if was_round==6
+    keep obs_id sex key_r6 caser5 personw5
+    keep if key_r6!=""
+    rename key_r6 r6_key
+    gen str40 r5_key = ""
+    replace r5_key = "r5:" + trim(string(caser5, "%20.0f")) + ":" + trim(string(personw5, "%8.0f")) if !missing(caser5) & !missing(personw5)
+
+    merge m:1 r5_key using `r5_lookup', keep(master match) keepusing(chain_key sex_r5_lookup) gen(_m56)
+
+    duplicates tag r5_key if _m56==3, gen(dup_t56)
+    replace dup_t56 = 0 if missing(dup_t56)
+    duplicates tag r6_key if _m56==3, gen(dup_s56)
+    replace dup_s56 = 0 if missing(dup_s56)
+
+    gen byte edge56_sex_bad = (sex != sex_r5_lookup) if _m56==3 & !missing(sex) & !missing(sex_r5_lookup)
+    replace edge56_sex_bad = 0 if missing(edge56_sex_bad)
+
+    gen byte edge56_ok = (_m56==3 & dup_t56==0 & dup_s56==0 & edge56_sex_bad==0)
+
+    gen str40 chain_key_out = ""
+    replace chain_key_out = chain_key if edge56_ok==1
+    replace chain_key_out = r6_key if chain_key_out==""
+
+    rename sex sex_r6_lookup
+    keep obs_id r6_key sex_r6_lookup chain_key_out edge56_ok edge56_sex_bad
+    rename chain_key_out chain_key
+    save `r6_lookup', replace
+
+    keep obs_id chain_key edge56_ok edge56_sex_bad
+    gen byte edge67_ok = .
+    gen byte edge67_sex_bad = .
+    gen byte edge78_ok = .
+    gen byte edge78_sex_bad = .
+    save `assign_r6', replace
+restore
+
+* Round 7: link to R6 via (caser6, personw6)
+preserve
+    keep if was_round==7
+    keep obs_id sex key_r7 caser6 personw6
+    keep if key_r7!=""
+    rename key_r7 r7_key
+    gen str40 r6_key = ""
+    replace r6_key = "r6:" + trim(string(caser6, "%20.0f")) + ":" + trim(string(personw6, "%8.0f")) if !missing(caser6) & !missing(personw6)
+
+    merge m:1 r6_key using `r6_lookup', keep(master match) keepusing(chain_key sex_r6_lookup) gen(_m67)
+
+    duplicates tag r6_key if _m67==3, gen(dup_t67)
+    replace dup_t67 = 0 if missing(dup_t67)
+    duplicates tag r7_key if _m67==3, gen(dup_s67)
+    replace dup_s67 = 0 if missing(dup_s67)
+
+    gen byte edge67_sex_bad = (sex != sex_r6_lookup) if _m67==3 & !missing(sex) & !missing(sex_r6_lookup)
+    replace edge67_sex_bad = 0 if missing(edge67_sex_bad)
+
+    gen byte edge67_ok = (_m67==3 & dup_t67==0 & dup_s67==0 & edge67_sex_bad==0)
+
+    gen str40 chain_key_out = ""
+    replace chain_key_out = chain_key if edge67_ok==1
+    replace chain_key_out = r7_key if chain_key_out==""
+
+    rename sex sex_r7_lookup
+    keep obs_id r7_key sex_r7_lookup chain_key_out edge67_ok edge67_sex_bad
+    rename chain_key_out chain_key
+    save `r7_lookup', replace
+
+    keep obs_id chain_key edge67_ok edge67_sex_bad
+    gen byte edge56_ok = .
+    gen byte edge56_sex_bad = .
+    gen byte edge78_ok = .
+    gen byte edge78_sex_bad = .
+    save `assign_r7', replace
+restore
+
+* Round 8: link to R7 via (caser7, personr7)
+preserve
+    keep if was_round==8
+    keep obs_id sex key_r8 caser7 personr7
+    keep if key_r8!=""
+    rename key_r8 r8_key
+    gen str40 r7_key = ""
+    replace r7_key = "r7:" + trim(string(caser7, "%20.0f")) + ":" + trim(string(personr7, "%8.0f")) if !missing(caser7) & !missing(personr7)
+
+    merge m:1 r7_key using `r7_lookup', keep(master match) keepusing(chain_key sex_r7_lookup) gen(_m78)
+
+    duplicates tag r7_key if _m78==3, gen(dup_t78)
+    replace dup_t78 = 0 if missing(dup_t78)
+    duplicates tag r8_key if _m78==3, gen(dup_s78)
+    replace dup_s78 = 0 if missing(dup_s78)
+
+    gen byte edge78_sex_bad = (sex != sex_r7_lookup) if _m78==3 & !missing(sex) & !missing(sex_r7_lookup)
+    replace edge78_sex_bad = 0 if missing(edge78_sex_bad)
+
+    gen byte edge78_ok = (_m78==3 & dup_t78==0 & dup_s78==0 & edge78_sex_bad==0)
+
+    rename chain_key chain_key_prev
+    gen str40 chain_key = ""
+    replace chain_key = chain_key_prev if edge78_ok==1
+    replace chain_key = r8_key if chain_key==""
+
+    keep obs_id chain_key edge78_ok edge78_sex_bad
+    gen byte edge56_ok = .
+    gen byte edge56_sex_bad = .
+    gen byte edge67_ok = .
+    gen byte edge67_sex_bad = .
+    save `assign_r8', replace
+restore
+
+* Combine round-specific assignments and merge back to full file
+use `assign_r5', clear
+append using `assign_r6'
+append using `assign_r7'
+append using `assign_r8'
+isid obs_id
+save `assign_all', replace
+
+use "${dir_data}/was_wealthdata.dta", clear
+
+gen long obs_id = _n
+label var obs_id "Row identifier before longitudinal linkage assignment"
+
+merge 1:1 obs_id using `assign_all', nogen keep(master match) keepusing(chain_key)
+assert !missing(chain_key)
+
+rename chain_key was_link_key
+label var was_link_key "Canonical linkage key from pairwise one-to-one propagation"
+
+egen was_pid = group(was_link_key)
+label var was_pid "Synthetic longitudinal person ID (WAS rounds 5-8 linkage)"
+
+sort was_pid year was_round
+save "${dir_data}/was_wealthdata.dta", replace
+/**************************************************************/
+*
 *	ANALYSIS OF WORKING VARIABLES
 *
 /**************************************************************/
 
 /*
-use "$dir_data\was_wealthdata.dta", clear
+use "${dir_data}/was_wealthdata.dta", clear
 
 tab gor2 year if (year>2014 & year<2020) [fweight=dwt], nol
 tab dvage17 year if (year>2014 & year<2020 & dvage17>4) [fweight=dwt], nol
@@ -608,6 +1088,7 @@ local files_to_drop
 	was_temp_hh5.dta
 	was_temp_hh6.dta
 	was_temp_hh7.dta
+	was_temp_hh8.dta
 	;
 #delimit cr // cr stands for carriage return
 

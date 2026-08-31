@@ -48,7 +48,7 @@ public class DecisionTests {
         String filePath = DecisionParams.gridsOutputDirectory + File.separator + "test.csv";
         try {
             BufferedWriter writer = Files.newBufferedWriter(Paths.get(filePath));
-            CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setHeader("cohabitation", "value_function", "liquid_wealth").build();
+            var csvFormat = CSVFormat.DEFAULT.builder().setHeader("cohabitation", "value_function", "liquid_wealth").get();
             CSVPrinter printer = new CSVPrinter(writer, csvFormat);
 
             for (WriteGridsBean bean : beans) {
@@ -81,7 +81,7 @@ public class DecisionTests {
         String filePath = DecisionParams.gridsOutputDirectory + File.separator + "test.csv";
         try {
             BufferedWriter writer = Files.newBufferedWriter(Paths.get(filePath));
-            CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setHeader(HEADERS).build();
+            var csvFormat = CSVFormat.DEFAULT.builder().setHeader(HEADERS).get();
             try (final CSVPrinter printer = new CSVPrinter(writer, csvFormat)) {
                 AUTHOR_BOOK_MAP.forEach((author, title) -> {
                     try {

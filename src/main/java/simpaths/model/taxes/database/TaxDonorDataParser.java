@@ -438,7 +438,6 @@ public class TaxDonorDataParser {
      * output .txt files, picking up the relevant columns for each EUROMOD policy scenario, that
      * will eventually be parsed into the JAS-mine input database.
      *
-     *
      */
     public static void constructAggregateTaxDonorPopulationCSVfile(Country country, boolean showGui) {
 
@@ -623,7 +622,7 @@ public class TaxDonorDataParser {
         EntityTransaction txn = null;
         try {
             // access database and obtain donor pool
-            Map propertyMap = new HashMap();
+            var propertyMap = new HashMap<String, String>();
             propertyMap.put("hibernate.connection.url", "jdbc:h2:file:" + Parameters.getInputDirectory() + "input" + ";TRACE_LEVEL_FILE=0;TRACE_LEVEL_SYSTEM_OUT=0;AUTO_SERVER=TRUE");
             EntityManager em = Persistence.createEntityManagerFactory("tax-database", propertyMap).createEntityManager();
             txn = em.getTransaction();
@@ -705,7 +704,7 @@ public class TaxDonorDataParser {
                                 hoursWorkedPerWeek2 = hoursWorked;
                             }
                             if (agePerson >= Parameters.AGE_TO_BECOME_RESPONSIBLE) {
-                                int dlltsd = person.getDlltsd();
+                                int dlltsd = person.getHealthDsblLongtermFlag();
                                 if (dlltsd > dlltsd1) {
                                     dlltsd2 = dlltsd1;
                                     dlltsd1 = dlltsd;

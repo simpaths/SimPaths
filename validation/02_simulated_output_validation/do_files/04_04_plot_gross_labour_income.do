@@ -1,13 +1,21 @@
 ********************************************************************************
 * PROJECT:  		SimPaths UK 
 * SECTION:			Validation
-* OBJECT: 			Gross labour income 
-* AUTHORS:			Ashley Burdett 
-* LAST UPDATE:		Feb 2026
-* COUNTRY: 			UK 
+* OBJECT: 			Gross labour income
+* AUTHORS:			Ashley Burdett
+* LAST UPDATE:		Aug 2026
+* COUNTRY: 			UK
+* DESCRIPTION: 		Plots validation graphs comparing simulated vs. UKHLS gross
+* 					labour (employment) income for employed individuals.
+* 					Section 1: time-series means (benefit-unit and individual
+* 					level). Section 2: histograms of the cross-sectional 
+* 					distribution by year. Same standalone
+* 					structure as 04_03 (no reusable program define blocks).
 ********************************************************************************
-* NOTES: 			Plotted using individual level data 
-* 						=> multiple observations per ben unit.
+* NOTES: 			Amounts in 2015 prices, top/bottom percentiles trimmed.
+* 					The individual-level subsection (1.2) plots multiple
+* 					observations per benefit unit; the benefit-unit
+* 					subsection (1.1) keeps one observation per unit.
 ********************************************************************************
 
 ********************************************************************************
@@ -98,7 +106,7 @@ twoway ///
 	xlabel(,labsize(small)) ///
 	graphregion(color(white)) ///
 	legend(size(small)) ///
-	note("Note: Amounts in 2015 prices. Top and bottom percentiles trimmed.", ///
+	note("Note: Amounts in 2015 prices. Top and bottom percentiles trimmed." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))
 
 * Save figure
@@ -108,7 +116,7 @@ graph export ///
 	
 	
 ********************************************************************************
-* 1.1: Mean labour income - individual 
+* 1.2: Mean labour income - individual 
 ********************************************************************************
 
 * Prepare validation data
@@ -184,7 +192,7 @@ twoway ///
 	xlabel(,labsize(small)) ///
 	graphregion(color(white)) ///
 	legend(size(small)) ///
-	note("Note: Amounts at the individual level, individual data plotted. Statistics calculated on the sample of employed individuals" "ages 18-65. Amounts in 2015 prices. Top and bottom percentiles trimmed.", ///
+	note("Note: Amounts at the individual level, individual data plotted. Statistics calculated on the sample of employed individuals" "ages 18-65. Amounts in 2015 prices. Top and bottom percentiles trimmed." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))
 
 * Save figure
@@ -228,8 +236,11 @@ if "$trim_outliers" == "true" {
 
 * Prepare info needed for dynamic y axis labels 
 qui sum year
-local min_year = 2011 
-local max_year = 2023 
+local min_year = 2011
+if "$min_sim_year" != "" local min_year = $min_sim_year
+local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' { 
 
@@ -290,7 +301,10 @@ append using "$dir_data/temp_valid_stats.dta"
 * Plot sub-figures 
 qui sum year
 local min_year = 2011
-local max_year = 2023  
+if "$min_sim_year" != "" local min_year = $min_sim_year
+local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' {
 	
@@ -402,7 +416,7 @@ graph drop _all
 
 
 ********************************************************************************
-* 2.1 : Histograms - working age, individual 
+* 2.2 : Histograms - working age, individual 
 ********************************************************************************
 
 * Prepare validation data
@@ -429,8 +443,11 @@ if "$trim_outliers" == "true" {
 
 * Prepare info needed for dynamic y axis labels 
 qui sum year
-local min_year = 2011 
-local max_year = 2023  
+local min_year = 2011
+if "$min_sim_year" != "" local min_year = $min_sim_year
+local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' { 
 
@@ -487,7 +504,10 @@ append using "$dir_data/temp_valid_stats.dta"
 * Plot sub-figures 
 qui sum year
 local min_year = 2011
-local max_year = 2023  
+if "$min_sim_year" != "" local min_year = $min_sim_year
+local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' {
 	

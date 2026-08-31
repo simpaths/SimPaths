@@ -42,7 +42,7 @@ public class DonorPerson {
     }
     public Integer getAge() { return this.age; }
     public int getHoursWorkedWeekly() { return this.labHrsWorkWeek; }
-    public int getDlltsd() { return this.healthDsblLongtermFlag; }
+    public int getHealthDsblLongtermFlag() { return this.healthDsblLongtermFlag; }
     public int getCarer() { return this.carer; }
     public double getWeight() { return this.dem; }
     public Set<DonorPersonPolicy> getPolicies() { return policies; }

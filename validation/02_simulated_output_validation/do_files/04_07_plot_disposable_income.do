@@ -1,13 +1,19 @@
 ********************************************************************************
-* PROJECT:  		SimPath UK 
+* PROJECT:  		SimPaths UK
 * SECTION:			Validation
 * OBJECT: 			Disposable income
-* AUTHORS:			Ashley Burdett 
-* LAST UPDATE:		Jan 2026
-* COUNTRY: 			UK 
+* AUTHORS:			Ashley Burdett
+* LAST UPDATE:		Aug 2026
+* COUNTRY: 			UK
+* DESCRIPTION: 		Plots validation graphs comparing simulated vs. UKHLS
+* 					benefit-unit disposable income, ages 16+. Section 1:
+* 					time-series means . Section 2: histograms of the
+* 					cross-sectional distribution, including by hours worked
+* 					(2.2) -- these plot one observation per individual, so
+* 					benefit units are weighted by household size. Same
+* 					standalone structure as 04_03-04_06.
 ********************************************************************************
-* NOTES: 			This do file plots simulated and UKHLS disposable income, 
-* 					per benefit unit. Individual level data plotted. 
+* NOTES: 			Amounts in 2015 prices, top/bottom percentiles trimmed.
 ********************************************************************************
 
 ********************************************************************************
@@ -92,7 +98,7 @@ twoway (rarea sim_yDispBuLevelYear_high sim_yDispBuLevelYear_low year, ///
 	xlabel(,labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: Amounts in GBP per year, 2015 prices. Top and bottom percentiles trimmed.", ///
+	note("Notes: Amounts in GBP per year, 2015 prices. Top and bottom percentiles trimmed." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))
 
 graph export ///
@@ -159,7 +165,10 @@ append using "$dir_data/temp_valid_stats.dta"
 
 qui sum year
 local min_year = 2011
-local max_year = 2023 
+if "$min_sim_year" != "" local min_year = $min_sim_year
+local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' {
 	
@@ -211,7 +220,10 @@ if "$trim_outliers" == "true" {
 * Prepare info needed for dynamic y axis labels 
 qui sum year
 local min_year = 2011
+if "$min_sim_year" != "" local min_year = $min_sim_year
 local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' { 
 
@@ -263,7 +275,10 @@ append using "$dir_data/temp_valid_stats.dta"
 * Plot sub-figures
 qui sum year
 local min_year = 2011
-local max_year = 2023 
+if "$min_sim_year" != "" local min_year = $min_sim_year
+local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' {
 	
@@ -337,7 +352,10 @@ forval year = `min_year'/`max_year' {
 * Combine plots by  year 
 qui sum year
 local min_year = 2011
+if "$min_sim_year" != "" local min_year = $min_sim_year
 local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forvalues year = `min_year'/`max_year' {
 	
@@ -348,7 +366,7 @@ forvalues year = `min_year'/`max_year' {
 		subtitle("`year'") ///		
 		legendfrom(disp_inc_`year'_ZERO) rows(1) ///
 		graphregion(color(white)) ///		
-		note("Notes: Amounts in GBP per year, 2015 prices. Indiviudal level data of benefit level amount plotted." "Top and bottom percentiles trimmed.", ///
+		note("Notes: Amounts in GBP per year, 2015 prices. Individual level data of benefit level amount plotted." "Top and bottom percentiles trimmed.", ///
 		size(vsmall)) 
 		
 	graph export ///
@@ -365,7 +383,7 @@ forvalues year = `min_year'/`max_year' {
 		subtitle("`year'") ///		
 		legendfrom(disp_inc_`year'_TWENTY) rows(2) ///
 		graphregion(color(white)) ///		
-		note("Notes:  Amounts in GBP per year, 2015 prices. Indiviudal level data of benefit level amount plotted." "Top and bottom percentiles trimmed.", ///
+		note("Notes:  Amounts in GBP per year, 2015 prices. Individual level data of benefit level amount plotted." "Top and bottom percentiles trimmed.", ///
 		size(vsmall)) 
 		
 	graph export ///

@@ -3,12 +3,27 @@
 * SECTION:			Validation
 * OBJECT: 			Economic Activity Status plots
 * AUTHORS:			Ashley Burdett 
-* LAST UPDATE:		9/25
-* COUNTRY: 			UK 
-* DESCRIPTION: 		This do file plots validation graphs for economic activity 
-* 					status (4 cat). 
-******************************************************************************** 
-* NOTES: 			
+* LAST UPDATE:		Aug 2026
+* COUNTRY: 			UK
+* DESCRIPTION: 		Plots validation graphs comparing simulated vs. UKHLS
+* 					economic activity status (employed/student/inactive/
+* 					retired). Covers ~9 subgroup breakdowns (age bands,
+* 					gender, partnership status) crossed with several
+* 					measures (activity levels, employed share, non-employed
+* 					shares, student share), plus a joint/couple-level
+* 					analysis of partners' combined activity status
+* 					(section 1.5). Section numbers are hierarchical
+* 					(1.1, 1.1.1, 1.1.1.1 = measure > age group > gender)
+* 					to make it easy to jump to a specific subgroup.
+* 					This is the reference module for the 04_NN plot files:
+* 					the other 17 follow the same pattern and keep a
+* 					shorter header pointing back here.
+********************************************************************************
+* NOTES: 			Section 0 defines two reusable plotting programs
+* 					(make_activity_plot, make_activity_ne_plot) called
+* 					throughout. Each subsection follows the same recipe:
+* 					collapse UKHLS + simulated data to means by year (and
+* 					subgroup), merge the two, then plot.
 *******************************************************************************/
 
 clear all 
@@ -115,7 +130,6 @@ collapse (mean) sim_employed sim_student sim_inactive sim_retired ///
 		 sim_retired_sd = sim_retired ///
 		 , by(year)
 		 
-* Compute 95% confidence interval 		 
 foreach varname in sim_employed sim_student sim_inactive sim_retired {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -129,7 +143,7 @@ merge 1:1 year using "$dir_data/temp_valid_stats.dta", keep(3) nogen
 make_activity_plot, ///
 	subtitle("Ages 16-30") ///
 	saving("validation_${country}_activity_status_ts_16_30_both") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired.""')
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')
 
 	
 ********************************************************************************
@@ -166,7 +180,6 @@ collapse (mean) sim_employed sim_student sim_inactive sim_retired ///
 		 sim_retired_sd = sim_retired ///
 		 , by(year demMaleFlag)
 
-* Compute 95% confidence interval		 
 foreach varname in sim_employed sim_student sim_inactive sim_retired {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -186,7 +199,7 @@ keep if demMaleFlag == 1
 make_activity_plot, ///
 	subtitle("Ages 16-30, males") ///
 	saving("validation_${country}_activity_status_ts_16_30_male") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired.""')
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')
 
 restore 
 
@@ -198,7 +211,7 @@ keep if demMaleFlag == 0
 make_activity_plot, ///
 	subtitle("Ages 16-30, females") ///
 	saving("validation_${country}_activity_status_ts_16_30_female") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired.""')
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')
 
 	
 ********************************************************************************
@@ -248,7 +261,7 @@ merge 1:1 year using "$dir_data/temp_valid_stats.dta", keep(3) nogen
 make_activity_plot, ///
 	subtitle("Ages 16-65") ///
 	saving("validation_${country}_activity_status_ts_16_65_both") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired.""')
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')
 
 	
 ********************************************************************************
@@ -305,7 +318,7 @@ keep if demMaleFlag == 1
 make_activity_plot, ///
 	subtitle("Ages 16-65, males") ///
 	saving("validation_${country}_activity_status_ts_16_65_male") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired.""')
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')
 
 restore
 
@@ -316,7 +329,7 @@ keep if demMaleFlag == 0
 make_activity_plot, ///
 	subtitle("Ages 16-65, females") ///
 	saving("validation_${country}_activity_status_ts_16_65_female") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired.""')
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')
 
 graph drop _all
 	
@@ -376,7 +389,7 @@ keep if demPartnerStatus == 1
 make_activity_plot, ///
 	subtitle("Ages 18-65, partnered") ///
 	saving("validation_${country}_activity_status_ts_18_65_both_partnered") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired.""')
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')
 
 restore
 
@@ -386,7 +399,7 @@ keep if demPartnerStatus == 2
 make_activity_plot, ///
 	subtitle("Ages 18-65, single") ///
 	saving("validation_${country}_activity_status_ts_18_65_both_single") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired.""')
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')
 	
 graph drop _all 
 
@@ -450,7 +463,7 @@ foreach g in 0 1 {
             make_activity_plot, ///
             subtitle("Ages 18-65, `pname' `gname's") ///
             saving("validation_${country}_activity_status_ts_18_65_`gname'_`pname'") ///
-            note(`""Notes: ..." "..." "')
+            note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')
         restore
     }
 }
@@ -508,7 +521,7 @@ keep if demMaleFlag == 0
 make_activity_plot, ///
 	subtitle("Ages 16-60, females") ///
 	saving("validation_${country}_activity_status_ts_16_60_female") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired.""')
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')
 
 	
 ********************************************************************************
@@ -553,7 +566,7 @@ merge 1:1 year using "$dir_data/temp_valid_stats.dta", keep(3) nogen
 make_activity_plot, ///
 	subtitle("All ages") ///
 	saving("validation_${country}_activity_status_ts_all_both") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired.""')
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')
 	
 graph drop _all	
 
@@ -604,7 +617,7 @@ keep if demMaleFlag == 1
 make_activity_plot, ///
 	subtitle("All ages, males") ///
 	saving("validation_${country}_activity_status_ts_all_male") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired.""')
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')
 
 restore
 
@@ -614,7 +627,7 @@ keep if demMaleFlag == 0
 make_activity_plot, ///
 	subtitle("All ages, females") ///
 	saving("validation_${country}_activity_status_ts_all_female") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired.""')	
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')	
 	
 graph drop _all 	
 
@@ -664,7 +677,7 @@ merge 1:1 year using "$dir_data/temp_valid_stats.dta", keep(3) nogen
 make_activity_plot, ///
 	subtitle("Ages 18+") ///
 	saving("validation_${country}_activity_status_ts_18plus_both") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired.""')	
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')	
 		
 
 ********************************************************************************
@@ -718,7 +731,7 @@ keep if demMaleFlag == 1
 make_activity_plot, ///
 	subtitle("Ages 18+, males") ///
 	saving("validation_${country}_activity_status_ts_18plus_male") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired.""')	
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')	
 
 restore
 	
@@ -728,7 +741,7 @@ keep if demMaleFlag == 0
 make_activity_plot, ///
 	subtitle("Ages 18+, females") ///
 	saving("validation_${country}_activity_status_ts_18plus_female") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired.""')		
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')		
 
 graph drop _all 	
 
@@ -780,7 +793,7 @@ merge 1:1 year using "$dir_data/temp_valid_stats.dta", keep(3) nogen
 make_activity_plot, ///
 	subtitle("Ages 16-75") ///
 	saving("validation_${country}_activity_status_ts_16_75_both") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired.""')	
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')	
 
 	
 ********************************************************************************
@@ -836,7 +849,7 @@ keep if demMaleFlag == 1
 make_activity_plot, ///
 	subtitle("Ages 16-75, males") ///
 	saving("validation_${country}_activity_status_ts_16_75_male") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired.""')	
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')	
 
 restore
 
@@ -847,7 +860,7 @@ keep if demMaleFlag == 0
 make_activity_plot, ///
 	subtitle("Ages 16-75, females") ///
 	saving("validation_${country}_activity_status_ts_16_75_female") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired.""')	
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')	
 
 graph drop _all	
 
@@ -976,7 +989,7 @@ foreach vble in "employed_f" "employed_m" {
         legendfrom(`vble'_1) ///
 		ycomm ///
         graphregion(color(white)) ///
-        note("Notes: ", size(vsmall))
+        note("Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", size(vsmall))
 
     * 5. Export
     graph export "$dir_output_files/economic_activity/validation_${country}_employed_ts_age_groups_`gsuffix'.jpg", ///
@@ -1038,7 +1051,7 @@ merge 1:1 year using "$dir_data/temp_valid_stats.dta", keep(3) nogen
 make_activity_ne_plot, ///
 	subtitle("Ages 16-65") ///
 	saving("validation_${country}_activity_status_ts_not_employed_16_65_both") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Demonimator is the full population.""')	
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Denominator is the full population. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')	
 	
 	
 ********************************************************************************
@@ -1083,7 +1096,7 @@ foreach varname in sim_student sim_inactive sim_retired {
 
 merge 1:1 year demMaleFlag using "$dir_data/temp_valid_stats.dta", keep(3) nogen
 
-* PLot figures 
+* Plot figures 
 
 * Males
 preserve 
@@ -1093,7 +1106,7 @@ keep if demMaleFlag == 1
 make_activity_ne_plot, ///
 	subtitle("Ages 16-65, males") ///
 	saving("validation_${country}_activity_status_ts_not_employed_16_65_male") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Demonimator is the full population.""')	
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Denominator is the full population. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')	
 
 restore
 
@@ -1104,7 +1117,7 @@ keep if demMaleFlag == 0
 make_activity_ne_plot, ///
 	subtitle("Ages 16-65, females") ///
 	saving("validation_${country}_activity_status_ts_not_employed_16_65_female") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Demonimator is the full population.""')	
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Denominator is the full population. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')	
 
 graph drop _all
 
@@ -1144,7 +1157,6 @@ collapse (mean)  sim_student sim_inactive sim_retired ///
 		 sim_retired_sd = sim_retired ///
 		 , by(year demPartnerStatus)
 	
-* Approx 95% confidence interval 	
 foreach varname in sim_student sim_inactive sim_retired {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -1166,7 +1178,7 @@ keep if demPartnerStatus == 1
 make_activity_ne_plot, ///
 	subtitle("Ages 18-65, partnered") ///
 	saving("validation_${country}_activity_status_ts_not_employed_18_65_partnered") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Demonimator is the full population.""')		
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Denominator is the full population. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')		
 
 restore
 
@@ -1176,7 +1188,7 @@ keep if demPartnerStatus == 2
 make_activity_ne_plot, ///
 	subtitle("Ages 18-65, singles") ///
 	saving("validation_${country}_activity_status_ts_not_employed_18_65_single") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Demonimator is the full population.""')	
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Denominator is the full population. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')	
 
 graph drop _all 
 
@@ -1217,7 +1229,6 @@ collapse (mean)  sim_student sim_inactive sim_retired ///
 		 sim_retired_sd = sim_retired ///
 		 , by(year demPartnerStatus demMaleFlag)
 	
-* Approx 95% confidence interval 	
 foreach varname in sim_student sim_inactive sim_retired {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -1247,7 +1258,7 @@ foreach g in 1 0 {
             make_activity_ne_plot, ///
                 subtitle("Ages 18-65, `pname' `gtitle'") ///
                 saving("validation_${country}_activity_status_ts_not_employed_18_65_`gname'_`pname'") ///
-                note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Demonimator is the full population.""')	
+                note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Denominator is the full population. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')	
         restore
 		
     }
@@ -1309,7 +1320,7 @@ merge 1:1 year using "$dir_data/temp_valid_stats.dta", keep(3) nogen
 make_activity_ne_plot, ///
 	subtitle("Ages 16-60, females") ///
 	saving("validation_${country}_activity_status_ts_not_employed_16_60_female") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Demonimator is the full population.""')	
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Denominator is the full population. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')	
 	
 	
 ********************************************************************************
@@ -1355,7 +1366,7 @@ merge 1:1 year using "$dir_data/temp_valid_stats.dta", keep(3) nogen
 make_activity_ne_plot, ///
 	subtitle("All ages") ///
 	saving("validation_${country}_activity_status_ts_not_employed_all_both") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Demonimator is the full population.""')	
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Denominator is the full population. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')	
 
 
 ********************************************************************************
@@ -1408,7 +1419,7 @@ keep if demMaleFlag == 1
 make_activity_ne_plot, ///
 	subtitle("All ages, males") ///
 	saving("validation_${country}_activity_status_ts_not_employed_all_male") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Demonimator is the full population.""')
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Denominator is the full population. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')
 
 restore
 	
@@ -1419,7 +1430,7 @@ keep if demMaleFlag == 0
 make_activity_ne_plot, ///
 	subtitle("All ages, females") ///
 	saving("validation_${country}_activity_status_ts_not_employed_all_female") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Demonimator is the full population.""')	
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Denominator is the full population. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')	
 
 graph drop _all 
 
@@ -1469,7 +1480,7 @@ merge 1:1 year using "$dir_data/temp_valid_stats.dta", keep(3) nogen
 make_activity_ne_plot, ///
 	subtitle("Ages 18+") ///
 	saving("validation_${country}_activity_status_ts_not_employed_18plus_both") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Demonimator is the full population.""')	
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Denominator is the full population. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')	
 
 	
 ********************************************************************************
@@ -1524,7 +1535,7 @@ keep if demMaleFlag == 1
 make_activity_ne_plot, ///
 	subtitle("Ages 18+, males") ///
 	saving("validation_${country}_activity_status_ts_not_employed_18plus_male") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Demonimator is the full population.""')	
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Denominator is the full population. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')	
 
 restore
 
@@ -1534,7 +1545,7 @@ keep if demMaleFlag == 0
 make_activity_ne_plot, ///
 	subtitle("Ages 18+, females") ///
 	saving("validation_${country}_activity_status_ts_not_employed_18plus_female") ///
-	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Demonimator is the full population.""')		
+	note(`""Notes: Non-employed includes the unemployed and inactive (homemakers, incapacity, carers, discouraged workers etc.)" "minus students and retired. Denominator is the full population. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')		
 
 graph drop _all 
 
@@ -1640,8 +1651,8 @@ grc1leg student_1 student_2 student_3 student_4 student_5 student_6 , ///
     title("Share of Students by Age Group") ///
     legendfrom(student_1) ///
     graphregion(color(white)) ///
-    note("Notes: ", size(vsmall))
-    
+    note("Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", size(vsmall))
+
 graph export ///
 "$dir_output_files/economic_activity/validation_${country}_students_ts_age_groups_both.jpg", ///
     replace width(2400) height(1350) quality(100)
@@ -1741,7 +1752,6 @@ collapse (mean) sim_ptnr_inactive ///
 		 (sd) sim_ptnr_inactive_sd = sim_ptnr_inactive ///
 		 , by(year)
 		 
-* Compute 95% confidence interval 		 
 foreach varname in sim_ptnr_inactive {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -1768,7 +1778,7 @@ twoway ///
 	xlabel(, labsize(small)) ///
 	ylabel(, labsize(small)) ///
 	legend(size(vsmall)) ///
-	note("Notes: Ages 18-65 included in sample. Non-employed includes the unemployed and inactive (homemakers, incapacity, carers," "discouraged workers etc.) minus students and retired. ", ///
+	note("Notes: Ages 18-65 included in sample. Non-employed includes the unemployed and inactive (homemakers, incapacity, carers," "discouraged workers etc.) minus students and retired. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))
 
 graph export ///
@@ -1870,7 +1880,6 @@ collapse (mean) sim_partner_nlf ///
 		 (sd) sim_partner_nlf_sd = sim_partner_nlf ///
 		 , by(year)
 		 
-* Compute 95% confidence interval 		 
 foreach varname in sim_partner_nlf {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -1897,7 +1906,7 @@ twoway ///
 	xlabel(, labsize(small)) ///
 	ylabel(, labsize(small)) ///
 	legend(size(vsmall)) ///
-	note("Notes: Ages 18-65 included in sample. Not LF includes student and retired here.", ///
+	note("Notes: Ages 18-65 included in sample. Not LF includes student and retired. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))
 
 graph export ///
@@ -1991,8 +2000,7 @@ collapse (mean) sim_ptnr_employed, by(run year)
 collapse (mean) sim_ptnr_employed ///
 		 (sd) sim_ptnr_employed_sd = sim_ptnr_employed ///
 		 , by(year)
-		 
-* Compute 95% confidence interval 		 
+		 		 
 foreach varname in sim_ptnr_employed {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -2019,11 +2027,11 @@ twoway ///
 	xlabel(, labsize(small)) ///
 	ylabel(, labsize(small)) ///
 	legend(size(vsmall)) ///
-	note("Notes: Ages 18-65.  ", ///
+	note("Notes: Ages 18-65. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))
 
 graph export ///
-	"$dir_output_files/economic_activity/validation_${country}_activity_status_ts_partnerhip_shares_emp_emp_18_65.jpg", ///
+"$dir_output_files/economic_activity/validation_${country}_activity_status_ts_partnerhip_shares_emp_emp_18_65.jpg", ///
 	replace width(2400) height(1350) quality(100)
 	
 	
@@ -2117,7 +2125,6 @@ collapse (mean) sim_ptnr_inactive ///
 		 (sd) sim_ptnr_inactive_sd = sim_ptnr_inactive ///
 		 , by(year)
 		 
-* Compute 95% confidence interval 		 
 foreach varname in sim_ptnr_inactive {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -2144,7 +2151,7 @@ twoway ///
 	xlabel(, labsize(small)) ///
 	ylabel(, labsize(small)) ///
 	legend(size(vsmall)) ///
-	note("Notes: Ages 18-65.", ///
+	note("Notes: Ages 18-65. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))	
 	
 	
@@ -2250,7 +2257,6 @@ collapse (mean) sim_ptnr_out ///
 		 (sd) sim_ptnr_out_sd = sim_ptnr_out ///
 		 , by(year)
 		 
-* Compute 95% confidence interval 		 
 foreach varname in sim_ptnr_out {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -2275,7 +2281,7 @@ twoway ///
 	xlabel(, labsize(small)) ///
 	ylabel(, labsize(small)) ///
 	legend(size(vsmall)) ///
-	note("Notes: Ages 18-65.  ", ///
+	note("Notes: Ages 18-65. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))		
 	
 graph export ///

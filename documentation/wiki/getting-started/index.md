@@ -2,15 +2,8 @@
 
 This section walks you through everything needed to run SimPaths for the first time.
 
-## Prerequisites
-
-SimPaths is a Java project. Before running simulations you need:
-
-- Java Development Kit (JDK) 19 or later
-- Maven (for dependency management)
-- The required input data files (see [Input Data](data/index.md))
-
-## Steps
+SimPaths is a Java project. Follow these steps to setup a working environment
+and run simulations:
 
 1. [Environment Setup](environment-setup.md) — install dependencies and clone the repository
 2. [Input Data](data/index.md) — obtain the required UK input datasets

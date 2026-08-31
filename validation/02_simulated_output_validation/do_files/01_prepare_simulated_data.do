@@ -5,14 +5,18 @@
 * AUTHORS:			Ashley Burdett 
 * LAST UPDATE:		Jan 2026
 * COUNTRY: 			UK 
-* DESCRIPTION: 		This file loads the simulated output from SimPaths and 
-* 					preserves the relevant variables for validation. 
+* DESCRIPTION: 		Loads SimPaths simulated output CSVs (BenefitUnit.csv,
+* 					Person.csv) per run, keeps the variables needed for
+* 					validation, appends runs together, and merges Person
+* 					into BenefitUnit on run/time/idBu. Saves the combined
+* 					panel to loaded_simulation_data.dta, consumed next by
+* 					02_create_simulated_variables.do.
 ********************************************************************************
-* NOTES:			Works in Stata 18 onwards - able to preserve case in var
-* 					names.
+* NOTES:			
 *******************************************************************************/
 
-// currently hh information not used 
+* Currently hh information not used 
+
 /*
 * Import required variables from household file
 
@@ -26,7 +30,7 @@ forvalues n = 1/$max_n_runs {
 
 	rename id_Household idHh
 
-	keep if time <= ${max_year}	
+	keep if time <= ${max_sim_year}	
 
 	save "${dir_data}/household_sim`n'", replace
 	
