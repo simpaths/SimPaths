@@ -1,12 +1,12 @@
 ***************************************************************************************
-* PROJECT:              ESPON: construct initial populations for SimPaths using UKHLS data 
+* PROJECT:              SimPaths UK: construct initial populations for SimPaths using UKHLS data 
 * DO-FILE NAME:         10_check_yearly_data.do
 * DESCRIPTION:          This file computes descriptives to compare the initial populations before and after dropping households with missing values 
 ***************************************************************************************
 * COUNTRY:              UK
-* DATA:         	    UKHLS EUL version - UKDA-6614-stata [to wave n]
+* DATA:         	    UKHLS EUL version - UKDA-6614-stata [to wave o]
 * AUTHORS: 				Daria Popova
-* LAST UPDATE:          3 Nov 2025 DP 
+* LAST UPDATE:          15 Jan 2026 DP  
 * NOTE:					Called from 00_master.do - see master file for further details
 ***************************************************************************************/*
 set matsize 11000, permanently
@@ -55,8 +55,8 @@ les_c4
 dhm_ghq                          
 adultchildflag          
 dwt                              
-potential_earnings_hourly
-l1_potential_earnings_hourly     
+observed_earnings_hourly
+l1_observed_earnings_hourly     
 total_wealth                    
 total_pensions
 housing_wealth
@@ -209,7 +209,7 @@ cap erase "$dir_data/population_initial_fs_UK_sumstats.txt"
 *******************************************************
 *output summary stats for new initial populations     *
 *******************************************************
-forvalues year=2010/2023 { 
+forvalues year=$firstSimYear/$lastSimYear { 
 use "$dir_data/population_initial_UK_`year'.dta", clear  
 
 cap drop dhemcs dhepcs
@@ -244,7 +244,7 @@ outreg2 using "$dir_data/population_initial_UK_sumstats.xls" if stm==`year', sum
 **********************************************************************
 *output summary stats for new initial populations before dropping hhs*
 **********************************************************************
-forvalues year=2010/2023 { 
+forvalues year=$firstSimYear/$lastSimYear { 
 use "$dir_data/population_initial_fs_UK_`year'.dta", clear  
 rename careHoursProvidedWeekly carehoursprovidedweekly
 

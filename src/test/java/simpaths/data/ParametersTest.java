@@ -149,8 +149,8 @@ class ParametersTest {
         MultiKeyCoefficientMap goodMap = new MultiKeyCoefficientMap(keyVector, goodValueVector);
         for (String goodValue : goodValueVector) {goodMap.putValue(goodValue, 0);}
 
-        assertThrows(RuntimeException.class, () -> Parameters.validatePersonRegressors(badMap, "A map designed to contain invalid values", "bad sheet"));
-        assertDoesNotThrow(() -> Parameters.validatePersonRegressors(goodMap, "A map designed to contain valid values", "good sheet"));
+        assertThrows(RuntimeException.class, () -> Parameters.validateRegressors(badMap, "A map designed to contain invalid values", "Sheet1"));
+        assertDoesNotThrow(() -> Parameters.validateRegressors(goodMap, "A map designed to contain valid values", "Sheet1"));
 
     }
 }

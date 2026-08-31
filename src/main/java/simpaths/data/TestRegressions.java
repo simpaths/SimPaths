@@ -24,22 +24,22 @@ public class TestRegressions {
         Map<E, Double> probs;
 
 
-        personProxy.setDgn(Gender.Female);
-        personProxy.setDag(28);
-        personProxy.setRegionLocal(Region.UKF);
-        personProxy.setYearLocal(2010);
+        personProxy.setDemMaleFlag(Gender.Female);
+        personProxy.setDemAge(28);
+        personProxy.setI_demRgn(Region.UKF);
+        personProxy.setI_demYear(2010);
         probs = ManagerRegressions.getProbabilities(personProxy, regression);
 
-        personProxy.setDgn(Gender.Male);
-        personProxy.setDag(23);
-        personProxy.setRegionLocal(Region.UKF);
-        personProxy.setYearLocal(2010);
+        personProxy.setDemMaleFlag(Gender.Male);
+        personProxy.setDemAge(23);
+        personProxy.setI_demRgn(Region.UKF);
+        personProxy.setI_demYear(2010);
         probs = ManagerRegressions.getProbabilities(personProxy, regression);
 
-        personProxy.setDgn(Gender.Female);
-        personProxy.setDag(42);
-        personProxy.setRegionLocal(Region.UKF);
-        personProxy.setYearLocal(2010);
+        personProxy.setDemMaleFlag(Gender.Female);
+        personProxy.setDemAge(42);
+        personProxy.setI_demRgn(Region.UKF);
+        personProxy.setI_demYear(2010);
         probs = ManagerRegressions.getProbabilities(personProxy, regression);
 
         System.out.println("regression test complete");

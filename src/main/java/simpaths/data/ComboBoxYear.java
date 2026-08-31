@@ -22,6 +22,7 @@ public class ComboBoxYear extends JPanel implements ActionListener {
 	// variables in multiple methods
 	private static final long serialVersionUID = 1137706260047776530L;
 	String startYearName;
+    private JComboBox<String> startYearList;
 
 
 	/**
@@ -63,7 +64,7 @@ public class ComboBoxYear extends JPanel implements ActionListener {
 			possibleStartYears[count] = ii.toString();
 			count++;
 		}
-		JComboBox<String> startYearList = new JComboBox<String>(possibleStartYears);
+		this.startYearList = new JComboBox<>(possibleStartYears);
 		startYearList.setSelectedIndex(0);
 		startYearList.addActionListener(this);
 		this.startYearName = possibleStartYears[startYearList.getSelectedIndex()];
@@ -85,8 +86,7 @@ public class ComboBoxYear extends JPanel implements ActionListener {
 	 *
 	 */
 	public void actionPerformed(ActionEvent e) {
-		JComboBox cb = (JComboBox)e.getSource();
-		startYearName = (String)cb.getSelectedItem();
+		startYearName = (String) this.startYearList.getSelectedItem();
 		updateLabel(startYearName);
 	}
 

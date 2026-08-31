@@ -212,6 +212,23 @@ public class TaxDonorDataParser {
                 + "ALTER TABLE " + personTableName + " ALTER COLUMN uc_takeup RENAME TO UC_TAKEUP;"
             );
             stat.execute(
+                    "ALTER TABLE " + personTableName + " ADD temp REAL DEFAULT 0;"
+                            + "ALTER TABLE " + personTableName + " ALTER COLUMN bdioa REAL;"
+                            + "ALTER TABLE " + personTableName + " ALTER COLUMN bdisc REAL;"
+                            + "ALTER TABLE " + personTableName + " ALTER COLUMN bdiscwa REAL;"
+                            + "ALTER TABLE " + personTableName + " ALTER COLUMN bdimbwa REAL;"
+                            + "ALTER TABLE " + personTableName + " ALTER COLUMN bdict01 REAL;"
+                            + "ALTER TABLE " + personTableName + " ALTER COLUMN bdict02 REAL;"
+                            + "ALTER TABLE " + personTableName + " ALTER COLUMN bdiwi REAL;"
+                            + "ALTER TABLE " + personTableName + " ALTER COLUMN bdisv REAL;"
+                            + "UPDATE " + personTableName + " SET temp = bdioa + bdisc + bdimb + "
+                            + "bdiscwa + bdimbwa + bdict01 + bdict02 + bsadi + bdiwi + bdisv;"
+                            + "ALTER TABLE " + personTableName + " ADD ddi INT DEFAULT 0;"
+                            + "UPDATE " + personTableName + " SET ddi = 1 WHERE temp > 0;"
+                            + "ALTER TABLE " + personTableName + " DROP COLUMN temp, bdioa, bdisc, "
+                            + "bdimb, bdiscwa, bdimbwa, bdict01, bdict02, bsadi, bdiwi, bdisv;"
+            );
+            stat.execute(
 
                 //Weights
                 "ALTER TABLE " + personTableName + " ALTER COLUMN DWT RENAME TO WEIGHT;"
@@ -387,7 +404,7 @@ public class TaxDonorDataParser {
 
         }
         catch(SQLException e) {
-            throw new IllegalArgumentException("SQL Exception thrown!" + e.getMessage());
+            throw new IllegalArgumentException("SQL exception thrown - " + e.getMessage());
         }
         finally {
             try {
@@ -430,7 +447,6 @@ public class TaxDonorDataParser {
      * This method constructs a .csv file that aggregates the information from multiple EUROMOD
      * output .txt files, picking up the relevant columns for each EUROMOD policy scenario, that
      * will eventually be parsed into the JAS-mine input database.
-     *
      *
      */
     public static void constructAggregateTaxDonorPopulationCSVfile(Country country, boolean showGui) {
@@ -616,7 +632,7 @@ public class TaxDonorDataParser {
         EntityTransaction txn = null;
         try {
             // access database and obtain donor pool
-            Map propertyMap = new HashMap();
+            var propertyMap = new HashMap<String, String>();
             propertyMap.put("hibernate.connection.url", "jdbc:h2:file:" + Parameters.getInputDirectory() + "input" + ";TRACE_LEVEL_FILE=0;TRACE_LEVEL_SYSTEM_OUT=0;AUTO_SERVER=TRUE");
             EntityManager em = Persistence.createEntityManagerFactory("tax-database", propertyMap).createEntityManager();
             txn = em.getTransaction();
@@ -703,7 +719,7 @@ public class TaxDonorDataParser {
                                 hoursWorkedPerWeek2 = hoursWorked;
                             }
                             if (agePerson >= Parameters.AGE_TO_BECOME_RESPONSIBLE) {
-                                int dlltsd = person.getDlltsd();
+                                int dlltsd = person.getHealthDsblLongtermFlag();
                                 if (dlltsd > dlltsd1) {
                                     dlltsd2 = dlltsd1;
                                     dlltsd1 = dlltsd;

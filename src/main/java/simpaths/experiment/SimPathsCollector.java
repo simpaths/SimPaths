@@ -2,42 +2,46 @@
 package simpaths.experiment;
 
 // import Java packages
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import microsim.data.db.PanelEntityKey;
-import simpaths.data.filters.FlexibleInLabourSupplyFilter;
+import simpaths.data.filters.Filters;
+import simpaths.data.statistics.AgeBandAggregates;
+import simpaths.data.statistics.LabourStatistics;
 import simpaths.data.statistics.HealthStatistics;
-import simpaths.data.statistics.EmploymentStatistics;
+import simpaths.data.statistics.WellbeingByGender;
 import simpaths.model.BenefitUnit;
 import simpaths.model.SimPathsModel;
 import simpaths.model.enums.Education;
 import simpaths.model.enums.Gender;
 import simpaths.model.enums.Quintiles;
-import microsim.statistics.Series;
-import microsim.statistics.functions.*;
 // import plug-in packages
 import org.apache.commons.math3.util.Pair;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import microsim.FilteredCollection;
 // import JAS-mine packages
 import microsim.annotation.GUIparameter;
 import microsim.data.DataExport;
+import microsim.dev.statistics.CrossSection;
+import microsim.dev.statistics.Stats;
 import microsim.engine.AbstractSimulationCollectorManager;
 import microsim.engine.SimulationEngine;
 import microsim.engine.SimulationManager;
 import microsim.event.EventListener;
 import microsim.event.SingleTargetEvent;
-import microsim.statistics.CrossSection;
-import microsim.statistics.IDoubleSource;
 // import LABOURsim packages
 import simpaths.data.Parameters;
-import simpaths.data.statistics.Statistics;
-import simpaths.data.statistics.Statistics2;
-import simpaths.data.statistics.Statistics3;
+import simpaths.data.statistics.AlignmentStatistics;
+import simpaths.data.statistics.WealthIncomeStatistics;
+import simpaths.data.statistics.DemographicStatistics;
 import simpaths.model.Person;
 import simpaths.model.enums.Region;
-
-import static simpaths.model.Person.DoublesVariables.GrossLabourIncomeMonthly;
 
 
 /**
@@ -48,22 +52,24 @@ import static simpaths.model.Person.DoublesVariables.GrossLabourIncomeMonthly;
 public class SimPathsCollector extends AbstractSimulationCollectorManager implements EventListener {
 
     // default simulation parameters
-    private static Logger log = Logger.getLogger(SimPathsCollector.class);
+    private static Logger log = LogManager.getLogger(SimPathsCollector.class);
 
     @GUIparameter(description="Calculate the Gini coefficients of income (also displayed in charts)")
     private boolean calculateGiniCoefficients = false;
 
     @GUIparameter(description="Calculate extended set of population characteristics (useful for validation)")
-    private boolean persistStatistics2 = true;
+    private boolean persistDemographicStatistics = true;
 
-    @GUIparameter(description="Report alignment adjustments")
-    private boolean persistStatistics3 = true;
+    @GUIparameter(description="Report alignment adjustment factors (AlignmentStatistics.csv)")
+    private boolean persistAlignmentStatistics = true;
 
-    @GUIparameter(description="Report health statistics")
+    private boolean persistLabourStatistics = true;
+
+    @GUIparameter(description="Report population health statistics by age band (HealthStatistics.csv)")
     private boolean persistHealthStatistics = true;
 
-    @GUIparameter(description="Report employment statistics")
-    private boolean persistEmploymentStatistics = true;
+    @GUIparameter(description="Report wellbeing statistics by gender (WellbeingByGender.csv)")
+    private boolean persistWellbeingByGender = true;
 
     @GUIparameter(description="Toggle to turn database persistence on/off")
     private boolean exportToDatabase = false;
@@ -72,7 +78,7 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
     private boolean exportToCSV = true;
 
     @GUIparameter(description="Toggle to turn persistence of statistics on/off")
-    private boolean persistStatistics = true;
+    private boolean persistWealthIncomeStatistics = true;
 
     @GUIparameter(description="Toggle to turn persistence of persons on/off")
     private boolean persistPersons = true;
@@ -89,19 +95,18 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
     @GUIparameter(description="Number of time-steps in between database dumps")
     private Double dataDumpTimePeriod = 1.;
 
-    private int ordering = Parameters.COLLECTOR_ORDERING;	//XXX: Move to Parameters?	//Schedule at the same time as the model and observer events, but with an order higher than model but less than observer, so will be fired after the model and before the observe have updated.
+    // Schedule at the same time as the model and observer events, but with an order
+    // higher than model but less than observer, so will be fired after the model
+    // and before the observe have updated.
+    private int ordering = Parameters.COLLECTOR_ORDERING;
 
     private SimPathsModel model;
 
-    private Statistics stats;
+    private WealthIncomeStatistics wealthIncomeStats;
 
-    private Statistics2 stats2;
+    private DemographicStatistics demographicStats;
 
-    private Statistics3 stats3;
-
-    private EmploymentStatistics statsEmploymentGender;
-
-    private EmploymentStatistics statsEmploymentAgeGrps;
+    private AlignmentStatistics alignmentStats;
 
     private HealthStatistics statsHealthGender;
 
@@ -111,15 +116,19 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
 
     private HealthStatistics statsHealthEducation;
 
-    private GiniPersonalGrossEarnings giniPersonalGrossEarnings;
+    private LabourStatistics labourStats;
 
-    private GiniEquivalisedHouseholdDisposableIncome giniEquivalisedHouseholdDisposableIncome;
+    private WellbeingByGender wellbeingByGender;
 
-    private Ydses_c5 ydses_c5;
+    private AgeBandAggregates ageBandAggregates;
 
-    private EDI edi; //Equivalised disposable income statistics
+    private double ageBandAggregatesTime = Double.NaN;
 
-    private SIndex sIndex;
+    protected GiniPersonalGrossEarnings giniPersonalGrossEarnings;
+
+    protected GiniEquivalisedHouseholdDisposableIncome giniEquivalisedHouseholdDisposableIncome;
+
+    private Ydses_c5 yHhQuintilesMonthC5;
 
     private GrossLabourIncome grossLabourIncome;
 
@@ -129,13 +138,13 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
 
     private DataExport exportHouseholds;
 
-    private DataExport exportStatistics;
+    private DataExport exportWealthIncomeStatistics;
 
-    private DataExport exportStatistics2;
+    private DataExport exportDemographicStatistics;
 
-    private DataExport exportStatistics3;
+    private DataExport exportAlignmentStatistics;
 
-    private DataExport exportStatisticsEmploymentGender;
+    private DataExport exportLabourStatistics;
 
     private DataExport exportStatisticsEmploymentAgeGrps;
 
@@ -146,14 +155,6 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
     private DataExport exportHealthStatisticsHousehold;
 
     private DataExport exportHealthStatisticsEducation;
-
-    protected MultiTraceFunction.Double fGiniPersonalGrossEarningsNational;
-
-    protected Map<Region, MultiTraceFunction.Double> fGiniPersonalGrossEarningsRegionalMap;
-
-    protected MultiTraceFunction.Double fGiniEquivalisedHouseholdDisposableIncomeNational;
-
-    protected Map<Region, MultiTraceFunction.Double> fGiniEquivalisedHouseholdDisposableIncomeRegionalMap;
 
     public record AgeRange(int lowerBound, int upperBound) {
         @Override
@@ -169,6 +170,7 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
         }
     }
 
+    private DataExport exportWellbeingByGender;
 
     /**
      *
@@ -185,23 +187,23 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
 
     public enum Processes {
 
-        CalculateSIndex,
         CalculateHouseholdsGrossIncome,
         CalculateEquivalisedHouseholdDisposableIncome,
         CalculateGiniCoefficients,
         DumpPersons,
         DumpBenefitUnits,
         DumpHouseholds,
-        DumpStatistics,
-        DumpStatistics2,
-		DumpStatistics3,
-        DumpStatisticsEmployment,
-        DumpHealthStatistics
+        DumpWealthIncomeStatistics,
+        DumpDemographicStatistics,
+        DumpAlignmentStatistics,
+        DumpLabourStatistics,
+        DumpHealthStatistics,
+        DumpWellbeingByGender
     }
 
     String[] genders = {"Total", "Male", "Female"};
 
-    List<AgeRange> ageGroups = Arrays.asList(
+    List<AgeRange> ageGroups = List.of(
             new AgeRange(16, 17),
             new AgeRange(18, 24),
             new AgeRange(25, 34),
@@ -210,7 +212,7 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
             new AgeRange(65, 130)
     );
 
-    List<HouseholdStructure> householdStructures = Arrays.asList(
+    List<HouseholdStructure> householdStructures = List.of(
             new HouseholdStructure(true, true, Gender.Male),
             new HouseholdStructure(true, false, Gender.Male),
             new HouseholdStructure(false, true, Gender.Male),
@@ -222,22 +224,14 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
     );
 
 
-    /**
-     *
-     * XXX
-     *
-     */
     @Override
     public void onEvent(Enum<?> type) {
         switch ((Processes) type) {
 
-        case CalculateSIndex:
-            calculateSIndex();
         case CalculateHouseholdsGrossIncome:
             calculateGrossIncome();
         case CalculateEquivalisedHouseholdDisposableIncome:
             calculateEquivalisedHouseholdDisposableIncome();
-            calculateEDI();
             break;
         case CalculateGiniCoefficients:
             calculateGiniCoefficients();
@@ -264,53 +258,53 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
                 log.error(e.getMessage());
             }
             break;
-        case DumpStatistics:
+        case DumpWealthIncomeStatistics:
+            wealthIncomeStats.update(ageBands());
             try {
-                exportStatistics.export();
+                exportWealthIncomeStatistics.export();
             } catch (Exception e) {
                 log.error(e.getMessage());
             }
             break;
-        case DumpStatistics2:
-            stats2.update(model);
+        case DumpDemographicStatistics:
+            demographicStats.update(ageBands());
             try {
-                exportStatistics2.export();
+                exportDemographicStatistics.export();
             } catch (Exception e) {
                 log.error(e.getMessage());
             }
             break;
-		case DumpStatistics3:
-			stats3.update(model);
-			try {
-				exportStatistics3.export();
-			} catch (Exception e) {
-				log.error(e.getMessage());
-			}
-			break;
-        case DumpStatisticsEmployment:
-
+        case DumpAlignmentStatistics:
+            alignmentStats.update(model);
+            try {
+                exportAlignmentStatistics.export();
+            } catch (Exception e) {
+                log.error(e.getMessage());
+            }
+            break;
+        case DumpLabourStatistics:
+            labourStats.update(model, ageBands());
+            try {
+                exportLabourStatistics.export();
+            } catch (Exception e) {
+                log.error(e.getMessage());
+            }
+            break;
+        case DumpWellbeingByGender:
             for (String gender_s: genders) {
-                statsEmploymentGender.update(model, gender_s, new AgeRange(18, 64));
+                wellbeingByGender.update(model, gender_s);
                 try {
-                    exportStatisticsEmploymentGender.export();
+                    exportWellbeingByGender.export();
                 } catch (Exception e) {
                     log.error(e.getMessage());
                 }
             }
 
-            for (AgeRange ageGroup: ageGroups) {
-                statsEmploymentAgeGrps.update(model, "Total", ageGroup);
-                try {
-                    exportStatisticsEmploymentAgeGrps.export();
-                } catch (Exception e) {
-                    log.error(e.getMessage());
-                }
-            }
             break;
         case DumpHealthStatistics:
-
             for (String gender_s: genders) {
-                statsHealthGender.update(model, gender_s, new AgeRange(18, 64));
+                // FIXME: adapt to new stats
+                // statsHealthGender.update(model, gender_s, new AgeRange(18, 64));
                 try {
                     exportHealthStatisticsGender.export();
                 } catch (Exception e) {
@@ -320,7 +314,8 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
 
             for (AgeRange ageGroup: ageGroups) {
                 for (String gender_s: genders) {
-                    statsHealthAgeGrps.update(model, gender_s, ageGroup);
+                    // FIXME: adapt to new stats
+                    // statsHealthAgeGrps.update(model, gender_s, ageGroup);
                     try {
                         exportHealthStatisticsAgeGrps.export();
                     } catch (Exception e) {
@@ -330,7 +325,8 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
             }
 
             for (HouseholdStructure householdStructure: householdStructures) {
-                statsHealthHousehold.update(model, householdStructure);
+                // FIXME: adapt to new stats
+                // statsHealthHousehold.update(model, householdStructure);
                 try {
                     exportHealthStatisticsHousehold.export();
                 } catch (Exception e) {
@@ -339,7 +335,8 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
             }
 
             for (Education education: Education.values()) {
-                statsHealthEducation.update(model, education);
+                // FIXME: adapt to new stats
+                // statsHealthEducation.update(model, education);
                 try {
                     exportHealthStatisticsEducation.export();
                 } catch (Exception e) {
@@ -361,15 +358,16 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
 
         model = (SimPathsModel) getManager();
 
-        stats = new Statistics();
-        stats2 = new Statistics2();
-        stats3 = new Statistics3();
-        statsEmploymentGender = new EmploymentStatistics(new PanelEntityKey(1L));
-        statsEmploymentAgeGrps = new EmploymentStatistics(new PanelEntityKey(2L));
-        statsHealthGender = new HealthStatistics(new PanelEntityKey(1L));
-        statsHealthAgeGrps = new HealthStatistics(new PanelEntityKey(2L));
-        statsHealthHousehold = new HealthStatistics(new PanelEntityKey(3L));
-        statsHealthEducation = new HealthStatistics(new PanelEntityKey(4L));
+        statsHealthGender = new HealthStatistics();
+        statsHealthAgeGrps = new HealthStatistics();
+        statsHealthHousehold = new HealthStatistics();
+        statsHealthEducation = new HealthStatistics();
+
+        wealthIncomeStats = new WealthIncomeStatistics();
+        demographicStats = new DemographicStatistics();
+        alignmentStats = new AlignmentStatistics();
+        labourStats = new LabourStatistics();
+        wellbeingByGender = new WellbeingByGender();
 
         //For export to database or .csv files.
         if(persistPersons)
@@ -378,48 +376,60 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
             exportBenefitUnits = new DataExport(model.getBenefitUnits(), exportToDatabase, exportToCSV);
         if (persistHouseholds)
             exportHouseholds = new DataExport(model.getHouseholds(), exportToDatabase, exportToCSV);
-        if (persistStatistics)
-            exportStatistics = new DataExport(stats, exportToDatabase, exportToCSV);
-        if (persistStatistics2)
-            exportStatistics2 = new DataExport(stats2, exportToDatabase, exportToCSV);
-        if (persistStatistics3)
-            exportStatistics3 = new DataExport(stats3, exportToDatabase, exportToCSV);
-        if (persistEmploymentStatistics)
-            exportStatisticsEmploymentGender = new DataExport(statsEmploymentGender, exportToDatabase, exportToCSV);
-            exportStatisticsEmploymentAgeGrps = new DataExport(statsEmploymentAgeGrps, exportToDatabase, exportToCSV);
-        if (persistHealthStatistics)
+
+        if (persistHealthStatistics) {
             exportHealthStatisticsGender = new DataExport(statsHealthGender, exportToDatabase, exportToCSV);
             exportHealthStatisticsAgeGrps = new DataExport(statsHealthAgeGrps, exportToDatabase, exportToCSV);
             exportHealthStatisticsHousehold = new DataExport(statsHealthHousehold, exportToDatabase, exportToCSV);
             exportHealthStatisticsEducation = new DataExport(statsHealthEducation, exportToDatabase, exportToCSV);
-
-
-        if (calculateGiniCoefficients) {
-
-            giniPersonalGrossEarnings = new GiniPersonalGrossEarnings();
-            fGiniPersonalGrossEarningsNational = new MultiTraceFunction.Double(giniPersonalGrossEarnings, "getGiniPersonalGrossEarningsNational", true);
-            fGiniPersonalGrossEarningsRegionalMap = new LinkedHashMap<Region, MultiTraceFunction.Double>();
-            for(Region region: Parameters.getCountryRegions()) {
-                MultiTraceFunction.Double fGiniPersonalGrossEarningsRegion = new MultiTraceFunction.Double(giniPersonalGrossEarnings, region);
-                fGiniPersonalGrossEarningsRegionalMap.put(region, fGiniPersonalGrossEarningsRegion);
-            }
-
-            giniEquivalisedHouseholdDisposableIncome = new GiniEquivalisedHouseholdDisposableIncome();
-            fGiniEquivalisedHouseholdDisposableIncomeNational = new MultiTraceFunction.Double(giniEquivalisedHouseholdDisposableIncome, "getGiniEquivalisedHouseholdDisposableIncomeNational", true);
-            fGiniEquivalisedHouseholdDisposableIncomeRegionalMap = new LinkedHashMap<Region, MultiTraceFunction.Double>();
-            for(Region region: Parameters.getCountryRegions()) {
-                MultiTraceFunction.Double fGiniEquivalisedHouseholdDisposableIncomeRegion = new MultiTraceFunction.Double(giniEquivalisedHouseholdDisposableIncome, region);
-                fGiniEquivalisedHouseholdDisposableIncomeRegionalMap.put(region, fGiniEquivalisedHouseholdDisposableIncomeRegion);
-            }
         }
 
-        ydses_c5 = new Ydses_c5();
-        edi = new EDI();
-        sIndex = new SIndex();
+        if (persistWealthIncomeStatistics)
+            exportWealthIncomeStatistics = new DataExport(List.of(wealthIncomeStats), exportToDatabase, exportToCSV);
+        if (persistDemographicStatistics)
+            exportDemographicStatistics = new DataExport(List.of(demographicStats), exportToDatabase, exportToCSV);
+        if (persistAlignmentStatistics)
+            exportAlignmentStatistics = new DataExport(List.of(alignmentStats), exportToDatabase, exportToCSV);
+        if (persistLabourStatistics)
+            exportLabourStatistics = new DataExport(List.of(labourStats), exportToDatabase, exportToCSV);
+        if (persistWellbeingByGender)
+            exportWellbeingByGender = new DataExport(List.of(wellbeingByGender), exportToDatabase, exportToCSV);
+
+
+        if (exportToCSV)
+            OutputReadme.write(this, model);
+
+        if (calculateGiniCoefficients) {
+            giniPersonalGrossEarnings = new GiniPersonalGrossEarnings();
+            giniEquivalisedHouseholdDisposableIncome = new GiniEquivalisedHouseholdDisposableIncome();
+        }
+
+        yHhQuintilesMonthC5 = new Ydses_c5();
         grossLabourIncome = new GrossLabourIncome();
 
 
     }
+
+    /**
+     *
+     * EVALUATE THE AGE-BAND POPULATION AGGREGATES SHARED BY THE ANNUAL STATISTICS OUTPUTS
+     *
+     * WealthIncomeStatistics, DemographicStatistics, LabourStatistics and HealthStatistics all report
+     * subsets of the same aggregates, and each is toggled independently. Caching on the
+     * simulated time keeps the population traversal to once per year whichever
+     * combination of those outputs is enabled, without imposing an order on their events.
+     *
+     */
+    private AgeBandAggregates ageBands() {
+
+        double time = SimulationEngine.getInstance().getTime();
+        if (ageBandAggregates == null || ageBandAggregatesTime != time) {
+            ageBandAggregates = AgeBandAggregates.compute(model);
+            ageBandAggregatesTime = time;
+        }
+        return ageBandAggregates;
+    }
+
 
     @Override
     public void buildSchedule() {
@@ -433,31 +443,33 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
 //		getEngine().getEventQueue().scheduleOnce(new SingleTargetEvent(this, Processes.CalculateEquivalisedHouseholdDisposableIncome), model.getStartYear(), -2); //Run once in the start year, before the model?
 //		getEngine().getEventQueue().scheduleRepeat(new SingleTargetEvent(this, Processes.CalculateEquivalisedHouseholdDisposableIncome), model.getStartYear(), ordering, dataDumpTimePeriod);
 //		getEngine().getEventQueue().scheduleOnce(new SingleTargetEvent(this, Processes.CalculateEquivalisedHouseholdDisposableIncome), model.getEndYear(), -2);
-        getEngine().getEventQueue().scheduleRepeat(new SingleTargetEvent(this, Processes.CalculateSIndex), model.getStartYear(), ordering, dataDumpTimePeriod);
-
         if (calculateGiniCoefficients) {
             getEngine().getEventQueue().scheduleRepeat(new SingleTargetEvent(this, Processes.CalculateGiniCoefficients), model.getStartYear() + dataDumpStartTime, ordering, dataDumpTimePeriod);
         }
 
-        if (persistStatistics) {
-            getEngine().getEventQueue().scheduleRepeat(new SingleTargetEvent(this, Processes.DumpStatistics), model.getStartYear() + dataDumpStartTime, ordering, dataDumpTimePeriod);
-//			getEngine().getEventQueue().scheduleOnce(new SingleTargetEvent(this, Processes.DumpStatistics), model.getEndYear(), -2);		//Ensures the database is persisted on the last time-step
+        if (persistWealthIncomeStatistics) {
+            getEngine().getEventQueue().scheduleRepeat(new SingleTargetEvent(this, Processes.DumpWealthIncomeStatistics), model.getStartYear() + dataDumpStartTime, ordering, dataDumpTimePeriod);
+//			getEngine().getEventQueue().scheduleOnce(new SingleTargetEvent(this, Processes.DumpWealthIncomeStatistics), model.getEndYear(), -2);		//Ensures the database is persisted on the last time-step
         }
 
-        if (persistStatistics2) {
-            getEngine().getEventQueue().scheduleRepeat(new SingleTargetEvent(this, Processes.DumpStatistics2), model.getStartYear() + dataDumpStartTime, ordering, dataDumpTimePeriod);
+        if (persistDemographicStatistics) {
+            getEngine().getEventQueue().scheduleRepeat(new SingleTargetEvent(this, Processes.DumpDemographicStatistics), model.getStartYear() + dataDumpStartTime, ordering, dataDumpTimePeriod);
         }
 
-		if (persistStatistics3) {
-			getEngine().getEventQueue().scheduleRepeat(new SingleTargetEvent(this, Processes.DumpStatistics3), model.getStartYear() + dataDumpStartTime, ordering, dataDumpTimePeriod);
-		}
+        if (persistAlignmentStatistics) {
+            getEngine().getEventQueue().scheduleRepeat(new SingleTargetEvent(this, Processes.DumpAlignmentStatistics), model.getStartYear() + dataDumpStartTime, ordering, dataDumpTimePeriod);
+        }
 
-        if (persistEmploymentStatistics) {
-			getEngine().getEventQueue().scheduleRepeat(new SingleTargetEvent(this, Processes.DumpStatisticsEmployment), model.getStartYear() + dataDumpStartTime, ordering, dataDumpTimePeriod);
+        if (persistLabourStatistics) {
+			getEngine().getEventQueue().scheduleRepeat(new SingleTargetEvent(this, Processes.DumpLabourStatistics), model.getStartYear() + dataDumpStartTime, ordering, dataDumpTimePeriod);
         }
 
         if (persistHealthStatistics){
 			getEngine().getEventQueue().scheduleRepeat(new SingleTargetEvent(this, Processes.DumpHealthStatistics), model.getStartYear() + dataDumpStartTime, ordering, dataDumpTimePeriod);
+        }
+
+        if (persistWellbeingByGender){
+			getEngine().getEventQueue().scheduleRepeat(new SingleTargetEvent(this, Processes.DumpWellbeingByGender), model.getStartYear() + dataDumpStartTime, ordering, dataDumpTimePeriod);
         }
 
         if (persistPersons) {
@@ -477,168 +489,32 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
     //	Inner classes for data collection
     // ---------------------------------------------------------------------
 
-    private class SIndex implements IDoubleSource {
-
-        final SimPathsModel model = (SimPathsModel) getManager();
-
-        private CrossSection.Double personsSIndexCS;
-
-        private PercentileArrayFunction percentileFunctionSIndexCS;
-
-        double sIndexMedianForNormalisation;
-
-        //What I probably need is a map with <person, array of incomes>
-        //Or, person would have to have a series object in which their incomes over time are collected. Then, each year, update that object to record new income, and calculate the security index looking at last T elements in that series
-/*
-        public void update() {
-            for (Person person : model.getPersons()) { //For each person, get values of income over time in a series object
-                person.getYearlyEquivalisedDisposableIncomeSeries().updateSource(); //Update values in the series of incomes
-
-                Series.Double incomeSeries = person.getYearlyEquivalisedDisposableIncomeSeries();
-                double[] incomeValues = incomeSeries.getDoubleArray();
-                int timeWindow = model.getsIndexTimeWindow(); //Time window in which the S Index should be calculated
-                int lengthIncomeSeries = incomeValues.length;
-
-                if (lengthIncomeSeries >= timeWindow) { //Only start calculating the index when enough years for the specified time window elapsed
-                    int t = timeWindow;
-                    double numeratorSum = 0.;
-                    double denominatorSum = 0.;
-                    for (int i = lengthIncomeSeries-1; i >= (lengthIncomeSeries - timeWindow); i--) { //Start at the end of the income series and iterate back within the time window
-
-                        double numeratorValue, denominatorValue, incomeValue;
-
-                        //different formula depending on the person here: if working or if retired
-                        //TODO: do we still need to account for different amount of capital income depending on age?
-                        //Formula to calculate here
-                        if (person.getLes_c4().equals(Les_c4.Retired)) {
-                            incomeValue = incomeValues[i];
-                        } else {
-                            incomeValue = (1-model.getsIndexS())*incomeValues[i]; //If not retired, use (1-s)Y
-                        }
-                        numeratorValue = Math.pow(incomeValue, 1/model.getsIndexAlpha())*Math.pow(model.getsIndexDelta(), t); //Formula to calculate SIndex
-                        denominatorValue = Math.pow(model.getsIndexDelta(), t);
-
-                        numeratorSum += numeratorValue; //Note that for any period in which income was missing (-9999.99), this will result in a NaN sIndex. Should we use 0 for income instead?
-                        denominatorSum += denominatorValue;
-                        t--; //Because t is used in the formula
-                    }
-                    double sIndex = numeratorSum/denominatorSum;
-
-                    //Update SIndex for the person
-                    person.setsIndex(sIndex);
-                //	person.getsIndexYearMap().put(model.getYear()-timeWindow, sIndex);
-                //	System.out.println(person.getsIndexYearMap());
-
-                //	System.out.println("For person " + person.getKey().getId() + " the sIndex is " + sIndex + " in year " + model.getYear());
-
-                    //TODO: plot a histogram or a pyramid with sIndex for different categories: by gender, education, employment status
-
-                }
-            }
-        }
-*/
-
-        public void update() {
-            for (Person person : model.getPersons()) { //For each person, get values of income over time in a series object
-                person.getYearlyEquivalisedConsumptionSeries().updateSource(); //Update values in the series of consumption
-
-                Series.Double consumptionSeries = person.getYearlyEquivalisedConsumptionSeries();
-                double[] consumptionValues = consumptionSeries.getDoubleArray();
-                int timeWindow = model.getsIndexTimeWindow(); //Time window in which the S Index should be calculated
-                int lengthConsumptionSeries = consumptionValues.length;
-
-                if (lengthConsumptionSeries >= timeWindow) { //Only start calculating the index when enough years for the specified time window elapsed
-                    int t = timeWindow;
-                    double numeratorSum = 0.;
-                    double denominatorSum = 0.;
-                    for (int i = lengthConsumptionSeries-1; i >= (lengthConsumptionSeries - timeWindow); i--) { //Start at the end of the income series and iterate back within the time window
-
-                        double numeratorValue, denominatorValue, consumptionValue;
-
-                        consumptionValue = consumptionValues[i];
-
-                        //TODO: do we still need to account for different amount of capital income depending on age?
-                        numeratorValue = Math.pow(consumptionValue, 1/model.getsIndexAlpha())*Math.pow(model.getsIndexDelta(), t); //Formula to calculate SIndex
-                        denominatorValue = Math.pow(model.getsIndexDelta(), t);
-
-                        numeratorSum += numeratorValue; //Note that for any period in which income was missing (-9999.99), this will result in a NaN sIndex. Should we use 0 for income instead?
-                        denominatorSum += denominatorValue;
-                        t--; //Because t is used in the formula
-                    }
-                    double sIndex = numeratorSum/denominatorSum;
-
-                    //Update SIndex for the person
-                    person.setsIndex(sIndex);
-
-                    //	person.getsIndexYearMap().put(model.getYear()-timeWindow, sIndex);
-                    //	System.out.println(person.getsIndexYearMap());
-
-                    //	System.out.println("For person " + person.getKey().getId() + " the sIndex is " + sIndex + " in year " + model.getYear());
-
-                    //TODO: plot a histogram or a pyramid with sIndex for different categories: by gender, education, employment status
-
-                }
-            }
-
-            //Now calculate the median value of the sIndex
-            personsSIndexCS = new CrossSection.Double(model.getPersons(), Person.DoublesVariables.sIndex);
-            percentileFunctionSIndexCS = new PercentileArrayFunction(personsSIndexCS);
-            percentileFunctionSIndexCS.updateSource();
-
-            //Set value in the statistics object
-            stats.setsIndex_p50(percentileFunctionSIndexCS.getDoubleValue(PercentileArrayFunction.Variables.P50));
-
-            if (model.getYear() == model.getStartYear()+model.getsIndexTimeWindow()+1) { //+1 added to the RHS because model increments the year and model runs before the collector
-                sIndexMedianForNormalisation = stats.getsIndex_p50();
-            }
-
-            //If SIndex is calculated, normalise it
-            if (model.getYear() >= model.getStartYear()+model.getsIndexTimeWindow()) {
-                for (Person person : model.getPersons()) {
-                    double normalisedSIndex = person.getsIndex()/sIndexMedianForNormalisation;
-                    person.setsIndexNormalised(normalisedSIndex);
-                }
-            }
-
-        }
-
-        @Override
-        public double getDoubleValue(Enum<?> anEnum) {
-            return 0;
-        }
-    }
-
     private class GrossLabourIncome {
 
         final SimPathsModel model = (SimPathsModel) getManager();
-        private CrossSection.Double personsGrossLabourIncomesCS;
-        private PercentileArrayFunction percentileFunctionGrossLabourIncomes;
 
         public void update() {
-            personsGrossLabourIncomesCS = new CrossSection.Double(model.getPersons(), GrossLabourIncomeMonthly); // Retrieve Gross Labour Income monthly value using native access through IDoubleSource
-            FlexibleInLabourSupplyFilter flexibleInLabourSupplyFilter = new FlexibleInLabourSupplyFilter();
-            personsGrossLabourIncomesCS.setFilter(flexibleInLabourSupplyFilter); // Filter only those who could work for calculation of quintiles of gross labour income
+            var filtered = new FilteredCollection<>(model::getPersons, Filters.flexibleLabourSupply());
+            var income_cs = new CrossSection<>(filtered, Person::getCovidYLabGross);
+            var income_stats = new Stats(income_cs.get()).descrStats();
 
-            percentileFunctionGrossLabourIncomes = new PercentileArrayFunction(personsGrossLabourIncomesCS);
-            percentileFunctionGrossLabourIncomes.updateSource();
-
-            stats.setGrossLabourIncome_p20(percentileFunctionGrossLabourIncomes.getDoubleValue(PercentileArrayFunction.Variables.P20));
-            stats.setGrossLabourIncome_p40(percentileFunctionGrossLabourIncomes.getDoubleValue(PercentileArrayFunction.Variables.P40));
-            stats.setGrossLabourIncome_p60(percentileFunctionGrossLabourIncomes.getDoubleValue(PercentileArrayFunction.Variables.P60));
-            stats.setGrossLabourIncome_p80(percentileFunctionGrossLabourIncomes.getDoubleValue(PercentileArrayFunction.Variables.P80));
+            wealthIncomeStats.setYLabP20(income_stats.getPercentile(20.0));
+            wealthIncomeStats.setYLabP40(income_stats.getPercentile(40.0));
+            wealthIncomeStats.setYLabP60(income_stats.getPercentile(60.0));
+            wealthIncomeStats.setYLabP80(income_stats.getPercentile(80.0));
 
             for (Person person : model.getPersons()) {
-                double covidModuleGrossLabourIncomeBaseline = person.getCovidModuleGrossLabourIncome_Baseline();
-                if (covidModuleGrossLabourIncomeBaseline <= stats.getGrossLabourIncome_p20()) {
-                    person.setCovidModuleGrossLabourIncomeBaseline_Xt5(Quintiles.Q1);
-                } else if (covidModuleGrossLabourIncomeBaseline <= stats.getGrossLabourIncome_p40()) {
-                    person.setCovidModuleGrossLabourIncomeBaseline_Xt5(Quintiles.Q2);
-                } else if (covidModuleGrossLabourIncomeBaseline <= stats.getGrossLabourIncome_p60()) {
-                    person.setCovidModuleGrossLabourIncomeBaseline_Xt5(Quintiles.Q3);
-                } else if (covidModuleGrossLabourIncomeBaseline <= stats.getGrossLabourIncome_p80()) {
-                    person.setCovidModuleGrossLabourIncomeBaseline_Xt5(Quintiles.Q4);
+                double covidModuleGrossLabourIncomeBaseline = person.getCovidYLabGross();
+                if (covidModuleGrossLabourIncomeBaseline <= wealthIncomeStats.getYLabP20()) {
+                    person.setCovidYLabGrossXt5(Quintiles.Q1);
+                } else if (covidModuleGrossLabourIncomeBaseline <= wealthIncomeStats.getYLabP40()) {
+                    person.setCovidYLabGrossXt5(Quintiles.Q2);
+                } else if (covidModuleGrossLabourIncomeBaseline <= wealthIncomeStats.getYLabP60()) {
+                    person.setCovidYLabGrossXt5(Quintiles.Q3);
+                } else if (covidModuleGrossLabourIncomeBaseline <= wealthIncomeStats.getYLabP80()) {
+                    person.setCovidYLabGrossXt5(Quintiles.Q4);
                 } else {
-                    person.setCovidModuleGrossLabourIncomeBaseline_Xt5(Quintiles.Q5);
+                    person.setCovidYLabGrossXt5(Quintiles.Q5);
                 }
             }
 
@@ -650,80 +526,32 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
      *This method calculates quintiles of household gross income
      *
      */
-    private class Ydses_c5 implements IDoubleSource {
+    private class Ydses_c5 {
 
         final SimPathsModel model = (SimPathsModel) getManager();
 
-        private CrossSection.Double householdsGrossIncomesCS;
-
-        private PercentileArrayFunction percentileFunctionHouseholdsGrossIncomes;
-
-        private double p50HouseholdsGrossIncome;
-
-        private double p20HouseholdsGrossIncome;
-
-        private double p40HouseholdsGrossIncome;
-
-        private double p60HouseholdsGrossIncome;
-
-        private double p80HouseholdsGrossIncome;
+        private boolean initialDistributionCalculated;
 
         public void update() {
-
             //Ydses_c5
-            householdsGrossIncomesCS = new CrossSection.Double(model.getBenefitUnits(), BenefitUnit.class, "getTmpHHYpnbihs_dv_asinh", true); //Populate CS
+            var hh_income_cs = new CrossSection<>(model::getBenefitUnits, BenefitUnit::getI_yNonBenHhGrossAsinhNoNull);
+            var hh_income_stats = new Stats(hh_income_cs.get()).descrStats();
 
-            percentileFunctionHouseholdsGrossIncomes = new PercentileArrayFunction(householdsGrossIncomesCS); //Get p50
-            percentileFunctionHouseholdsGrossIncomes.updateSource();
-            p50HouseholdsGrossIncome = percentileFunctionHouseholdsGrossIncomes.getDoubleValue(PercentileArrayFunction.Variables.P50); //Retrieve P50 value
-            p20HouseholdsGrossIncome = percentileFunctionHouseholdsGrossIncomes.getDoubleValue(PercentileArrayFunction.Variables.P20);
-            p40HouseholdsGrossIncome = percentileFunctionHouseholdsGrossIncomes.getDoubleValue(PercentileArrayFunction.Variables.P40);
-            p60HouseholdsGrossIncome = percentileFunctionHouseholdsGrossIncomes.getDoubleValue(PercentileArrayFunction.Variables.P60);
-            p80HouseholdsGrossIncome = percentileFunctionHouseholdsGrossIncomes.getDoubleValue(PercentileArrayFunction.Variables.P80);
-//			System.out.println("P50 value from the percentile function: " + p50HouseholdsGrossIncome + " P20: " + p20HouseholdsGrossIncome + " P40: " + p40HouseholdsGrossIncome +
-//								" P60: " + p60HouseholdsGrossIncome + " P80: " + p80HouseholdsGrossIncome);
+            wealthIncomeStats.setYHhQuintilesC5P20(hh_income_stats.getPercentile(20.0));
+            wealthIncomeStats.setYHhQuintilesC5P40(hh_income_stats.getPercentile(40.0));
+            wealthIncomeStats.setYHhQuintilesC5P60(hh_income_stats.getPercentile(60.0));
+            wealthIncomeStats.setYHhQuintilesC5P80(hh_income_stats.getPercentile(80.0));
 
-            stats.setYdses_p20(p20HouseholdsGrossIncome);
-            stats.setYdses_p40(p40HouseholdsGrossIncome);
-            stats.setYdses_p60(p60HouseholdsGrossIncome);
-            stats.setYdses_p80(p80HouseholdsGrossIncome);
-
-
-        }
-
-
-        @Override
-        public double getDoubleValue(Enum<?> variableID) {
-            // TODO Auto-generated method stub
-            return 0;
-        }
-
-    }
-
-    private class EDI implements IDoubleSource {
-        final SimPathsModel model = (SimPathsModel) getManager();
-        private CrossSection.Double householdsEDICS;
-        private PercentileArrayFunction percentileFunctionHouseholdsEDI;
-        private double p50HouseholdsEDI;
-
-        public void update() {
-            householdsEDICS = new CrossSection.Double(model.getBenefitUnits(), BenefitUnit.class, "getEquivalisedDisposableIncomeYearly", true);
-            percentileFunctionHouseholdsEDI = new PercentileArrayFunction(householdsEDICS);
-            percentileFunctionHouseholdsEDI.updateSource();
-            p50HouseholdsEDI = percentileFunctionHouseholdsEDI.getDoubleValue(PercentileArrayFunction.Variables.P50);
-            stats.setEdi_p50(p50HouseholdsEDI);
-//			System.out.println("Median EDI (collector) "+p50HouseholdsEDI);
-        }
-
-        @Override
-        public double getDoubleValue(Enum<?> variableID) {
-            // TODO Auto-generated method stub
-            return 0;
+            if (initialDistributionCalculated) {
+                for (BenefitUnit benefitUnit : model.getBenefitUnits()) {
+                    benefitUnit.updateIncomeQuintile();
+                }
+            }
+            initialDistributionCalculated = true;
         }
     }
 
-
-    private class GiniPersonalGrossEarnings implements IDoubleSource {
+    public class GiniPersonalGrossEarnings {
         //I calculate that the Gini coefficient for household-weights w_i and variables x_i:
         //	G = [ sum_i sum_j w_i * w_j * abs( x_i - x_j) ] / [ 2 * (sum_i w_i) * (sum_j w_j * x_j) ]
         //Note in this particular case, the x_i are the personal (individual) gross income (potential earnings * labour supply)
@@ -735,7 +563,7 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
         private double giniWeightedPersonalGrossEarningsNational;
 
         //Update gini coefficient of personal gross earnings
-        public void update() {
+        private void update() {
 
             //Note that weighted means individual person weighted measures
             double weightedAbsDiffPersonalGrossEarningsNational = 0.;	//Sum of absolute difference between two person's weighted gross earnings (personal weight * potential earnings * labour supply)
@@ -804,28 +632,25 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
                 log.info("giniWeightedPersonalGrossEarningsRegionalMap for " + region + " = " + giniWeightedPersonalGrossEarningsRegionalMap.get(region) + ", weightedAbsDiffEquivalisedIncomeRegional.get(region) = " + weightedAbsDiffPersonalGrossEarningsRegional.get(region) + ", totalPersonWeightForRegion = " + totalPersonWeightForRegion + ", totalWeightedPersonalGrossEarningsForRegion = " + totalWeightedPersonalGrossEarningsForRegion);
             }
             giniWeightedPersonalGrossEarningsNational = weightedAbsDiffPersonalGrossEarningsNational / (2. * totalPersonWeightNational * totalWeightedPersonalGrossEarningsNational);
-            stats.setGiniPersonalGrossEarningsNational(giniWeightedPersonalGrossEarningsNational);
+            wealthIncomeStats.setGiniPersonalGrossEarningsNational(giniWeightedPersonalGrossEarningsNational);
             log.info("giniWeightedPersonalGrossEarningsNational = " + giniWeightedPersonalGrossEarningsNational + ", weightedAbsDiffPersonalGrossEarningsNational = " + weightedAbsDiffPersonalGrossEarningsNational + ", totalPersonWeightNational = " + totalPersonWeightNational + ", totalWeightedPersonalGrossEarningsNational = " + totalWeightedPersonalGrossEarningsNational);
 
         }
 
-        //Getter methods to pass values to functions
-
-        //For national level
-        public double getGiniPersonalGrossEarningsNational() {
+        /// Gini coefficient at the national level.
+        public double national() {
             return giniWeightedPersonalGrossEarningsNational;
         }
 
-        //For regional level
-        @Override
-        public double getDoubleValue(Enum<?> region) {
+        /// Gini coefficient in the specified [Region].
+        public double inRegion(Region region) {
             return giniWeightedPersonalGrossEarningsRegionalMap.get(region);
         }
 
     }
 
 
-    private class GiniEquivalisedHouseholdDisposableIncome implements IDoubleSource {
+    public class GiniEquivalisedHouseholdDisposableIncome {
 
         //I calculate that the Gini coefficient for household-weights w_i and variables x_i:
         //	G = [ sum_i sum_j w_i * w_j * abs( x_i - x_j) ] / [ 2 * (sum_i w_i) * (sum_j w_j * x_j) ]
@@ -838,7 +663,7 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
         private double giniWeightedEquivalisedHouseholdDisposableIncomeNational;
 
         //Update gini coefficient of household disposable income
-        public void update() {
+        private void update() {
 
             //Note that weighted means household weighted measures
             double weightedAbsDiffEquivalisedIncomeNational = 0.;	//Sum of absolute difference between two household's weighted equivalised income (household weight * equivalised weight * household disposable income)
@@ -907,21 +732,18 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
                 log.info("giniHouseholdDisposableIncomeRegional for " + region + " = " + giniWeightedEquivalisedHouseholdDisposableIncomeRegionalMap.get(region) + ", weightedAbsDiffEquivalisedIncomeRegional.get(region) = " + weightedAbsDiffEquivalisedIncomeRegional.get(region) + ", totalHouseholdWeightForRegion = " + totalHouseholdWeightForRegion + ", totalWeightedEquivalisedHouseholdIncomeForRegion = " + totalWeightedEquivalisedHouseholdIncomeForRegion);
             }
             giniWeightedEquivalisedHouseholdDisposableIncomeNational = weightedAbsDiffEquivalisedIncomeNational / (2. * totalHouseholdWeightNational * totalWeightedEquivalisedHouseholdIncomeNational);
-            stats.setGiniEquivalisedHouseholdDisposableIncomeNational(giniWeightedEquivalisedHouseholdDisposableIncomeNational);
+            wealthIncomeStats.setGiniEquivalisedHouseholdDisposableIncomeNational(giniWeightedEquivalisedHouseholdDisposableIncomeNational);
             log.info("giniWeightedEquivalisedHouseholdDisposableIncomeNational = " + giniWeightedEquivalisedHouseholdDisposableIncomeNational + ", weightedAbsDiffEquivalisedIncomeNational = " + weightedAbsDiffEquivalisedIncomeNational + ", totalHouseholdWeightNational = " + totalHouseholdWeightNational + ", totalWeightedEquivalisedHouseholdIncomeNational = " + totalWeightedEquivalisedHouseholdIncomeNational);
 
         }
 
-        //Getter methods to pass values to functions
-
-        //For national level
-        public double getGiniEquivalisedHouseholdDisposableIncomeNational() {
+        /// Gini coefficient at the national level.
+        public double national() {
             return giniWeightedEquivalisedHouseholdDisposableIncomeNational;
         }
 
-        //For regional level
-        @Override
-        public double getDoubleValue(Enum<?> region) {
+        /// Gini coefficient in the specified [Region].
+        public double inRegion(Region region) {
             return giniWeightedEquivalisedHouseholdDisposableIncomeRegionalMap.get(region);
         }
 
@@ -943,7 +765,7 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
                 totalWeight += house.getWeight();
             }
             else {		//Cannot include house in statistics as unable to calculate eq disp income
-                house.setAtRiskOfPoverty(1);		//If benefit unit has equivalised disposable income < 0, it should be classified as at risk of poverty
+                house.setYPvrtyFlag(1);		//If benefit unit has equivalised disposable income < 0, it should be classified as at risk of poverty
             }
         }
 
@@ -978,18 +800,18 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
 
         double atRiskOfPovertyThreshold = median * 0.6;
 //		log.info("atRiskOfPovertyThreshold = " + atRiskOfPovertyThreshold);
-        stats.setMedianEquivalisedHouseholdDisposableIncome(median);		//Save median household equivalised disposable income in statistics object
-//		stats.setRiskOfPovertyThreshold(atRiskOfPovertyThreshold);			//Risk-of-poverty threshold is set at 60% of the national median equivalised household disposable income.
+        wealthIncomeStats.setMedianEquivalisedHouseholdDisposableIncome(median);		//Save median household equivalised disposable income in statistics object
+//		wealthIncomeStats.setRiskOfPovertyThreshold(atRiskOfPovertyThreshold);			//Risk-of-poverty threshold is set at 60% of the national median equivalised household disposable income.
 //		System.out.println("Median EDI " + median + " Poverty threshold " + atRiskOfPovertyThreshold);
 
         //For use in charts
         for(Pair<BenefitUnit, Double> pairHouse_Income: arrHouse_eqHouseholdDispIncome) {
             BenefitUnit house = pairHouse_Income.getFirst();
             if(house.getEquivalisedDisposableIncomeYearly() < atRiskOfPovertyThreshold) {
-                house.setAtRiskOfPoverty(1);
+                house.setYPvrtyFlag(1);
             }
             else {
-                house.setAtRiskOfPoverty(0);
+                house.setYPvrtyFlag(0);
             }
         }
 
@@ -1002,20 +824,9 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
 
     }
 
-    private void calculateEDI() {
-        edi.update();
-    }
-
     private void calculateGrossIncome() {
-        ydses_c5.update();
+        yHhQuintilesMonthC5.update();
         grossLabourIncome.update();
-    }
-
-    private void calculateSIndex() {
-        /*
-        This method calculates the in(security) S Index for each individual in the simulation, using the time window and alpha and delta parameters specified in the model class.
-         */
-        sIndex.update();
     }
 
     // ---------------------------------------------------------------------
@@ -1058,23 +869,17 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
         this.dataDumpTimePeriod = dataDumpTimePeriod;
     }
 
-    public Statistics getStats() {
-        return stats;
+    public WealthIncomeStatistics getWealthIncomeStats() {
+        return wealthIncomeStats;
     }
 
-    public void setStats(Statistics stats) {
-        this.stats = stats;
+    public void setWealthIncomeStats(WealthIncomeStatistics wealthIncomeStats) {
+        this.wealthIncomeStats = wealthIncomeStats;
     }
 
-    public Statistics2 getStats2() { return stats2; }
+    public DemographicStatistics getDemographicStats() { return demographicStats; }
 
-    public void setStats2(Statistics2 stats2) { this.stats2 = stats2; }
-
-	public Statistics3 getStats3() { return stats3; }
-
-	public void setStats3(Statistics3 stats3) {
-		this.stats3 = stats3;
-	}
+    public void setDemographicStats(DemographicStatistics demographicStats) { this.demographicStats = demographicStats; }
 
     public boolean isExportToDatabase() {
         return exportToDatabase;
@@ -1092,12 +897,12 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
         this.exportToCSV = exportToCSV;
     }
 
-    public boolean isPersistStatistics() {
-        return persistStatistics;
+    public boolean isPersistWealthIncomeStatistics() {
+        return persistWealthIncomeStatistics;
     }
 
-    public void setPersistStatistics(boolean persistStatistics) {
-        this.persistStatistics = persistStatistics;
+    public void setPersistWealthIncomeStatistics(boolean persistWealthIncomeStatistics) {
+        this.persistWealthIncomeStatistics = persistWealthIncomeStatistics;
     }
 
     public boolean isCalculateGiniCoefficients() {
@@ -1108,24 +913,32 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
         this.calculateGiniCoefficients = calculateGiniCoefficients;
     }
 
-    public boolean isPersistStatistics2() {
-        return persistStatistics2;
+    public boolean isPersistDemographicStatistics() {
+        return persistDemographicStatistics;
     }
 
-    public void setPersistStatistics2(boolean val) {
-        persistStatistics2 = val;
+    public void setPersistDemographicStatistics(boolean val) {
+        persistDemographicStatistics = val;
     }
 
-	public boolean isPersistStatistics3() {
-		return persistStatistics3;
-	}
+    public boolean isPersistAlignmentStatistics() {
+        return persistAlignmentStatistics;
+    }
 
-	public void setPersistStatistics3(boolean val) {
-		persistStatistics3 = val;
-	}
+    public void setPersistAlignmentStatistics(boolean val) {
+        persistAlignmentStatistics = val;
+    }
 
     public void calculateAtRiskOfPoverty() {
         calculateEquivalisedHouseholdDisposableIncome();
+    }
+
+    public boolean isPersistLabourStatistics() {
+        return persistLabourStatistics;
+    }
+
+    public void setPersistLabourStatistics(boolean persistLabourStatistics) {
+        this.persistLabourStatistics = persistLabourStatistics;
     }
 
     public boolean isPersistHealthStatistics() {
@@ -1136,11 +949,11 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
         this.persistHealthStatistics = persistHealthStatistics;
     }
 
-    public boolean isPersistEmploymentStatistics() {
-        return persistEmploymentStatistics;
+    public boolean isPersistWellbeingByGender() {
+        return persistWellbeingByGender;
     }
 
-    public void setPersistEmploymentStatistics(boolean persistEmploymentStatistics) {
-        this.persistEmploymentStatistics = persistEmploymentStatistics;
+    public void setPersistWellbeingByGender(boolean persistWellbeingByGender) {
+        this.persistWellbeingByGender = persistWellbeingByGender;
     }
 }

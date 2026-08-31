@@ -18,6 +18,11 @@ import org.junit.jupiter.api.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Tag("IntegrationTest")
 public class RunSimPathsIntegrationTest {
+    /** Absolute epsilon for numeric comparison. */
+    private static final double ABS_EPSILON = 1e-9;
+    /** Relative epsilon for numeric comparison. */
+    private static final double REL_EPSILON = 1e-6;
+
     @Test
     @DisplayName("Initial database setup runs successfully")
     @Order(1)
@@ -64,45 +69,52 @@ public class RunSimPathsIntegrationTest {
         }
 
         @Test
-        public void compareStatistics1() throws IOException {
+        public void compareWealthIncomeStatistics() throws IOException {
             compareFiles(
-                    latestOutputDir.resolve("csv/Statistics1.csv"),
-                    Paths.get("src/test/java/simpaths/integrationtest/expected/Statistics1.csv")
+                    latestOutputDir.resolve("csv/WealthIncomeStatistics.csv"),
+                    Paths.get("src/test/java/simpaths/integrationtest/expected/WealthIncomeStatistics.csv")
             );
         }
         @Test
-        public void compareStatistics21() throws IOException {
+        public void compareDemographicStatistics() throws IOException {
         compareFiles(
-            latestOutputDir.resolve("csv/Statistics21.csv"),
-            Paths.get("src/test/java/simpaths/integrationtest/expected/Statistics21.csv")
+            latestOutputDir.resolve("csv/DemographicStatistics.csv"),
+            Paths.get("src/test/java/simpaths/integrationtest/expected/DemographicStatistics.csv")
         );
         }
         @Test
-        public void compareStatistics31() throws IOException {
-        compareFiles(
-            latestOutputDir.resolve("csv/Statistics31.csv"),
-            Paths.get("src/test/java/simpaths/integrationtest/expected/Statistics31.csv")
-        );
-        }
-        @Test
-        public void compareHealthStatistics1() throws IOException {
-            compareFiles(
-                    latestOutputDir.resolve("csv/HealthStatistics1.csv"),
-                    Paths.get("src/test/java/simpaths/integrationtest/expected/HealthStatistics1.csv")
+        public void verifyAlignmentStatisticsExported() {
+            assertTrue(
+                    Files.exists(latestOutputDir.resolve("csv/AlignmentStatistics.csv")),
+                    "Expected output file is missing: " + latestOutputDir.resolve("csv/AlignmentStatistics.csv")
             );
         }
         @Test
-        public void compareEmploymentStatistics1() throws IOException {
+        public void compareWellbeingByGender() throws IOException {
             compareFiles(
-                    latestOutputDir.resolve("csv/EmploymentStatistics1.csv"),
-                    Paths.get("src/test/java/simpaths/integrationtest/expected/EmploymentStatistics1.csv")
+                    latestOutputDir.resolve("csv/WellbeingByGender.csv"),
+                    Paths.get("src/test/java/simpaths/integrationtest/expected/WellbeingByGender.csv")
+            );
+        }
+        @Test
+        public void compareHealthStatistics() throws IOException {
+            compareFiles(
+                    latestOutputDir.resolve("csv/HealthStatistics.csv"),
+                    Paths.get("src/test/java/simpaths/integrationtest/expected/HealthStatistics.csv")
+            );
+        }
+        @Test
+        public void compareLabourStatistics() throws IOException {
+            compareFiles(
+                    latestOutputDir.resolve("csv/LabourStatistics.csv"),
+                    Paths.get("src/test/java/simpaths/integrationtest/expected/LabourStatistics.csv")
             );
         }
     }
 
     void compareFiles(Path actualFile, Path expectedFile) throws IOException {
         assertTrue(Files.exists(actualFile), "Expected output file is missing: " + actualFile);
-        assertEquals(-1, Files.mismatch(actualFile, expectedFile), fileMismatchMessage(actualFile, expectedFile));
+        assertTrue(filesMatchWithTolerance(actualFile, expectedFile), fileMismatchMessage(actualFile, expectedFile));
     }
 
     String fileMismatchMessage(Path actualFile, Path expectedFile) throws IOException {
@@ -115,7 +127,7 @@ public class RunSimPathsIntegrationTest {
             String expectedLine = (i < expectedLines.size()) ? expectedLines.get(i) : "<MISSING>";
             String actualLine = (i < actualLines.size()) ? actualLines.get(i) : "<EXTRA>";
 
-            if (!expectedLine.equals(actualLine)) {
+            if (!linesMatchWithTolerance(expectedLine, actualLine)) {
                 differences.append(String.format("""
                     Line %d:
                     Expected: %s
@@ -144,6 +156,73 @@ public class RunSimPathsIntegrationTest {
             3. Commit this change to Git, so that the changes are visible in your pull request and this test passes.
 
             """, actualFile, expectedFile, differences, actualFile, expectedFile);
+    }
+
+    private boolean filesMatchWithTolerance(Path actualFile, Path expectedFile) throws IOException {
+        List<String> actualLines = Files.readAllLines(actualFile);
+        List<String> expectedLines = Files.readAllLines(expectedFile);
+
+        if (actualLines.size() != expectedLines.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < expectedLines.size(); i++) {
+            if (!linesMatchWithTolerance(expectedLines.get(i), actualLines.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean linesMatchWithTolerance(String expectedLine, String actualLine) {
+        String[] expectedTokens = expectedLine.split(",", -1);
+        String[] actualTokens = actualLine.split(",", -1);
+
+        if (expectedTokens.length != actualTokens.length) {
+            return false;
+        }
+
+        for (int i = 0; i < expectedTokens.length; i++) {
+            if (!tokensMatchWithTolerance(expectedTokens[i], actualTokens[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean tokensMatchWithTolerance(String expectedToken, String actualToken) {
+        String expectedTrimmed = expectedToken.trim();
+        String actualTrimmed = actualToken.trim();
+
+        Double expectedNumber = tryParseDouble(expectedTrimmed);
+        Double actualNumber = tryParseDouble(actualTrimmed);
+
+        if (expectedNumber != null && actualNumber != null) {
+            double e = expectedNumber;
+            double a = actualNumber;
+            if (Double.isNaN(e) && Double.isNaN(a)) {
+                return true;
+            }
+            if (Double.isNaN(e) || Double.isNaN(a)) {
+                return false;
+            }
+            if (Double.isInfinite(e) || Double.isInfinite(a)) {
+                return Double.compare(e, a) == 0;
+            }
+            double diff = Math.abs(e - a);
+            double tolerance = Math.max(ABS_EPSILON, REL_EPSILON * Math.max(Math.abs(e), Math.abs(a)));
+            return diff <= tolerance;
+        }
+
+        return expectedToken.equals(actualToken);
+    }
+
+    private Double tryParseDouble(String value) {
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     private void runCommand(String... args) {

@@ -16,7 +16,7 @@ public class KeyFunction {
      * ATTRIBUTES
      */
     private int simYear = -999, priceYear = -999, age, numberMembersOver17, numberChildrenUnder5, numberChildren5To9, numberChildren10To17;
-    private int dlltsdMan = -1, dlltsdWoman = -1, careProvision = -1, ucTakeUp = -1;
+    private int healthDsblLongtermFlagMan = -1, healthDsblLongtermFlagWoman = -1, careProvision = -1, ucTakeUp = -1;
     private double hoursWorkedPerWeekMan, hoursWorkedPerWeekWoman, originalIncomePerWeek, secondIncomePerWeek, childcareCostPerWeek;
 
     // define key function here - switchable
@@ -72,11 +72,10 @@ public class KeyFunction {
         this.hoursWorkedPerWeekMan = hoursWorkedPerWeekMan;
         this.hoursWorkedPerWeekWoman = hoursWorkedPerWeekWoman;
         this.originalIncomePerWeek = originalIncomePerWeek;
-        this.dlltsdMan = dlltsdMan;
-        this.dlltsdWoman = dlltsdWoman;
+        this.healthDsblLongtermFlagMan = dlltsdMan;
+        this.healthDsblLongtermFlagWoman = dlltsdWoman;
         this.careProvision = careProvision;
         this.childcareCostPerWeek = childcareCostPerWeek;
-        this.secondIncomePerWeek = Math.max(0.0, Math.min(secondIncomePerWeek, originalIncomePerWeek - secondIncomePerWeek));
     }
     public KeyFunction(int simYear, int priceYear, int age, int numberMembersOver17, int numberChildrenUnder5, int numberChildren5To9, int numberChildren10To17,
                        double hoursWorkedPerWeekMan, double hoursWorkedPerWeekWoman, int dlltsdMan, int dlltsdWoman, int careProvision, int ucTakeUp,
@@ -139,20 +138,20 @@ public class KeyFunction {
         this.numberChildren10To17 = numberChildren10To17;
     }
 
-    public int getDlltsdMan() {
-        return dlltsdMan;
+    public int getHealthDsblLongtermFlagMan() {
+        return healthDsblLongtermFlagMan;
     }
 
-    public void setDlltsdMan(int dlltsdMan) {
-        this.dlltsdMan = dlltsdMan;
+    public void setHealthDsblLongtermFlagMan(int healthDsblLongtermFlagMan) {
+        this.healthDsblLongtermFlagMan = healthDsblLongtermFlagMan;
     }
 
-    public int getDlltsdWoman() {
-        return dlltsdWoman;
+    public int getHealthDsblLongtermFlagWoman() {
+        return healthDsblLongtermFlagWoman;
     }
 
-    public void setDlltsdWoman(int dlltsdWoman) {
-        this.dlltsdWoman = dlltsdWoman;
+    public void setHealthDsblLongtermFlagWoman(int healthDsblLongtermFlagWoman) {
+        this.healthDsblLongtermFlagWoman = healthDsblLongtermFlagWoman;
     }
 
     public int getCareProvision() {
@@ -187,8 +186,8 @@ public class KeyFunction {
         this.secondIncomePerWeek = secondIncomePerWeek;
     }
 
-    public void setChildcareCostPerWeek(double childcareCostPerWeek) {
-        this.childcareCostPerWeek = childcareCostPerWeek;
+    public void setChildcareCostPerWeek(double xChildCareWeek) {
+        this.childcareCostPerWeek = xChildCareWeek;
     }
 
     /**
@@ -203,9 +202,9 @@ public class KeyFunction {
         if (keyFunction == null) {
             throw new InvalidParameterException("call to evaluate donor keys before KeyFunction populated");
         }
-        //return keyFunction.evaluateKeys(simYear, priceYear, age, numberMembersOver17, numberChildrenUnder5, numberChildren5To17, hoursWorkedPerWeekMan, hoursWorkedPerWeekWoman, dlltsdMan, dlltsdWoman, originalIncomePerWeek);
+        //return keyFunction.evaluateKeys(simYear, priceYear, age, numberMembersOver17, numberChildrenUnder5, numberChildren5To17, hoursWorkedPerWeekMan, hoursWorkedPerWeekWoman, healthDsblLongtermFlagMan, healthDsblLongtermFlagWoman, originalIncomePerWeek);
         return keyFunction.evaluateKeys(simYear, priceYear, age, numberMembersOver17, numberChildrenUnder5, numberChildren5To9, numberChildren10To17,
-                hoursWorkedPerWeekMan, hoursWorkedPerWeekWoman, dlltsdMan, dlltsdWoman, careProvision, ucTakeUp, originalIncomePerWeek, secondIncomePerWeek, childcareCostPerWeek);
+                hoursWorkedPerWeekMan, hoursWorkedPerWeekWoman, healthDsblLongtermFlagMan, healthDsblLongtermFlagWoman, careProvision, ucTakeUp, originalIncomePerWeek, secondIncomePerWeek, childcareCostPerWeek);
     }
 
     public boolean[] isLowIncome(Integer[] keys) {

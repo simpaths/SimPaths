@@ -19,7 +19,7 @@ public class InputDataSet {
     /**
      * ATTRIBUTES
      */
-    private List<Map> set = new ArrayList<>();
+    private List<Map<String, Double>> set = new ArrayList<>();
 
 
     /**
@@ -32,11 +32,11 @@ public class InputDataSet {
      * WORKER METHODS
      */
     public void add(CloneBenefitUnit household) {
-        for (Map person : household.getMembers()) {
+        for (Map<String, Double> person : household.getMembers()) {
             set.add(person);
         }
     }
-    public List<Map> getSet() {return set;}
+    public List<Map<String, Double>> getSet() {return set;}
     public void read(String[] variables, String filePath) throws IOException {
 
         File file = new File(filePath);
@@ -44,10 +44,10 @@ public class InputDataSet {
             throw new RuntimeException("failed to find file: " + filePath);
 
         Reader reader = new FileReader(filePath);
-        CSVFormat csvFormat = CSVFormat.TDF.builder().setHeader(variables).setSkipHeaderRecord(true).build();
+        var csvFormat = CSVFormat.TDF.builder().setHeader(variables).setSkipHeaderRecord(true).get();
         Iterable<CSVRecord> records = csvFormat.parse(reader);
         for (CSVRecord record : records) {
-            Map values = new HashMap<>();
+            var values = new HashMap<String, Double>();
             for (String variable : variables) {
                 values.put(variable, Double.parseDouble(record.get(variable)));
             }
@@ -62,10 +62,10 @@ public class InputDataSet {
         safeDelete(filePath);
 
         Writer writer = new FileWriter(filePath);
-        CSVFormat csvFormat = CSVFormat.TDF.builder().setHeader(variables).build();
+        var csvFormat = CSVFormat.TDF.builder().setHeader(variables).get();
         CSVPrinter printer = new CSVPrinter(writer, csvFormat);
-        for (Map obs : set) {
-            List<String> record = new ArrayList<>();
+        for (var obs : set) {
+            var record = new ArrayList<String>();
             for (String variable : variables) {
                 if (Arrays.stream(longVars).anyMatch(variable::equals))
                     record.add(Long.toString(Double.valueOf((double)obs.get(variable)).longValue()));
@@ -93,7 +93,7 @@ public class InputDataSet {
     public double getMaxValue(String variable) {
 
         Double val = null;
-        for(Map obs : set) {
+        for(var obs : set) {
 
             Object oo = obs.get(variable);
             if (oo==null)

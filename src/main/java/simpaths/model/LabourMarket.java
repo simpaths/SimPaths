@@ -3,7 +3,7 @@ package simpaths.model;
 import java.util.*;
 import java.util.random.RandomGenerator;
 
-import simpaths.data.statistics.Statistics;
+import simpaths.data.statistics.WealthIncomeStatistics;
 import simpaths.experiment.SimPathsCollector;
 import simpaths.model.enums.*;
 
@@ -11,6 +11,8 @@ import simpaths.data.Parameters;
 //import experiment.SimPathsObserver;
 //import microsim.data.MultiKeyCoefficientMap;
 import microsim.engine.SimulationEngine;
+
+import static simpaths.data.Parameters.EMPLOYMENT_ALIGNMENT_END_YEAR;
 //import microsim.statistics.IDoubleSource;
 //import microsim.statistics.ILongSource;
 
@@ -118,27 +120,27 @@ public class LabourMarket {
 
                         boolean setMaleSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(male, Person.DoublesVariables.class));
                         boolean setFemaleSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(female, Person.DoublesVariables.class));
-                        if (setMaleSelfEmployed && male.getLes_c4().equals(Les_c4.EmployedOrSelfEmployed)) {
-                            male.setLes_c7_covid(Les_c7_covid.SelfEmployed);
+                        if (setMaleSelfEmployed && male.getLabC4().equals(Les_c4.EmployedOrSelfEmployed)) {
+                            male.setLabC7Covid(Les_c7_covid.SelfEmployed);
                         }
-                        if (setFemaleSelfEmployed && female.getLes_c4().equals(Les_c4.EmployedOrSelfEmployed)) {
-                            female.setLes_c7_covid(Les_c7_covid.SelfEmployed);
+                        if (setFemaleSelfEmployed && female.getLabC4().equals(Les_c4.EmployedOrSelfEmployed)) {
+                            female.setLabC7Covid(Les_c7_covid.SelfEmployed);
                         }
                     } else if (occupancy.equals(Occupancy.Single_Male)) {
                         Person male = benefitUnit.getMale();
                         male.initialise_les_c6_from_c4();
                         personsInBenefitUnit.add(male);
                         boolean setSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(male, Person.DoublesVariables.class));
-                        if (setSelfEmployed && male.getLes_c4().equals(Les_c4.EmployedOrSelfEmployed)) {
-                            male.setLes_c7_covid(Les_c7_covid.SelfEmployed);
+                        if (setSelfEmployed && male.getLabC4().equals(Les_c4.EmployedOrSelfEmployed)) {
+                            male.setLabC7Covid(Les_c7_covid.SelfEmployed);
                         }
                     } else if (occupancy.equals(Occupancy.Single_Female)) {
                         Person female = benefitUnit.getFemale();
                         female.initialise_les_c6_from_c4();
                         personsInBenefitUnit.add(female);
                         boolean setSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(female, Person.DoublesVariables.class));
-                        if (setSelfEmployed && female.getLes_c4().equals(Les_c4.EmployedOrSelfEmployed)) {
-                            female.setLes_c7_covid(Les_c7_covid.SelfEmployed);
+                        if (setSelfEmployed && female.getLabC4().equals(Les_c4.EmployedOrSelfEmployed)) {
+                            female.setLabC7Covid(Les_c7_covid.SelfEmployed);
                         }
                     } else {
                         throw new RuntimeException("Warning: Occupancy unknown in benefit unit " + benefitUnit.getKey().getId());
@@ -154,38 +156,38 @@ public class LabourMarket {
                         Person female = benefitUnit.getFemale();
                         personsInBenefitUnit.add(male);
                         personsInBenefitUnit.add(female);
-                        if (male != null && male.getLes_c7_covid() == null) {
+                        if (male != null && male.getLabC7Covid() == null) {
                             male.initialise_les_c6_from_c4();
                             boolean setMaleSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(male, Person.DoublesVariables.class));
-                            if (setMaleSelfEmployed && male.getLes_c4().equals(Les_c4.EmployedOrSelfEmployed)) {
-                                male.setLes_c7_covid(Les_c7_covid.SelfEmployed);
+                            if (setMaleSelfEmployed && male.getLabC4().equals(Les_c4.EmployedOrSelfEmployed)) {
+                                male.setLabC7Covid(Les_c7_covid.SelfEmployed);
                             }
                         }
-                        if (female != null && female.getLes_c7_covid() == null) {
+                        if (female != null && female.getLabC7Covid() == null) {
                             female.initialise_les_c6_from_c4();
                             boolean setFemaleSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(female, Person.DoublesVariables.class));
-                            if (setFemaleSelfEmployed && female.getLes_c4().equals(Les_c4.EmployedOrSelfEmployed)) {
-                                female.setLes_c7_covid(Les_c7_covid.SelfEmployed);
+                            if (setFemaleSelfEmployed && female.getLabC4().equals(Les_c4.EmployedOrSelfEmployed)) {
+                                female.setLabC7Covid(Les_c7_covid.SelfEmployed);
                             }
                         }
                     }  else if (occupancy.equals(Occupancy.Single_Male)) {
                         Person male = benefitUnit.getMale();
                         personsInBenefitUnit.add(male);
-                        if (male != null && male.getLes_c7_covid() == null) {
+                        if (male != null && male.getLabC7Covid() == null) {
                             male.initialise_les_c6_from_c4();
                             boolean setSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(male, Person.DoublesVariables.class));
-                            if (setSelfEmployed && male.getLes_c4().equals(Les_c4.EmployedOrSelfEmployed)) {
-                                male.setLes_c7_covid(Les_c7_covid.SelfEmployed);
+                            if (setSelfEmployed && male.getLabC4().equals(Les_c4.EmployedOrSelfEmployed)) {
+                                male.setLabC7Covid(Les_c7_covid.SelfEmployed);
                             }
                         }
                     } else if (occupancy.equals(Occupancy.Single_Female)) {
                         Person female = benefitUnit.getFemale();
                         personsInBenefitUnit.add(female);
-                        if (female != null && female.getLes_c7_covid() == null) {
+                        if (female != null && female.getLabC7Covid() == null) {
                             female.initialise_les_c6_from_c4();
                             boolean setSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(female, Person.DoublesVariables.class));
-                            if (setSelfEmployed && female.getLes_c4().equals(Les_c4.EmployedOrSelfEmployed)) {
-                                female.setLes_c7_covid(Les_c7_covid.SelfEmployed);
+                            if (setSelfEmployed && female.getLabC4().equals(Les_c4.EmployedOrSelfEmployed)) {
+                                female.setLabC7Covid(Les_c7_covid.SelfEmployed);
                             }
                         }
                     }
@@ -209,7 +211,7 @@ public class LabourMarket {
             }
 
             // When all the monthly transitions in a year have been predicted, choose one monthly value to represent the whole year for each individual and set labour force status, work hours, gross and disposable income.
-        //	benefitUnitsCovid19Update.parallelStream().forEach(benefitUnit -> benefitUnit.chooseRandomMonthlyOutcomeCovid19());
+            //	benefitUnitsCovid19Update.parallelStream().forEach(benefitUnit -> benefitUnit.chooseRandomMonthlyOutcomeCovid19());
             for (BenefitUnit benefitUnit : benefitUnitsCovid19Update) {
                 benefitUnit.chooseRandomMonthlyOutcomeCovid19();
             }
@@ -234,16 +236,28 @@ public class LabourMarket {
                 }
             }
 
-            if (model.isAlignEmployment() & model.getYear() <= 2019) {
+            // Employment alignment phase (pre-alignment setup + subgroup-specific calibration)
+            if (model.isAlignEmployment() && model.getYear() <= EMPLOYMENT_ALIGNMENT_END_YEAR ) {
+
+                // Precompute labour choices, utility scores (without fixed costs), and atRisk flags
+                benefitUnits.parallelStream().forEach(BenefitUnit::computeAtRiskOfWorkFlags);
+                benefitUnits.parallelStream().forEach(BenefitUnit::updateLabourChoices);
+                benefitUnits.parallelStream().forEach(BenefitUnit::updateUtilityRegressionScoresWithoutFC);
+
+
+                // Run alignment separately by b.u. subgroup
+
+                model.activityAlignmentCouples();
                 model.activityAlignmentSingleMales();
                 model.activityAlignmentSingleFemales();
-                model.activityAlignmentCouples();
+                model.activityAlignmentSingleACFemales();
+                model.activityAlignmentSingleACMales();
+
+                model.activityAlignmentSingleDepFemale();
+                model.activityAlignmentSingleDepMale();
             }
 
             //Update Labour Supply
-//            for (BenefitUnit benefitUnit : benefitUnitsAllRegions) {
-//                benefitUnit.updateLabourSupplyAndIncome();
-//            }
             benefitUnitsAllRegions.parallelStream()
                     .forEach(BenefitUnit::updateLabourSupplyAndIncomeWithUniversalCredit);
 
@@ -256,13 +270,18 @@ public class LabourMarket {
             }
             for (BenefitUnit benefitUnit : benefitUnitsAllRegions) {
 
+                // Codex comment:
+                // Net effect: lines 273–284 accumulate sum-of-wages and count-by-education for male persons only; the next block (285 onward) does the same for females.
+                // Together they build ingredients for average potential hourly earnings by education (sum / count), although in this file those two local maps are not used later,
+                // so this currently behaves like intermediate aggregation with no downstream effect in LabourMarket.java.
+
                 if (benefitUnit.getMale() != null) {
 
                     Person person = benefitUnit.getMale();
                     if (person.atRiskOfWork()) {
 
-                        Education ed = person.getDeh_c3();
-                        double newVal = person.getFullTimeHourlyEarningsPotential();
+                        Education ed = person.getEduHighestC4();
+                        double newVal = person.getLabWageFullTimeHrly();
                         potentialHourlyEarningsByEdu.put(ed, potentialHourlyEarningsByEdu.get(ed) + newVal);
                         int oldCount = countByEdu.get(ed);
                         countByEdu.put(ed, oldCount + 1);
@@ -273,8 +292,8 @@ public class LabourMarket {
                     Person person = benefitUnit.getFemale();
                     if (person.atRiskOfWork()) {
 
-                        Education ed = person.getDeh_c3();
-                        double newVal = person.getFullTimeHourlyEarningsPotential();
+                        Education ed = person.getEduHighestC4();
+                        double newVal = person.getLabWageFullTimeHrly();
                         potentialHourlyEarningsByEdu.put(ed, potentialHourlyEarningsByEdu.get(ed) + newVal);
                         int oldCount = countByEdu.get(ed);
                         countByEdu.put(ed, oldCount + 1);
@@ -283,34 +302,26 @@ public class LabourMarket {
             }
 
             // Update activity status of persons residing within the benefit unit
-            benefitUnits.stream()
+            benefitUnits.parallelStream()
                     .forEach(BenefitUnit::updateActivityOfPersonsWithinBenefitUnit);
-
         }
     }
 
-
-    ///////////////////////////////////////////////////////////////////////////////////////
-    //
-    //	Other Methods
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////
-
     public void updateGrossLabourIncomeBaseline_Xt5(LinkedHashSet<Person> personsInBenefitUnit) {
         for (Person person : personsInBenefitUnit) {
-            if (person != null && person.getCovidModuleGrossLabourIncomeBaseline_Xt5() == null) {
-                double covidModuleGrossLabourIncomeBaseline = person.getCovidModuleGrossLabourIncome_Baseline();
-                Statistics stats = ((SimPathsCollector) SimulationEngine.getInstance().getManager(SimPathsCollector.class.getCanonicalName())).getStats();
-                if (covidModuleGrossLabourIncomeBaseline <= stats.getGrossLabourIncome_p20()) {
-                    person.setCovidModuleGrossLabourIncomeBaseline_Xt5(Quintiles.Q1);
-                } else if (covidModuleGrossLabourIncomeBaseline <= stats.getGrossLabourIncome_p40()) {
-                    person.setCovidModuleGrossLabourIncomeBaseline_Xt5(Quintiles.Q2);
-                } else if (covidModuleGrossLabourIncomeBaseline <= stats.getGrossLabourIncome_p60()) {
-                    person.setCovidModuleGrossLabourIncomeBaseline_Xt5(Quintiles.Q3);
-                } else if (covidModuleGrossLabourIncomeBaseline <= stats.getGrossLabourIncome_p80()) {
-                    person.setCovidModuleGrossLabourIncomeBaseline_Xt5(Quintiles.Q4);
+            if (person != null && person.getCovidYLabGrossXt5() == null) {
+                double covidModuleGrossLabourIncomeBaseline = person.getCovidYLabGross();
+                WealthIncomeStatistics wealthIncomeStats = ((SimPathsCollector) SimulationEngine.getInstance().getManager(SimPathsCollector.class.getCanonicalName())).getWealthIncomeStats();
+                if (covidModuleGrossLabourIncomeBaseline <= wealthIncomeStats.getYLabP20()) {
+                    person.setCovidYLabGrossXt5(Quintiles.Q1);
+                } else if (covidModuleGrossLabourIncomeBaseline <= wealthIncomeStats.getYLabP40()) {
+                    person.setCovidYLabGrossXt5(Quintiles.Q2);
+                } else if (covidModuleGrossLabourIncomeBaseline <= wealthIncomeStats.getYLabP60()) {
+                    person.setCovidYLabGrossXt5(Quintiles.Q3);
+                } else if (covidModuleGrossLabourIncomeBaseline <= wealthIncomeStats.getYLabP80()) {
+                    person.setCovidYLabGrossXt5(Quintiles.Q4);
                 } else {
-                    person.setCovidModuleGrossLabourIncomeBaseline_Xt5(Quintiles.Q5);
+                    person.setCovidYLabGrossXt5(Quintiles.Q5);
                 }
             }
         }
