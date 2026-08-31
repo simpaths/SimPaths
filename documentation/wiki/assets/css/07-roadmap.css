@@ -53,8 +53,12 @@
   flex-direction: column;
   gap: 0.12rem;
   padding: 0.72rem 1.25rem 0.7rem 0;
-  color: var(--sp-midnight);
+  color: var(--sp-midnight) !important;
   text-decoration: none;
+}
+
+.md-typeset .roadmap-sequence a:visited {
+  color: var(--sp-midnight) !important;
 }
 
 .md-typeset .roadmap-sequence a:not(:last-child)::after {
@@ -69,11 +73,14 @@
 
 .md-typeset .roadmap-sequence a:hover .roadmap-sequence__name,
 .md-typeset .roadmap-sequence a:focus-visible .roadmap-sequence__name {
-  color: var(--sp-link);
+  color: var(--sp-midnight);
+  text-decoration: underline;
+  text-decoration-color: rgba(42, 56, 72, 0.34);
+  text-underline-offset: 0.14em;
 }
 
 .md-typeset .roadmap-sequence__horizon {
-  color: var(--sp-link);
+  color: var(--sp-wine-soft) !important;
   font-size: 0.56rem;
   font-weight: 700;
   letter-spacing: 0.085em;
@@ -212,14 +219,16 @@
 }
 
 .md-typeset .roadmap-meta a {
-  color: var(--sp-link);
-  text-decoration: none;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: rgba(42, 56, 72, 0.24);
+  text-underline-offset: 0.12em;
 }
 
 .md-typeset .roadmap-meta a:hover,
 .md-typeset .roadmap-meta a:focus-visible {
-  text-decoration: underline;
-  text-underline-offset: 0.12em;
+  color: var(--sp-midnight);
+  text-decoration-color: rgba(42, 56, 72, 0.58);
 }
 
 .md-typeset .roadmap-contact {
@@ -247,6 +256,18 @@
   color: var(--roadmap-copy);
   font-size: 0.76rem;
   line-height: 1.62;
+}
+
+.md-typeset .roadmap-contact a {
+  color: var(--sp-midnight);
+  text-decoration: underline;
+  text-decoration-color: rgba(42, 56, 72, 0.28);
+  text-underline-offset: 0.12em;
+}
+
+.md-typeset .roadmap-contact a:hover,
+.md-typeset .roadmap-contact a:focus-visible {
+  text-decoration-color: rgba(42, 56, 72, 0.62);
 }
 
 /* Keep the page outline useful without repeating every individual work item. */

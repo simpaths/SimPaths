@@ -27,7 +27,7 @@
 
 <div class="roadmap-stage__heading" markdown>
 
-## Now — active work
+## Now: active work
 
 These items have active development tasks and the clearest near-term scope.
 
@@ -79,7 +79,7 @@ Add modifiers estimated from longitudinal employment histories to the health mod
 
 <div class="roadmap-stage__heading" markdown>
 
-## Next — planned priorities
+## Next: planned priorities
 
 These priorities are expected to follow active work. Their order depends on data, estimation work, and related model changes.
 
@@ -141,7 +141,7 @@ Estimate alignment adjustments once for reuse across scenarios, compare alternat
 
 <div class="roadmap-stage__heading" markdown>
 
-## Later — capability pipeline
+## Later: capability pipeline
 
 These capabilities would materially extend the questions SimPaths can address, but their scope and timing are not yet fixed.
 
@@ -205,7 +205,7 @@ Add multidimensional wellbeing outcomes, SIPHER-7 measures, and a mortality proc
 
 <div class="roadmap-stage__heading" markdown>
 
-## Continuous — model foundations
+## Continuous: model foundations
 
 Cross-cutting architecture, consistency, testing, and documentation work progresses alongside every planning horizon.
 
