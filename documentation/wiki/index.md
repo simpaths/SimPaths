@@ -54,52 +54,98 @@ hide:
       <strong>SimPaths</strong>
     </div>
   </div>
-  <div class="simpaths-home-intro-band__access-row" aria-label="Primary SimPaths links">
-    <a href="overview/" class="simpaths-home-intro-band__access simpaths-home-intro-band__access--route">Model overview</a>
-    <a href="documentation/" class="simpaths-home-intro-band__access simpaths-home-intro-band__access--route">Documentation</a>
-    <a href="https://github.com/simpaths/SimPaths" class="simpaths-home-intro-band__access">UK repository</a>
-    <a href="https://github.com/simpaths/SimPathsEU" class="simpaths-home-intro-band__access">EU repository</a>
+  <div class="simpaths-home-intro-band__access-row" aria-label="SimPaths source code repositories">
+    <a href="https://github.com/simpaths/SimPaths" class="simpaths-home-intro-band__access">UK source code</a>
+    <a href="https://github.com/simpaths/SimPathsEU" class="simpaths-home-intro-band__access">EU source code</a>
   </div>
+</div>
+</section>
+
+<section class="simpaths-home-paths">
+<div class="simpaths-home-paths__inner">
+  <header class="simpaths-home-paths__header">
+    <h2>Use SimPaths</h2>
+    <p>Read the model as a research framework, run and configure the UK implementation, or work directly with its code.</p>
+  </header>
+
+  <nav class="simpaths-home-paths__routes" aria-label="Common SimPaths tasks">
+    <article class="simpaths-home-paths__route">
+      <h3><a href="overview/">Understand the model</a></h3>
+      <p>Review the model's scope, the life-course processes it simulates, and the assumptions used to parameterise them.</p>
+      <div class="simpaths-home-paths__links">
+        <a href="overview/model-description/">Model description</a>
+        <a href="overview/modules/ageing/">Simulated modules</a>
+        <a href="overview/parameterisation/">Parameterisation</a>
+      </div>
+    </article>
+
+    <article class="simpaths-home-paths__route">
+      <h3><a href="getting-started/">Install and run</a></h3>
+      <p>Prepare the Java environment and input data, then run a first UK simulation.</p>
+      <div class="simpaths-home-paths__links">
+        <a href="getting-started/environment-setup/">Environment setup</a>
+        <a href="getting-started/data/">Input data</a>
+        <a href="getting-started/first-simulation/">First simulation</a>
+      </div>
+    </article>
+
+    <article class="simpaths-home-paths__route">
+      <h3><a href="user-guide/">Configure and analyse</a></h3>
+      <p>Control individual or batch runs, tax-benefit settings, and uncertainty analysis.</p>
+      <div class="simpaths-home-paths__links">
+        <a href="user-guide/single-runs/">Single runs</a>
+        <a href="user-guide/multiple-runs/">Multiple runs</a>
+        <a href="user-guide/uncertainty-analysis/">Uncertainty analysis</a>
+      </div>
+    </article>
+
+    <article class="simpaths-home-paths__route">
+      <h3><a href="developer-guide/">Develop and extend</a></h3>
+      <p>Trace the repository structure and implementation before changing or extending the model.</p>
+      <div class="simpaths-home-paths__links">
+        <a href="developer-guide/repository-guide/">Repository guide</a>
+        <a href="developer-guide/internals/">SimPaths internals</a>
+        <a href="developer-guide/how-to/">How-to guides</a>
+      </div>
+    </article>
+  </nav>
 </div>
 </section>
 
 <section id="selected-research" class="simpaths-home-research-band">
 <div class="research-section">
 <div class="research-header">
-  <h2 class="section-heading">Selected research</h2>
+  <h2 class="section-heading">Selected Research</h2>
   <a href="research/" class="archive-link">All research</a>
 </div>
 
 <div class="research-list">
 
-<a href="https://doi.org/10.1093/eurpub/ckaf161.076" class="research-entry">
+<a href="https://doi.org/10.1093/eurpub/ckaf161.076" class="research-entry research-entry--mental-health">
   <div class="research-entry__meta">
     <span class="research-label">MENTAL HEALTH · 2025</span>
     <span class="research-journal">European Journal of Public Health</span>
   </div>
   <p class="research-title">Tax reforms vs benefit enhancement to address mental health inequalities: a microsimulation study</p>
   <p class="research-authors">Igelstrom E, Kopasker D, Richiardi MG, Katikireddi SV</p>
-  <p class="research-summary">Compares alternative fiscal policy responses and their implications for mental health inequalities.</p>
 </a>
 
-<a href="https://www.sciencedirect.com/science/article/pii/S0167268125000319" class="research-entry">
+<a href="https://www.sciencedirect.com/science/article/pii/S0167268125000319" class="research-entry research-entry--life-course">
   <div class="research-entry__meta">
     <span class="research-label">LIFE COURSE · 2025</span>
     <span class="research-journal">Journal of Economic Behavior &amp; Organization</span>
   </div>
   <p class="research-title">Attenuation and reinforcement mechanisms over the life course</p>
   <p class="research-authors">Richiardi M, Bronka P, van de Ven J</p>
-  <p class="research-summary">Examines how early advantage and disadvantage can compound or soften across the life course.</p>
 </a>
 
-<a href="https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1004358" class="research-entry">
+<a href="https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1004358" class="research-entry research-entry--health-policy">
   <div class="research-entry__meta">
     <span class="research-label">HEALTH POLICY · 2024</span>
     <span class="research-journal">PLOS Medicine</span>
   </div>
   <p class="research-title">Short-term impacts of Universal Basic Income on population mental health inequalities in the UK</p>
   <p class="research-authors">Thomson RM, Kopasker D, Bronka P, et al.</p>
-  <p class="research-summary">Uses microsimulation to estimate how Universal Basic Income could affect mental health across the UK population.</p>
 </a>
 
 </div>

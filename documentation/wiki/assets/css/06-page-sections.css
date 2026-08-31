@@ -34,7 +34,7 @@
   padding-bottom: 1rem;
 }
 
-body:has(.funding-page) .md-footer__inner {
+body.sp-page-funding .md-footer__inner {
   display: none;
 }
 
@@ -568,6 +568,16 @@ body:has(.funding-page) .md-footer__inner {
   .md-typeset .research-page .reference-paper {
     margin: 1.7rem 0 2rem;
     padding: 0;
+  }
+}
+
+@media screen and (max-width: 700px) {
+  .md-typeset .research-page .research-entry__meta {
+    flex-wrap: wrap;
+  }
+
+  .md-typeset .research-page .research-arrow {
+    display: none;
   }
 }
 

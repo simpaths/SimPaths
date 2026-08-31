@@ -8,13 +8,14 @@ styles=(
   documentation/wiki/assets/css/04-landing-components.css
   documentation/wiki/assets/css/05-site-chrome.css
   documentation/wiki/assets/css/06-page-sections.css
-  documentation/wiki/assets/css/07-home.css
+  documentation/wiki/assets/css/07-roadmap.css
+  documentation/wiki/assets/css/08-home.css
 )
 
-max_file_lines=1200
-max_total_lines=4500
-max_important=300
-max_has_selectors=40
+max_file_lines=1000
+max_total_lines=3800
+max_important=260
+max_has_selectors=0
 
 for style in "${styles[@]}"; do
   if [[ ! -s "$style" ]]; then
@@ -41,8 +42,19 @@ if [[ -e documentation/wiki/assets/css/extra.css ]]; then
 fi
 
 total_lines=$(wc -l "${styles[@]}" | awk 'END { print $1 }')
-important_count=$(grep -ho '!important' "${styles[@]}" | wc -l | tr -d ' ')
-has_count=$(grep -Fho ':has(' "${styles[@]}" | wc -l | tr -d ' ')
+important_count=$({ grep -ho '!important' "${styles[@]}" || true; } | wc -l | tr -d ' ')
+has_count=$({ grep -Fho ':has(' "${styles[@]}" || true; } | wc -l | tr -d ' ')
+
+retired_selector_pattern='(^|[^[:alnum:]_-])\.(hero|card-grid|feature-card|guide-grid|guide-card|countries|country-tag)([-_][[:alnum:]_-]+)?([^[:alnum:]_-]|$)'
+if grep -En "$retired_selector_pattern" "${styles[@]}"; then
+  echo "Retired generic component selectors must not be restored; use a scoped component class." >&2
+  exit 1
+fi
+
+if ! grep -Fq 'assets/js/site-state.js' mkdocs.yml; then
+  echo "site-state.js must remain loaded so CSS can use explicit state classes." >&2
+  exit 1
+fi
 
 if (( total_lines > max_total_lines )); then
   echo "Documentation CSS has grown to $total_lines lines." >&2
@@ -55,7 +67,7 @@ if (( important_count > max_important )); then
 fi
 
 if (( has_count > max_has_selectors )); then
-  echo "Documentation CSS now contains $has_count :has() selectors." >&2
+  echo "Documentation CSS contains $has_count :has() selectors; add an explicit state in site-state.js instead." >&2
   exit 1
 fi
 

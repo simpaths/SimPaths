@@ -21,6 +21,12 @@
   min-height: 4.65rem;
 }
 
+/* SimPaths uses its own repository links and follows the system colour scheme. */
+.md-header__source,
+.md-header [data-md-component="palette"] {
+  display: none !important;
+}
+
 .md-header__button.md-logo {
   display: none !important;
 }
@@ -217,7 +223,7 @@
 
 /* Keep the model's long module list behind its own native navigation toggle. */
 @media screen and (min-width: 76.25em) {
-  .md-sidebar--primary .md-nav__item--section.md-nav__item--nested:has(> nav > .md-nav__list > .md-nav__item > a[href*="/overview/modules/"]) {
+  .md-sidebar--primary .md-nav__item--section.md-nav__item--nested.sp-modules-branch {
     --sp-section-pointer-events: auto;
     --sp-section-cursor: pointer;
     --sp-section-icon-display: block;
@@ -404,12 +410,12 @@ body.sp-docs-navigation .md-sidebar--primary .md-nav[data-md-level="2"] > .md-na
   background: rgba(42, 56, 72, 0.045) !important;
 }
 
-body.sp-docs-navigation .md-sidebar--primary .md-nav__container:has(> a.md-nav__link--active) {
+body.sp-docs-navigation .md-sidebar--primary .md-nav__container.sp-nav-container-active {
   background: rgba(36, 120, 181, 0.1) !important;
   box-shadow: inset 2px 0 0 rgba(36, 120, 181, 0.74) !important;
 }
 
-body.sp-docs-navigation .md-sidebar--primary .md-nav__container:has(> a.md-nav__link--active) > a.md-nav__link {
+body.sp-docs-navigation .md-sidebar--primary .md-nav__container.sp-nav-container-active > a.md-nav__link {
   color: #17658f !important;
   font-weight: 680;
 }
@@ -551,12 +557,12 @@ body.sp-docs-navigation .md-sidebar--primary .md-sidebar__scrollwrap::-webkit-sc
   background: rgba(207, 220, 234, 0.055) !important;
 }
 
-[data-md-color-scheme="slate"].sp-docs-navigation .md-sidebar--primary .md-nav__container:has(> a.md-nav__link--active) {
+[data-md-color-scheme="slate"].sp-docs-navigation .md-sidebar--primary .md-nav__container.sp-nav-container-active {
   background: rgba(92, 184, 240, 0.12) !important;
   box-shadow: inset 2px 0 0 rgba(92, 184, 240, 0.76) !important;
 }
 
-[data-md-color-scheme="slate"].sp-docs-navigation .md-sidebar--primary .md-nav__container:has(> a.md-nav__link--active) > a.md-nav__link {
+[data-md-color-scheme="slate"].sp-docs-navigation .md-sidebar--primary .md-nav__container.sp-nav-container-active > a.md-nav__link {
   color: #77c7f0 !important;
 }
 

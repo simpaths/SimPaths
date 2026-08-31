@@ -42,17 +42,19 @@ theme:
 
 extra_css:
   # Keep this order: later component files intentionally refine earlier layers.
-  - assets/css/01-foundation.css?v=20260828-css-split-1
-  - assets/css/02-shell-navigation.css?v=20260831-documentation-filter-1
-  - assets/css/03-content.css?v=20260831-math-svg-1
-  - assets/css/04-landing-components.css?v=20260831-documentation-logo-7
-  - assets/css/05-site-chrome.css?v=20260831-mobile-footer-1
-  - assets/css/06-page-sections.css?v=20260831-funding-register-6
-  - assets/css/07-home.css?v=20260831-research-band-2
+  - assets/css/01-foundation.css?v=20260831-css-maintenance-1
+  - assets/css/02-shell-navigation.css?v=20260831-css-maintenance-1
+  - assets/css/03-content.css?v=20260831-css-maintenance-1
+  - assets/css/04-landing-components.css?v=20260831-css-maintenance-1
+  - assets/css/05-site-chrome.css?v=20260831-css-maintenance-1
+  - assets/css/06-page-sections.css?v=20260831-css-maintenance-1
+  - assets/css/07-roadmap.css?v=20260831-css-maintenance-1
+  - assets/css/08-home.css?v=20260831-css-maintenance-1
 
 extra_javascript:
   - assets/js/mathjax.js?v=20260831-math-svg-1
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js
+  - assets/js/site-state.js?v=20260831-css-maintenance-1
   - assets/js/sidebar-filter.js?v=20260831-documentation-filter-1
 
 plugins:

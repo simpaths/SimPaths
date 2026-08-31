@@ -59,6 +59,11 @@
   scroll-margin-top: 6.5rem;
 }
 
+/* Section navigation already exposes heading links; inline glyphs add noise. */
+.md-typeset .headerlink {
+  display: none !important;
+}
+
 .md-typeset h3 {
   font-family: var(--sp-heading-font) !important;
   font-weight: 680;
@@ -89,6 +94,24 @@
 
 [data-md-color-scheme="slate"] .md-typeset .page-intro--support {
   color: rgba(250,249,245,0.72);
+}
+
+@media (max-width: 760px) {
+  .md-typeset pre > code {
+    padding-right: 1.25rem;
+  }
+
+  .md-typeset .highlight .md-clipboard {
+    display: none;
+  }
+
+  .md-typeset .highlight pre {
+    scrollbar-width: none;
+  }
+
+  .md-typeset .highlight pre::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Paragraph */

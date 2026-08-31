@@ -1,0 +1,172 @@
+/* ===============================================
+   DEVELOPMENT ROADMAP
+=============================================== */
+
+.md-typeset .roadmap-page {
+  --roadmap-copy: rgba(35, 48, 63, 0.76);
+  max-width: 49rem;
+  padding-bottom: 1rem;
+}
+
+.md-typeset .roadmap-page p,
+.md-typeset .roadmap-page li {
+  text-align: left !important;
+  text-wrap: pretty;
+  hyphens: none;
+}
+
+.md-typeset .roadmap-lede {
+  max-width: 43rem;
+  margin: 0.45rem 0 1.4rem;
+  color: var(--roadmap-copy);
+  font-size: 0.8rem;
+  line-height: 1.62;
+}
+
+.md-typeset .roadmap-horizon {
+  display: grid;
+  grid-template-columns: minmax(9.5rem, 0.36fr) minmax(0, 1fr);
+  gap: 2.25rem;
+  padding: 2rem 0 1.35rem;
+}
+
+.md-typeset .roadmap-horizon__heading h2,
+.md-typeset .roadmap-contact h2 {
+  margin: 0 0 0.45rem !important;
+  padding: 0;
+  border: 0;
+  color: var(--sp-midnight);
+  font-size: 1.04rem !important;
+  font-weight: 650;
+  letter-spacing: -0.018em;
+  line-height: 1.25;
+}
+
+.md-typeset .roadmap-horizon__heading p {
+  margin: 0;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.7rem;
+  line-height: 1.55;
+}
+
+.md-typeset .roadmap-item {
+  max-width: 35rem;
+  margin: 0 0 1.55rem;
+}
+
+.md-typeset .roadmap-item:last-child {
+  margin-bottom: 0;
+}
+
+.md-typeset .roadmap-item h3 {
+  margin: 0 0 0.28rem !important;
+  padding: 0;
+  border: 0;
+  color: var(--sp-midnight);
+  font-family: var(--md-text-font), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  font-size: 0.8rem !important;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+}
+
+.md-typeset .roadmap-item > p:not(.roadmap-meta) {
+  margin: 0;
+  color: var(--roadmap-copy);
+  font-size: 0.73rem;
+  line-height: 1.58;
+}
+
+.md-typeset .roadmap-meta {
+  margin: 0.38rem 0 0;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.63rem;
+  line-height: 1.45;
+}
+
+.md-typeset .roadmap-meta p {
+  margin: 0;
+}
+
+.md-typeset .roadmap-meta a {
+  color: var(--sp-link);
+  text-decoration: none;
+}
+
+.md-typeset .roadmap-meta a:hover,
+.md-typeset .roadmap-meta a:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
+}
+
+.md-typeset .roadmap-contact {
+  display: grid;
+  grid-template-columns: minmax(9.5rem, 0.36fr) minmax(0, 1fr);
+  gap: 2.25rem;
+  margin: 1.75rem 0 0;
+}
+
+.md-typeset .roadmap-contact p {
+  margin: 0;
+  color: var(--roadmap-copy);
+  font-size: 0.73rem;
+  line-height: 1.58;
+}
+
+/* Keep the page outline useful without repeating every individual work item. */
+body.sp-page-roadmap .md-sidebar--secondary .md-nav__item > .md-nav {
+  display: none;
+}
+
+body.sp-page-roadmap .md-sidebar--secondary .md-nav__link {
+  margin-top: 0.55rem;
+  font-size: 0.7rem;
+  line-height: 1.36;
+}
+
+@media (max-width: 900px) {
+  .md-typeset .roadmap-horizon {
+    grid-template-columns: minmax(8.5rem, 0.32fr) minmax(0, 1fr);
+    gap: 1.5rem;
+  }
+
+  .md-typeset .roadmap-contact {
+    grid-template-columns: minmax(8.5rem, 0.32fr) minmax(0, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 680px) {
+  .md-typeset .roadmap-lede {
+    margin-bottom: 0.8rem;
+    font-size: 0.74rem;
+  }
+
+  .md-typeset .roadmap-horizon {
+    display: block;
+    padding: 1.65rem 0 0.45rem;
+  }
+
+  .md-typeset .roadmap-horizon__heading {
+    margin-bottom: 1.05rem;
+  }
+
+  .md-typeset .roadmap-horizon__heading h2,
+  .md-typeset .roadmap-contact h2 {
+    font-size: 0.98rem !important;
+  }
+
+  .md-typeset .roadmap-item {
+    margin-bottom: 1.35rem;
+  }
+
+  .md-typeset .roadmap-item > p:not(.roadmap-meta),
+  .md-typeset .roadmap-contact p {
+    font-size: 0.7rem;
+  }
+
+  .md-typeset .roadmap-contact {
+    display: block;
+    margin: 1.75rem 0 0;
+  }
+}
