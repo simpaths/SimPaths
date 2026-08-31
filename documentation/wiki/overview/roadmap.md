@@ -2,27 +2,46 @@
 
 <div class="roadmap-page" markdown>
 
-<p class="roadmap-lede">This roadmap lists SimPaths' current, upcoming, and longer-term development priorities. The timing and scope of later work will depend on research needs, data, and funding.</p>
+<p class="roadmap-lede">SimPaths development is organised across four planning horizons. The sequence shows what is active now, what is expected to follow, which larger capabilities remain in the pipeline, and the foundation work that supports every stage.</p>
 
-<div class="roadmap-horizon" markdown>
+<div class="roadmap-status">
+  <span>Last reviewed August 2026</span>
+  <span aria-hidden="true">·</span>
+  <span>Reviewed quarterly</span>
+  <span aria-hidden="true">·</span>
+  <span>Later horizons are directional rather than delivery commitments</span>
+</div>
 
-<div class="roadmap-horizon__heading" markdown>
+<nav class="roadmap-sequence" aria-label="Roadmap planning horizons">
+  <a href="#now-active-work"><span class="roadmap-sequence__horizon">Now</span><span class="roadmap-sequence__name">Active work</span></a>
+  <a href="#next-planned-priorities"><span class="roadmap-sequence__horizon">Next</span><span class="roadmap-sequence__name">Planned priorities</span></a>
+  <a href="#later-capability-pipeline"><span class="roadmap-sequence__horizon">Later</span><span class="roadmap-sequence__name">Capability pipeline</span></a>
+  <a href="#continuous-model-foundations"><span class="roadmap-sequence__horizon">Continuous</span><span class="roadmap-sequence__name">Model foundations</span></a>
+</nav>
 
-## Current priorities
+<div class="roadmap-stage roadmap-stage--now" markdown>
 
-Work is concentrated on validation, parameter uncertainty, and the relationship between employment histories and health.
+<div class="roadmap-stage__rail" aria-hidden="true"><span>01</span></div>
+
+<div class="roadmap-stage__content" markdown>
+
+<div class="roadmap-stage__heading" markdown>
+
+## Now — active work
+
+These items have active development tasks and the clearest near-term scope.
 
 </div>
 
-<div class="roadmap-horizon__items" markdown>
+<div class="roadmap-stage__items" markdown>
 
 <div class="roadmap-item" markdown>
 
 ### Validation against source data
 
-Compare model estimates on simulated populations with their input-data equivalents to identify drift, implementation differences, and processes requiring recalibration. This tests whether estimated relationships remain intact once combined in the full simulation.
+Compare model estimates on simulated populations with their input-data equivalents to identify drift, implementation differences, and processes requiring recalibration. This strengthens confidence that estimated relationships remain intact once combined in the full simulation.
 
-<div class="roadmap-meta" markdown>Issue: [#192](https://github.com/simpaths/SimPaths/issues/192)</div>
+<div class="roadmap-meta" markdown>[Issue #192](https://github.com/simpaths/SimPaths/issues/192)</div>
 
 </div>
 
@@ -30,9 +49,9 @@ Compare model estimates on simulated populations with their input-data equivalen
 
 ### Parameter uncertainty
 
-Expose regression-coefficient bootstrapping through configuration, command-line options, and documentation so uncertainty can be applied consistently across repeated runs.
+Expose regression-coefficient bootstrapping through configuration, command-line options, and documentation. This will allow repeated runs to represent parameter uncertainty consistently and make the resulting evidence easier to interpret.
 
-<div class="roadmap-meta" markdown>Issue: [#329](https://github.com/simpaths/SimPaths/issues/329)</div>
+<div class="roadmap-meta" markdown>[Issue #329](https://github.com/simpaths/SimPaths/issues/329)</div>
 
 </div>
 
@@ -40,35 +59,41 @@ Expose regression-coefficient bootstrapping through configuration, command-line 
 
 ### Employment histories and health
 
-Add modifiers estimated from longitudinal employment histories to the health modules, connecting accumulated labour-market experience with later physical and mental health outcomes.
+Add modifiers estimated from longitudinal employment histories to the health modules. Connecting accumulated labour-market experience with later physical and mental health will support analysis of health inequalities across the life course.
 
-<div class="roadmap-meta" markdown>Issue: [#143](https://github.com/simpaths/SimPaths/issues/143)</div>
-
-</div>
+<div class="roadmap-meta" markdown>[Issue #143](https://github.com/simpaths/SimPaths/issues/143)</div>
 
 </div>
 
 </div>
 
-<div class="roadmap-horizon" markdown>
-
-<div class="roadmap-horizon__heading" markdown>
-
-## Next priorities
-
-The next stage extends behavioural specification, population representation, matching, performance, and model state.
+</div>
 
 </div>
 
-<div class="roadmap-horizon__items" markdown>
+<div class="roadmap-stage" markdown>
+
+<div class="roadmap-stage__rail" aria-hidden="true"><span>02</span></div>
+
+<div class="roadmap-stage__content" markdown>
+
+<div class="roadmap-stage__heading" markdown>
+
+## Next — planned priorities
+
+These priorities are expected to follow active work. Their order depends on data, estimation work, and related model changes.
+
+</div>
+
+<div class="roadmap-stage__items" markdown>
 
 <div class="roadmap-item" markdown>
 
 ### Labour supply, mental health, and childcare
 
-Re-estimate labour supply with individual effects and incorporate mental health, Universal Credit, care time, and childcare costs where supported by the data.
+Re-estimate labour supply with individual effects and incorporate mental health, Universal Credit, care time, and childcare costs where supported by the data. This will improve analysis of employment responses that vary with health, caring responsibilities, and benefit receipt.
 
-<div class="roadmap-meta" markdown>Issues: [#191](https://github.com/simpaths/SimPaths/issues/191), [#193](https://github.com/simpaths/SimPaths/issues/193), [#433](https://github.com/simpaths/SimPaths/issues/433)</div>
+<div class="roadmap-meta" markdown>[Issues #191](https://github.com/simpaths/SimPaths/issues/191), [#193](https://github.com/simpaths/SimPaths/issues/193), and [#433](https://github.com/simpaths/SimPaths/issues/433)</div>
 
 </div>
 
@@ -76,9 +101,9 @@ Re-estimate labour supply with individual effects and incorporate mental health,
 
 ### Migration and population representation
 
-Define immigrant status consistently, clarify its relationship with ethnicity, and assess where it should enter behavioural processes.
+Define immigrant status consistently, clarify its relationship with ethnicity, and assess where it should enter behavioural processes. Clearer population definitions will improve comparisons across groups and prepare the model for later migration and synthetic-population developments.
 
-<div class="roadmap-meta" markdown>Issues: [#303](https://github.com/simpaths/SimPaths/issues/303), [#304](https://github.com/simpaths/SimPaths/issues/304)</div>
+<div class="roadmap-meta" markdown>[Issues #303](https://github.com/simpaths/SimPaths/issues/303) and [#304](https://github.com/simpaths/SimPaths/issues/304)</div>
 
 </div>
 
@@ -86,9 +111,9 @@ Define immigrant status consistently, clarify its relationship with ethnicity, a
 
 ### Regional matching and performance
 
-Extend tax-benefit donor matching by Government Office Region and make partnership matching scalable through population partitions. Improve tax-donor parsing and yearly simulation performance.
+Extend tax-benefit donor matching by Government Office Region, make partnership matching scalable through population partitions, and improve tax-donor parsing and yearly simulation performance. Together these changes will support regional analysis, larger populations, and repeated simulation runs.
 
-<div class="roadmap-meta" markdown>Issues: [#156](https://github.com/simpaths/SimPaths/issues/156), [#157](https://github.com/simpaths/SimPaths/issues/157), [#253](https://github.com/simpaths/SimPaths/issues/253), [#301](https://github.com/simpaths/SimPaths/issues/301)</div>
+<div class="roadmap-meta" markdown>[Issues #156](https://github.com/simpaths/SimPaths/issues/156), [#157](https://github.com/simpaths/SimPaths/issues/157), [#253](https://github.com/simpaths/SimPaths/issues/253), and [#301](https://github.com/simpaths/SimPaths/issues/301)</div>
 
 </div>
 
@@ -96,27 +121,33 @@ Extend tax-benefit donor matching by Government Office Region and make partnersh
 
 ### Alignment and model state
 
-Estimate alignment adjustments once for reuse across scenarios, compare alternative alignment approaches, and make the initialisation and updating of lagged variables consistent.
+Estimate alignment adjustments once for reuse across scenarios, compare alternative alignment approaches, and make the initialisation and updating of lagged variables consistent. This will produce cleaner comparisons between baseline and policy scenarios.
 
-<div class="roadmap-meta" markdown>Issues: [#137](https://github.com/simpaths/SimPaths/issues/137), [#139](https://github.com/simpaths/SimPaths/issues/139), [#119](https://github.com/simpaths/SimPaths/issues/119), [#273](https://github.com/simpaths/SimPaths/issues/273)</div>
-
-</div>
+<div class="roadmap-meta" markdown>[Issues #137](https://github.com/simpaths/SimPaths/issues/137), [#139](https://github.com/simpaths/SimPaths/issues/139), [#119](https://github.com/simpaths/SimPaths/issues/119), and [#273](https://github.com/simpaths/SimPaths/issues/273)</div>
 
 </div>
 
 </div>
 
-<div class="roadmap-horizon" markdown>
-
-<div class="roadmap-horizon__heading" markdown>
-
-## Longer-term capabilities
-
-These capabilities would materially extend the questions SimPaths can address. Their scope and timing are not yet fixed.
+</div>
 
 </div>
 
-<div class="roadmap-horizon__items" markdown>
+<div class="roadmap-stage" markdown>
+
+<div class="roadmap-stage__rail" aria-hidden="true"><span>03</span></div>
+
+<div class="roadmap-stage__content" markdown>
+
+<div class="roadmap-stage__heading" markdown>
+
+## Later — capability pipeline
+
+These capabilities would materially extend the questions SimPaths can address, but their scope and timing are not yet fixed.
+
+</div>
+
+<div class="roadmap-stage__items" markdown>
 
 <div class="roadmap-item" markdown>
 
@@ -130,7 +161,7 @@ Represent the accumulation of assets and liabilities across the life course, ext
 
 ### Unemployment and retirement transitions
 
-Identify unemployment before labour-supply choices, incorporate health into the utility function, allow selected post-retirement employment, and re-estimate wages for the European models.
+Identify unemployment before labour-supply choices, incorporate health into the utility function, allow selected post-retirement employment, and re-estimate wages for the European models. This would provide a richer account of worklessness, return-to-work decisions, and work after retirement.
 
 </div>
 
@@ -138,7 +169,7 @@ Identify unemployment before labour-supply choices, incorporate health into the 
 
 ### Migration and synthetic populations
 
-Develop explicit migration processes and starting populations that reduce dependence on restricted microdata where appropriate.
+Develop explicit migration processes and starting populations that reduce dependence on restricted microdata where appropriate. This would support clearer demographic scenarios and make adaptation to new settings more practical.
 
 </div>
 
@@ -146,7 +177,7 @@ Develop explicit migration processes and starting populations that reduce depend
 
 ### Macroeconomic context and transfers between households
 
-Represent wider economic conditions and transfers between households beyond the immediate benefit unit.
+Represent wider economic conditions and transfers between households beyond the immediate benefit unit. This would enable analysis of economic shocks, family support, and redistribution between households.
 
 </div>
 
@@ -154,35 +185,41 @@ Represent wider economic conditions and transfers between households beyond the 
 
 ### Health and multidimensional wellbeing
 
-Add multidimensional wellbeing outcomes, SIPHER-7 measures, and a mortality process that reflects health differentials.
+Add multidimensional wellbeing outcomes, SIPHER-7 measures, and a mortality process that reflects health differentials. This would extend analysis beyond income and employment and show how health inequalities accumulate over time.
 
-<div class="roadmap-meta" markdown>Issue: [#505](https://github.com/simpaths/SimPaths/issues/505)</div>
-
-</div>
+<div class="roadmap-meta" markdown>[Issue #505](https://github.com/simpaths/SimPaths/issues/505)</div>
 
 </div>
 
 </div>
 
-<div class="roadmap-horizon roadmap-horizon--foundations" markdown>
-
-<div class="roadmap-horizon__heading" markdown>
-
-## Model foundations
-
-Architecture, consistency, and documentation work supports every planning horizon.
+</div>
 
 </div>
 
-<div class="roadmap-horizon__items" markdown>
+<div class="roadmap-stage roadmap-stage--foundations" markdown>
+
+<div class="roadmap-stage__rail" aria-hidden="true"><span>04</span></div>
+
+<div class="roadmap-stage__content" markdown>
+
+<div class="roadmap-stage__heading" markdown>
+
+## Continuous — model foundations
+
+Cross-cutting architecture, consistency, testing, and documentation work progresses alongside every planning horizon.
+
+</div>
+
+<div class="roadmap-stage__items" markdown>
 
 <div class="roadmap-item" markdown>
 
 ### Structural redesign
 
-Reorganise packages, separate model and experiment parameters, clarify alignment logic, redesign the labour-market class, centralise regressor definitions, and increase test coverage.
+Reorganise packages, separate model and experiment parameters, clarify alignment logic, redesign the labour-market class, centralise regressor definitions, and increase test coverage. A clearer architecture will reduce unintended interactions and make new processes safer to implement.
 
-<div class="roadmap-meta" markdown>Issues: [#398](https://github.com/simpaths/SimPaths/issues/398), [#396](https://github.com/simpaths/SimPaths/issues/396), [#401](https://github.com/simpaths/SimPaths/issues/401), [#391](https://github.com/simpaths/SimPaths/issues/391), [#435](https://github.com/simpaths/SimPaths/issues/435)</div>
+<div class="roadmap-meta" markdown>[Issues #398](https://github.com/simpaths/SimPaths/issues/398), [#396](https://github.com/simpaths/SimPaths/issues/396), [#401](https://github.com/simpaths/SimPaths/issues/401), [#391](https://github.com/simpaths/SimPaths/issues/391), and [#435](https://github.com/simpaths/SimPaths/issues/435)</div>
 
 </div>
 
@@ -190,9 +227,9 @@ Reorganise packages, separate model and experiment parameters, clarify alignment
 
 ### Standardisation and code quality
 
-Standardise transformed-variable names, regression and parameter names, missing-value conventions, and class-level documentation; resolve known inconsistencies in pension receipt and employment status.
+Standardise transformed-variable names, regression and parameter names, missing-value conventions, and class-level documentation; resolve known inconsistencies in pension receipt and employment status. Consistent conventions will make concepts easier to trace from source data through estimation and simulation outputs.
 
-<div class="roadmap-meta" markdown>Issues: [#408](https://github.com/simpaths/SimPaths/issues/408), [#410](https://github.com/simpaths/SimPaths/issues/410), [#400](https://github.com/simpaths/SimPaths/issues/400), [#476](https://github.com/simpaths/SimPaths/issues/476)</div>
+<div class="roadmap-meta" markdown>[Issues #408](https://github.com/simpaths/SimPaths/issues/408), [#410](https://github.com/simpaths/SimPaths/issues/410), [#400](https://github.com/simpaths/SimPaths/issues/400), and [#476](https://github.com/simpaths/SimPaths/issues/476)</div>
 
 </div>
 
@@ -200,9 +237,11 @@ Standardise transformed-variable names, regression and parameter names, missing-
 
 ### Documentation and transparency
 
-Document input-data components, matching, interdependencies, health outcomes, and contributor testing requirements.
+Document input-data components, matching, interdependencies, health outcomes, and contributor testing requirements. Researchers and contributors will be able to understand and validate the model without relying on informal knowledge from the core team.
 
-<div class="roadmap-meta" markdown>Issues: [#141](https://github.com/simpaths/SimPaths/issues/141), [#152](https://github.com/simpaths/SimPaths/issues/152)</div>
+<div class="roadmap-meta" markdown>[Issues #141](https://github.com/simpaths/SimPaths/issues/141) and [#152](https://github.com/simpaths/SimPaths/issues/152)</div>
+
+</div>
 
 </div>
 
