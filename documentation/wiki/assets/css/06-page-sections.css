@@ -505,8 +505,18 @@ body.sp-page-funding .md-footer__inner {
   letter-spacing: 0.13em;
 }
 
+.md-typeset .research-page .reference-paper__meta,
+.md-typeset .research-page .research-label,
+.md-typeset .research-page .research-journal {
+  color: rgba(42,56,72,0.68);
+}
+
 .md-typeset .research-page .reference-paper h2 {
   margin-bottom: 0.38rem;
+}
+
+.md-typeset .research-page .reference-paper__summary {
+  text-wrap: wrap;
 }
 
 .md-typeset .research-page > h2 {
@@ -536,10 +546,6 @@ body.sp-page-funding .md-footer__inner {
 
 .md-typeset .research-page .research-entry__meta {
   margin-bottom: 0.24rem;
-}
-
-.md-typeset .research-page .research-journal {
-  color: rgba(61,93,130,0.76);
 }
 
 .md-typeset .research-page a.research-entry h3,
