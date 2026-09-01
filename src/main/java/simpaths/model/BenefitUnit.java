@@ -1744,7 +1744,7 @@ Contemporaneous values of dhhtp_c4 are required for validation. Update and outpu
                             regressionScore = Parameters.getRegLabourSupplyUtilityCouples().getScore(this, BenefitUnit.Regressors.class);
                         } else if (!female.atRiskOfWork()) { //Male has flexible labour supply, female doesn't
                             //Male is at risk of work and has dependent female
-                            regressionScore = Parameters.getRegLabourSupplyUtilityMalesWithDependent().getScore(this, BenefitUnit.Regressors.class);
+                            regressionScore = Parameters.getRegLabourSupplyUtilitySingleDep().getScore(this, BenefitUnit.Regressors.class);
 
                             var reg = Parameters.getRegLabourSupplyUtilitySingleDep();
                             double betaWomen = reg.getCoefficient("AlignmentFixedCostWomen");
@@ -1754,7 +1754,7 @@ Contemporaneous values of dhhtp_c4 are required for validation. Update and outpu
                         }
                     } else if (female.atRiskOfWork() && !male.atRiskOfWork()) { //Male not at risk of work - female must be at risk of work since only benefitUnits at risk are considered here
                         //Female is at risk of work and has dependent male
-                        regressionScore = Parameters.getRegLabourSupplyUtilityFemalesWithDependent().getScore(this, BenefitUnit.Regressors.class);
+                        regressionScore = Parameters.getRegLabourSupplyUtilitySingleDep().getScore(this, BenefitUnit.Regressors.class);
 
                         var reg = Parameters.getRegLabourSupplyUtilitySingleDep();
                         double betaMen = reg.getCoefficient("AlignmentFixedCostMen");
@@ -1961,24 +1961,35 @@ Contemporaneous values of dhhtp_c4 are required for validation. Update and outpu
                     universalCreditMonthly = evaluatedTransfers.getUniversalCreditPerMonth();
                     nonUCMonthly = evaluatedTransfers.getLegacyBenefitPerMonth();
 
-                    //Note that only benefitUnits at risk of work are considered, so at least one partner is at risk of work
+                    // Note that only benefitUnits at risk of work are considered, so at least one partner is at risk of work
                     double regressionScore = 0.;
                     if (male.atRiskOfWork()) { //If male has flexible labour supply
                         if (female.atRiskOfWork()) { //And female has flexible labour supply
                             //Follow utility process for couples
                             regressionScore = Parameters.getRegLabourSupplyUtilityCouples().getScore(this, BenefitUnit.Regressors.class);
                         } else if (!female.atRiskOfWork()) { //Male has flexible labour supply, female doesn't
-                            //Follow utility process for single males for the UK
-                            regressionScore = Parameters.getRegLabourSupplyUtilityMalesWithDependent().getScore(this, BenefitUnit.Regressors.class);
-                            //In Italy, this should follow a separate set of estimates. One way is to differentiate between countries here; another would be to add a set of estimates for both countries, but for the UK have the same number as for singles
-                            //Introduced a new category of estimates, Males/Females with Dependent to be used when only one of the couple is flexible in labour supply. In Italy, these have a separate set of estimates; in the UK they use the same estimates as "independent" singles
+                            //Male is at risk of work and has dependent female
+                            regressionScore = Parameters.getRegLabourSupplyUtilitySingleDep().getScore(this, BenefitUnit.Regressors.class);
+
+                            var reg = Parameters.getRegLabourSupplyUtilitySingleDep();
+                            double betaWomen = reg.getCoefficient("AlignmentFixedCostWomen");
+                            double xWomen = this.getDoubleValue(Enum.valueOf(BenefitUnit.Regressors.class, "AlignmentFixedCostWomen"));
+
+                            regressionScore = regressionScore - (betaWomen * xWomen); //term "(betaWomen * xWomen)" should be zero but this is just a precaution
                         }
                     } else if (female.atRiskOfWork() && !male.atRiskOfWork()) { //Male not at risk of work - female must be at risk of work since only benefitUnits at risk are considered here
-                        //Follow utility process for single female
-                        regressionScore = Parameters.getRegLabourSupplyUtilityFemalesWithDependent().getScore(this, BenefitUnit.Regressors.class);
+                        //Female is at risk of work and has dependent male
+                        regressionScore = Parameters.getRegLabourSupplyUtilitySingleDep().getScore(this, BenefitUnit.Regressors.class);
+
+                        var reg = Parameters.getRegLabourSupplyUtilitySingleDep();
+                        double betaMen = reg.getCoefficient("AlignmentFixedCostMen");
+                        double xMen = this.getDoubleValue(Enum.valueOf(BenefitUnit.Regressors.class, "AlignmentFixedCostMen"));
+
+                        regressionScore = regressionScore - (betaMen * xMen); //term "(betaMen * xMen)" should be zero but this is just a precaution
+
                     } else throw new IllegalArgumentException("None of the partners are at risk of work! HHID " + getKey().getId());
-                    if (Double.isNaN(regressionScore) || Double.isInfinite(regressionScore)) {
-                        throw new RuntimeException("problem evaluating exponential regression score in labour supply module (1)");
+                    if (!Parameters.checkFinite(regressionScore)) {
+                        regressionScore = -700.0;
                     }
 
                     disposableIncomeMonthlyByLabourPairs.put(labourKey, getDisposableIncomeMonthly());

@@ -1997,7 +1997,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     public void activityAlignmentSingleDepMale() {
         activityAlignment(
                 TimeSeriesVariable.UtilityAdjustmentSingleDepMen,
-                Parameters.getCoeffLabourSupplyUtilityMalesWithDependent(),
+                Parameters.getCoeffLabourSupplyUtilitySingleDep(),
                 new String[]{"AlignmentSingleDepMen"},
                 OccupancyExtended.Single_DepMales,
                 "single dependent (male only)"
@@ -2008,7 +2008,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     public void activityAlignmentSingleDepFemale(){
         activityAlignment(
                 TimeSeriesVariable.UtilityAdjustmentSingleDepWomen,
-                Parameters.getCoeffLabourSupplyUtilityFemalesWithDependent(),
+                Parameters.getCoeffLabourSupplyUtilitySingleDep(),
                 new String[]{"AlignmentSingleDepWomen"},
                 OccupancyExtended.Single_DepFemales,
                 "single dependent (female only)"

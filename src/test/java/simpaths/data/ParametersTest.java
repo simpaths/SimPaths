@@ -37,7 +37,7 @@ class ParametersTest {
         void loadDHE_MCSParameters() {
 
             try {
-                Parameters.loadDHE_MCSParameters("UK", Boolean.TRUE);
+                Parameters.loadDHE_MCSParameters(Boolean.TRUE);
             } catch (NullPointerException e) {
                 System.out.println("Not all DHE_MCS worksheets loaded");
             };
@@ -56,7 +56,7 @@ class ParametersTest {
         void loadDHE_PCSParameters() {
 
             try {
-                Parameters.loadDHE_PCSParameters("UK", Boolean.TRUE);
+                Parameters.loadDHE_PCSParameters(Boolean.TRUE);
             } catch (NullPointerException e) {
                 System.out.println("Not all DHE_PCS worksheets loaded");
             };
@@ -75,7 +75,7 @@ class ParametersTest {
         void loadDLSParameters() {
 
             try {
-                Parameters.loadDLSParameters("UK", Boolean.TRUE);
+                Parameters.loadDLSParameters(Boolean.TRUE);
             } catch (NullPointerException e) {
                 System.out.println("Not all DLS worksheets loaded");
             };
@@ -93,7 +93,7 @@ class ParametersTest {
         void loadDHMParameters() {
 
             try {
-                Parameters.loadDHMParameters("UK", Boolean.TRUE);
+                Parameters.loadDHMParameters(Boolean.TRUE);
             } catch (NullPointerException e) {
                 System.out.println("Not all DHM worksheets loaded");
             };
@@ -116,7 +116,7 @@ class ParametersTest {
         void loadLabourSupplyUtilityParameters() {
 
             try {
-                Parameters.loadLabourSupplyUtilityParameters("UK", Boolean.TRUE);
+                Parameters.loadLabourSupplyUtilityParameters(Boolean.TRUE);
             } catch (NullPointerException e) {
                 throw new RuntimeException("Not all LabourSupplyUtility worksheets loaded. Error: " + e.getMessage());
             };
@@ -124,8 +124,7 @@ class ParametersTest {
 
             assertDoesNotThrow(Parameters::getRegLabourSupplyUtilityMales, "`RegLabourSupplyUtilityMales` not loaded");
             assertDoesNotThrow(Parameters::getRegLabourSupplyUtilityFemales, "`RegLabourSupplyUtilityFemales` not loaded");
-            assertDoesNotThrow(Parameters::getRegLabourSupplyUtilityMalesWithDependent, "`RegLabourSupplyUtilityMalesWithDependent` not loaded");
-            assertDoesNotThrow(Parameters::getRegLabourSupplyUtilityFemalesWithDependent, "`RegLabourSupplyUtilityFemalesWithDependent` not loaded");
+            assertDoesNotThrow(Parameters::getRegLabourSupplyUtilitySingleDep, "`RegLabourSupplyUtilitySingleDep` not loaded");
             assertDoesNotThrow(Parameters::getRegLabourSupplyUtilityACMales, "`RegLabourSupplyUtilityACMales` not loaded");
             assertDoesNotThrow(Parameters::getRegLabourSupplyUtilityACFemales, "`RegLabourSupplyUtilityACFemales` not loaded");
             assertDoesNotThrow(Parameters::getRegLabourSupplyUtilityCouples, "`RegLabourSupplyUtilityCouples` not loaded");

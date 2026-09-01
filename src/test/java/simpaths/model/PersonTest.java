@@ -414,7 +414,7 @@ public class PersonTest {
                 Parameters.setInputDirectory("src/test/java/simpaths/testinput");
 
                 Parameters.eq5dConversionParameters = "lawrence";
-                Parameters.loadEQ5DParameters("UK");
+                Parameters.loadEQ5DParameters();
             }
 
             @Test
@@ -451,7 +451,7 @@ public class PersonTest {
                 Parameters.setInputDirectory("src/test/java/simpaths/testinput");
 
                 Parameters.eq5dConversionParameters = "franks";
-                Parameters.loadEQ5DParameters("UK");
+                Parameters.loadEQ5DParameters();
             }
 
             @Test
