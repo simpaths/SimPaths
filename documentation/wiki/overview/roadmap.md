@@ -44,7 +44,7 @@ These items have active development tasks and the clearest near-term scope.
 
 ### Wealth across the life course
 
-Represent the accumulation of assets and liabilities across the life course, extending current income and pension processes. This would support analysis of financial resilience, retirement, and intergenerational inequality.
+Model how the assets and debts held by individuals and households evolve over the life course, including housing wealth, mortgages, pensions, savings, and unsecured debt, and how these interact with income and spending. This will enable SimPaths to analyse financial resilience, housing and debt pressures, resources available in retirement, and how wealth inequalities develop over time.
 
 <div class="roadmap-meta" markdown>[Issue #447](https://github.com/simpaths/SimPaths/issues/447)</div>
 
