@@ -70,7 +70,11 @@
     body.classList.toggle("sp-page-roadmap", Boolean(document.querySelector(".roadmap-page")));
     body.classList.toggle(
       "sp-reserve-toc-space",
-      Boolean(document.querySelector("#user-guide, #getting-started, #jas-mine-architecture"))
+      Boolean(
+        document.querySelector(
+          ".model-overview, #user-guide, #getting-started, #jas-mine-architecture"
+        )
+      )
     );
 
     const activeTab = document.querySelector(".md-tabs__item--active .md-tabs__link")

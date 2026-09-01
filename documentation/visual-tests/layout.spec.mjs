@@ -98,19 +98,22 @@ test("model overview keeps the established reading measure", async ({ page }) =>
   await page.setViewportSize({ width: 1512, height: 900 });
   await page.goto("/overview/", { waitUntil: "domcontentloaded" });
 
-  const measure = await page.locator(".model-overview").evaluate((element) => {
-    const styles = getComputedStyle(element);
+  await expect(page.locator("body")).toHaveClass(/sp-reserve-toc-space/);
+
+  const overviewMeasure = await page.locator(".model-overview").evaluate((element) => {
     return {
       width: element.getBoundingClientRect().width,
-      maxWidth: parseFloat(styles.maxWidth),
       overflow: document.documentElement.scrollWidth - window.innerWidth
     };
   });
 
-  expect(measure.maxWidth).toBeGreaterThan(900);
-  expect(measure.maxWidth).toBeLessThan(1100);
-  expect(measure.width).toBeLessThanOrEqual(measure.maxWidth + 1);
-  expect(measure.overflow).toBeLessThanOrEqual(8);
+  await page.goto("/overview/model-description/", { waitUntil: "domcontentloaded" });
+  const standardMeasure = await page.locator(".md-content__inner").evaluate((element) =>
+    element.getBoundingClientRect().width
+  );
+
+  expect(Math.abs(overviewMeasure.width - standardMeasure)).toBeLessThanOrEqual(1);
+  expect(overviewMeasure.overflow).toBeLessThanOrEqual(8);
 });
 
 test("roadmap contains public priorities rather than editorial notes", async ({ page }) => {
