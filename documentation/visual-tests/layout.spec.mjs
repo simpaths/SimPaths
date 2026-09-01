@@ -144,14 +144,20 @@ test("roadmap contains public priorities rather than editorial notes", async ({ 
   await page.goto("/overview/roadmap/", { waitUntil: "domcontentloaded" });
 
   await expect(page.getByRole("heading", { name: "Working on now", exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Working on next", exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Longer-term capabilities", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Planned work", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Capabilities in the pipeline", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Model foundations", exact: true })).toBeVisible();
+  await expect(
+    page.locator(".roadmap-stage--now").getByRole("heading", {
+      name: "Wealth across the life course",
+      exact: true
+    })
+  ).toBeVisible();
   await expect(page.locator(".roadmap-stage")).toHaveCount(4);
-  await expect(page.locator(".roadmap-item")).toHaveCount(15);
+  await expect(page.locator(".roadmap-item")).toHaveCount(16);
   await expect(page.locator(".roadmap-impact")).toHaveCount(0);
   await expect(page.locator(".roadmap-page > ol")).toHaveCount(0);
-  await expect(page.locator('.roadmap-meta a[href*="/issues/"]')).toHaveCount(28);
+  await expect(page.locator('.roadmap-meta a[href*="/issues/"]')).toHaveCount(39);
 
   const content = await page.locator(".roadmap-page").innerText();
   for (const editorialNote of [
