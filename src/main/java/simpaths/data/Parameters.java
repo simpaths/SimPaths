@@ -3328,10 +3328,10 @@ public class Parameters {
     public static MultiKeyCoefficientMap getCoeffLabourSupplyUtilityCouples() {
         return coeffLabourSupplyUtilityCouples;
     }
+
     public static MultiKeyCoefficientMap getCoeffLabourSupplyUtilitySingleDep() {
         return coeffLabourSupplyUtilitySingleDep;
     }
-
 
     public static double getLiquidWealthDiscount() {
         return 0.0;
