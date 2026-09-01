@@ -259,7 +259,7 @@ public class LabourMarket {
 
             //Update Labour Supply
             benefitUnitsAllRegions.parallelStream()
-                    .forEach(BenefitUnit::updateLabourSupplyAndIncomeWithUniversalCredit);
+                    .forEach(BenefitUnit::updateLabourSupplyAndIncome);
 
             Map<Education, Double> potentialHourlyEarningsByEdu = new LinkedHashMap<Education, Double>();
             Map<Education, Integer> countByEdu = new LinkedHashMap<Education, Integer>();
