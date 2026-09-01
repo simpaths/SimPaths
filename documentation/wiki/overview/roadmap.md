@@ -7,7 +7,7 @@ hide:
 
 <div class="roadmap-page" markdown>
 
-<p class="roadmap-lede">SimPaths development is organised into work underway, work expected next, longer-term capabilities, and the foundations that support every stage.</p>
+<p class="roadmap-lede">This public roadmap groups selected SimPaths development priorities into work underway, planned work, capabilities in the pipeline, and the foundations that support every stage.</p>
 
 <div class="roadmap-status">
   <span>Last reviewed August 2026</span>
@@ -19,9 +19,9 @@ hide:
 
 <nav class="roadmap-sequence" aria-label="Roadmap stages">
   <a href="#working-on-now"><span class="roadmap-sequence__name">Working on now</span></a>
-  <a href="#working-on-next"><span class="roadmap-sequence__name">Working on next</span></a>
-  <a href="#longer-term-capabilities"><span class="roadmap-sequence__name">Longer-term capabilities</span></a>
-  <a href="#model-foundations"><span class="roadmap-sequence__name">Model foundations</span></a>
+  <a href="#planned-work"><span class="roadmap-sequence__name">Planned work</span></a>
+  <a href="#capabilities-in-the-pipeline"><span class="roadmap-sequence__name">Capabilities in the pipeline</span></a>
+  <a class="roadmap-sequence__parallel" href="#model-foundations"><span class="roadmap-sequence__name">Model foundations</span></a>
 </nav>
 
 <div class="roadmap-stage roadmap-stage--now" markdown>
@@ -39,6 +39,16 @@ These items have active development tasks and the clearest near-term scope.
 </div>
 
 <div class="roadmap-stage__items" markdown>
+
+<div class="roadmap-item" markdown>
+
+### Wealth across the life course
+
+Represent the accumulation of assets and liabilities across the life course, extending current income and pension processes. This would support analysis of financial resilience, retirement, and intergenerational inequality.
+
+<div class="roadmap-meta" markdown>[Issue #447](https://github.com/simpaths/SimPaths/issues/447)</div>
+
+</div>
 
 <div class="roadmap-item" markdown>
 
@@ -84,9 +94,9 @@ Add modifiers estimated from longitudinal employment histories to the health mod
 
 <div class="roadmap-stage__heading" markdown>
 
-## Working on next
+## Planned work
 
-These priorities are expected to follow active work. Their order depends on data, estimation work, and related model changes.
+These priorities have defined development tasks, but their timing and order depend on data, estimation work, and related model changes.
 
 </div>
 
@@ -99,6 +109,16 @@ These priorities are expected to follow active work. Their order depends on data
 Re-estimate labour supply with individual effects and incorporate mental health, Universal Credit, care time, and childcare costs where supported by the data. This will improve analysis of employment responses that vary with health, caring responsibilities, and benefit receipt.
 
 <div class="roadmap-meta" markdown>[Issues #191](https://github.com/simpaths/SimPaths/issues/191), [#193](https://github.com/simpaths/SimPaths/issues/193), and [#433](https://github.com/simpaths/SimPaths/issues/433)</div>
+
+</div>
+
+<div class="roadmap-item" markdown>
+
+### Multidimensional wellbeing
+
+Integrate multidimensional wellbeing outcomes into the model, update the initial populations, and validate the new processes. This would extend analysis beyond income and employment.
+
+<div class="roadmap-meta" markdown>[Issues #491](https://github.com/simpaths/SimPaths/issues/491), [#492](https://github.com/simpaths/SimPaths/issues/492), [#493](https://github.com/simpaths/SimPaths/issues/493), and [#494](https://github.com/simpaths/SimPaths/issues/494)</div>
 
 </div>
 
@@ -138,7 +158,7 @@ Estimate alignment adjustments once for reuse across scenarios, compare alternat
 
 </div>
 
-<div class="roadmap-stage" markdown>
+<div class="roadmap-stage roadmap-stage--pipeline" markdown>
 
 <div class="roadmap-stage__rail" aria-hidden="true"><span>03</span></div>
 
@@ -146,7 +166,7 @@ Estimate alignment adjustments once for reuse across scenarios, compare alternat
 
 <div class="roadmap-stage__heading" markdown>
 
-## Longer-term capabilities
+## Capabilities in the pipeline
 
 These capabilities would materially extend the questions SimPaths can address, but their scope and timing are not yet fixed.
 
@@ -156,17 +176,11 @@ These capabilities would materially extend the questions SimPaths can address, b
 
 <div class="roadmap-item" markdown>
 
-### Wealth across the life course
-
-Represent the accumulation of assets and liabilities across the life course, extending current income and pension processes. This would support analysis of financial resilience, retirement, and intergenerational inequality.
-
-</div>
-
-<div class="roadmap-item" markdown>
-
 ### Unemployment and retirement transitions
 
 Identify unemployment before labour-supply choices, incorporate health into the utility function, allow selected post-retirement employment, and re-estimate wages for the European models. This would provide a richer account of worklessness, return-to-work decisions, and work after retirement.
+
+<div class="roadmap-meta" markdown>[Issue #402](https://github.com/simpaths/SimPaths/issues/402)</div>
 
 </div>
 
@@ -175,6 +189,8 @@ Identify unemployment before labour-supply choices, incorporate health into the 
 ### Migration and synthetic populations
 
 Develop explicit migration processes and starting populations that reduce dependence on restricted microdata where appropriate. This would support clearer demographic scenarios and make adaptation to new settings more practical.
+
+<div class="roadmap-meta" markdown>Related groundwork: [Issues #303](https://github.com/simpaths/SimPaths/issues/303) and [#304](https://github.com/simpaths/SimPaths/issues/304)</div>
 
 </div>
 
@@ -188,9 +204,9 @@ Represent wider economic conditions and transfers between households beyond the 
 
 <div class="roadmap-item" markdown>
 
-### Health and multidimensional wellbeing
+### SIPHER-7 outcomes and health-sensitive mortality
 
-Add multidimensional wellbeing outcomes, SIPHER-7 measures, and a mortality process that reflects health differentials. This would extend analysis beyond income and employment and show how health inequalities accumulate over time.
+Add SIPHER-7 measures and a mortality process that reflects health differentials. This would show how health inequalities accumulate over time.
 
 <div class="roadmap-meta" markdown>[Issue #505](https://github.com/simpaths/SimPaths/issues/505)</div>
 
@@ -203,8 +219,6 @@ Add multidimensional wellbeing outcomes, SIPHER-7 measures, and a mortality proc
 </div>
 
 <div class="roadmap-stage roadmap-stage--foundations" markdown>
-
-<div class="roadmap-stage__rail" aria-hidden="true"><span>04</span></div>
 
 <div class="roadmap-stage__content" markdown>
 
@@ -224,7 +238,7 @@ Cross-cutting architecture, consistency, testing, and documentation work progres
 
 Reorganise packages, separate model and experiment parameters, clarify alignment logic, redesign the labour-market class, centralise regressor definitions, and increase test coverage. A clearer architecture will reduce unintended interactions and make new processes safer to implement.
 
-<div class="roadmap-meta" markdown>[Issues #398](https://github.com/simpaths/SimPaths/issues/398), [#396](https://github.com/simpaths/SimPaths/issues/396), [#401](https://github.com/simpaths/SimPaths/issues/401), [#391](https://github.com/simpaths/SimPaths/issues/391), and [#435](https://github.com/simpaths/SimPaths/issues/435)</div>
+<div class="roadmap-meta" markdown>[Issues #398](https://github.com/simpaths/SimPaths/issues/398), [#396](https://github.com/simpaths/SimPaths/issues/396), [#397](https://github.com/simpaths/SimPaths/issues/397), [#401](https://github.com/simpaths/SimPaths/issues/401), [#391](https://github.com/simpaths/SimPaths/issues/391), and [#435](https://github.com/simpaths/SimPaths/issues/435)</div>
 
 </div>
 
@@ -234,7 +248,7 @@ Reorganise packages, separate model and experiment parameters, clarify alignment
 
 Standardise transformed-variable names, regression and parameter names, missing-value conventions, and class-level documentation; resolve known inconsistencies in pension receipt and employment status. Consistent conventions will make concepts easier to trace from source data through estimation and simulation outputs.
 
-<div class="roadmap-meta" markdown>[Issues #408](https://github.com/simpaths/SimPaths/issues/408), [#410](https://github.com/simpaths/SimPaths/issues/410), [#400](https://github.com/simpaths/SimPaths/issues/400), and [#476](https://github.com/simpaths/SimPaths/issues/476)</div>
+<div class="roadmap-meta" markdown>[Issues #408](https://github.com/simpaths/SimPaths/issues/408), [#410](https://github.com/simpaths/SimPaths/issues/410), [#407](https://github.com/simpaths/SimPaths/issues/407), [#400](https://github.com/simpaths/SimPaths/issues/400), [#476](https://github.com/simpaths/SimPaths/issues/476), and [#486](https://github.com/simpaths/SimPaths/issues/486)</div>
 
 </div>
 
