@@ -71,7 +71,7 @@ public class SimPathsMultiRun extends MultiRun {
 
     private static boolean integrationTest = false;
 
-    private static boolean persistCountryYear = false;
+    private static boolean persistCountryYear = true;
 
 	/**
 	 *

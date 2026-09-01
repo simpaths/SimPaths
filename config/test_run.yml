@@ -8,6 +8,8 @@ startYear: 2019
 endYear: 2022
 popSize: 20000
 integrationTest: true
+countryString: United Kingdom
+persistCountryYear: false
 
 collector_args:
     persistWealthIncomeStatistics: true
