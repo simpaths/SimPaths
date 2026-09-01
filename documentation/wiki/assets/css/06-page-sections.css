@@ -57,7 +57,7 @@ body.sp-page-funding .md-footer__inner {
 .md-typeset .funding-grid {
   display: grid;
   gap: 3.6rem;
-  max-width: 54rem;
+  max-width: 50rem;
   margin-top: 3.2rem;
 }
 .md-typeset .funding-panel {
