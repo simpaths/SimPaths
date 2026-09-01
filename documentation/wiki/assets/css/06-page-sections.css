@@ -135,7 +135,7 @@ body.sp-page-funding .md-footer__inner {
   font-weight: 540;
   letter-spacing: -0.012em;
   line-height: 1.42;
-  text-wrap: pretty;
+  text-wrap: wrap;
 }
 
 .md-typeset .funding-meta {

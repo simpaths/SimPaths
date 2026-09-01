@@ -26,7 +26,7 @@ hide:
         </div>
       </li>
       <li>
-        <div class="funding-title">Greater Essex Health Determinants Research Collaboration</div>
+        <div class="funding-title">Greater Essex Health Determinants Research Collaboration (HDRC)</div>
         <div class="funding-meta">
           <span class="funding-years">2022-2027</span>
           <span class="funding-funder">NIHR</span>
