@@ -1,3 +1,8 @@
+---
+hide:
+  - toc
+---
+
 # Model
 
 SimPaths is a family of models for individual and household life course events, all sharing common components. The framework is designed to project life histories through time, building up a detailed picture of career paths, family (inter)relations, health, and financial circumstances. It builds upon standardised assumptions and data sources, which facilitates adaptation to alternative countries.
