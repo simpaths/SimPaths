@@ -455,12 +455,14 @@ body.sp-page-funding .md-footer__inner {
 /* ── Research page overrides ── */
 .md-typeset .research-page {
   --research-page-accent: #8b3f5e;
+  --research-page-copy: var(--sp-midnight);
   max-width: 54rem;
   margin: 0 auto 3rem;
   scroll-margin-top: 7rem;
 }
 
 .md-typeset .research-page p {
+  color: var(--research-page-copy);
   text-align: left;
   hyphens: none;
   -webkit-hyphens: none;
@@ -478,14 +480,12 @@ body.sp-page-funding .md-footer__inner {
 
 .md-typeset .research-page__lead {
   margin: 0 0 0.45rem;
-  color: var(--sp-midnight);
   font-size: 0.9rem;
   line-height: 1.68;
 }
 
 .md-typeset .research-page__intro {
   margin: 0;
-  color: var(--sp-midnight);
   font-size: 0.78rem;
   line-height: 1.62;
 }
@@ -559,7 +559,7 @@ body.sp-page-funding .md-footer__inner {
   align-items: baseline;
   gap: 0;
   margin: 0 0 0.35rem !important;
-  color: rgba(42,56,72,0.68);
+  color: var(--research-page-copy);
   font-size: 0.63rem;
   font-weight: 620;
   letter-spacing: 0.025em;
@@ -569,19 +569,19 @@ body.sp-page-funding .md-footer__inner {
   content: "·";
   display: inline-block;
   margin: 0 0.42rem;
-  color: rgba(42,56,72,0.34);
+  color: rgba(139,63,94,0.56);
 }
 
 .md-typeset .research-publication__authors {
   margin: 0 !important;
-  color: rgba(42,56,72,0.84);
+  color: var(--research-page-copy);
   font-size: 0.69rem;
   line-height: 1.52;
 }
 
 .md-typeset .research-publication__summary {
   margin: 0.34rem 0 0 !important;
-  color: var(--sp-midnight);
+  color: var(--research-page-copy);
   font-size: 0.76rem;
   line-height: 1.58;
 }
@@ -592,18 +592,12 @@ body.sp-page-funding .md-footer__inner {
 
 .md-typeset .research-publication {
   padding: 1rem 0 1.05rem;
-  border-bottom: 1px solid rgba(42,56,72,0.11);
+  border-bottom: 1px solid rgba(139,63,94,0.14);
 }
 
 [data-md-color-scheme="slate"] .md-typeset .research-page {
   --research-page-accent: #d6a7b9;
-}
-
-[data-md-color-scheme="slate"] .md-typeset .research-page__intro,
-[data-md-color-scheme="slate"] .md-typeset .research-publication__source,
-[data-md-color-scheme="slate"] .md-typeset .research-publication__authors,
-[data-md-color-scheme="slate"] .md-typeset .research-publication__summary {
-  color: rgba(250,249,245,0.68);
+  --research-page-copy: rgba(250,249,245,0.86);
 }
 
 [data-md-color-scheme="slate"] .md-typeset .research-primary {
