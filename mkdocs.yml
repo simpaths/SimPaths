@@ -109,6 +109,7 @@ nav:
       - overview/index.md
       - Model Description: overview/model-description.md
       - Simulated Modules:
+          - overview/simulated-modules.md
           - Ageing: overview/modules/ageing.md
           - Education: overview/modules/education.md
           - Health: overview/modules/health.md
