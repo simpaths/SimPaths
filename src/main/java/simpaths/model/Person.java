@@ -554,7 +554,11 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
 //        receivesBenefitsFlagUC_L1 = originalPerson.receivesBenefitsFlagUC_L1;
 //        receivesBenefitsFlagLB = originalPerson.receivesBenefitsFlagLB;
 //        receivesBenefitsFlagLB_L1 = originalPerson.receivesBenefitsFlagLB_L1;
-
+        if (originalPerson.labWageFullTimeHrly > Parameters.MIN_HOURLY_WAGE_RATE) {
+            labWageFullTimeHrly = Math.min(Parameters.MAX_HOURLY_WAGE_RATE, Math.max(Parameters.MIN_HOURLY_WAGE_RATE, originalPerson.labWageFullTimeHrly));
+        } else {
+            labWageFullTimeHrly = -9.0;
+        }
         if (originalPerson.labWageFullTimeHrlyL1 !=null && originalPerson.labWageFullTimeHrlyL1 >Parameters.MIN_HOURLY_WAGE_RATE) {
             labWageFullTimeHrlyL1 = Math.min(Parameters.MAX_HOURLY_WAGE_RATE, Math.max(Parameters.MIN_HOURLY_WAGE_RATE, originalPerson.labWageFullTimeHrlyL1));
         } else {
