@@ -829,3 +829,120 @@ body.sp-page-funding .md-footer__inner {
 
   .md-typeset .module-detail__facts > div:first-child { border-top: 0; }
 }
+
+/* ═══════════════════════════════════════════════
+   HOW TO CITE
+═══════════════════════════════════════════════ */
+
+.md-typeset .cite-page {
+  max-width: 50rem;
+  padding: 1.15rem 0 3.5rem;
+}
+
+.md-typeset .cite-page > h1 {
+  margin-bottom: 0;
+  font-size: 1.65rem;
+  font-weight: 630;
+  letter-spacing: -0.025em;
+  line-height: 1.16;
+}
+
+.md-typeset .cite-section {
+  margin-top: 2.15rem;
+}
+
+.md-typeset .cite-section--primary {
+  margin-top: 1.7rem;
+}
+
+.md-typeset .cite-section > h2 {
+  margin: 0 0 0.65rem;
+  color: var(--sp-midnight);
+  font-size: 1.08rem;
+  font-weight: 640;
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+}
+
+.md-typeset .cite-intro {
+  max-width: 42rem;
+  margin: 0;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  text-align: left;
+  text-wrap: wrap;
+  hyphens: none;
+}
+
+.md-typeset .cite-primary {
+  max-width: 47rem;
+  margin-top: 1rem;
+  padding: 0.9rem 1rem 0.95rem;
+  background: rgba(61, 93, 130, 0.045);
+  border-left: 2px solid rgba(61, 93, 130, 0.42);
+}
+
+.md-typeset .cite-label {
+  margin: 0 0 0.35rem;
+  color: rgba(42, 56, 72, 0.62);
+  font-size: 0.56rem;
+  font-weight: 720;
+  letter-spacing: 0.09em;
+  line-height: 1.3;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.md-typeset .cite-entry {
+  margin: 0;
+  color: var(--sp-midnight);
+  font-size: 0.78rem;
+  line-height: 1.65;
+  text-align: left;
+  text-wrap: wrap;
+  hyphens: none;
+}
+
+.md-typeset .cite-list > ul {
+  max-width: 47rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.md-typeset .cite-list > ul > li {
+  margin: 0;
+  padding: 0.7rem 0;
+  color: var(--sp-midnight);
+  border-top: 1px solid rgba(61, 93, 130, 0.14);
+  font-size: 0.78rem;
+  line-height: 1.62;
+  text-align: left;
+  text-wrap: wrap;
+  hyphens: none;
+}
+
+.md-typeset .cite-list > ul > li:last-child {
+  border-bottom: 1px solid rgba(61, 93, 130, 0.14);
+}
+
+@media screen and (max-width: 44em) {
+  .md-typeset .cite-page {
+    padding-top: 0.55rem;
+  }
+
+  .md-typeset .cite-primary {
+    padding: 0.8rem 0.85rem 0.85rem;
+  }
+}
+
+@media screen and (max-width: 30em) {
+  .md-typeset .cite-page > h1 {
+    font-size: 1.4rem;
+  }
+
+  .md-typeset .cite-section > h2 {
+    font-size: 1rem;
+  }
+}
