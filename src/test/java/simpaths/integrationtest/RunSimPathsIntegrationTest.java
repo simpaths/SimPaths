@@ -16,7 +16,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@Tag("IntegrationTest")
 public class RunSimPathsIntegrationTest {
     /** Absolute epsilon for numeric comparison. */
     private static final double ABS_EPSILON = 1e-9;

@@ -3,24 +3,17 @@ package simpaths.model;
 import microsim.statistics.regression.BinomialRegression;
 import microsim.statistics.regression.GeneralisedOrderedRegression;
 import org.junit.jupiter.api.*;
-import simpaths.data.ManagerRegressions;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-import simpaths.data.Parameters;
-import simpaths.data.RegressionName;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.*;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
+import simpaths.data.ManagerRegressions;
+import simpaths.data.Parameters;
+import simpaths.data.RegressionName;
 import simpaths.model.enums.*;
 
 import java.lang.reflect.Field;
 import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Person class")
 public class PersonTest {
@@ -399,12 +392,6 @@ public class PersonTest {
             testPerson.setDemAge(30);
         }
 
-
-        @AfterAll
-        static void tearDown() {
-            Parameters.setInputDirectory("input");
-        }
-
         @Nested
         @DisplayName("With eq5dConversionParameters set to 'lawrence'")
         class WithLawrenceParameters {
@@ -414,7 +401,7 @@ public class PersonTest {
                 Parameters.setInputDirectory("src/test/java/simpaths/testinput");
 
                 Parameters.eq5dConversionParameters = "lawrence";
-                Parameters.loadEQ5DParameters();
+                Parameters.loadEQ5DParameters("UK");
             }
 
             @Test
@@ -451,7 +438,7 @@ public class PersonTest {
                 Parameters.setInputDirectory("src/test/java/simpaths/testinput");
 
                 Parameters.eq5dConversionParameters = "franks";
-                Parameters.loadEQ5DParameters();
+                Parameters.loadEQ5DParameters("UK");
             }
 
             @Test

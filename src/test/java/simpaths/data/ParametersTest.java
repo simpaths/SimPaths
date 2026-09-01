@@ -1,27 +1,19 @@
 package simpaths.data;
 
 import microsim.data.MultiKeyCoefficientMap;
-import microsim.engine.SimulationEngine;
-import microsim.statistics.regression.LinearRegression;
-import microsim.statistics.regression.OrderedRegression;
-import microsim.statistics.regression.RegressionUtils;
-import org.junit.jupiter.api.*;
-import org.mockito.MockedStatic;
+import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ParametersTest {
 
-    private MockedStatic<SimulationEngine> mockEngine;
-    private MockedStatic<RegressionUtils> mockRegressionUtils;
-
-
-
     /**
      * Tests regressor validation logic using valid/invalid maps
      */
     @Test
-    void validatePersonRegressors() {
+    void validateRegressors() {
 
         String[] badValueVector = new String[] {"Dag", "Not_a_valid_value"};
         String[] goodValueVector = new String[] {"Dag", "D_Home_owner", "PovertyToNonPoverty"};
