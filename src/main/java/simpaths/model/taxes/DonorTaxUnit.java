@@ -21,7 +21,7 @@ public class DonorTaxUnit {
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "taxUnit")
     private Set<DonorTaxUnitPolicy> policies = new LinkedHashSet<>();
 
-    @Column(name = "UC_TAKEUP") private Integer ucTakeUp;
+    private Integer ucTakeUp = 0; // FIXME: should be read from db
     @Column(name = "WEIGHT") private Double weight;
 
 

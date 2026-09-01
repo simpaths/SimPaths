@@ -207,9 +207,6 @@ public class TaxDonorDataParser {
                 + "UPDATE " + personTableName + " SET GENDER = 'Male' WHERE DGN = 1;"
                 + "ALTER TABLE " + personTableName + " DROP COLUMN DGN;"
                 + "ALTER TABLE " + personTableName + " ALTER COLUMN GENDER RENAME TO DGN;"
-
-                // UC treatment
-                + "ALTER TABLE " + personTableName + " ALTER COLUMN uc_takeup RENAME TO UC_TAKEUP;"
             );
             stat.execute(
                     "ALTER TABLE " + personTableName + " ADD temp REAL DEFAULT 0;"
@@ -360,7 +357,6 @@ public class TaxDonorDataParser {
             stat.execute(
                 // make copy of person table, using tuid
                 "DROP TABLE IF EXISTS TEMP CASCADE;"
-                + "CREATE TABLE TEMP AS (SELECT TUID, UC_TAKEUP, WEIGHT FROM " + personTableName + ");"
 
                 // extract only unique values of tuid
                 +"DROP TABLE IF EXISTS " + taxUnitTableName + " CASCADE;"

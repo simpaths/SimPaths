@@ -91,7 +91,6 @@ public class Parameters {
 		"lhw", 					//hours worked per week
         "yem", 					//employment income - used to construct work sector *NOT VALID FOR POLICY ANALYSIS*
         "yse", 					//self-employment income - used to construct work sector *NOT VALID FOR POLICY ANALYSIS*
-        "uc_takeup",            // Universal care
         "bdioa",                //Attendance Allowance
         "bdisc",                //Disability Living Allowance
         "bdimb",                //Disability Living Allowance (mobility)
