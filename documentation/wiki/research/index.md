@@ -22,9 +22,8 @@ hide:
   </article>
 </section>
 
-<section class="research-page__section" aria-labelledby="selected-research">
-  <h2 id="selected-research">Selected research</h2>
-  <p class="research-page__section-intro">These publications show how SimPaths is being used across care, income support, mental health, and life course analysis.</p>
+<section class="research-page__section" aria-labelledby="further-references">
+  <h2 id="further-references">Further references</h2>
 
   <div class="research-publications">
 
