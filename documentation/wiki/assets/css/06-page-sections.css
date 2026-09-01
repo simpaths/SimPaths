@@ -1,3 +1,9 @@
+/* Model overview */
+
+.md-typeset .model-overview {
+  max-width: 49rem;
+}
+
 /* Funding page */
 
 .md-typeset .funding-page,

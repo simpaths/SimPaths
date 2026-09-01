@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 
 const routes = [
   ["home", "/"],
+  ["model", "/overview/"],
   ["documentation", "/documentation/"],
   ["roadmap", "/overview/roadmap/"],
   ["research", "/research/"],
@@ -92,6 +93,25 @@ for (const [name, path] of routes) {
     });
   });
 }
+
+test("model overview keeps the established reading measure", async ({ page }) => {
+  await page.setViewportSize({ width: 1512, height: 900 });
+  await page.goto("/overview/", { waitUntil: "domcontentloaded" });
+
+  const measure = await page.locator(".model-overview").evaluate((element) => {
+    const styles = getComputedStyle(element);
+    return {
+      width: element.getBoundingClientRect().width,
+      maxWidth: parseFloat(styles.maxWidth),
+      overflow: document.documentElement.scrollWidth - window.innerWidth
+    };
+  });
+
+  expect(measure.maxWidth).toBeGreaterThan(900);
+  expect(measure.maxWidth).toBeLessThan(1100);
+  expect(measure.width).toBeLessThanOrEqual(measure.maxWidth + 1);
+  expect(measure.overflow).toBeLessThanOrEqual(8);
+});
 
 test("roadmap contains public priorities rather than editorial notes", async ({ page }) => {
   await page.goto("/overview/roadmap/", { waitUntil: "domcontentloaded" });
