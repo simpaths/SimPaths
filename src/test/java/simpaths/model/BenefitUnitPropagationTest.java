@@ -25,17 +25,17 @@ class BenefitReceiptPropagationTest {
         // Note: We only need fields required for UC/LB propagation and readout
         Parameters.calculatePartnershipDifferentials("UK");
         bu = new BenefitUnit(1L, 1234L);
-        bu.setOccupancyLocal(Occupancy.Couple);
+        bu.setI_demOccupancy(Occupancy.Couple);
 
         p1 = new Person(100L, 2000L);
         p2 = new Person(101L, 2001L);
 
-        // Make them adults so they’re valid members for propagation checks
-        setAge(p1, 30);
-        setAge(p2, 28);
-        setGender(p1, Gender.Male);    // <-- ensure BU.getMale() can find a Male adult
-        setGender(p2, Gender.Female);  // <-- ensure BU.getFemale() can find a Female adult
 
+        p1.setDemAge(30);
+        p2.setDemAge(28);
+
+        p1.setDemMaleFlag(Gender.Male);
+        p2.setDemMaleFlag(Gender.Female);
 
         // Wire the association both ways
         setBenefitUnit(p1, bu);
@@ -44,28 +44,6 @@ class BenefitReceiptPropagationTest {
         addMember(bu, p2);
     }
 
-    // Helper to avoid relying on other processes
-    private void setAge(Person person, int age) {
-        // Person.dag is the age field
-        // Using a minimal setter path here to keep the test focused on UC/LB logic
-        try {
-            var f = Person.class.getDeclaredField("dag");
-            f.setAccessible(true);
-            f.setInt(person, age);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to set age on Person in test", e);
-        }
-    }
-
-    private void setGender(Person person, Gender gender) {   // <-- new helper
-        try {
-            var f = Person.class.getDeclaredField("dgn");
-            f.setAccessible(true);
-            f.set(person, gender);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to set gender on Person in test", e);
-        }
-    }
 
     private void setBenefitUnit(Person person, BenefitUnit benefitUnit) {
         try {
@@ -94,12 +72,12 @@ class BenefitReceiptPropagationTest {
     }
 
     @Test
-    @DisplayName("UC: amount > 0 and receivedUC = 1 propagate correctly to BU and Persons")
+    @DisplayName("UC: amount > 0 and yBenUCReceivedFlag = 1 propagate correctly to BU and Persons")
     void ucAmountAndOnOffCoherence() {
         // Simulate donor-imputed results
         setUniversalCreditMonthly(bu, 120.0);
-        bu.setReceivedUC(1);                   // donor on/off
-        bu.setReceivedLegacyBenefits(0);       // ensure legacy off here
+        bu.setReceivedBenefitsUC(1);                   // donor on/off
+        bu.setReceivedBenefitsNonUC(0);       // ensure legacy off here
 
 
         // Propagate receipt flags to persons
@@ -115,31 +93,31 @@ class BenefitReceiptPropagationTest {
     }
 
     @Test
-    @DisplayName("Legacy benefits: amount > 0 and receivedLegacyBenefit = 1 propagate correctly to BU and Persons")
-    void legacyAmountAndOnOffCoherence() {
+    @DisplayName("Non-UC benefits: amount > 0 and receivedNonUCBenefit = 1 propagate correctly to BU and Persons")
+    void nonUCAmountAndOnOffCoherence() {
         // Simulate donor-imputed results
-        setLegacyBenefitMonthly(bu, 250.0);
-        bu.setReceivedLegacyBenefits(1);       // donor on/off
-        bu.setReceivedUC(0);                   // ensure UC off here
+        setBenefitNonUCMonthly(bu, 250.0);
+        bu.setReceivedBenefitsNonUC(1);       // donor on/off
+        bu.setReceivedBenefitsUC(0);                   // ensure UC off here
 
         // Propagate receipt flags to persons
         bu.onEvent(BenefitUnit.Processes.ReceivesBenefitsUC);
 
         // BU assertions
-        assertEquals(250.0, getLegacyBenefitMonthly(bu), 1e-9, "BU legacy amount should match donor-imputed value");
-        assertEquals(1, getReceivedLegacy(bu), "BU receivedLegacyBenefit flag should match donor-imputed flag");
+        assertEquals(250.0, getBenefitNonUCMonthly(bu), 1e-9, "BU legacy amount should match donor-imputed value");
+        assertEquals(1, getReceivedNonUC(bu), "BU receivedLegacyBenefit flag should match donor-imputed flag");
 
         // Person-level flags used by downstream modules
-        assertEquals(1.0, p1.getDoubleValue(DoublesVariables.D_Econ_benefits_LB), 1e-9, "Person LB indicator should be 1.0");
-        assertEquals(1.0, p2.getDoubleValue(DoublesVariables.D_Econ_benefits_LB), 1e-9, "Person LB indicator should be 1.0");
+        assertEquals(1.0, p1.getDoubleValue(DoublesVariables.D_Econ_benefits_NonUC), 1e-9, "Person NonUC indicator should be 1.0");
+        assertEquals(1.0, p2.getDoubleValue(DoublesVariables.D_Econ_benefits_NonUC), 1e-9, "Person NonUC indicator should be 1.0");
     }
 
     @Test
     @DisplayName("UC: zero amount with receivedUC = 0 implies off at BU and Person level")
     void ucZeroImpliesOff() {
         setUniversalCreditMonthly(bu, 0.0);
-        bu.setReceivedUC(0);
-        bu.setReceivedLegacyBenefits(0);
+        bu.setReceivedBenefitsUC(0);
+        bu.setReceivedBenefitsNonUC(0);
 
         bu.onEvent(BenefitUnit.Processes.ReceivesBenefitsUC);
 
@@ -194,30 +172,33 @@ class BenefitReceiptPropagationTest {
         }
     }
 
-    private void setLegacyBenefitMonthly(BenefitUnit unit, double val) {
+    private void setBenefitNonUCMonthly(BenefitUnit unit, double val) {
         try {
-            var f = BenefitUnit.class.getDeclaredField("legacyBenefitMonthly");
+            var f = BenefitUnit.class.getDeclaredField("nonUCMonthly");
             f.setAccessible(true);
             f.set(unit, val);
+            var f2 = BenefitUnit.class.getDeclaredField("yBenAmountMonth");
+            f2.setAccessible(true);
+            f2.set(unit, val);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to set legacy amount on BenefitUnit in test", e);
+            throw new RuntimeException("Failed to set nonUC benefit amount on BenefitUnit in test", e);
         }
     }
 
-    private double getLegacyBenefitMonthly(BenefitUnit unit) {
+    private double getBenefitNonUCMonthly(BenefitUnit unit) {
         try {
-            var f = BenefitUnit.class.getDeclaredField("legacyBenefitMonthly");
+            var f = BenefitUnit.class.getDeclaredField("nonUCMonthly");
             f.setAccessible(true);
             Object v = f.get(unit);
             return v == null ? 0.0 : (Double) v;
         } catch (Exception e) {
-            throw new RuntimeException("Failed to get legacy amount from BenefitUnit in test", e);
+            throw new RuntimeException("Failed to get nonUC benefit amount from BenefitUnit in test", e);
         }
     }
 
     private int getReceivedUC(BenefitUnit unit) {
         try {
-            var f = BenefitUnit.class.getDeclaredField("receivedUC");
+            var f = BenefitUnit.class.getDeclaredField("yBenUCReceivedFlag");
             f.setAccessible(true);
             Object v = f.get(unit);
             return v == null ? 0 : (Integer) v;
@@ -226,14 +207,14 @@ class BenefitReceiptPropagationTest {
         }
     }
 
-    private int getReceivedLegacy(BenefitUnit unit) {
+    private int getReceivedNonUC(BenefitUnit unit) {
         try {
-            var f = BenefitUnit.class.getDeclaredField("receivedLegacyBenefits");
+            var f = BenefitUnit.class.getDeclaredField("yBenNonUCReceivedFlag");
             f.setAccessible(true);
             Object v = f.get(unit);
             return v == null ? 0 : (Integer) v;
         } catch (Exception e) {
-            throw new RuntimeException("Failed to get receivedLegacyBenefits flag from BenefitUnit in test", e);
+            throw new RuntimeException("Failed to get yBenNonUCReceivedFlag flag from BenefitUnit in test", e);
         }
     }
 }

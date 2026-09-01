@@ -76,9 +76,9 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
     @NullInitialised private Double yGrossMonth;
     @NullInitialised private Double yBenAmountMonth;
     private Double universalCreditMonthly;
-    private Double legacyBenefitMonthly;
+    private Double nonUCMonthly;
     @NullInitialised private Integer yBenUCReceivedFlag;
-    @NullInitialised private Integer yBenLegacyReceivedFlag;
+    @NullInitialised private Integer yBenNonUCReceivedFlag;
     @NullInitialised private Double yDispEquivYear;
     @Lag(getter = "getEquivalisedDisposableIncomeYearly") @Transient private Double yDispEquivYearL1;
     @NullInitialised @Transient private Double yDiffDispEquivPrevYear;
@@ -222,7 +222,7 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
         this.yDispEquivYear = 0.;
         this.yBenAmountMonth = 0.;
         this.universalCreditMonthly = 0.;
-        this.legacyBenefitMonthly = 0.;
+        this.nonUCMonthly = 0.;
         this.demCreatedByConstructor = "LongID";
         if (Parameters.projectLiquidWealth)
             setWealthTotValue(0.);
@@ -294,7 +294,7 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
 
         yDispMonth = Objects.requireNonNullElse(originalBenefitUnit.getDisposableIncomeMonthly(),0.0);
         universalCreditMonthly = Objects.requireNonNullElse(originalBenefitUnit.getUniversalCreditMonthly(),0.0);
-        legacyBenefitMonthly = Objects.requireNonNullElse(originalBenefitUnit.getLegacyBenefitMonthly(),0.0);
+        nonUCMonthly = Objects.requireNonNullElse(originalBenefitUnit.getNonUCMonthly(),0.0);
         xDiscretionaryYear = Objects.requireNonNullElse(originalBenefitUnit.xDiscretionaryYear, 0.0);
         yGrossMonth = Objects.requireNonNullElse(originalBenefitUnit.getGrossIncomeMonthly(),0.0);
         yDispEquivYear = Objects.requireNonNullElse(originalBenefitUnit.yDispEquivYear,0.0);
@@ -589,26 +589,26 @@ Contemporaneous values of dhhtp_c4 are required for validation. Update and outpu
     public void setReceivesBenefitsFlagUCNonUC() {
 
         boolean receivesBenefitsFlagUC = getReceivedUC() == 1;
-        boolean receivesLegacyBenefitsFlag = !receivesBenefitsFlagUC && getReceivedLegacyBenefits() == 1;
+//        boolean receivesLegacyBenefitsFlag = !receivesBenefitsFlagUC && getReceivedLegacyBenefits() == 1;
         boolean receivesBenefitsNonUC = !receivesBenefitsFlagUC && getBenefitsReceivedPerMonth() > 0;
         Occupancy occupancy = getOccupancy();
         switch (occupancy) {
             case Couple -> {
                 getMale().setReceivesBenefitsFlagUC(receivesBenefitsFlagUC);
-                getMale().setReceivesBenefitsFlagLB(receivesLegacyBenefitsFlag);
+//                getMale().setReceivesBenefitsFlagLB(receivesLegacyBenefitsFlag);
                 getMale().setReceivesBenefitsFlagNonUC(receivesBenefitsNonUC);
                 getFemale().setReceivesBenefitsFlagUC(receivesBenefitsFlagUC);
-                getFemale().setReceivesBenefitsFlagLB(receivesLegacyBenefitsFlag);
+//                getFemale().setReceivesBenefitsFlagLB(receivesLegacyBenefitsFlag);
                 getFemale().setReceivesBenefitsFlagNonUC(receivesBenefitsNonUC);
             }
             case Single_Male -> {
                 getMale().setReceivesBenefitsFlagUC(receivesBenefitsFlagUC);
-                getMale().setReceivesBenefitsFlagLB(receivesLegacyBenefitsFlag);
+//                getMale().setReceivesBenefitsFlagLB(receivesLegacyBenefitsFlag);
                 getMale().setReceivesBenefitsFlagNonUC(receivesBenefitsNonUC);
             }
             case Single_Female -> {
                 getFemale().setReceivesBenefitsFlagUC(receivesBenefitsFlagUC);
-                getFemale().setReceivesBenefitsFlagLB(receivesLegacyBenefitsFlag);
+//                getFemale().setReceivesBenefitsFlagLB(receivesLegacyBenefitsFlag);
                 getFemale().setReceivesBenefitsFlagNonUC(receivesBenefitsNonUC);
             }
             default ->
@@ -1695,8 +1695,8 @@ Contemporaneous values of dhhtp_c4 are required for validation. Update and outpu
             yGrossMonth = evaluatedTransfers.getGrossIncomePerMonth();
             demDbMatchTax = evaluatedTransfers.getMatch();
             idtaxDbDonor = demDbMatchTax.getCandidateID();
-            setReceivedUC(evaluatedTransfers.getReceivedUC());
-            setReceivedLegacyBenefits(evaluatedTransfers.getReceivedLegacyBenefit());
+            setReceivedBenefitsUC(evaluatedTransfers.getReceivedUC());
+            setReceivedBenefitsNonUC(evaluatedTransfers.getReceivedLegacyBenefit());
         } else {
             // intertemporal optimisations disabled
 
@@ -1733,8 +1733,8 @@ Contemporaneous values of dhhtp_c4 are required for validation. Update and outpu
                     yDispMonth = evaluatedTransfers.getDisposableIncomePerMonth();
                     yBenAmountMonth = evaluatedTransfers.getBenefitsReceivedPerMonth();
                     yGrossMonth = evaluatedTransfers.getGrossIncomePerMonth();
-                    setReceivedUC(evaluatedTransfers.getReceivedUC());
-                    setReceivedLegacyBenefits(evaluatedTransfers.getReceivedLegacyBenefit());
+                    setReceivedBenefitsUC(evaluatedTransfers.getReceivedUC());
+                    setReceivedBenefitsNonUC(evaluatedTransfers.getReceivedLegacyBenefit());
 
                     // Note that only benefitUnits at risk of work are considered, so at least one partner is at risk of work
                     double regressionScore = 0.;
@@ -1788,8 +1788,8 @@ Contemporaneous values of dhhtp_c4 are required for validation. Update and outpu
                         yDispMonth = evaluatedTransfers.getDisposableIncomePerMonth();
                         yBenAmountMonth = evaluatedTransfers.getBenefitsReceivedPerMonth();
                         yGrossMonth = evaluatedTransfers.getGrossIncomePerMonth();
-                        setReceivedUC(evaluatedTransfers.getReceivedUC());
-                        setReceivedLegacyBenefits(evaluatedTransfers.getReceivedLegacyBenefit());
+                        setReceivedBenefitsUC(evaluatedTransfers.getReceivedUC());
+                        setReceivedBenefitsNonUC(evaluatedTransfers.getReceivedLegacyBenefit());
 
                         double regressionScore = 0.;
                         if (male.getAdultChildFlag() == 1) { //If adult children use labour supply estimates for male adult children
@@ -1819,8 +1819,8 @@ Contemporaneous values of dhhtp_c4 are required for validation. Update and outpu
                         yDispMonth = evaluatedTransfers.getDisposableIncomePerMonth();
                         yBenAmountMonth = evaluatedTransfers.getBenefitsReceivedPerMonth();
                         yGrossMonth = evaluatedTransfers.getGrossIncomePerMonth();
-                        setReceivedUC(evaluatedTransfers.getReceivedUC());
-                        setReceivedLegacyBenefits(evaluatedTransfers.getReceivedLegacyBenefit());
+                        setReceivedBenefitsUC(evaluatedTransfers.getReceivedUC());
+                        setReceivedBenefitsNonUC(evaluatedTransfers.getReceivedLegacyBenefit());
 
                         double regressionScore = 0.;
                         if (female.getAdultChildFlag() == 1) { //If adult children use labour supply estimates for female adult children
@@ -1931,7 +1931,7 @@ Contemporaneous values of dhhtp_c4 are required for validation. Update and outpu
             Map<Triple<Labour, Labour, Integer>, Double> disposableIncomeMonthlyByLabourPairs = new LinkedHashMap<>();
             Map<Triple<Labour, Labour, Integer>, Double> benefitsReceivedMonthlyByLabourPairs = new LinkedHashMap<>();
             Map<Triple<Labour, Labour, Integer>, Double> universalCreditByLabourPairs = new LinkedHashMap<>();
-            Map<Triple<Labour, Labour, Integer>, Double> legacyBenefitsByLabourPairs = new LinkedHashMap<>();
+            Map<Triple<Labour, Labour, Integer>, Double> nonUniversalCreditByLabourPairs = new LinkedHashMap<>();
             Map<Triple<Labour, Labour, Integer>, Double> grossIncomeMonthlyByLabourPairs = new LinkedHashMap<>();
             Map<Triple<Labour, Labour, Integer>, Match> taxDbMatchByLabourPairs = new LinkedHashMap<>();
             LinkedHashSet<Triple<Labour, Labour, Integer>> possibleLabourCombinations = findPossibleLabourCombinationsWithUniversalCredit(); // Find possible labour combinations for this benefit unit
@@ -1959,7 +1959,7 @@ Contemporaneous values of dhhtp_c4 are required for validation. Update and outpu
                     yBenAmountMonth = evaluatedTransfers.getBenefitsReceivedPerMonth();
                     yGrossMonth = evaluatedTransfers.getGrossIncomePerMonth();
                     universalCreditMonthly = evaluatedTransfers.getUniversalCreditPerMonth();
-                    legacyBenefitMonthly = evaluatedTransfers.getLegacyBenefitPerMonth();
+                    nonUCMonthly = evaluatedTransfers.getLegacyBenefitPerMonth();
 
                     //Note that only benefitUnits at risk of work are considered, so at least one partner is at risk of work
                     double regressionScore = 0.;
@@ -1984,7 +1984,7 @@ Contemporaneous values of dhhtp_c4 are required for validation. Update and outpu
                     disposableIncomeMonthlyByLabourPairs.put(labourKey, getDisposableIncomeMonthly());
                     benefitsReceivedMonthlyByLabourPairs.put(labourKey, getBenefitsReceivedPerMonth());
                     universalCreditByLabourPairs.put(labourKey, getUniversalCreditMonthly());
-                    legacyBenefitsByLabourPairs.put(labourKey, getLegacyBenefitMonthly());
+                    nonUniversalCreditByLabourPairs.put(labourKey, getNonUCMonthly());
                     grossIncomeMonthlyByLabourPairs.put(labourKey, getGrossIncomeMonthly());
                     taxDbMatchByLabourPairs.put(labourKey, evaluatedTransfers.getMatch());
                     labourSupplyUtilityRegressionScoresByLabourPairs.put(labourKey, regressionScore); //XXX: Adult children could contribute their income to the hh, but then utility would have to be joint for a household with adult children, and they couldn't be treated separately as they are at the moment?
@@ -2006,7 +2006,7 @@ Contemporaneous values of dhhtp_c4 are required for validation. Update and outpu
                         yBenAmountMonth = evaluatedTransfers.getBenefitsReceivedPerMonth();
                         yGrossMonth = evaluatedTransfers.getGrossIncomePerMonth();
                         universalCreditMonthly = evaluatedTransfers.getUniversalCreditPerMonth();
-                        legacyBenefitMonthly = evaluatedTransfers.getLegacyBenefitPerMonth();
+                        nonUCMonthly = evaluatedTransfers.getLegacyBenefitPerMonth();
 
                         double regressionScore = 0.;
                         if (male.getAdultChildFlag() == 1) { //If adult children use labour supply estimates for male adult children
@@ -2021,7 +2021,7 @@ Contemporaneous values of dhhtp_c4 are required for validation. Update and outpu
                         disposableIncomeMonthlyByLabourPairs.put(labourKey, getDisposableIncomeMonthly());
                         benefitsReceivedMonthlyByLabourPairs.put(labourKey, getBenefitsReceivedPerMonth());
                         universalCreditByLabourPairs.put(labourKey, getUniversalCreditMonthly());
-                        legacyBenefitsByLabourPairs.put(labourKey, getLegacyBenefitMonthly());
+                        nonUniversalCreditByLabourPairs.put(labourKey, getNonUCMonthly());
                         grossIncomeMonthlyByLabourPairs.put(labourKey, getGrossIncomeMonthly());
                         taxDbMatchByLabourPairs.put(labourKey, evaluatedTransfers.getMatch());
                         labourSupplyUtilityRegressionScoresByLabourPairs.put(labourKey, regressionScore);
@@ -2040,7 +2040,7 @@ Contemporaneous values of dhhtp_c4 are required for validation. Update and outpu
                         yBenAmountMonth = evaluatedTransfers.getBenefitsReceivedPerMonth();
                         yGrossMonth = evaluatedTransfers.getGrossIncomePerMonth();
                         universalCreditMonthly = evaluatedTransfers.getUniversalCreditPerMonth();
-                        legacyBenefitMonthly = evaluatedTransfers.getLegacyBenefitPerMonth();
+                        nonUCMonthly = evaluatedTransfers.getLegacyBenefitPerMonth();
 
                         double regressionScore = 0.;
                         if (female.getAdultChildFlag() == 1) { //If adult children use labour supply estimates for female adult children
@@ -2054,7 +2054,7 @@ Contemporaneous values of dhhtp_c4 are required for validation. Update and outpu
                         disposableIncomeMonthlyByLabourPairs.put(labourKey, getDisposableIncomeMonthly());
                         benefitsReceivedMonthlyByLabourPairs.put(labourKey, getBenefitsReceivedPerMonth());
                         universalCreditByLabourPairs.put(labourKey, getUniversalCreditMonthly());
-                        legacyBenefitsByLabourPairs.put(labourKey, getLegacyBenefitMonthly());
+                        nonUniversalCreditByLabourPairs.put(labourKey, getNonUCMonthly());
                         grossIncomeMonthlyByLabourPairs.put(labourKey, getGrossIncomeMonthly());
                         taxDbMatchByLabourPairs.put(labourKey, evaluatedTransfers.getMatch());
                         labourSupplyUtilityRegressionScoresByLabourPairs.put(labourKey, regressionScore);
@@ -2133,10 +2133,10 @@ Contemporaneous values of dhhtp_c4 are required for validation. Update and outpu
             yDispMonth = disposableIncomeMonthlyByLabourPairs.get(labourSupplyChoice);
             yBenAmountMonth = benefitsReceivedMonthlyByLabourPairs.get(labourSupplyChoice);
             universalCreditMonthly = universalCreditByLabourPairs.get(labourSupplyChoice);
-            legacyBenefitMonthly = legacyBenefitsByLabourPairs.get(labourSupplyChoice);
+            nonUCMonthly = nonUniversalCreditByLabourPairs.get(labourSupplyChoice);
             setUC_takeup(labourSupplyChoice.getRight());
-            setReceivedUC(getUniversalCreditMonthly() > 0. ? 1 : 0);
-            setReceivedLegacyBenefits(getLegacyBenefitMonthly() > 0. ? 1 : 0);
+            setReceivedBenefitsUC(getUniversalCreditMonthly() > 0. ? 1 : 0);
+            setReceivedBenefitsNonUC(getNonUCMonthly() > 0. ? 1 : 0);
             yGrossMonth = grossIncomeMonthlyByLabourPairs.get(labourSupplyChoice);
 
         //Update gross income variables for the household and all occupants:
@@ -5294,12 +5294,12 @@ Contemporaneous values of dhhtp_c4 are required for validation. Update and outpu
         return yDispMonth;
     }
 
-    public Double getLegacyBenefitMonthly() {
-        return legacyBenefitMonthly;
+    public Double getNonUCMonthly() {
+        return nonUCMonthly;
     }
 
-    public void setLegacyBenefitMonthly(Double legacyBenefitMonthly) {
-        this.legacyBenefitMonthly = legacyBenefitMonthly;
+    public void setNonUCMonthly(Double nonUCMonthly) {
+        this.nonUCMonthly = nonUCMonthly;
     }
 
     public Double getUniversalCreditMonthly() {
@@ -5322,16 +5322,16 @@ Contemporaneous values of dhhtp_c4 are required for validation. Update and outpu
         return Objects.requireNonNullElse(yBenUCReceivedFlag, 0);
     }
 
-    public void setReceivedUC(Integer yBenUCReceivedFlag) {
+    public void setReceivedBenefitsUC(Integer yBenUCReceivedFlag) {
         this.yBenUCReceivedFlag = yBenUCReceivedFlag;
     }
 
     public Integer getReceivedLegacyBenefits() {
-        return Objects.requireNonNullElse(yBenLegacyReceivedFlag, 0);
+        return Objects.requireNonNullElse(yBenNonUCReceivedFlag, 0);
     }
 
-    public void setReceivedLegacyBenefits(Integer yBenLegacyReceivedFlag) {
-        this.yBenLegacyReceivedFlag = yBenLegacyReceivedFlag;
+    public void setReceivedBenefitsNonUC(Integer yBenLegacyReceivedFlag) {
+        this.yBenNonUCReceivedFlag = yBenLegacyReceivedFlag;
     }
 
 

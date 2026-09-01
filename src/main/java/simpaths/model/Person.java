@@ -313,10 +313,11 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         idHh = mother.getBenefitUnit().getHousehold().getId();
 //		setDeviationFromMeanRetirementAge();			//This would normally be done within initialisation, but the line above has been commented out for reasons given...
         lifetimeIncome = 0.;
-        receivesBenefitsFlag = false;
-        receivesBenefitsFlagNonUC = false;
-        receivesBenefitsFlagUC = false;
-        receivesBenefitsFlagLB = false;
+        // Redundant - to be removed
+//        receivesBenefitsFlag = false;
+//        receivesBenefitsFlagNonUC = false;
+//        receivesBenefitsFlagUC = false;
+//        receivesBenefitsFlagLB = false;
         xEquivYear = 0.;
         yLifeTime = 0.;
         demBornInSimFlag = true;
@@ -544,14 +545,15 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         yBenUCReceivedFlagL1 = originalPerson.yBenUCReceivedFlagL1;
         yFinDstrssFlag = originalPerson.yFinDstrssFlag;
 
-        receivesBenefitsFlag = originalPerson.receivesBenefitsFlag;
-        receivesBenefitsFlag_L1 = originalPerson.receivesBenefitsFlag_L1;
-        receivesBenefitsFlagNonUC = originalPerson.receivesBenefitsFlagNonUC;
-        receivesBenefitsFlagNonUC_L1 = originalPerson.receivesBenefitsFlagNonUC_L1;
-        receivesBenefitsFlagUC = originalPerson.receivesBenefitsFlagUC;
-        receivesBenefitsFlagUC_L1 = originalPerson.receivesBenefitsFlagUC_L1;
-        receivesBenefitsFlagLB = originalPerson.receivesBenefitsFlagLB;
-        receivesBenefitsFlagLB_L1 = originalPerson.receivesBenefitsFlagLB_L1;
+        // Redundant - to be removed
+//        receivesBenefitsFlag = originalPerson.receivesBenefitsFlag;
+//        receivesBenefitsFlag_L1 = originalPerson.receivesBenefitsFlag_L1;
+//        receivesBenefitsFlagNonUC = originalPerson.receivesBenefitsFlagNonUC;
+//        receivesBenefitsFlagNonUC_L1 = originalPerson.receivesBenefitsFlagNonUC_L1;
+//        receivesBenefitsFlagUC = originalPerson.receivesBenefitsFlagUC;
+//        receivesBenefitsFlagUC_L1 = originalPerson.receivesBenefitsFlagUC_L1;
+//        receivesBenefitsFlagLB = originalPerson.receivesBenefitsFlagLB;
+//        receivesBenefitsFlagLB_L1 = originalPerson.receivesBenefitsFlagLB_L1;
 
         if (originalPerson.labWageFullTimeHrlyL1 !=null && originalPerson.labWageFullTimeHrlyL1 >Parameters.MIN_HOURLY_WAGE_RATE) {
             labWageFullTimeHrlyL1 = Math.min(Parameters.MAX_HOURLY_WAGE_RATE, Math.max(Parameters.MIN_HOURLY_WAGE_RATE, originalPerson.labWageFullTimeHrlyL1));
@@ -633,12 +635,13 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
                 labHrsWorkWeek = labHrsWorkEnumWeek.getValue();
             }
         }
-        receivesBenefitsFlag_L1 = receivesBenefitsFlag;
-        receivesBenefitsFlagNonUC_L1 = receivesBenefitsFlagNonUC;
-        receivesBenefitsFlagUC_L1 = receivesBenefitsFlagUC;
-        receivesBenefitsFlagNonUC_L1 = receivesBenefitsFlagNonUC;
-        receivesBenefitsFlagUC_L1 = receivesBenefitsFlagUC;
-        receivesBenefitsFlagLB_L1 = receivesBenefitsFlagLB;
+        // Redundant - To be removed
+        //        receivesBenefitsFlag_L1 = receivesBenefitsFlag;
+        //        receivesBenefitsFlagNonUC_L1 = receivesBenefitsFlagNonUC;
+        //        receivesBenefitsFlagUC_L1 = receivesBenefitsFlagUC;
+        //        receivesBenefitsFlagNonUC_L1 = receivesBenefitsFlagNonUC;
+        //        receivesBenefitsFlagUC_L1 = receivesBenefitsFlagUC;
+        //        receivesBenefitsFlagLB_L1 = receivesBenefitsFlagLB;
 
         if(UnionMatchingMethod.SBAM.equals(model.getUnionMatchingMethod())) {
             updateAgeGroup();
@@ -2235,12 +2238,13 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         idPartner = getPartnerID();
     }
 
-    private void updateLaggedVariables(boolean initialUpdate) {
-        receivesBenefitsFlag_L1 = receivesBenefitsFlag; // Lag(1) of flag indicating if individual receives benefits
-        receivesBenefitsFlagNonUC_L1 = receivesBenefitsFlagNonUC; // Lag(1) of flag indicating if individual receives non-UC benefits
-        receivesBenefitsFlagUC_L1 = receivesBenefitsFlagUC; // Lag(1) of flag indicating if individual receives UC
-        receivesBenefitsFlagLB_L1 = receivesBenefitsFlagLB; // Lag(1) of flag indicating if individual receives UC
-    }
+    // Redundant - to be removed
+//    private void updateLaggedVariables(boolean initialUpdate) {
+//        receivesBenefitsFlag_L1 = receivesBenefitsFlag; // Lag(1) of flag indicating if individual receives benefits
+//        receivesBenefitsFlagNonUC_L1 = receivesBenefitsFlagNonUC; // Lag(1) of flag indicating if individual receives non-UC benefits
+//        receivesBenefitsFlagUC_L1 = receivesBenefitsFlagUC; // Lag(1) of flag indicating if individual receives UC
+//        receivesBenefitsFlagLB_L1 = receivesBenefitsFlagLB; // Lag(1) of flag indicating if individual receives UC
+//    }
 
     // used when children leave home
     protected void setupNewHousehold() {
@@ -5261,7 +5265,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
                 return isReceivesBenefitsFlagNonUC() ? 1. : 0.;
             }
             case D_Econ_benefits_LB -> {
-                return isReceivesBenefitsFlagLB() ? 1. : 0.;
+                return isReceivesBenefitsFlagNonUC() ? 1. : 0.;
             }
             case D_Econ_benefits_UC -> {
                 return Parameters.uc_direct_effects && isReceivesBenefitsFlagUC() ? 1. : 0.;
@@ -7336,7 +7340,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
     }
 
     public Double isReceivesBenefitsUCDouble() {
-        return receivesBenefitsFlagUC ? 1.0 : 0.0;
+        return yBenUCReceivedFlag ? 1.0 : 0.0;
     }
 
     public Double isReceivesBenefitsLBDouble() {
@@ -7344,7 +7348,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
     }
 
     public void setReceivesBenefitsFlagUC(boolean receivesBenefitsFlagUC) {
-        this.receivesBenefitsFlagUC = receivesBenefitsFlagUC;
+        this.yBenUCReceivedFlag = receivesBenefitsFlagUC;
     }
 
     public boolean isReceivesBenefitsFlagUC_L1() {
@@ -7374,19 +7378,19 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
     }
 
     public Boolean isReceivesBenefitsFlagLB() {
-        return (null != receivesBenefitsFlagLB ? receivesBenefitsFlagLB : false);
+        return (null != yBenNonUCReceivedFlag ? yBenNonUCReceivedFlag : false);
     }
 
     public void setReceivesBenefitsFlagLB(Boolean receivesBenefitsFlagLB) {
-        this.receivesBenefitsFlagLB = receivesBenefitsFlagLB;
+        this.yBenNonUCReceivedFlag = yBenNonUCReceivedFlag;
     }
 
     public Boolean getReceivesBenefitsFlagLB_L1() {
-        return receivesBenefitsFlagLB_L1;
+        return yBenNonUCReceivedFlagL1;
     }
 
     public void setReceivesBenefitsFlagLB_L1(Boolean receivesBenefitsFlagLB_L1) {
-        this.receivesBenefitsFlagLB_L1 = receivesBenefitsFlagLB_L1;
+        this.yBenNonUCReceivedFlagL1 = receivesBenefitsFlagLB_L1;
     }
 
     public double getEquivalisedDisposableIncomeYearly() {

@@ -20,29 +20,6 @@ class BenefitUnitTest {
     private Person p2;
 
 
-    // Helper to avoid relying on other processes
-    private void setAge(Person person, int age) {
-        // Person.dag is the age field
-        // Using a minimal setter path here to keep the test focused on UC/LB logic
-        try {
-            var f = Person.class.getDeclaredField("dag");
-            f.setAccessible(true);
-            f.setInt(person, age);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to set age on Person in test", e);
-        }
-    }
-
-    private void setGender(Person person, Gender gender) {   // <-- new helper
-        try {
-            var f = Person.class.getDeclaredField("dgn");
-            f.setAccessible(true);
-            f.set(person, gender);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to set gender on Person in test", e);
-        }
-    }
-
 
     private void setBenefitUnit(Person person, BenefitUnit benefitUnit) {
         try {
@@ -85,10 +62,11 @@ class BenefitUnitTest {
             p2 = new Person(101L, 2001L);
 
             // Make them adults so they’re valid members for propagation checks
-            setAge(p1, 30);
-            setAge(p2, 28);
-            setGender(p1, Gender.Male);    // <-- ensure BU.getMale() can find a Male adult
-            setGender(p2, Gender.Female);  // <-- ensure BU.getFemale() can find a Female adult
+            p1.setDemAge(30);
+            p2.setDemAge(28);
+
+            p1.setDemMaleFlag(Gender.Male);
+            p2.setDemMaleFlag(Gender.Female);
 
 
         }
@@ -109,13 +87,13 @@ class BenefitUnitTest {
         @DisplayName("Single Male returns correct values for years in employment")
         public void testSingleMalesLiwwh() {
 
-            bu.setOccupancyLocal(Occupancy.Single_Male);
+            bu.setI_demOccupancy(Occupancy.Single_Male);
             setBenefitUnit(p1, bu);
             addMember(bu, p1);
 
             bu.setUC_takeup(1);
             p1.setLiwwh(2);
-            p1.setLabourSupplyWeekly(Labour.FORTY);
+            p1.setLabourSupplyWeekly(Labour.THIRTY_EIGHT);
 
             assertEquals(2, bu.getDoubleValue(BenefitUnit.Regressors.Liwwh_1), "Should return Liwwh = 2");
             assertEquals(0, bu.getDoubleValue(BenefitUnit.Regressors.Liwwh_021), "Should return zero as male");
@@ -132,7 +110,7 @@ class BenefitUnitTest {
         @DisplayName("Single Female returns correct values for years in employment")
         public void testSingleFemalesLiwwh() {
 
-            bu.setOccupancyLocal(Occupancy.Single_Female);
+            bu.setI_demOccupancy(Occupancy.Single_Female);
             setBenefitUnit(p2, bu);
             addMember(bu, p2);
 
