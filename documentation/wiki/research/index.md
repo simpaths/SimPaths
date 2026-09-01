@@ -8,9 +8,7 @@ hide:
 
 <h1>Research</h1>
 
-<p class="research-page__lead">SimPaths underpins a growing body of methodological and applied work across life course analysis, income support, care, and health inequalities.</p>
-
-<p class="research-page__intro">Start with the primary reference for an overview of the model. The selected publications that follow show how it is being applied.</p>
+<p class="research-page__intro">SimPaths underpins a growing body of methodological and applied work across life course analysis, income support, care, and health inequalities. Start with the primary reference for an overview of the model. The selected publications that follow show how it is being applied.</p>
 
 <section class="research-page__section research-page__section--primary" aria-labelledby="primary-reference">
   <h2 id="primary-reference">Primary reference</h2>

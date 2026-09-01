@@ -472,20 +472,10 @@ body.sp-page-funding .md-footer__inner {
   margin-bottom: 0.7rem;
 }
 
-.md-typeset .research-page__lead,
 .md-typeset .research-page__intro {
   max-width: 48rem;
-  font-family: var(--sp-research-font) !important;
-}
-
-.md-typeset .research-page__lead {
-  margin: 0 0 0.45rem;
-  font-size: 0.9rem;
-  line-height: 1.68;
-}
-
-.md-typeset .research-page__intro {
   margin: 0;
+  font-family: var(--sp-research-font) !important;
   font-size: 0.78rem;
   line-height: 1.62;
 }
