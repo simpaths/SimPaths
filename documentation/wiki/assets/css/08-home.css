@@ -556,10 +556,6 @@ body.sp-page-home .md-main .md-top {
   gap: 0.62rem 1.35rem;
 }
 
-.md-typeset .simpaths-home-intro-band__access--route {
-  color: var(--sp-midnight);
-}
-
 .simpaths-home-research-band {
   width: 100vw;
   margin: 0 calc(50% - 50vw);
@@ -571,6 +567,7 @@ body.sp-page-home .md-main .md-top {
   grid-template-columns: minmax(8.5rem, 11rem) minmax(0, 1fr);
   gap: 2.5rem;
   align-items: stretch;
+  max-width: 61rem;
   margin: 0 auto;
 }
 .md-typeset .simpaths-home-research-band .research-header {
@@ -605,6 +602,7 @@ body.sp-page-home .md-main .md-top {
   line-height: 1;
   letter-spacing: 0;
   text-transform: none;
+  text-decoration: none !important;
   background: transparent;
   border: none !important;
   box-shadow: none;

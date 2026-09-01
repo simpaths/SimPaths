@@ -96,11 +96,11 @@ for (const [name, path] of routes) {
 test("roadmap contains public priorities rather than editorial notes", async ({ page }) => {
   await page.goto("/overview/roadmap/", { waitUntil: "domcontentloaded" });
 
-  await expect(page.getByRole("heading", { name: "Current priorities", exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Next priorities", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Working on now", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Working on next", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Longer-term capabilities", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Model foundations", exact: true })).toBeVisible();
-  await expect(page.locator(".roadmap-horizon")).toHaveCount(4);
+  await expect(page.locator(".roadmap-stage")).toHaveCount(4);
   await expect(page.locator(".roadmap-item")).toHaveCount(15);
   await expect(page.locator(".roadmap-impact")).toHaveCount(0);
   await expect(page.locator(".roadmap-page > ol")).toHaveCount(0);
@@ -153,7 +153,7 @@ test("site state exposes explicit styling hooks", async ({ page }) => {
   await searchTrigger.click();
   await expect(page.locator("body")).toHaveClass(/sp-search-open/);
   await expect(page.locator(".md-search__input")).toHaveAttribute("placeholder", "Search SimPaths");
-  await expect.poll(async () => (await page.locator(".md-search").boundingBox()).width).toBeGreaterThan(1100);
+  await expect.poll(async () => (await page.locator(".md-search").boundingBox()).width).toBeGreaterThan(740);
 
   const openSearch = await page.evaluate(() => {
     const rect = (selector) => document.querySelector(selector).getBoundingClientRect();
@@ -171,7 +171,8 @@ test("site state exposes explicit styling hooks", async ({ page }) => {
     };
   });
 
-  expect(openSearch.searchWidth).toBeGreaterThan(1100);
+  expect(openSearch.searchWidth).toBeGreaterThan(740);
+  expect(openSearch.searchWidth).toBeLessThanOrEqual(760);
   expect(Math.abs(openSearch.searchWidth - openSearch.innerWidth)).toBeLessThanOrEqual(1);
   expect(openSearch.rightEdgeDifference).toBeLessThanOrEqual(1);
   expect(openSearch.titleOpacity).toBe("0");
@@ -398,30 +399,36 @@ test("documentation masthead integrates the SimPaths mark", async ({ page }) => 
   expect(mobile.overflow).toBe(0);
 });
 
-test("research citation is separated by hierarchy rather than rules", async ({ page }) => {
+test("research citation uses restrained hierarchy and natural alignment", async ({ page }) => {
   await page.goto("/research/", { waitUntil: "domcontentloaded" });
 
-  const referencePaper = page.locator(".research-page .reference-paper");
+  const referencePaper = page.locator(".research-page .research-primary");
   const presentation = await referencePaper.evaluate((element) => {
     const styles = getComputedStyle(element);
     const marker = getComputedStyle(element, "::before");
+    const titleLink = element.querySelector("h3 a");
 
     return {
       borderTopWidth: styles.borderTopWidth,
       borderBottomWidth: styles.borderBottomWidth,
+      borderLeftWidth: styles.borderLeftWidth,
       markerContent: marker.content,
       metadataAlignment: getComputedStyle(
-        element.querySelector(".reference-paper__meta")
-      ).textAlign
+        element.querySelector(".research-publication__source")
+      ).textAlign,
+      titleDecoration: getComputedStyle(titleLink).textDecorationLine
     };
   });
 
   expect(presentation).toEqual({
     borderTopWidth: "0px",
     borderBottomWidth: "0px",
+    borderLeftWidth: "2px",
     markerContent: "none",
-    metadataAlignment: "left"
+    metadataAlignment: "left",
+    titleDecoration: "none"
   });
+  await expect(page.locator(".research-publications .research-publication")).toHaveCount(5);
 });
 
 test("funding distinguishes active programmes from the completed archive", async ({ page }) => {
