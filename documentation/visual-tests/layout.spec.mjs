@@ -123,14 +123,15 @@ test("validation omits its redundant desktop navigation", async ({ page }) => {
   await expect(page.locator("body")).toHaveClass(/sp-page-validation/);
 
   const desktop = await page.evaluate(() => ({
-    primaryVisibility: getComputedStyle(document.querySelector(".md-sidebar--primary")).visibility,
+    primaryDisplay: getComputedStyle(document.querySelector(".md-sidebar--primary")).display,
     secondaryDisplay: getComputedStyle(document.querySelector(".md-sidebar--secondary")).display,
     contentWidth: document.querySelector(".md-content__inner").getBoundingClientRect().width
   }));
 
-  expect(desktop.primaryVisibility).toBe("hidden");
+  expect(desktop.primaryDisplay).toBe("none");
   expect(desktop.secondaryDisplay).not.toBe("none");
-  expect(desktop.contentWidth).toBeLessThan(720);
+  expect(desktop.contentWidth).toBeGreaterThanOrEqual(800);
+  expect(desktop.contentWidth).toBeLessThanOrEqual(841);
 
   await page.setViewportSize({ width: 390, height: 844 });
   const mobilePrimaryVisibility = await page

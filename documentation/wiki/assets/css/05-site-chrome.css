@@ -355,7 +355,13 @@ body.sp-page-home .md-footer__inner {
 
 @media screen and (min-width: 60em) {
   body.sp-page-validation .md-sidebar--primary {
-    visibility: hidden;
+    display: none;
+  }
+
+  body.sp-page-validation .md-content__inner {
+    max-width: 42rem;
+    margin-right: auto;
+    margin-left: auto;
   }
 
   body.sp-reserve-toc-space .md-main__inner > .md-sidebar--secondary[hidden] {
