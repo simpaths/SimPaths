@@ -51,7 +51,6 @@ body.sp-page-funding .md-footer__inner {
   font-size: 0.82rem;
   line-height: 1.58;
   text-align: left;
-  text-wrap: wrap;
   hyphens: none;
 }
 .md-typeset .funding-grid {
@@ -135,7 +134,6 @@ body.sp-page-funding .md-footer__inner {
   font-weight: 540;
   letter-spacing: -0.012em;
   line-height: 1.42;
-  text-wrap: wrap;
 }
 
 .md-typeset .funding-meta {
@@ -464,7 +462,6 @@ body.sp-page-funding .md-footer__inner {
 
 .md-typeset .research-page p {
   text-align: left;
-  text-wrap: wrap;
   hyphens: none;
   -webkit-hyphens: none;
 }
@@ -488,7 +485,7 @@ body.sp-page-funding .md-footer__inner {
 
 .md-typeset .research-page__intro {
   margin: 0;
-  color: rgba(42,56,72,0.68);
+  color: var(--sp-midnight);
   font-size: 0.78rem;
   line-height: 1.62;
 }
@@ -518,7 +515,6 @@ body.sp-page-funding .md-footer__inner {
   font-style: normal;
   font-weight: 680;
   line-height: 1.38;
-  text-wrap: wrap;
 }
 
 .md-typeset .research-primary h3 {
@@ -578,20 +574,16 @@ body.sp-page-funding .md-footer__inner {
 
 .md-typeset .research-publication__authors {
   margin: 0 !important;
-  color: rgba(42,56,72,0.72);
+  color: rgba(42,56,72,0.84);
   font-size: 0.69rem;
   line-height: 1.52;
 }
 
 .md-typeset .research-publication__summary {
   margin: 0.34rem 0 0 !important;
-  color: rgba(42,56,72,0.75);
+  color: var(--sp-midnight);
   font-size: 0.76rem;
   line-height: 1.58;
-}
-
-.md-typeset .research-primary .research-publication__summary {
-  max-width: none;
 }
 
 .md-typeset .research-publications {
@@ -656,7 +648,7 @@ body.sp-page-funding .md-footer__inner {
 
 .md-typeset .module-detail__lead {
   max-width: 52rem; margin: 0 0 1.75rem;
-  line-height: 1.65; text-wrap: pretty;
+  line-height: 1.65;
 }
 
 .md-typeset .module-detail__lead {
@@ -921,7 +913,6 @@ body.sp-page-funding .md-footer__inner {
   font-size: 0.8rem;
   line-height: 1.6;
   text-align: left;
-  text-wrap: wrap;
   hyphens: none;
 }
 
@@ -950,7 +941,6 @@ body.sp-page-funding .md-footer__inner {
   font-size: 0.78rem;
   line-height: 1.65;
   text-align: left;
-  text-wrap: wrap;
   hyphens: none;
 }
 
@@ -969,7 +959,6 @@ body.sp-page-funding .md-footer__inner {
   font-size: 0.78rem;
   line-height: 1.62;
   text-align: left;
-  text-wrap: wrap;
   hyphens: none;
 }
 

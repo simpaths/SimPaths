@@ -15,7 +15,6 @@
 .md-typeset .roadmap-page p,
 .md-typeset .roadmap-page li {
   text-align: left !important;
-  text-wrap: pretty;
   hyphens: none;
 }
 
