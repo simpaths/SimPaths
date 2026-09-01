@@ -43,7 +43,7 @@ theme:
 extra_css:
   # Keep this order: later component files intentionally refine earlier layers.
   - assets/css/01-foundation.css?v=20260831-css-maintenance-1
-  - assets/css/02-shell-navigation.css?v=20260831-css-maintenance-1
+  - assets/css/02-shell-navigation.css?v=20260901-model-index-1
   - assets/css/03-content.css?v=20260901-natural-wrap-1
   - assets/css/04-landing-components.css?v=20260831-css-maintenance-1
   - assets/css/05-site-chrome.css?v=20260901-search-width-1
@@ -109,7 +109,6 @@ nav:
       - overview/index.md
       - Model Description: overview/model-description.md
       - Simulated Modules:
-          - overview/simulated-modules.md
           - Ageing: overview/modules/ageing.md
           - Education: overview/modules/education.md
           - Health: overview/modules/health.md

@@ -3,52 +3,10 @@ hide:
   - toc
 ---
 
-<div class="docs-hub docs-hub--index model-hub--index" markdown="1">
+# Model
 
-<div class="docs-index__masthead">
-  <div class="docs-index__mark" aria-hidden="true">
-    <img class="docs-index__mark-image docs-index__mark-image--light" src="../assets/images/documentation-logo-mark.svg" alt="">
-    <img class="docs-index__mark-image docs-index__mark-image--dark" src="../assets/images/documentation-logo-mark-dark.svg" alt="">
-  </div>
-  <div class="docs-index__heading">
-    <h1>SimPaths Model</h1>
-    <p class="docs-index__intro">SimPaths is a family of dynamic microsimulation models that project individual and household life courses. The pages below describe the shared framework and its UK implementation, from the model's scope and simulated processes to parameterisation and development priorities.</p>
-  </div>
-</div>
+SimPaths is a family of models for individual and household life course events, all sharing common components. The framework is designed to project life histories through time, building up a detailed picture of career paths, family (inter)relations, health, and financial circumstances. It builds upon standardised assumptions and data sources, which facilitates adaptation to alternative countries.
 
-## Overview
+Although differences in the main structure with the [EU models](https://github.com/simpaths/SimPathsEU) are minimal, this documentation is specific to the UK model. Careful attention is paid to model validation, and sensitivity of projections to key assumptions.
 
-<div class="docs-index__card-list">
-  <a class="docs-index__card" href="model-description/">
-    <strong>Model Description</strong>
-    <span>Understand the framework, the UK implementation, and how SimPaths represents life-course change.</span>
-  </a>
-  <a class="docs-index__card" href="simulated-modules/">
-    <strong>Simulated Modules</strong>
-    <span>Explore the processes for ageing, education, health, family, care, income, consumption, and wellbeing.</span>
-  </a>
-</div>
-
-## Specification and development
-
-<div class="docs-index__card-list">
-  <a class="docs-index__card" href="parameterisation/">
-    <strong>Model Parameterisation</strong>
-    <span>See how assumptions, coefficients, and alignment targets are specified across the model.</span>
-  </a>
-  <a class="docs-index__card" href="roadmap/">
-    <strong>Development Roadmap</strong>
-    <span>Review active work, planned priorities, longer-term capabilities, and foundational improvements.</span>
-  </a>
-</div>
-
-## Citation
-
-<div class="docs-index__card-list">
-  <a class="docs-index__card" href="how-to-cite/">
-    <strong>How to Cite SimPaths</strong>
-    <span>Find the recommended citation for the model and a set of further references.</span>
-  </a>
-</div>
-
-</div>
+The modular nature of the SimPaths framework is designed to facilitate analysis of alternative assumptions concerning the tax and benefit system, sensitivity to parameter estimates, and alternative approaches for projecting labour/leisure and consumption/savings decisions.
