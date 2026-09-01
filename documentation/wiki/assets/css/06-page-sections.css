@@ -867,7 +867,7 @@ body.sp-page-funding .md-footer__inner {
 .md-typeset .cite-intro {
   max-width: 42rem;
   margin: 0;
-  color: var(--md-default-fg-color--light);
+  color: #514946;
   font-size: 0.8rem;
   line-height: 1.6;
   text-align: left;
@@ -879,13 +879,13 @@ body.sp-page-funding .md-footer__inner {
   max-width: 47rem;
   margin-top: 1rem;
   padding: 0.9rem 1rem 0.95rem;
-  background: rgba(61, 93, 130, 0.045);
-  border-left: 2px solid rgba(61, 93, 130, 0.42);
+  background: transparent;
+  border-left: 2px solid rgba(138, 79, 99, 0.62);
 }
 
 .md-typeset .cite-label {
   margin: 0 0 0.35rem;
-  color: rgba(42, 56, 72, 0.62);
+  color: #7a4658;
   font-size: 0.56rem;
   font-weight: 720;
   letter-spacing: 0.09em;
@@ -915,7 +915,7 @@ body.sp-page-funding .md-footer__inner {
   margin: 0;
   padding: 0.7rem 0;
   color: var(--sp-midnight);
-  border-top: 1px solid rgba(61, 93, 130, 0.14);
+  border-top: 1px solid rgba(126, 100, 86, 0.18);
   font-size: 0.78rem;
   line-height: 1.62;
   text-align: left;
@@ -924,7 +924,22 @@ body.sp-page-funding .md-footer__inner {
 }
 
 .md-typeset .cite-list > ul > li:last-child {
-  border-bottom: 1px solid rgba(61, 93, 130, 0.14);
+  border-bottom: 1px solid rgba(126, 100, 86, 0.18);
+}
+
+.md-typeset .cite-page a,
+.md-typeset .cite-page a:visited {
+  color: inherit !important;
+  text-decoration-line: underline;
+  text-decoration-color: rgba(138, 79, 99, 0.46);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.14em;
+}
+
+.md-typeset .cite-page a:hover,
+.md-typeset .cite-page a:focus-visible {
+  color: #6f3d4e !important;
+  text-decoration-color: currentColor;
 }
 
 @media screen and (max-width: 44em) {
