@@ -46,7 +46,7 @@ extra_css:
   - assets/css/02-shell-navigation.css?v=20260901-model-index-1
   - assets/css/03-content.css?v=20260901-natural-wrap-1
   - assets/css/04-landing-components.css?v=20260831-css-maintenance-1
-  - assets/css/05-site-chrome.css?v=20260901-search-width-1
+  - assets/css/05-site-chrome.css?v=20260901-validation-nav-1
   - assets/css/06-page-sections.css?v=20260901-model-measure-2
   - assets/css/07-roadmap.css?v=20260901-natural-wrap-1
   - assets/css/08-home.css?v=20260901-natural-wrap-1
@@ -54,7 +54,7 @@ extra_css:
 extra_javascript:
   - assets/js/mathjax.js?v=20260831-math-svg-1
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js
-  - assets/js/site-state.js?v=20260901-model-measure-2
+  - assets/js/site-state.js?v=20260901-validation-nav-1
   - assets/js/sidebar-filter.js?v=20260831-documentation-filter-1
 
 plugins:

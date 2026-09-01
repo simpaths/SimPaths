@@ -4,6 +4,7 @@
     "sp-page-docs-index",
     "sp-page-funding",
     "sp-page-roadmap",
+    "sp-page-validation",
     "sp-reserve-toc-space",
     "sp-tab-model",
     "sp-tab-documentation"
@@ -68,6 +69,10 @@
     body.classList.toggle("sp-page-docs-index", Boolean(document.querySelector(".docs-hub--index")));
     body.classList.toggle("sp-page-funding", Boolean(document.querySelector(".funding-page")));
     body.classList.toggle("sp-page-roadmap", Boolean(document.querySelector(".roadmap-page")));
+    body.classList.toggle(
+      "sp-page-validation",
+      Boolean(document.querySelector(".validation-page-marker"))
+    );
     body.classList.toggle(
       "sp-reserve-toc-space",
       Boolean(

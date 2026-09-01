@@ -1,5 +1,7 @@
 # Model Validation
 
+<span class="validation-page-marker" hidden></span>
+
 <p class="page-intro">This section explains the current procedures used to validate SimPaths inputs and outputs, from regression checks to aggregate comparisons against external survey data.</p>
 
 <p class="page-intro page-intro--support">Validation is a core part of maintaining trust in the model after changes to parameters, code, or input data, and it provides a structured way to spot specification or implementation issues early.</p>

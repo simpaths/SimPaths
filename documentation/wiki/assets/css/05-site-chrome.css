@@ -354,6 +354,10 @@ body.sp-page-home .md-footer__inner {
 }
 
 @media screen and (min-width: 60em) {
+  body.sp-page-validation .md-sidebar--primary {
+    visibility: hidden;
+  }
+
   body.sp-reserve-toc-space .md-main__inner > .md-sidebar--secondary[hidden] {
     display: block;
     visibility: hidden;
