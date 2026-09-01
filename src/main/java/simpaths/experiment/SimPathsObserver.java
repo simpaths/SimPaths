@@ -898,14 +898,12 @@ public class SimPathsObserver extends AbstractSimulationObserverManager implemen
 
                 var ucPlot = new TimeSeriesSimulationPlotter("Universal Credit receipt", "");
                 ucPlot.addSource("Recipients", () -> ucStats.get().mean(), colorArrayList.get(0), false);
-                ucPlot.addSource("Validation", () -> Parameters.validationUniversalCredit(model.getYear()), colorArrayList.get(0), true);
                 updateChartSet.add(ucPlot);
                 ucPlot.setName("Universal Credit receipt");
                 plots.add(ucPlot);
 
                 var lbPlot = new TimeSeriesSimulationPlotter("Legacy Benefits receipt", "");
                 lbPlot.addSource("Recipients", () -> lbStats.get().mean(), colorArrayList.get(1), false);
-                lbPlot.addSource("Validation", () -> Parameters.validationLegacyBenefits(model.getYear()), colorArrayList.get(1), true);
                 updateChartSet.add(lbPlot);
                 lbPlot.setName("Legacy Benefits receipt");
                 plots.add(lbPlot);
