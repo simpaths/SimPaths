@@ -7,7 +7,7 @@ hide:
 
 <div class="roadmap-page" markdown>
 
-<p class="roadmap-lede">This public roadmap groups selected SimPaths development priorities into work underway, planned work, capabilities in the pipeline, and the foundations that support every stage.</p>
+<p class="roadmap-lede">This public roadmap groups selected SimPaths development priorities into work underway, planned work, and capabilities in the pipeline.</p>
 
 <div class="roadmap-status">
   <span>Last reviewed August 2026</span>
@@ -21,7 +21,6 @@ hide:
   <a href="#working-on-now"><span class="roadmap-sequence__name">Working on now</span></a>
   <a href="#planned-work"><span class="roadmap-sequence__name">Planned work</span></a>
   <a href="#capabilities-in-the-pipeline"><span class="roadmap-sequence__name">Capabilities in the pipeline</span></a>
-  <a class="roadmap-sequence__parallel" href="#model-foundations"><span class="roadmap-sequence__name">Model foundations</span></a>
 </nav>
 
 <div class="roadmap-stage roadmap-stage--now" markdown>
@@ -209,56 +208,6 @@ Represent wider economic conditions and transfers between households beyond the 
 Add SIPHER-7 measures and a mortality process that reflects health differentials. This would show how health inequalities accumulate over time.
 
 <div class="roadmap-meta" markdown>[Issue #505](https://github.com/simpaths/SimPaths/issues/505)</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="roadmap-stage roadmap-stage--foundations" markdown>
-
-<div class="roadmap-stage__content" markdown>
-
-<div class="roadmap-stage__heading" markdown>
-
-## Model foundations
-
-Cross-cutting architecture, consistency, testing, and documentation work progresses alongside every planning horizon.
-
-</div>
-
-<div class="roadmap-stage__items" markdown>
-
-<div class="roadmap-item" markdown>
-
-### Structural redesign
-
-Reorganise packages, separate model and experiment parameters, clarify alignment logic, redesign the labour-market class, centralise regressor definitions, and increase test coverage. A clearer architecture will reduce unintended interactions and make new processes safer to implement.
-
-<div class="roadmap-meta" markdown>[Issues #398](https://github.com/simpaths/SimPaths/issues/398), [#396](https://github.com/simpaths/SimPaths/issues/396), [#397](https://github.com/simpaths/SimPaths/issues/397), [#401](https://github.com/simpaths/SimPaths/issues/401), [#391](https://github.com/simpaths/SimPaths/issues/391), and [#435](https://github.com/simpaths/SimPaths/issues/435)</div>
-
-</div>
-
-<div class="roadmap-item" markdown>
-
-### Standardisation and code quality
-
-Standardise transformed-variable names, regression and parameter names, missing-value conventions, and class-level documentation; resolve known inconsistencies in pension receipt and employment status. Consistent conventions will make concepts easier to trace from source data through estimation and simulation outputs.
-
-<div class="roadmap-meta" markdown>[Issues #408](https://github.com/simpaths/SimPaths/issues/408), [#410](https://github.com/simpaths/SimPaths/issues/410), [#407](https://github.com/simpaths/SimPaths/issues/407), [#400](https://github.com/simpaths/SimPaths/issues/400), [#476](https://github.com/simpaths/SimPaths/issues/476), and [#486](https://github.com/simpaths/SimPaths/issues/486)</div>
-
-</div>
-
-<div class="roadmap-item" markdown>
-
-### Documentation and transparency
-
-Document input-data components, matching, interdependencies, health outcomes, and contributor testing requirements. Researchers and contributors will be able to understand and validate the model without relying on informal knowledge from the core team.
-
-<div class="roadmap-meta" markdown>[Issues #141](https://github.com/simpaths/SimPaths/issues/141) and [#152](https://github.com/simpaths/SimPaths/issues/152)</div>
 
 </div>
 
