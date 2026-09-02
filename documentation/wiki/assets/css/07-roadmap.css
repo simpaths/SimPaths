@@ -126,7 +126,6 @@
 }
 
 .md-typeset .roadmap-stage__heading {
-  max-width: 39rem;
   margin-bottom: 1rem;
 }
 
@@ -143,7 +142,6 @@
 }
 
 .md-typeset .roadmap-stage__heading p {
-  max-width: 36rem;
   margin: 0;
   color: var(--roadmap-copy);
   font-size: 0.75rem;

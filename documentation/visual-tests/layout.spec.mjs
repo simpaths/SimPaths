@@ -179,6 +179,12 @@ test("roadmap contains public priorities rather than editorial notes", async ({ 
     headingRules: [...document.querySelectorAll(".roadmap-horizon h2, .roadmap-item h3")].map(
       (heading) => getComputedStyle(heading).borderTopWidth
     ),
+    sectionHeadingMaxWidths: [...document.querySelectorAll(".roadmap-stage__heading")].map(
+      (heading) => getComputedStyle(heading).maxWidth
+    ),
+    sectionSummaryMaxWidths: [...document.querySelectorAll(".roadmap-stage__heading > p")].map(
+      (paragraph) => getComputedStyle(paragraph).maxWidth
+    ),
     itemAlignment: [...document.querySelectorAll(".roadmap-item > p:not(.roadmap-meta)")].map(
       (paragraph) => getComputedStyle(paragraph).textAlign
     ),
@@ -186,6 +192,8 @@ test("roadmap contains public priorities rather than editorial notes", async ({ 
   }));
 
   expect(presentation.headingRules.every((width) => width === "0px")).toBe(true);
+  expect(presentation.sectionHeadingMaxWidths.every((width) => width === "none")).toBe(true);
+  expect(presentation.sectionSummaryMaxWidths.every((width) => width === "none")).toBe(true);
   expect(presentation.itemAlignment.every((alignment) => alignment === "left")).toBe(true);
   expect(presentation.overflow).toBeLessThanOrEqual(8);
 });
