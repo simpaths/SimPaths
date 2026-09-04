@@ -65,7 +65,6 @@ hide:
 <div class="simpaths-home-paths__inner">
   <header class="simpaths-home-paths__header">
     <h2>Use SimPaths</h2>
-    <p>Start with the model, run the UK implementation, or work directly with its code.</p>
   </header>
 
   <nav class="simpaths-home-paths__routes" aria-label="Common SimPaths tasks">

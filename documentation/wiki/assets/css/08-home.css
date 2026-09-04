@@ -323,10 +323,6 @@ body.sp-page-home .md-main .md-top {
   margin: 0 auto;
 }
 .md-typeset .simpaths-home-paths__header {
-  display: grid;
-  grid-template-columns: minmax(11rem, 0.38fr) minmax(0, 1fr);
-  gap: 3rem;
-  align-items: start;
   margin: 0;
 }
 .md-typeset .simpaths-home-paths__header h2 {
@@ -337,14 +333,6 @@ body.sp-page-home .md-main .md-top {
   font-weight: 620 !important;
   line-height: 1.08;
   letter-spacing: -0.035em;
-}
-.md-typeset .simpaths-home-paths__header p {
-  max-width: 32rem;
-  margin: 0;
-  color: rgba(28,40,57,0.76);
-  font-size: 0.82rem;
-  line-height: 1.58;
-  text-align: left;
 }
 .md-typeset .simpaths-home-paths__routes {
   display: grid;
@@ -490,15 +478,6 @@ body.sp-page-home .md-main .md-top {
 
   .simpaths-home-paths {
     padding: 3.25rem 1rem 3.55rem;
-  }
-
-  .md-typeset .simpaths-home-paths__header {
-    grid-template-columns: 1fr;
-    gap: 0.85rem;
-  }
-
-  .md-typeset .simpaths-home-paths__header p {
-    font-size: 0.8rem;
   }
 
   .md-typeset .simpaths-home-paths__routes {

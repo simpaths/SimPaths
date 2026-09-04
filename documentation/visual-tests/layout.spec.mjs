@@ -264,6 +264,7 @@ test("homepage provides useful task routes and an editorial research band", asyn
 
   await expect(page.locator(".simpaths-home-explore")).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Use SimPaths" })).toBeVisible();
+  await expect(page.locator(".simpaths-home-paths__header p")).toHaveCount(0);
   await expect(page.locator(".simpaths-home-paths__route")).toHaveCount(4);
   await expect(page.locator(".simpaths-home-paths__links a")).toHaveCount(12);
   await expect(page.locator(".simpaths-home-intro-band__access")).toHaveCount(2);
