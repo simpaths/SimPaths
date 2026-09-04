@@ -1132,27 +1132,25 @@ public class Parameters {
         coeffCovarianceFinancialDistress = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_financial_distress.xlsx", countryString, 1);
 
         //Health mental: level and case-based
-        coeffCovarianceHM1Level = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_health_mental.xlsx", "HM1_L", 1);
-        coeffCovarianceHM2LevelMales = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_health_mental.xlsx", "HM2_Males_L", 1);
-        coeffCovarianceHM2LevelFemales = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_health_mental.xlsx", "HM2_Females_L", 1);
-        coeffCovarianceHM1Case = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_health_mental.xlsx", "HM1_C", 1);
-        coeffCovarianceHM2CaseMales = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_health_mental.xlsx", "HM2_Males_C", 1);
-        coeffCovarianceHM2CaseFemales = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_health_mental.xlsx", "HM2_Females_C", 1);
-
-        validateRegressors(coeffCovarianceHM2CaseMales, "reg_health_mental.xlsx", "HM2_Males_C");
+        coeffCovarianceHM1Level = safeReadExcel(Parameters.getInputDirectory() + "reg_health_mental.xlsx", "HM1_L", 1);
+        coeffCovarianceHM2LevelMales = safeReadExcel(Parameters.getInputDirectory() + "reg_health_mental.xlsx", "HM2_Males_L", 1);
+        coeffCovarianceHM2LevelFemales = safeReadExcel(Parameters.getInputDirectory() + "reg_health_mental.xlsx", "HM2_Females_L", 1);
+        coeffCovarianceHM1Case = safeReadExcel(Parameters.getInputDirectory() + "reg_health_mental.xlsx", "HM1_C", 1);
+        coeffCovarianceHM2CaseMales = safeReadExcel(Parameters.getInputDirectory() + "reg_health_mental.xlsx", "HM2_Males_C", 1);
+        coeffCovarianceHM2CaseFemales = safeReadExcel(Parameters.getInputDirectory() + "reg_health_mental.xlsx", "HM2_Females_C", 1);
 
         //Health
-        coeffCovarianceDHE_MCS1 = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_health_wellbeing.xlsx", "DHE_MCS1", 1);
-        coeffCovarianceDHE_MCS2Males = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_health_wellbeing.xlsx", "DHE_MCS2_Males", 1);
-        coeffCovarianceDHE_MCS2Females = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_health_wellbeing.xlsx", "DHE_MCS2_Females", 1);
+        coeffCovarianceDHE_MCS1 = safeReadExcel(Parameters.getInputDirectory() + "reg_health_wellbeing.xlsx", "DHE_MCS1", 1);
+        coeffCovarianceDHE_MCS2Males = safeReadExcel(Parameters.getInputDirectory() + "reg_health_wellbeing.xlsx", "DHE_MCS2_Males", 1);
+        coeffCovarianceDHE_MCS2Females = safeReadExcel(Parameters.getInputDirectory() + "reg_health_wellbeing.xlsx", "DHE_MCS2_Females", 1);
 
-        coeffCovarianceDHE_PCS1 = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_health_wellbeing.xlsx", "DHE_PCS1", 1);
-        coeffCovarianceDHE_PCS2Males = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_health_wellbeing.xlsx", "DHE_PCS2_Males", 1);
-        coeffCovarianceDHE_PCS2Females = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_health_wellbeing.xlsx", "DHE_PCS2_Females", 1);
+        coeffCovarianceDHE_PCS1 = safeReadExcel(Parameters.getInputDirectory() + "reg_health_wellbeing.xlsx", "DHE_PCS1", 1);
+        coeffCovarianceDHE_PCS2Males = safeReadExcel(Parameters.getInputDirectory() + "reg_health_wellbeing.xlsx", "DHE_PCS2_Males", 1);
+        coeffCovarianceDHE_PCS2Females = safeReadExcel(Parameters.getInputDirectory() + "reg_health_wellbeing.xlsx", "DHE_PCS2_Females", 1);
 
-        coeffCovarianceDLS1 = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_health_wellbeing.xlsx", "DLS1", 1);
-        coeffCovarianceDLS2Males = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_health_wellbeing.xlsx", "DLS2_Males", 1);
-        coeffCovarianceDLS2Females = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "reg_health_wellbeing.xlsx", "DLS2_Females", 1);
+        coeffCovarianceDLS1 = safeReadExcel(Parameters.getInputDirectory() + "reg_health_wellbeing.xlsx", "DLS1", 1);
+        coeffCovarianceDLS2Males = safeReadExcel(Parameters.getInputDirectory() + "reg_health_wellbeing.xlsx", "DLS2_Males", 1);
+        coeffCovarianceDLS2Females = safeReadExcel(Parameters.getInputDirectory() + "reg_health_wellbeing.xlsx", "DLS2_Females", 1);
 
         loadEQ5DParameters(countryString);
 

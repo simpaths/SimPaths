@@ -2581,6 +2581,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         demAge_12,
         demAge_13,
         demAge_14,
+	Dnc_L1_,
         Ded_Ydses_c5_Q3_L1,
         Ded_Ydses_c5_Q4_L1,
         Ded_Ydses_c5_Q5_L1,
@@ -4276,6 +4277,9 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
             }
             case Dhmghq_L1 -> {
                 return gethealthPsyDstrss_lag1();
+            }
+            case Dnc_L1_ -> {
+                return getDoubleValue(DoublesVariables.Dnc_L1);
             }
             case Dhesp_L1 -> {
                 return (healthPartnerSelfRatedL1 != null) ? (double) healthPartnerSelfRatedL1.getValue() : 0.0;
