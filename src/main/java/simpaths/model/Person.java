@@ -2581,6 +2581,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         demAge_12,
         demAge_13,
         demAge_14,
+	Dnc_L1_,
         Ded_Ydses_c5_Q3_L1,
         Ded_Ydses_c5_Q4_L1,
         Ded_Ydses_c5_Q5_L1,
@@ -2733,6 +2734,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         Female,
         FertilityRate,
         FinancialDistress,
+	L_FinancialDistress,
         GrossEarningsYearly,
         GrossLabourIncomeMonthly,
         InverseMillsRatio,
@@ -2997,8 +2999,10 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         Ypnbihs_dv_L1,								//Gross personal non-benefit income lag(1)
         Ypnbihs_dv_L1_sq,							//Square of gross personal non-benefit income lag(1)
         Ypncp_L1,									//Lag(1) of capital income
+	L_Ypncp,
         Ypncp_L2,									//Lag(2) of capital income
         Ypnoab_L1,									//Lag(1) of pension income
+	L_Ypnoab,
         Ypnoab_L2,									//Lag(2) of pension income
         Yptciihs_dv_L1,								//Lag(1) of gross personal non-employment non-benefit income
         Yptciihs_dv_L2,								//Lag(2) of gross personal non-employment non-benefit income
@@ -4277,6 +4281,9 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
             case Dhmghq_L1 -> {
                 return gethealthPsyDstrss_lag1();
             }
+            case Dnc_L1_ -> {
+                return getDoubleValue(DoublesVariables.Dnc_L1);
+            }
             case Dhesp_L1 -> {
                 return (healthPartnerSelfRatedL1 != null) ? (double) healthPartnerSelfRatedL1.getValue() : 0.0;
             }
@@ -5115,13 +5122,13 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
             case Yptciihs_dv_L3 -> {
                 return yMiscPersGrossMonthL3;
             }
-            case Ypncp_L1 -> {
+            case Ypncp_L1, L_Ypncp -> {
                 return yCapitalPersMonthL1;
             }
             case Ypncp_L2 -> {
                 return yCapitalPersMonthL2;
             }
-            case Ypnoab_L1 -> {
+            case Ypnoab_L1, L_Ypnoab -> {
                 return yPensPersGrossMonthL1;
             }
             case Ypnoab_L2 -> {
@@ -5894,7 +5901,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
             case econ_benefits_L1 -> {
                 return isReceivesBenefitsFlag_L1() ? 1. : 0.;
             }
-            case financial_distress_L1 -> {
+            case financial_distress_L1, L_FinancialDistress -> {
                 return (yFinDstrssFlag != null && yFinDstrssFlag) ? 1. : 0.;
             }
             case labWageHrlyL1 -> {
