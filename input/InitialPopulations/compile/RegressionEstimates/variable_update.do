@@ -153,7 +153,9 @@ foreach y of numlist 11/25 {
 gen Ydses_c5 = ydses_c5
 
 gen Ypncp = ypncp
+gen L_Ypncp = L.ypncp if !missing(L.Ypncp)
 gen Ypnoab = ypnoab
+gen L_Ypnoab = L.ypnoab if !missing(L.Ypnoab)
 gen Yplgrs_dv = yplgrs_dv
 gen Ypnbihs_dv = ypnbihs_dv
 gen Ypnbihs_dv_sq = ypnbihs_dv^2 if !missing(ypnbihs_dv)
@@ -1377,8 +1379,10 @@ gen RealIncomeChange = exp_incchange == 1
 gen RealIncomeDecrease_D = D.log_income
 
 gen FinancialDistress = financial_distress == 1
+gen L_FinancialDistress = L.financial_distress == 1 if !missing(L.financial_distress)
 gen D_Econ_benefits_NonUC = econ_benefits_nonuc == 1
 gen D_Econ_benefits_UC = econ_benefits_uc == 1
+gen D_Econ_benefits = econ_benefits_nonuc == 1 | econ_benefits_uc == 1
 
 gen Lhw_c5 = lhw_c5
 gen D_Econ_benefits_UC_Lhw_ZERO = D_Econ_benefits_UC == 1 & Lhw_c5 == 0
@@ -1386,6 +1390,12 @@ gen D_Econ_benefits_UC_Lhw_TEN = D_Econ_benefits_UC == 1 & Lhw_c5 == 10
 gen D_Econ_benefits_UC_Lhw_TWENTY = D_Econ_benefits_UC == 1 & Lhw_c5 == 20
 gen D_Econ_benefits_UC_Lhw_THIRTY = D_Econ_benefits_UC == 1 & Lhw_c5 == 30
 gen D_Econ_benefits_UC_Lhw_FORTY = D_Econ_benefits_UC == 1 & Lhw_c5 == 40
+
+
+gen Lhw_10 = Lhw_c5 == 10
+gen Lhw_20 = Lhw_c5 == 20
+gen Lhw_30 = Lhw_c5 == 30
+gen Lhw_40 = Lhw_c5 == 40
 
 *==================================================
 * End  

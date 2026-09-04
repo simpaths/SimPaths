@@ -222,3 +222,4 @@ global hwb1_if_condition "stm!=20 & stm!=21 & dag>=18 & dag<=64 & swv!=12"
 
 global hwb2_if_condition "stm!=20 & stm!=21 & dag>=25 & dag<=64 & swv!=12"
 
+global findis_if_condition "dag >= 16"
