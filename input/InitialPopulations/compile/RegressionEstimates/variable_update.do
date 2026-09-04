@@ -1344,6 +1344,49 @@ label define lhwsp 0 "Zero" 10 "Ten" 20 "Twenty" 30 "Thirty" 40 "Forty"
 label value lhw_c5 lhwsp
 la var lhw_c5 "Hours worked per week (category)"
 
+
+*==================================================
+* Health and wellbeing variables
+*==================================================
+
+gen Dhh_owned_L1= L1.Dhh_owned if !missing(L1.Dhh_owned)
+gen Dcpst_Single_L1 = L1.Dcpst_Single if !missing(L1.Dcpst_Single)
+gen Dnc_L1_ = L1.Dnc if !missing(L1.Dnc)
+
+gen Dhm = dhm
+gen Dhm_L1 = L1.Dhm if !missing(L1.Dhm)
+
+gen Dhmghq = dhm_ghq
+gen Dhmghq_L1 = L1.Dhm if !missing(L1.Dhmghq)
+
+gen Dls = dls
+gen Dls_L1 = L1.Dls if !missing(L1.Dls)
+
+gen Dag_L1 = L1.Dag if !missing(L1.Dag)
+gen Dag_sq_L1 = L1.Dag_sq if !missing(L1.Dag_sq)
+
+gen EmployedToUnemployed = L1.Les_c3_Employed == 1 & Les_c3_NotEmployed == 1 if !missing(L1.Les_c3_Employed)
+gen UnemployedToEmployed = Les_c3_Employed == 1 & L1.Les_c3_NotEmployed == 1 if !missing(L1.Les_c3_NotEmployed)
+gen PersistentUnemployed = Les_c3_NotEmployed == 1 & L1.Les_c3_NotEmployed == 1 if !missing(L1.Les_c3_NotEmployed)
+
+gen NonPovertyToPoverty = exp_poverty == 1
+gen PovertyToNonPoverty = exp_poverty == 2
+gen PersistentPoverty = exp_poverty == 3
+
+gen RealIncomeChange = exp_incchange == 1
+gen RealIncomeDecrease_D = D.log_income
+
+gen FinancialDistress = financial_distress == 1
+gen D_Econ_benefits_NonUC = econ_benefits_nonuc == 1
+gen D_Econ_benefits_UC = econ_benefits_uc == 1
+
+gen Lhw_c5 = lhw_c5
+gen D_Econ_benefits_UC_Lhw_ZERO = D_Econ_benefits_UC == 1 & Lhw_c5 == 0
+gen D_Econ_benefits_UC_Lhw_TEN = D_Econ_benefits_UC == 1 & Lhw_c5 == 10
+gen D_Econ_benefits_UC_Lhw_TWENTY = D_Econ_benefits_UC == 1 & Lhw_c5 == 20
+gen D_Econ_benefits_UC_Lhw_THIRTY = D_Econ_benefits_UC == 1 & Lhw_c5 == 30
+gen D_Econ_benefits_UC_Lhw_FORTY = D_Econ_benefits_UC == 1 & Lhw_c5 == 40
+
 *==================================================
 * End  
 *==================================================

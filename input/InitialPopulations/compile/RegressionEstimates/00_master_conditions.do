@@ -217,3 +217,8 @@ global s3d_if_condition "provide_informal_care & Partnered & stm >= 15"					// I
 
 * Finanicial distress and health processes 
 * TO ADD 
+
+global hwb1_if_condition "stm!=20 & stm!=21 & dag>=18 & dag<=64 & swv!=12"
+
+global hwb2_if_condition "stm!=20 & stm!=21 & dag>=25 & dag<=64 & swv!=12"
+
