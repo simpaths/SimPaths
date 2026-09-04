@@ -1,5 +1,33 @@
 import { expect, test } from "@playwright/test";
 
+
+test("validation uses consistent body typography and correctly nested instructions", async ({ page }) => {
+  await page.goto("/validation/");
+  const article = page.locator(".md-content__inner");
+  await expect(article.locator(".page-intro, strong, em")).toHaveCount(0);
+  const typography = await article.locator("p, li, code").evaluateAll(elements =>
+    elements.filter(element => element.textContent.trim()).map(element => {
+      const style = getComputedStyle(element);
+      return [style.fontFamily, style.fontSize, style.fontWeight, style.color].join("|");
+    })
+  );
+  expect(new Set(typography).size).toBe(1);
+  const lists = article.locator(":scope > ol");
+  await expect(lists).toHaveCount(4);
+  for (const [index, count] of [2, 3, 4, 4].entries()) {
+    await expect(lists.nth(index).locator(":scope > li")).toHaveCount(count);
+  }
+  await expect(lists.nth(1).locator(":scope > li > ul")).toHaveCount(2);
+  await expect(article).not.toContainText("To be completed");
+  await expect(article).not.toContainText("ablility");
+  const headings = await article.locator("h1, h2, h3").evaluateAll(elements => Object.fromEntries(
+    elements.map(element => [element.tagName, parseFloat(getComputedStyle(element).fontSize)])
+  ));
+  expect(headings.H1).toBeGreaterThan(headings.H2);
+  expect(headings.H2).toBeGreaterThan(headings.H3);
+});
+
+
 const routes = [
   ["home", "/"],
   ["model", "/overview/"],

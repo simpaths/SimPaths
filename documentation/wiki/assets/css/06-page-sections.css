@@ -1,3 +1,18 @@
+/* Validation keeps one body-text treatment throughout its instructions. */
+body.sp-page-validation .md-typeset p,
+body.sp-page-validation .md-typeset li {
+  text-align: left;
+  hyphens: none;
+}
+body.sp-page-validation .md-typeset :not(pre) > code {
+  font: inherit;
+  color: inherit;
+  background: none;
+  padding: 0;
+}
+body.sp-page-validation .md-typeset > ol > li { margin-bottom: 0.85em; }
+body.sp-page-validation .md-typeset li > ul { margin-top: 0.45em; }
+
 /* Funding page */
 
 .md-typeset .funding-page,
