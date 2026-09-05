@@ -7,8 +7,6 @@ hide:
 
 <div class="funding-page">
 
-<p class="funding-eyebrow">Funding</p>
-
 <h1>Funding</h1>
 
 <p class="funding-lead">
@@ -37,7 +35,7 @@ hide:
     <h2 id="current-funding">Current funding</h2>
     <ul class="funding-list">
       <li>
-        <a class="funding-entry" href="https://www.iser.essex.ac.uk/research/projects/evaluation-of-the-health-impacts-of-universal-credit-a-mixed-methods-study">
+        <a class="funding-entry" data-funder="nihr" href="https://www.iser.essex.ac.uk/research/projects/evaluation-of-the-health-impacts-of-universal-credit-a-mixed-methods-study">
           <div class="funding-meta">
             <span class="funding-years">2021-2026</span>
             <span class="funding-funder">NIHR</span>
@@ -47,7 +45,7 @@ hide:
         </a>
       </li>
       <li>
-        <a class="funding-entry" href="https://www.hdrcgreateressex.org/health-determinants-research-collaboration-greater-essex">
+        <a class="funding-entry" data-funder="nihr" href="https://www.hdrcgreateressex.org/health-determinants-research-collaboration-greater-essex">
           <div class="funding-meta">
             <span class="funding-years">2022-2027</span>
             <span class="funding-funder">NIHR</span>
@@ -57,7 +55,7 @@ hide:
         </a>
       </li>
       <li>
-        <a class="funding-entry" href="https://www.iser.essex.ac.uk/research/projects/sustainable-welfare-rethinking-the-roles-of-family-market-and-state-sustainwell">
+        <a class="funding-entry" data-funder="horizon-europe" href="https://www.iser.essex.ac.uk/research/projects/sustainable-welfare-rethinking-the-roles-of-family-market-and-state-sustainwell">
           <div class="funding-meta">
             <span class="funding-years">2023-2027</span>
             <span class="funding-funder">Horizon Europe</span>
@@ -67,7 +65,7 @@ hide:
         </a>
       </li>
       <li>
-        <a class="funding-entry" href="https://www.phiuk.org/policy-modelling-for-health">
+        <a class="funding-entry" data-funder="phi" href="https://www.phiuk.org/policy-modelling-for-health">
           <div class="funding-meta">
             <span class="funding-years">2024-2028</span>
             <span class="funding-funder">UKRI PHI</span>
@@ -77,7 +75,7 @@ hide:
         </a>
       </li>
       <li>
-        <a class="funding-entry" href="https://www.iser.essex.ac.uk/research/projects/wellsim-a-life-course-microsimulation-perspective-on-multi-dimensional-well-being-for-five-european-countries">
+        <a class="funding-entry" data-funder="chanse-norface" href="https://www.iser.essex.ac.uk/research/projects/wellsim-a-life-course-microsimulation-perspective-on-multi-dimensional-well-being-for-five-european-countries">
           <div class="funding-meta">
             <span class="funding-years">2025-2028</span>
             <span class="funding-funder">CHANSE/NORFACE</span>
@@ -87,7 +85,7 @@ hide:
         </a>
       </li>
       <li>
-        <a class="funding-entry" href="https://fundingawards.nihr.ac.uk/award/NIHR168008">
+        <a class="funding-entry" data-funder="nihr" href="https://fundingawards.nihr.ac.uk/award/NIHR168008">
           <div class="funding-meta">
             <span class="funding-years">2025-2028</span>
             <span class="funding-funder">NIHR</span>
@@ -103,7 +101,7 @@ hide:
     <h2 id="past-funding">Past funding</h2>
     <ul class="funding-list">
       <li>
-        <a class="funding-entry" href="https://www.iser.essex.ac.uk/research/projects/investigating-economic-insecurity-through-microsimulation">
+        <a class="funding-entry" data-funder="inapp" href="https://www.iser.essex.ac.uk/research/projects/investigating-economic-insecurity-through-microsimulation">
           <div class="funding-meta">
             <span class="funding-years">2019-2021</span>
             <span class="funding-funder">INAPP</span>
@@ -113,7 +111,7 @@ hide:
         </a>
       </li>
       <li>
-        <a class="funding-entry" href="https://www.iser.essex.ac.uk/research/projects/understanding-the-impacts-of-income-and-welfare-policy-responses-to-covid-19-on-inequalities-in-mental-health-a-microsimulation-model">
+        <a class="funding-entry" data-funder="health-foundation" href="https://www.iser.essex.ac.uk/research/projects/understanding-the-impacts-of-income-and-welfare-policy-responses-to-covid-19-on-inequalities-in-mental-health-a-microsimulation-model">
           <div class="funding-meta">
             <span class="funding-years">2021-2022</span>
             <span class="funding-funder">Health Foundation</span>
@@ -123,7 +121,7 @@ hide:
         </a>
       </li>
       <li>
-        <a class="funding-entry" href="https://www.iser.essex.ac.uk/research/projects/caring-over-the-lifecycle-the-roles-of-families-and-welfare-states-today-and-into-the-future-wellcare">
+        <a class="funding-entry" data-funder="jpi" href="https://www.iser.essex.ac.uk/research/projects/caring-over-the-lifecycle-the-roles-of-families-and-welfare-states-today-and-into-the-future-wellcare">
           <div class="funding-meta">
             <span class="funding-years">2021-2024</span>
             <span class="funding-funder">JPI</span>
@@ -133,7 +131,7 @@ hide:
         </a>
       </li>
       <li>
-        <a class="funding-entry" href="https://www.iser.essex.ac.uk/research/projects/health-equity-of-economic-determinants-heed">
+        <a class="funding-entry" data-funder="erc" href="https://www.iser.essex.ac.uk/research/projects/health-equity-of-economic-determinants-heed">
           <div class="funding-meta">
             <span class="funding-years">2021-2025</span>
             <span class="funding-funder">ERC</span>
@@ -143,7 +141,7 @@ hide:
         </a>
       </li>
       <li>
-        <a class="funding-entry" href="https://www.iser.essex.ac.uk/research/projects/overlapping-crises-reshaping-the-future-of-regional-labour-markets-overlap">
+        <a class="funding-entry" data-funder="espon" href="https://www.iser.essex.ac.uk/research/projects/overlapping-crises-reshaping-the-future-of-regional-labour-markets-overlap">
           <div class="funding-meta">
             <span class="funding-years">2023-2025</span>
             <span class="funding-funder">ESPON</span>
@@ -156,16 +154,5 @@ hide:
   </section>
 
 </div>
-
-<nav class="funding-actions" aria-label="Funding page links">
-  <a href="../research/">
-    <span>← Previous</span>
-    <strong>Research</strong>
-  </a>
-  <a href="mailto:info@simpaths.org">
-    <span>Get in touch</span>
-    <strong>info@simpaths.org</strong>
-  </a>
-</nav>
 
 </div>

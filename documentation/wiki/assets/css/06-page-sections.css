@@ -12,33 +12,21 @@ html.sp-page-validation .md-typeset :not(pre) > code {
 }
 html.sp-page-validation .md-typeset > ol > li { margin-bottom: 0.85em; }
 html.sp-page-validation .md-typeset li > ul { margin-top: 0.45em; }
-/* Funding: a compact, linked grant ledger modelled on the approved concept. */
+/* Funding: a compact, linked grant ledger. */
 .md-typeset .cite-page {
   padding: 1.15rem 0 3.5rem;
 }
 .md-typeset .funding-page {
   --funding-rule: #ded8cc; --funding-copy: #242a31; --funding-meta: #625c52;
   --funding-label-bg: #eee9de;
-  --funding-hover: rgba(76, 59, 45, 0.045);
-  --sp-accent: var(--funding-copy); --sp-crimson: #714056;
+  --sp-accent: var(--funding-copy);
   max-width: 54rem; margin: 0 auto;
   padding: 1.85rem 0 3.75rem;
 }
-html.sp-page-funding .md-footer__inner { display: none; }
 .md-typeset .funding-page > h1,
 .md-typeset .cite-page > h1 {
   margin-bottom: 0; font-size: 1.65rem; font-weight: 630; letter-spacing: -0.025em;
   line-height: 1.16;
-}
-.md-typeset .funding-page > h1 {
-  max-width: 36rem; font-size: 2.3rem; font-weight: 600; letter-spacing: -0.03em;
-  line-height: 1.08;
-}
-.md-typeset .funding-eyebrow {
-  margin: 0 0 0.72rem; color: #6e685c;
-  font-family: var(--md-code-font), monospace;
-  font-size: 0.55rem; font-weight: 500; letter-spacing: 0.09em; line-height: 1.4;
-  text-transform: uppercase;
 }
 .md-typeset .funding-lead,
 .md-typeset .cite-intro {
@@ -84,15 +72,28 @@ html.sp-page-funding .md-footer__inner { display: none; }
 .md-typeset ul.funding-list > li { min-width: 0; margin: 0; }
 .md-typeset ul.funding-list > li { border-bottom: 1px solid var(--funding-rule); }
 .md-typeset .funding-entry {
+  --funding-brand: var(--funding-copy); --funding-ink: var(--funding-copy);
+  --funding-wash: color-mix(in srgb, var(--funding-brand) 8%, transparent);
+  --sp-crimson: var(--funding-ink);
   display: grid;
   grid-template-columns: minmax(9rem, 10.5rem) minmax(0, 1fr) 0.8rem;
   gap: 0.75rem 1.15rem; align-items: center; min-height: 3.2rem;
   padding: 0.7rem 0.2rem; color: var(--funding-copy); text-decoration: none;
-  transition: background-color 150ms ease, color 150ms ease;
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
 }
-.md-typeset .funding-entry:hover,
-.md-typeset .funding-entry:focus-visible {
-  background: var(--funding-hover); color: #714056;
+/* Brand sources and readable text variants: documentation/funding-colour-sources.md. */
+.md-typeset .funding-entry[data-funder="nihr"] { --funding-brand: #0051c2; --funding-ink: #1c285e; }
+.md-typeset .funding-entry[data-funder="horizon-europe"] { --funding-brand: #003399; --funding-ink: #003399; }
+.md-typeset .funding-entry[data-funder="phi"] { --funding-brand: #f0d764; --funding-ink: #7a5c09; }
+.md-typeset .funding-entry[data-funder="chanse-norface"] { --funding-brand: #42bccd; --funding-ink: #166b78; }
+.md-typeset .funding-entry[data-funder="inapp"] { --funding-brand: #18376e; --funding-ink: #18376e; }
+.md-typeset .funding-entry[data-funder="health-foundation"] { --funding-brand: #de0031; --funding-ink: #b10027; }
+.md-typeset .funding-entry[data-funder="jpi"] { --funding-brand: #3c76bb; --funding-ink: #28568e; }
+.md-typeset .funding-entry[data-funder="erc"] { --funding-brand: #ff7d00; --funding-ink: #984600; }
+.md-typeset .funding-entry[data-funder="espon"] { --funding-brand: #63b9ea; --funding-ink: #245b7c; }
+.md-typeset .funding-page a.funding-entry:is(:hover, :focus-visible) {
+  background: var(--funding-wash); color: var(--funding-ink);
+  border-bottom-color: var(--funding-ink);
 }
 .md-typeset .funding-entry:focus-visible {
   outline: 2px solid currentColor; outline-offset: 2px;
@@ -124,55 +125,26 @@ html.sp-page-funding .md-footer__inner { display: none; }
 }
 .md-typeset .funding-entry:hover .funding-entry__arrow,
 .md-typeset .funding-entry:focus-visible .funding-entry__arrow {
-  opacity: 1; transform: translate(1px, -1px);
+  color: var(--funding-ink); opacity: 1; transform: translate(1px, -1px);
 }
-.md-typeset .funding-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.55rem;
-  margin-top: 3.1rem;
-  padding-top: 1.1rem;
-  border-top: 1px solid var(--funding-rule);
-}
-.md-typeset .funding-actions a {
-  display: grid;
-  gap: 0.18rem;
-  min-height: 3.45rem;
-  padding: 0.72rem 0.82rem;
-  border: 1px solid var(--funding-rule);
-  color: var(--funding-copy);
-  text-decoration: none;
-}
-.md-typeset .funding-actions a:last-child { text-align: right; }
-.md-typeset .funding-actions span {
-  color: #777064;
-  font-family: var(--md-code-font), monospace;
-  font-size: 0.47rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-.md-typeset .funding-actions strong {
-  align-self: end;
-  color: inherit;
-  font-size: 0.74rem;
-  font-weight: 500;
-}
-.md-typeset .funding-actions a:hover,
-.md-typeset .funding-actions a:focus-visible {
-  background: var(--funding-hover);
-  color: #714056;
-}
-.md-typeset .funding-actions a:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: 2px;
+.md-typeset .funding-entry:is(:hover, :focus-visible) .funding-funder {
+  color: var(--funding-ink); background: var(--funding-wash);
+  border-color: color-mix(in srgb, var(--funding-brand) 30%, transparent);
 }
 [data-md-color-scheme="slate"] .md-typeset .funding-page {
   --funding-rule: #4d5964;
   --funding-copy: #e2e5e9;
   --funding-meta: #c7c4bd;
   --funding-label-bg: #253444;
-  --funding-hover: rgba(255, 255, 255, 0.045);
-  --sp-crimson: #d9b0c0;
+}
+[data-md-color-scheme="slate"] .md-typeset .funding-page a.funding-entry {
+  --funding-ink: color-mix(in srgb, var(--funding-brand) 42%, white);
+  --funding-wash: color-mix(in srgb, var(--funding-ink) 12%, transparent);
+  color: var(--funding-copy) !important;
+}
+/* Override the site's generic blue dark-mode links only within this ledger. */
+[data-md-color-scheme="slate"] .md-typeset .funding-page a.funding-entry[data-funder]:is(:hover, :focus-visible) {
+  color: var(--funding-ink) !important; border-bottom-color: var(--funding-ink) !important;
 }
 [data-md-color-scheme="slate"] .md-typeset .funding-panel h2,
 [data-md-color-scheme="slate"] .md-typeset .funding-summary dd { color: var(--funding-copy); }
@@ -190,16 +162,11 @@ html.sp-page-funding .md-footer__inner { display: none; }
   .md-typeset .funding-meta,
   .md-typeset .funding-title { grid-column: 1; }
   .md-typeset .funding-entry__arrow { grid-column: 2; grid-row: 1 / 3; }
-  .md-typeset .funding-actions { grid-template-columns: 1fr; }
-  .md-typeset .funding-actions a:last-child { text-align: left; }
 }
 @media screen and (max-width: 30em) {
   .md-typeset .funding-page > h1,
   .md-typeset .cite-page > h1 {
     font-size: 1.4rem;
-  }
-  .md-typeset .funding-page > h1 {
-    font-size: 1.85rem;
   }
   .md-typeset .funding-lead {
     font-size: 0.78rem;
@@ -208,7 +175,7 @@ html.sp-page-funding .md-footer__inner { display: none; }
   .md-typeset .funding-summary dt { font-size: 0.43rem; letter-spacing: 0.08em; }
 }
 
-/* ── Research page overrides ── */
+/* Research: one featured reference, then metadata beside each publication. */
 .md-typeset .research-page {
   --research-page-accent: #8b3f5e;
   --research-page-copy: var(--sp-midnight);
@@ -229,7 +196,7 @@ html.sp-page-funding .md-footer__inner { display: none; }
 }
 
 .md-typeset .research-page__intro {
-  max-width: 48rem;
+  max-width: 43rem;
   margin: 0;
   font-family: var(--sp-research-font) !important;
   font-size: 0.78rem;
@@ -237,7 +204,6 @@ html.sp-page-funding .md-footer__inner { display: none; }
 }
 
 .md-typeset .research-page__section {
-  max-width: 50rem;
   margin-top: 2.55rem;
 }
 
@@ -248,8 +214,9 @@ html.sp-page-funding .md-footer__inner { display: none; }
 
 .md-typeset .research-primary {
   margin-top: 0.8rem;
-  padding: 0.15rem 0 0.25rem 1.15rem;
-  border-left: 2px solid rgba(139,63,94,0.42);
+  padding: 1.35rem 1.45rem;
+  background: var(--sp-surface-strong);
+  border: 1px solid var(--sp-border-strong); border-radius: 3px;
 }
 
 .md-typeset .research-primary h3,
@@ -264,13 +231,11 @@ html.sp-page-funding .md-footer__inner { display: none; }
 }
 
 .md-typeset .research-primary h3 {
-  max-width: 46rem;
   font-size: 1.06rem;
 }
 
 .md-typeset .research-publication h3 {
-  max-width: 46rem;
-  font-size: 0.96rem;
+  font-size: 0.9rem;
 }
 
 .md-typeset .research-primary h3 a,
@@ -295,38 +260,39 @@ html.sp-page-funding .md-footer__inner { display: none; }
 .md-typeset .research-publication__source,
 .md-typeset .research-publication__authors,
 .md-typeset .research-publication__summary {
-  max-width: 46rem;
   font-family: var(--sp-research-font) !important;
 }
 
 .md-typeset .research-publication__source {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0;
-  margin: 0 0 0.35rem !important;
+  margin: 0;
   color: var(--research-page-copy);
-  font-size: 0.63rem;
-  font-weight: 620;
-  letter-spacing: 0.025em;
+  font-size: 0.67rem; line-height: 1.5;
 }
-
-.md-typeset .research-publication__source span + span::before {
+.md-typeset .research-primary > .research-publication__source {
+  display: flex; flex-wrap: wrap; align-items: baseline;
+  margin-bottom: 0.65rem; font-weight: 550;
+}
+.md-typeset .research-publication__source p { margin: 0; }
+.md-typeset .research-publication__type {
+  margin-bottom: 0.22rem !important; font-weight: 600;
+}
+.md-typeset .research-publication__type span { font-weight: 450; white-space: nowrap; }
+.md-typeset .research-primary .research-publication__source span + span::before,
+.md-typeset .research-publication__type span::before {
   content: "·";
   display: inline-block;
-  margin: 0 0.42rem;
-  color: rgba(139,63,94,0.56);
+  margin: 0 0.35rem;
 }
 
 .md-typeset .research-publication__authors {
   margin: 0 !important;
   color: var(--research-page-copy);
-  font-size: 0.69rem;
+  font-size: 0.7rem;
   line-height: 1.52;
 }
 
 .md-typeset .research-publication__summary {
-  margin: 0.34rem 0 0 !important;
+  margin: 0.48rem 0 0 !important;
   color: var(--research-page-copy);
   font-size: 0.76rem;
   line-height: 1.58;
@@ -337,17 +303,15 @@ html.sp-page-funding .md-footer__inner { display: none; }
 }
 
 .md-typeset .research-publication {
-  padding: 1rem 0 1.05rem;
-  border-bottom: 1px solid rgba(139,63,94,0.14);
+  display: grid; grid-template-columns: minmax(8rem, 10rem) minmax(0, 1fr);
+  gap: 1.5rem; align-items: start; padding: 1.25rem 0;
+  border-bottom: 1px solid var(--sp-border-strong);
 }
+.md-typeset .research-publication__body { min-width: 0; }
 
 [data-md-color-scheme="slate"] .md-typeset .research-page {
   --research-page-accent: #d6a7b9;
   --research-page-copy: rgba(250,249,245,0.86);
-}
-
-[data-md-color-scheme="slate"] .md-typeset .research-primary {
-  border-left-color: rgba(214,167,185,0.5);
 }
 
 [data-md-color-scheme="slate"] .md-typeset .research-primary h3,
@@ -363,6 +327,8 @@ html.sp-page-funding .md-footer__inner { display: none; }
   .md-typeset .research-page__section {
     margin-top: 2rem;
   }
+  .md-typeset .research-primary { padding: 1rem; }
+  .md-typeset .research-publication { grid-template-columns: 1fr; gap: 0.65rem; }
 }
 
 /* Simulated module detail pages */

@@ -374,6 +374,269 @@ test("site state exposes explicit styling hooks", async ({ page }) => {
   await expect(page.locator(".sp-modules-branch")).not.toHaveCount(0);
 });
 
+test("search stays white with neutral focus emphasis and no header wash", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop");
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/documentation/", { waitUntil: "domcontentloaded" });
+  const appearance = () => page.evaluate(() => {
+    const header = document.querySelector(".md-header");
+    const form = document.querySelector(".md-search__form");
+    const style = getComputedStyle(form);
+    return {
+      background: style.backgroundColor, border: style.borderColor, shadow: style.boxShadow,
+      height: form.getBoundingClientRect().height,
+      headerBackground: getComputedStyle(header).backgroundImage,
+      headerWash: getComputedStyle(header, "::before").content,
+      inputDecoration: getComputedStyle(form, "::after").content
+    };
+  });
+  const closed = await appearance();
+  expect(closed.background).toBe("rgb(255, 255, 255)");
+  expect(closed.border).toBe("rgba(48, 48, 48, 0.2)");
+  expect(closed.headerWash).toBe("none");
+  expect(closed.inputDecoration).toBe("none");
+  await page.locator(".md-search").hover();
+  expect((await appearance()).background).toBe(closed.background);
+  // Keyboard focus must have the same visible emphasis as opening with the mouse.
+  await page.keyboard.press("/");
+  await expect(page.locator(".md-search__input")).toBeFocused();
+  await expect(page.locator("body")).toHaveClass(/sp-search-open/);
+  const open = await appearance();
+  expect(open.background).toBe(closed.background);
+  expect(open.border).toBe("rgb(48, 48, 48)");
+  expect(open.shadow).toContain("0px 0px 0px 1px");
+  expect(open.height).toBe(closed.height);
+  expect(open.headerBackground).toBe(closed.headerBackground);
+  expect(open.headerWash).toBe("none");
+  expect(open.inputDecoration).toBe("none");
+  await page.keyboard.press("Escape");
+  await expect(page.locator("body")).not.toHaveClass(/sp-search-open/);
+});
+
+test("search results form one aligned opaque panel at desktop breakpoints", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop");
+  for (const width of [1000, 1440]) {
+    await page.setViewportSize({ width, height: 720 });
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page.locator(".md-search__form > label.md-search__icon").click();
+    const input = page.locator(".md-search__input");
+    for (const query of ["", "naming", "noresultsxyz987"]) {
+      await input.press("ControlOrMeta+A");
+      await input.press("Backspace");
+      if (query) await input.pressSequentially(query);
+      await expect(page.locator(".md-search__output")).toBeVisible();
+      if (query === "naming") await expect(page.locator(".md-search-result__link").first()).toBeVisible();
+      if (query === "noresultsxyz987") await expect(page.locator(".md-search-result__meta")).toContainText("No matching");
+      for (const scheme of ["default", "slate"]) {
+        await page.locator("body").evaluate((body, value) => body.setAttribute("data-md-color-scheme", value), scheme);
+        const geometry = await page.evaluate(() => {
+          const form = document.querySelector(".md-search__form").getBoundingClientRect();
+          const output = document.querySelector(".md-search__output");
+          const scroll = document.querySelector(".md-search__scrollwrap");
+          const input = getComputedStyle(document.querySelector(".md-search__input"));
+          const suggest = getComputedStyle(document.querySelector(".md-search__suggest"));
+          const panel = output.getBoundingClientRect(), inner = scroll.getBoundingClientRect();
+          return {
+            edgeError: Math.max(Math.abs(form.left - panel.left), Math.abs(form.right - panel.right)),
+            innerError: Math.max(Math.abs(inner.left - panel.left - 1), Math.abs(panel.right - inner.right - 1)),
+            clippedHeight: inner.height - (panel.height - 2),
+            bottom: panel.bottom, viewport: innerHeight,
+            background: getComputedStyle(output).backgroundColor,
+            innerBackground: getComputedStyle(scroll).backgroundColor,
+            outerShadow: getComputedStyle(output).boxShadow,
+            innerShadow: getComputedStyle(scroll).boxShadow,
+            suggestionMatches: input.padding === suggest.padding && input.fontSize === suggest.fontSize && input.letterSpacing === suggest.letterSpacing
+          };
+        });
+        expect(geometry.edgeError).toBeLessThanOrEqual(1);
+        expect(geometry.innerError).toBeLessThanOrEqual(1);
+        expect(geometry.clippedHeight).toBeLessThanOrEqual(1);
+        expect(geometry.bottom).toBeLessThan(geometry.viewport);
+        expect(geometry.background).toBe(scheme === "default" ? "rgb(255, 255, 255)" : "rgb(23, 36, 50)");
+        expect(geometry.innerBackground).toBe("rgba(0, 0, 0, 0)");
+        expect(geometry.outerShadow).not.toBe("none");
+        expect(geometry.innerShadow).toBe("none");
+        expect(geometry.suggestionMatches).toBe(true);
+      }
+    }
+    await input.press("Escape");
+    await expect(page.locator(".md-search__output")).not.toBeVisible();
+  }
+});
+
+test("setup guides keep content readable and notes responsive", async ({ page }, testInfo) => {
+  for (const name of ["environment-setup", "first-simulation"]) {
+    await page.setViewportSize({ width: testInfo.project.name === "desktop" ? 1440 : 390, height: 900 });
+    await page.goto(`/getting-started/${name}/`);
+    const guide = page.locator(".setup-guide");
+    await expect(guide.locator("h1")).toHaveCount(1);
+    await expect(guide.locator(".setup-guide__context")).toHaveCount(0);
+    await expect(guide.locator(".setup-guide__intro")).not.toContainText("Documentation / Getting Started");
+    await expect(guide.locator("table").first()).toBeVisible();
+    await expect(guide).not.toContainText("IN PROGRESS");
+    await expect(guide).not.toContainText("3.9.16");
+    const layout = await guide.locator(".setup-guide__step").evaluateAll(nodes => nodes.map(node => {
+      const main = node.firstElementChild.getBoundingClientRect();
+      const note = node.lastElementChild.getBoundingClientRect();
+      return { sideBySide: note.left >= main.right, stacked: note.top >= main.bottom,
+        noteSize: parseFloat(getComputedStyle(node.lastElementChild).fontSize),
+        bodySize: parseFloat(getComputedStyle(node.firstElementChild).fontSize) };
+    }));
+    expect(layout.every(row => testInfo.project.name === "desktop" ? row.sideBySide : row.stacked)).toBe(true);
+    expect(layout.every(row => row.noteSize >= 13 && row.noteSize / row.bodySize <= 0.8)).toBe(true);
+    const inlineStyles = await guide.locator(":not(pre) > code").evaluateAll(nodes => nodes.map(node => {
+      const css = getComputedStyle(node), parent = getComputedStyle(node.parentElement);
+      return css.fontFamily === parent.fontFamily && css.fontSize === parent.fontSize &&
+        css.letterSpacing === "normal" && css.wordSpacing === "0px";
+    }));
+    expect(inlineStyles.length).toBeGreaterThan(0);
+    expect(inlineStyles.every(Boolean)).toBe(true);
+    await expect(guide.locator(".highlight code").first()).toHaveCSS("font-family", /monospace/);
+    const problems = await guide.locator("code, table, .setup-guide__note").evaluateAll(nodes => nodes.filter(node => {
+      const bounds = node.getBoundingClientRect();
+      return bounds.left < 0 || bounds.right > innerWidth + 1;
+    }).map(node => node.textContent));
+    expect(problems).toEqual([]);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+    await page.context().grantPermissions(["clipboard-read", "clipboard-write"]);
+    const command = (await guide.locator(".highlight code").first().textContent()).trim();
+    await guide.locator(".md-clipboard, .md-code__button").first().click();
+    expect((await page.evaluate(() => navigator.clipboard.readText())).trim()).toBe(command);
+    if (name === "environment-setup") {
+      const requirements = guide.locator("table").first();
+      await expect(requirements.locator("th")).toHaveText(["Component", "Version", "Sources"]);
+      await expect(requirements.getByRole("link", { name: "Adoptium", exact: true })).toHaveAttribute("href", "https://adoptium.net/temurin/releases/?version=25");
+      await expect(requirements.getByRole("link", { name: "Apache Maven", exact: true })).toHaveAttribute("href", "https://maven.apache.org/download.cgi");
+      await expect(requirements.getByRole("link", { name: "Git", exact: true })).toHaveAttribute("href", "https://git-scm.com/install/");
+      await expect(requirements).not.toContainText("—");
+      await expect(requirements).toContainText("Not pinned");
+      const note = guide.locator('aside[aria-label="Java version requirement"]');
+      await expect(note).toBeVisible();
+      const tableBox = await requirements.boundingBox();
+      const guideBox = await guide.boundingBox();
+      const commandBox = await guide.locator('.highlight').first().boundingBox();
+      const noteBox = await note.boundingBox();
+      expect(noteBox.y).toBeGreaterThanOrEqual(commandBox.y + commandBox.height);
+      expect(Math.abs(noteBox.x - tableBox.x)).toBeLessThan(1);
+      expect(Math.abs(tableBox.width - guideBox.width)).toBeLessThan(1);
+      await expect(guide.locator('h3[id="6-training-data-fallback"]')).toContainText("Training data fallback");
+      await expect(guide.locator('h3[id="7-policy-schedule-file"]')).toContainText("Policy schedule file");
+      for (const id of ["1-local-requirements", "2-clone-the-repository", "3-build-the-executables", "4-check-the-required-input-layout", "5-understand-first-time-setup", "8-common-setup-problems"])
+        await expect(guide.locator(`h2[id="${id}"]`)).toHaveCount(1);
+    }
+  }
+});
+
+test("contents marker follows headings without shifting the rail", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop");
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/getting-started/environment-setup/", { waitUntil: "domcontentloaded" });
+  const nav = page.locator(".md-sidebar--secondary .sp-toc");
+  const list = nav.locator(":scope > .md-nav__list");
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(nav).toHaveClass(/sp-toc--ready/);
+  await expect(nav.locator('[aria-current="location"]')).toHaveCount(1);
+  const sizes = await nav.evaluate(element => ({
+    title: parseFloat(getComputedStyle(element.querySelector('.md-nav__title'), '::after').fontSize),
+    link: parseFloat(getComputedStyle(element.querySelector('a.md-nav__link')).fontSize),
+    root: parseFloat(getComputedStyle(document.documentElement).fontSize)
+  }));
+  expect(sizes.title / sizes.root).toBeCloseTo(0.67);
+  expect(sizes.link / sizes.root).toBeCloseTo(0.67);
+  const initialTop = (await nav.boundingBox()).y;
+  const links = nav.locator("a.md-nav__link");
+  for (const index of [3, 6, 1]) {
+    await links.nth(index).focus();
+    await links.nth(index).press("Enter");
+    await expect(links.nth(index)).toHaveAttribute("aria-current", "location");
+    expect(await links.nth(index).evaluate(link => {
+      const heading = document.getElementById(decodeURIComponent(link.hash.slice(1)));
+      return heading.getBoundingClientRect().top - document.querySelector('.md-header').getBoundingClientRect().bottom;
+    })).toBeGreaterThanOrEqual(0);
+    await expect.poll(async () => list.evaluate(element => {
+      const active = element.querySelector('[aria-current="location"]');
+      return Math.abs(parseFloat(getComputedStyle(element).getPropertyValue("--sp-toc-offset")) -
+        (active.getBoundingClientRect().top - element.getBoundingClientRect().top));
+    })).toBeLessThan(1);
+    expect(Math.abs((await nav.boundingBox()).y - initialTop)).toBeLessThan(1);
+  }
+  await expect(list).toHaveCSS("transition-duration", "0s");
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await expect(list).toHaveCSS("transition-duration", "0.18s, 0.18s");
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await expect(links.last()).toHaveAttribute("aria-current", "location");
+
+  // Exercise instant navigation rather than remounting a whole document.
+  await page.locator('.md-tabs').getByRole("link", { name: "Funding", exact: true }).click();
+  await expect(page).toHaveURL(/\/funding\//);
+  await expect(page.locator(".sp-toc")).toHaveCount(0);
+  await page.locator('.md-tabs').getByRole("link", { name: "Documentation", exact: true }).click();
+  await expect(page.locator(".sp-toc--ready")).toHaveCount(1);
+  await expect(page.locator('.md-sidebar--secondary [aria-current="location"]')).toHaveCount(1);
+});
+
+test("long nested contents keep the current entry visible", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop");
+  await page.setViewportSize({ width: 1440, height: 650 });
+  await page.goto("/jasmine-reference/regression-library/", { waitUntil: "domcontentloaded" });
+  const nav = page.locator(".md-sidebar--secondary .sp-toc");
+  await expect(nav).toHaveClass(/sp-toc--ready/);
+  for (const id of ["23-generalised-ordered-logit-and-probit", "31-single-equation-models", "32-multiple-equation-models"]) {
+    await page.locator(`.md-content__inner [id="${id}"]`).evaluate(element => {
+      window.scrollTo(0, window.scrollY + element.getBoundingClientRect().top - 150);
+    });
+    const active = nav.locator(`a[href$="#${id}"]`);
+    await expect(active).toHaveAttribute("aria-current", "location");
+    await expect.poll(() => active.evaluate(element => {
+      const bounds = element.getBoundingClientRect();
+      const container = element.closest(".md-sidebar__scrollwrap").getBoundingClientRect();
+      return bounds.top >= container.top && bounds.bottom <= Math.min(container.bottom, innerHeight);
+    })).toBe(true);
+  }
+  const nested = nav.locator(".md-nav .md-nav__link").first();
+  const parent = nav.locator(":scope > .md-nav__list > li > a").first();
+  expect((await nested.boundingBox()).x).toBeGreaterThan((await parent.boundingBox()).x);
+});
+
+test("mobile keeps native search and contents navigation", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile");
+  await page.goto("/getting-started/environment-setup/", { waitUntil: "domcontentloaded" });
+  await expect(page.locator(".md-sidebar--secondary")).not.toBeVisible();
+  await page.locator('.md-header__button[for="__search"]').click();
+  await page.locator(".md-search__input").fill("regression");
+  await page.locator(".md-search__input").press("ArrowRight");
+  await expect(page.locator(".md-search-result__link").first()).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+  await page.locator('.md-search__form > label.md-search__icon').click();
+  await expect(page.locator("#__search")).not.toBeChecked();
+  await page.locator('.md-header__button[for="__drawer"]').click();
+  await page.locator('.md-sidebar--primary label.md-nav__link[for="__toc"]').click();
+  const link = page.locator('.md-sidebar--primary .md-nav--secondary a[href$="#3-build-the-executables"]');
+  await expect(link).toBeVisible();
+  await link.click();
+  await expect(page).toHaveURL(/#3-build-the-executables/);
+});
+
+test("homepage keeps its opening explanation together and links to the module overview", async ({ page }) => {
+  await page.goto("/");
+  const intro = page.locator('.simpaths-home-intro-band__lede');
+  await expect(intro).toContainText("Its modular design supports analysis");
+  await expect(page.locator('.simpaths-home-intro-band__body').first()).toContainText("Standardised assumptions and data sources");
+  const modules = page.locator('.simpaths-home-paths').getByRole('link', { name: 'Simulated modules', exact: true });
+  await expect(modules).toHaveJSProperty('href', new URL('/overview/simulated-modules/', page.url()).href);
+  await modules.click();
+  await expect(page).toHaveURL(/\/overview\/simulated-modules\/$/);
+  await expect(page.locator('article h1')).toHaveText(/^Simulated Modules(?:¶)?$/);
+  await expect(page.locator('article h2')).toHaveCount(11);
+  await expect(page.locator('body')).toHaveClass(/sp-tab-model/);
+  const activeModuleOverview = page.locator('.md-sidebar--primary a.md-nav__link--active');
+  await expect(activeModuleOverview).toHaveCount(1);
+  await expect(activeModuleOverview).toHaveText('Overview');
+  await expect(activeModuleOverview).toHaveJSProperty('href', new URL('/overview/simulated-modules/', page.url()).href);
+  await expect(page.locator('article').getByRole('link', { name: 'Ageing', exact: true })).toHaveJSProperty('href', new URL('/overview/modules/ageing/', page.url()).href);
+});
+
 test("homepage provides useful task routes and an editorial research band", async ({ page }) => {
   await page.setViewportSize({ width: 1512, height: 900 });
   await page.goto("/", { waitUntil: "domcontentloaded" });
@@ -663,20 +926,21 @@ test("documentation masthead integrates the SimPaths mark", async ({ page }) => 
   expect(logoRequests).toEqual([]);
 });
 
-test("research citation uses restrained hierarchy and natural alignment", async ({ page }) => {
+test("research separates publication metadata and features the primary reference", async ({ page }, testInfo) => {
   await page.goto("/research/", { waitUntil: "domcontentloaded" });
 
   const referencePaper = page.locator(".research-page .research-primary");
   const presentation = await referencePaper.evaluate((element) => {
     const styles = getComputedStyle(element);
-    const marker = getComputedStyle(element, "::before");
     const titleLink = element.querySelector("h3 a");
+    const source = element.querySelector(".research-publication__source");
+    const title = element.querySelector("h3");
 
     return {
       borderTopWidth: styles.borderTopWidth,
       borderBottomWidth: styles.borderBottomWidth,
       borderLeftWidth: styles.borderLeftWidth,
-      markerContent: marker.content,
+      sourceAboveTitle: source.getBoundingClientRect().bottom <= title.getBoundingClientRect().top,
       metadataAlignment: getComputedStyle(
         element.querySelector(".research-publication__source")
       ).textAlign,
@@ -685,14 +949,33 @@ test("research citation uses restrained hierarchy and natural alignment", async 
   });
 
   expect(presentation).toEqual({
-    borderTopWidth: "0px",
-    borderBottomWidth: "0px",
-    borderLeftWidth: "2px",
-    markerContent: "none",
+    borderTopWidth: "1px",
+    borderBottomWidth: "1px",
+    borderLeftWidth: "1px",
+    sourceAboveTitle: true,
     metadataAlignment: "left",
     titleDecoration: "none"
   });
   await expect(page.locator(".research-publications .research-publication")).toHaveCount(6);
+  await expect(page.locator(".research-publication__type").first()).toHaveText("Conference abstract 2025");
+  const rows = await page.locator(".research-publication").evaluateAll(elements => elements.map(element => {
+    const source = element.querySelector(".research-publication__source").getBoundingClientRect();
+    const body = element.querySelector(".research-publication__body").getBoundingClientRect();
+    const link = element.querySelector("h3 a");
+    return {
+      metadataBeside: source.right <= body.left && Math.abs(source.top - body.top) < 1,
+      metadataAbove: source.bottom <= body.top && Math.abs(source.left - body.left) < 1,
+      decoration: getComputedStyle(link).textDecorationLine,
+      sameColourAsHeading: getComputedStyle(link).color === getComputedStyle(link.parentElement).color,
+      wrap: getComputedStyle(link.parentElement).textWrap
+    };
+  }));
+  for (const row of rows) {
+    expect(row).toMatchObject({ decoration: "none", sameColourAsHeading: true, wrap: "wrap" });
+    expect(page.viewportSize().width >= 720 ? row.metadataBeside : row.metadataAbove).toBe(true);
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBe(0);
+  await page.screenshot({ path: testInfo.outputPath("research-catalogue.png"), fullPage: true, animations: "disabled" });
 });
 
 test("funding uses a compact linked ledger without changing grant details", async ({ page }, testInfo) => {
@@ -789,6 +1072,9 @@ test("funding uses a compact linked ledger without changing grant details", asyn
   await expect(page.locator(".funding-summary dd")).toHaveText(["6", "5", "2019-2028"]);
   await expect(page.locator(".funding-summary dt")).toHaveText(["Current grants", "Completed", "Span"]);
   await expect(page.locator(".funding-focus")).toHaveCount(0);
+  await expect(page.locator(".funding-actions, .funding-eyebrow")).toHaveCount(0);
+  await expect(page.locator(".md-footer__inner")).toBeVisible();
+  await expect(page.locator('.md-footer__inner a[href$="research/"]')).toHaveCount(1);
   await expect(page.locator(".funding-page")).not.toContainText("ModESHI");
   const layout = () => page.evaluate(() => {
     const styles = selector => getComputedStyle(document.querySelector(selector));
@@ -796,7 +1082,6 @@ test("funding uses a compact linked ledger without changing grant details", asyn
     return {
       summaryColumns: columns(".funding-summary"),
       entryColumns: columns(".funding-entry"),
-      actionColumns: columns(".funding-actions"),
       panelBackground: styles(".funding-panel--current").backgroundColor,
       entryBackground: styles(".funding-entry").backgroundColor,
       entryColor: styles(".funding-entry").color,
@@ -816,11 +1101,11 @@ test("funding uses a compact linked ledger without changing grant details", asyn
     };
   });
   expect(await layout()).toMatchObject({
-    summaryColumns: 3, entryColumns: 3, actionColumns: 2,
+    summaryColumns: 3, entryColumns: 3,
     panelBackground: "rgba(0, 0, 0, 0)", entryBackground: "rgba(0, 0, 0, 0)",
     entryColor: "rgb(36, 42, 49)", titleColor: "rgb(36, 42, 49)",
     summaryTopRule: "1px", summaryBottomRule: "1px", listTopRule: "1px", rowBottomRule: "1px",
-    titleWrap: "wrap", pagerDisplay: "none", metadataFirst: true, fullWidthRows: true, overflow: 0
+    titleWrap: "wrap", pagerDisplay: "flex", metadataFirst: true, fullWidthRows: true, overflow: 0
   });
   const firstGrant = page.locator(".funding-entry").first();
   await firstGrant.hover();
@@ -829,15 +1114,99 @@ test("funding uses a compact linked ledger without changing grant details", asyn
   await expect(firstGrant).toHaveCSS("outline-style", "solid");
   await page.screenshot({ path: testInfo.outputPath("funding-desktop.png"), fullPage: true, animations: "disabled" });
   await page.setViewportSize({ width: 900, height: 900 });
-  expect(await layout()).toMatchObject({entryColumns: 3, actionColumns: 2, overflow: 0});
+  expect(await layout()).toMatchObject({entryColumns: 3, overflow: 0});
   for (const width of [390, 320]) {
     await page.setViewportSize({ width, height: 844 });
     expect(await layout()).toMatchObject({
-      summaryColumns: 3, entryColumns: 2, actionColumns: 1,
+      summaryColumns: 3, entryColumns: 2,
       metadataFirst: true, fullWidthRows: true, overflow: 0
     });
   }
   await page.screenshot({ path: testInfo.outputPath("funding-mobile.png"), fullPage: true, animations: "disabled" });
+});
+
+test("funding interactions use funder colours with readable, stable hover and keyboard states", async ({ page }, testInfo) => {
+  await page.goto("/funding/");
+  await page.evaluate(() => document.fonts.ready);
+  await page.addStyleTag({ content: ".funding-entry, .funding-entry * { transition: none !important; }" });
+  const entries = page.locator(".funding-entry");
+  const ids = ["nihr", "nihr", "horizon-europe", "phi", "chanse-norface", "nihr", "inapp", "health-foundation", "jpi", "erc", "espon"];
+  const brands = {
+    nihr: "#0051c2", "horizon-europe": "#003399", phi: "#f0d764",
+    "chanse-norface": "#42bccd", inapp: "#18376e", "health-foundation": "#de0031",
+    jpi: "#3c76bb", erc: "#ff7d00", espon: "#63b9ea"
+  };
+  expect(await entries.evaluateAll(elements => elements.map(element => element.dataset.funder))).toEqual(ids);
+  const state = row => row.evaluate(element => {
+    const context = document.createElement("canvas").getContext("2d", { willReadFrequently: true });
+    const rgba = css => {
+      context.clearRect(0, 0, 1, 1);
+      context.fillStyle = css;
+      context.fillRect(0, 0, 1, 1);
+      return [...context.getImageData(0, 0, 1, 1).data].map((value, index) => index === 3 ? value / 255 : value);
+    };
+    const composite = (back, front) => front.slice(0, 3).map((value, index) => value * front[3] + back[index] * (1 - front[3]));
+    const background = node => {
+      const ancestors = [];
+      for (; node; node = node.parentElement) ancestors.unshift(node);
+      return ancestors.reduce((back, ancestor) => composite(back, rgba(getComputedStyle(ancestor).backgroundColor)), [255, 255, 255]);
+    };
+    const luminance = rgb => rgb.map(value => value / 255).map(value => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4)
+      .reduce((sum, value, index) => sum + value * [0.2126, 0.7152, 0.0722][index], 0);
+    const contrast = node => {
+      const back = background(node);
+      const light = [luminance(back), luminance(composite(back, rgba(getComputedStyle(node).color)))].sort((a, b) => b - a);
+      return (light[0] + 0.05) / (light[1] + 0.05);
+    };
+    const style = getComputedStyle(element);
+    const bounds = element.getBoundingClientRect();
+    return {
+      brand: style.getPropertyValue("--funding-brand").trim(),
+      color: rgba(style.color), background: rgba(style.backgroundColor),
+      border: rgba(style.borderBottomColor),
+      arrow: rgba(getComputedStyle(element.querySelector(".funding-entry__arrow")).color),
+      width: bounds.width, height: bounds.height,
+      contrast: [".funding-title", ".funding-funder", ".funding-years"].map(selector => contrast(element.querySelector(selector)))
+    };
+  });
+  for (const scheme of ["default", "slate"]) {
+    await page.locator("body").evaluate((body, value) => body.setAttribute("data-md-color-scheme", value), scheme);
+    const nihrColours = [];
+    const funderColours = new Map();
+    for (let index = 0; index < ids.length; index++) {
+      const row = entries.nth(index);
+      await page.mouse.move(0, 0);
+      await page.evaluate(() => document.activeElement.blur());
+      const resting = await state(row);
+      expect(resting.brand).toBe(brands[ids[index]]);
+      expect(resting.color).toEqual(scheme === "default" ? [36, 42, 49, 1] : [226, 229, 233, 1]);
+      expect(resting.background[3]).toBe(0);
+      await row.hover();
+      const hovered = await state(row);
+      expect(hovered.background[3]).toBeGreaterThan(0);
+      expect(hovered.color).not.toEqual(resting.color);
+      expect(hovered.border).toEqual(hovered.color);
+      expect(hovered.arrow).toEqual(hovered.color);
+      expect(hovered.width).toBe(resting.width);
+      expect(hovered.height).toBe(resting.height);
+      for (const contrast of hovered.contrast) expect(contrast, `${ids[index]} in ${scheme}`).toBeGreaterThanOrEqual(4.5);
+      funderColours.set(ids[index], hovered.color.join(","));
+      if (ids[index] === "nihr") nihrColours.push(hovered.color.join(","));
+      if (scheme === "default" && [0, 3, 7].includes(index)) {
+        await row.screenshot({ path: testInfo.outputPath(`funding-${ids[index]}-hover.png`), animations: "disabled" });
+      }
+      await page.mouse.move(0, 0);
+      await row.focus();
+      await page.keyboard.press("Tab");
+      await page.keyboard.press("Shift+Tab");
+      await expect(row).toBeFocused();
+      await expect(row).toHaveCSS("outline-style", "solid");
+      expect(await state(row)).toEqual(hovered);
+    }
+    expect(new Set(nihrColours).size).toBe(1);
+    expect(new Set(funderColours.values()).size).toBe(Object.keys(brands).length);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBe(0);
+  }
 });
 
 test("equations render without webfont-dependent blank states", async ({ page }) => {

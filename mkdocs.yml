@@ -44,11 +44,11 @@ theme:
 extra_css:
   # Keep this order: later component files intentionally refine earlier layers.
   - assets/css/01-foundation.css?v=20260905-stable-fonts-1
-  - assets/css/02-shell-navigation.css?v=20260905-first-paint-1
-  - assets/css/03-content.css?v=20260904-code-readability-1
+  - assets/css/02-shell-navigation.css?v=20260905-toc-size-2
+  - assets/css/03-content.css?v=20260905-setup-cleanup-3
   - assets/css/04-landing-components.css?v=20260905-first-paint-1
-  - assets/css/05-site-chrome.css?v=20260905-search-arrow-1
-  - assets/css/06-page-sections.css?v=20260905-funding-ledger-2
+  - assets/css/05-site-chrome.css?v=20260905-search-neutral-1
+  - assets/css/06-page-sections.css?v=20260905-funder-colours-1
   - assets/css/07-roadmap.css?v=20260902-natural-wrap-2
   - assets/css/08-home.css?v=20260905-citation-scale-1
 
@@ -56,6 +56,7 @@ extra_javascript:
   - assets/js/mathjax.js?v=20260831-math-svg-1
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js
   - assets/js/site-state.js?v=20260905-first-paint-1
+  - assets/js/toc-indicator.js?v=20260905-toc-marker-1
   - assets/js/sidebar-filter.js?v=20260831-documentation-filter-1
 
 plugins:
@@ -113,6 +114,7 @@ nav:
       - overview/index.md
       - Model Description: overview/model-description.md
       - Simulated Modules:
+          - Overview: overview/simulated-modules.md
           - Ageing: overview/modules/ageing.md
           - Education: overview/modules/education.md
           - Health: overview/modules/health.md

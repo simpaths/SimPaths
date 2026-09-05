@@ -182,7 +182,7 @@
 .md-nav--secondary .md-nav__title::after {
   content: "On this Page";
   font-family: var(--md-text-font) !important;
-  font-size: 0.72rem;
+  font-size: 0.67rem;
   font-weight: 600;
   letter-spacing: 0.01em;
   text-transform: none;
@@ -221,8 +221,29 @@
   background: none !important;
 }
 
+/* One rail and one moving marker; the theme still tracks the current heading. */
+@media screen and (min-width: 60em) {
+  .md-sidebar--secondary:not([hidden]) ~ .md-content .md-typeset :is(h2, h3, h4, h5, h6) { scroll-margin-top: calc(var(--sp-toc-header-height, var(--sp-toc-default-header, 4.65rem)) + 0.6rem); }
+  .md-sidebar--secondary.sp-toc-sidebar { top: var(--sp-toc-top) !important; }
+  .sp-toc-sidebar .md-sidebar__scrollwrap { max-height: calc(100dvh - var(--sp-toc-top) - 2.4rem); }
+  .sp-toc > .md-nav__list {
+    margin-top: 0.6rem; padding-left: 0.7rem;
+    background-image: linear-gradient(var(--sp-accent), var(--sp-accent)), linear-gradient(var(--sp-border-soft), var(--sp-border-soft));
+    background-repeat: no-repeat; background-size: 2px var(--sp-toc-height, 0px), 1px 100%;
+    background-position: 0 var(--sp-toc-offset, 0px), 0 0;
+  }
+  .sp-toc--ready > .md-nav__list { transition: background-position 180ms ease, background-size 180ms ease; }
+  .md-sidebar--secondary .sp-toc .md-nav__link { color: var(--md-default-fg-color); font-size: 0.67rem; line-height: 1.45; }
+  .md-sidebar--secondary .sp-toc [aria-current="location"] { color: var(--sp-accent) !important; font-weight: 600; }
+  .md-sidebar--secondary .sp-toc .md-nav__link:focus-visible { outline: 2px solid var(--sp-accent); outline-offset: 2px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sp-toc--ready > .md-nav__list { transition: none; }
+}
+
 /* Keep the model's long module list behind its own native navigation toggle. */
 @media screen and (min-width: 76.25em) {
+  .md-sidebar--secondary:not([hidden]) ~ .md-content { --sp-toc-default-header: 7.15rem; }
   .md-sidebar--primary .md-nav__item--section.md-nav__item--nested.sp-modules-branch {
     --sp-section-pointer-events: auto;
     --sp-section-cursor: pointer;

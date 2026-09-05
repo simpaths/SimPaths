@@ -17,7 +17,8 @@ hide:
 
 <section class="simpaths-home-intro-band">
 <div class="simpaths-home-intro-band__inner">
-  <p class="simpaths-home-intro-band__lede">SimPaths is an open-source framework for modelling individual and household life course events. The framework is designed to project life histories through time, building up a detailed picture of career paths, family (inter)relations, health, and financial circumstances. The modular nature of SimPaths facilitates analysis of alternative assumptions concerning the tax and benefit system, sensitivity to parameter estimates, and alternative approaches for projecting labour and leisure as well as consumption and savings decisions. SimPaths builds upon standardised assumptions and data sources, which facilitates adaptation to alternative countries. Models based on the framework currently exist for the UK, Greece, Hungary, Italy, and Poland, and are under development for Germany, Spain, and Sweden.</p>
+  <p class="simpaths-home-intro-band__lede">SimPaths is an open-source framework for modelling individual and household life courses. It projects how people’s careers, family relationships, health and financial circumstances evolve over time and interact with one another. Its modular design supports analysis of alternative assumptions about tax and benefit systems, sensitivity to parameter estimates, and different approaches to projecting labour and leisure, consumption and saving decisions.</p>
+  <p class="simpaths-home-intro-band__body">Standardised assumptions and data sources facilitate adaptation across countries. Models based on the framework currently exist for the UK, Greece, Hungary, Italy and Poland, with Germany, Spain and Sweden under development.</p>
   <p class="simpaths-home-intro-band__body">All source code is freely available for download under a European Free/Open Source Software (F/OSS) EUPL-1.2 license, alongside evolving, increasingly detailed documentation.</p>
   <p class="simpaths-home-intro-band__body simpaths-home-intro-band__body--bridge">The framework incorporates many state-of-the-art features which are rarely combined in dynamic models:</p>
   <div class="simpaths-capability-combination" aria-label="State-of-the-art capabilities combined in SimPaths">
@@ -72,7 +73,7 @@ hide:
       <h3><a href="overview/">Understand the model</a></h3>
       <div class="simpaths-home-paths__links">
         <a href="overview/model-description/">Model description</a>
-        <a href="overview/modules/ageing/">Simulated modules</a>
+        <a href="overview/simulated-modules/">Simulated modules</a>
         <a href="overview/parameterisation/">Parameterisation</a>
       </div>
     </article>

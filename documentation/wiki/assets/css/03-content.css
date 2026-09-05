@@ -25,6 +25,35 @@
   line-height: 1.68;
 }
 
+/* Setup guides: keep instructions and supporting notes distinct without cards. */
+.md-typeset .setup-guide { container-type: inline-size; }
+.md-typeset .setup-guide__intro { margin-bottom: 1.6rem; }
+.md-typeset .setup-guide__section { margin-block: 1.8rem; }
+.md-typeset .setup-guide__section > h2 { margin-top: 0; }
+.md-typeset .setup-guide h3 { font-size: 1em; }
+.md-typeset .setup-guide__step { display: grid; gap: 1rem; align-items: start; }
+.md-typeset .setup-guide__step > * { min-width: 0; }
+.md-typeset .setup-guide__note { margin-top: 1rem; padding-left: 0.8rem; border-left: 1px solid var(--sp-border-soft); font-size: 0.65rem; line-height: 1.6; }
+.md-typeset .setup-guide__step > .setup-guide__note { margin-top: 0; }
+.md-typeset .setup-guide__note h3 { margin: 0 0 0.45rem; }
+.md-typeset .setup-guide__step > * > :last-child { margin-bottom: 0; }
+.md-typeset .setup-guide code { overflow-wrap: anywhere; }
+.md-typeset .setup-guide :not(pre) > code { font-family: inherit; font-size: 1em; font-weight: 500; letter-spacing: normal; word-spacing: normal; }
+.md-typeset .setup-guide .highlight code { white-space: pre-wrap; overflow-wrap: normal; }
+.md-typeset .setup-guide .highlight code > span[id^="__span"] { display: inline; }
+.md-typeset .setup-guide .highlight:first-child { margin-top: 0; }
+.md-typeset .setup-guide .md-typeset__scrollwrap { margin: 0 0 0.85rem; }
+.md-typeset .setup-guide .md-typeset__table { display: block; padding: 0; }
+.md-typeset .setup-guide table:not([class]) { display: table; width: 100%; font-size: 1em; color: inherit; background: transparent; border: 0; }
+.md-typeset .setup-guide table:not([class]) th { background: transparent; color: inherit; font-size: 1em; letter-spacing: normal; border-bottom: 1px solid currentColor; }
+.md-typeset .setup-guide table:not([class]) :is(th, td) { padding: 0.55rem 0.7rem 0.55rem 0; }
+.md-typeset .setup-guide table:not([class]) td { border-bottom: 1px solid var(--sp-border-soft); }
+.md-typeset .setup-guide table:not([class]) code { color: var(--sp-code-text); font-weight: 450; }
+.md-typeset .setup-guide__next { margin-top: 2rem; padding-top: 0.2rem; border-top: 1px solid var(--sp-border-soft); }
+@container (min-width: 36rem) {
+  .md-typeset .setup-guide__step { grid-template-columns: minmax(0, 1fr) 10rem; gap: 1.5rem; }
+}
+
 /* ── Headings ── */
 .md-typeset h1 {
   font-family: var(--sp-heading-font) !important;
