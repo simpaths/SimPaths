@@ -84,6 +84,8 @@
 .md-typeset h6 {
   scroll-margin-top: 6.5rem;
 }
+.md-typeset #simulated-modules { scroll-margin-top: 7.75rem; }
+@media screen and (max-width: 76.24em) { .md-typeset #simulated-modules { scroll-margin-top: 5.25rem; } }
 
 /* Section navigation already exposes heading links; inline glyphs add noise. */
 .md-typeset .headerlink {

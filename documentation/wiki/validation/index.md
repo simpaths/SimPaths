@@ -4,7 +4,7 @@
 
 This section explains the current procedures used to validate SimPaths inputs and outputs, from regression checks to aggregate comparisons against external survey data. Validation is a core part of maintaining trust in the model after changes to parameters, code, or input data, and it provides a structured way to spot specification or implementation issues early.
 
-## 1. Introduction 
+## Introduction { #1-introduction }
 
 The procedures documented here cover two kinds of checks:
 
@@ -13,7 +13,7 @@ The procedures documented here cover two kinds of checks:
 2. Validating simulated output. The second check examines the simulated output produced by SimPaths. The model is run for a period in which comparable survey data are available (2011–2023), and aggregate measures from the simulated data are compared to benchmarks computed using data from the UK Household Longitudinal Study (UKHLS). The validation focuses on the model's ability to reproduce aggregate measures over time (time-series consistency) and distributions within years, rather than the accuracy of individual trajectories through time.
 
 
-## 2. Obtaining the validation scripts
+## Obtaining the validation scripts { #2-obtaining-the-validation-scripts }
 
 Validation procedures are currently executed in Stata. The corresponding do-files are located in the validation subfolder on the `develop` branch of the SimPaths GitHub repository.
 
@@ -34,12 +34,12 @@ You can access these files in one of three ways:
 These methods differ in how much of the repository you download. Downloading an individual script does not include the other files it may need.
 
 
-## 3. Running the validation scripts
+## Running the validation scripts { #3-running-the-validation-scripts }
 
 Once you have obtained the relevant validation files, the next step is to run them in Stata.
 This section explains how to set up your working environment, what data are required, and how to execute the validation do-files for each stage of validation.
 
-### 3.1 Validating regression estimates
+### Validating regression estimates { #31-validating-regression-estimates }
 
 These do-files are contained in the subfolder 01_estimate_validation.
 Before running these scripts, four preparatory steps are required:
@@ -69,7 +69,7 @@ Before running these scripts, four preparatory steps are required:
 Run the validation do-files to produce the plots once these steps are complete.
 
 
-### 3.2 Validating the simulated output
+### Validating the simulated output { #32-validating-the-simulated-output }
 
 The do-files for validating the simulated output are contained in the subfolder 02_simulated_output_validation.
 These should be run after executing SimPaths, as they rely on a number of .csv files produced by the model.

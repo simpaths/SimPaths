@@ -45,7 +45,7 @@ extra_css:
   # Keep this order: later component files intentionally refine earlier layers.
   - assets/css/01-foundation.css?v=20260905-stable-fonts-1
   - assets/css/02-shell-navigation.css?v=20260905-toc-size-2
-  - assets/css/03-content.css?v=20260905-setup-cleanup-3
+  - assets/css/03-content.css?v=20260905-module-link-1
   - assets/css/04-landing-components.css?v=20260905-first-paint-1
   - assets/css/05-site-chrome.css?v=20260905-search-neutral-1
   - assets/css/06-page-sections.css?v=20260905-funder-colours-1
@@ -114,7 +114,6 @@ nav:
       - overview/index.md
       - Model Description: overview/model-description.md
       - Simulated Modules:
-          - Overview: overview/simulated-modules.md
           - Ageing: overview/modules/ageing.md
           - Education: overview/modules/education.md
           - Health: overview/modules/health.md

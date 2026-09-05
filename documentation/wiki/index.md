@@ -73,7 +73,7 @@ hide:
       <h3><a href="overview/">Understand the model</a></h3>
       <div class="simpaths-home-paths__links">
         <a href="overview/model-description/">Model description</a>
-        <a href="overview/simulated-modules/">Simulated modules</a>
+        <a href="overview/model-description/#simulated-modules">Simulated modules</a>
         <a href="overview/parameterisation/">Parameterisation</a>
       </div>
     </article>

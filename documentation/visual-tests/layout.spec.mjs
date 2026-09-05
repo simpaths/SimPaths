@@ -4,6 +4,22 @@ import { expect, test } from "@playwright/test";
 test("validation uses consistent body typography and correctly nested instructions", async ({ page }) => {
   await page.goto("/validation/");
   const article = page.locator(".md-content__inner");
+  const sectionTitles = [
+    "Introduction",
+    "Obtaining the validation scripts",
+    "Running the validation scripts",
+    "Validating regression estimates",
+    "Validating the simulated output"
+  ];
+  await expect(article.locator("h2, h3")).toHaveText(sectionTitles.map(title => new RegExp(`^${title}(?:¶)?$`)));
+  await expect(page.locator(".md-sidebar--secondary .md-nav__link")).toHaveText(sectionTitles);
+  expect(await article.locator("h2, h3").evaluateAll(elements => elements.map(element => element.id))).toEqual([
+    "1-introduction",
+    "2-obtaining-the-validation-scripts",
+    "3-running-the-validation-scripts",
+    "31-validating-regression-estimates",
+    "32-validating-the-simulated-output"
+  ]);
   await expect(article.locator(".page-intro, strong, em")).toHaveCount(0);
   const typography = await article.locator("p, li, code").evaluateAll(elements =>
     elements.filter(element => element.textContent.trim()).map(element => {
@@ -201,9 +217,9 @@ test("audited guides expose the checked specifications and usable examples", asy
   await expect(page.locator("article a[href*='research']")).toHaveCount(1);
   await expect(page.locator("article")).not.toContainText("CeMPA WP");
 
-  await page.goto("/overview/simulated-modules/");
-  await expect(page.locator("article h2")).toHaveCount(11);
-  await expect(page.locator("article")).not.toContainText("ordered probit");
+  await page.goto("/overview/model-description/");
+  await expect(page.locator("article ol a")).toHaveCount(11);
+  await expect(page.locator('a[href*="overview/simulated-modules/"]')).toHaveCount(0);
 });
 
 test("model overview keeps the established reading measure", async ({ page }) => {
@@ -618,23 +634,25 @@ test("mobile keeps native search and contents navigation", async ({ page }, test
   await expect(page).toHaveURL(/#3-build-the-executables/);
 });
 
-test("homepage keeps its opening explanation together and links to the module overview", async ({ page }) => {
+test("homepage keeps its opening explanation together and links to the existing module list", async ({ page }) => {
   await page.goto("/");
   const intro = page.locator('.simpaths-home-intro-band__lede');
   await expect(intro).toContainText("Its modular design supports analysis");
   await expect(page.locator('.simpaths-home-intro-band__body').first()).toContainText("Standardised assumptions and data sources");
   const modules = page.locator('.simpaths-home-paths').getByRole('link', { name: 'Simulated modules', exact: true });
-  await expect(modules).toHaveJSProperty('href', new URL('/overview/simulated-modules/', page.url()).href);
+  await expect(modules).toHaveJSProperty('href', new URL('/overview/model-description/#simulated-modules', page.url()).href);
   await modules.click();
-  await expect(page).toHaveURL(/\/overview\/simulated-modules\/$/);
-  await expect(page.locator('article h1')).toHaveText(/^Simulated Modules(?:¶)?$/);
-  await expect(page.locator('article h2')).toHaveCount(11);
+  await expect(page).toHaveURL(/\/overview\/model-description\/#simulated-modules$/);
+  await expect(page.locator('article h1')).toHaveText(/^Model Description(?:¶)?$/);
+  await expect(page.locator('article #simulated-modules')).toContainText('eleven modules');
+  await expect.poll(() => page.evaluate(() => document.getElementById('simulated-modules').getBoundingClientRect().top - document.querySelector('.md-header').getBoundingClientRect().bottom)).toBeGreaterThanOrEqual(0);
+  await expect(page.locator('article ol a')).toHaveCount(11);
   await expect(page.locator('body')).toHaveClass(/sp-tab-model/);
-  const activeModuleOverview = page.locator('.md-sidebar--primary a.md-nav__link--active');
-  await expect(activeModuleOverview).toHaveCount(1);
-  await expect(activeModuleOverview).toHaveText('Overview');
-  await expect(activeModuleOverview).toHaveJSProperty('href', new URL('/overview/simulated-modules/', page.url()).href);
+  await expect(page.locator('.md-sidebar--primary a.md-nav__link--active')).toHaveText('Model Description');
+  await expect(page.locator('a[href*="overview/simulated-modules/"]')).toHaveCount(0);
   await expect(page.locator('article').getByRole('link', { name: 'Ageing', exact: true })).toHaveJSProperty('href', new URL('/overview/modules/ageing/', page.url()).href);
+  await page.locator('article').getByRole('link', { name: 'Ageing', exact: true }).click();
+  await expect(page).toHaveURL(/\/overview\/modules\/ageing\/$/);
 });
 
 test("homepage provides useful task routes and an editorial research band", async ({ page }) => {
