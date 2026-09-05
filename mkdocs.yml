@@ -12,6 +12,7 @@ copyright: >-
 
 theme:
   name: material
+  custom_dir: documentation/overrides
   favicon: assets/images/homepage-hero-logo.svg
   palette:
     - media: "(prefers-color-scheme: light)"
@@ -42,24 +43,27 @@ theme:
 
 extra_css:
   # Keep this order: later component files intentionally refine earlier layers.
-  - assets/css/01-foundation.css?v=20260831-css-maintenance-1
-  - assets/css/02-shell-navigation.css?v=20260901-model-index-1
-  - assets/css/03-content.css?v=20260901-natural-wrap-1
-  - assets/css/04-landing-components.css?v=20260831-css-maintenance-1
-  - assets/css/05-site-chrome.css?v=20260901-validation-nav-2
-  - assets/css/06-page-sections.css?v=20260904-validation-type-1
+  - assets/css/01-foundation.css?v=20260905-stable-fonts-1
+  - assets/css/02-shell-navigation.css?v=20260905-first-paint-1
+  - assets/css/03-content.css?v=20260904-code-readability-1
+  - assets/css/04-landing-components.css?v=20260905-first-paint-1
+  - assets/css/05-site-chrome.css?v=20260905-search-arrow-1
+  - assets/css/06-page-sections.css?v=20260905-funding-ledger-2
   - assets/css/07-roadmap.css?v=20260902-natural-wrap-2
-  - assets/css/08-home.css?v=20260904-paths-heading-1
+  - assets/css/08-home.css?v=20260905-citation-scale-1
 
 extra_javascript:
   - assets/js/mathjax.js?v=20260831-math-svg-1
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js
-  - assets/js/site-state.js?v=20260901-validation-nav-1
+  - assets/js/site-state.js?v=20260905-first-paint-1
   - assets/js/sidebar-filter.js?v=20260831-documentation-filter-1
 
 plugins:
   - search:
       lang: en
+
+hooks:
+  - documentation/scripts/code_highlighting.py
 
 markdown_extensions:
   - admonition

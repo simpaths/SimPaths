@@ -1,4 +1,5 @@
 ---
+title: Model
 hide:
   - toc
 ---

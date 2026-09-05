@@ -3,20 +3,20 @@
    Evidence-led landing page patterns for SimPaths.
 ═══════════════════════════════════════════════ */
 
-body.sp-page-home .md-main__inner {
+html.sp-page-home .md-main__inner {
   margin-top: 0;
 }
 
-body.sp-page-home .md-content .md-content__inner {
+html.sp-page-home .md-content .md-content__inner {
   padding-top: 0;
 }
 
-body:not(.sp-page-home) .md-content .md-content__inner {
+html:not(.sp-page-home) .md-content .md-content__inner {
   padding-top: 1.1rem;
 }
 
-body.sp-page-home .md-content .md-content__inner::before,
-body.sp-page-home .md-main .md-top {
+html.sp-page-home .md-content .md-content__inner::before,
+html.sp-page-home .md-main .md-top {
   display: none !important;
 }
 
@@ -56,7 +56,7 @@ body.sp-page-home .md-main .md-top {
 
 .simpaths-home-hero__logo {
   display: block;
-  width: clamp(5.25rem, 9.1vw, 6.12rem);
+  width: clamp(5.25rem, 9.1vw, 6.12rem); aspect-ratio: 514 / 256;
   height: auto;
   margin: 0 auto 0.62rem;
   filter: saturate(1.16) brightness(1.08) contrast(1.06) drop-shadow(0 16px 26px rgba(14,22,34,0.24));
@@ -746,4 +746,42 @@ body.sp-page-home .md-main .md-top {
     min-height: 0;
     padding: 1.25rem 1.15rem;
   }
+}
+
+/* Homepage citation: one quiet, full-width reference band before the footer. */
+.simpaths-home-citation-band {
+  width: 100vw; margin: 0 calc(50% - 50vw); padding: 3.65rem 1.2rem 3.85rem;
+  color: #27231e; background: #e7dfd2;
+}
+.md-typeset .simpaths-home-citation-band__inner {
+  display: grid; grid-template-columns: minmax(7rem, 11rem) minmax(0, 1fr); gap: 2.5rem;
+  max-width: 61rem; margin: 0 auto;
+}
+.md-typeset .simpaths-home-citation-band h2 {
+  margin: 0; padding-top: 0.18rem; color: #765465;
+  font-size: 0.58rem; font-weight: 650; line-height: 1.4; letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.md-typeset .simpaths-home-citation-band__reference {
+  max-width: 43rem; margin: 0; color: #27231e;
+  font-size: clamp(0.8rem, 1.15vw, 0.88rem); font-weight: 440; line-height: 1.62;
+  text-align: left; hyphens: none;
+}
+.md-typeset .simpaths-home-citation-band__reference em { color: #514a43; }
+.md-typeset .simpaths-home-citation-band__guidance {
+  margin: 1.05rem 0 0; color: #615950; font-size: 0.72rem; line-height: 1.55;
+  text-align: left; hyphens: none;
+}
+.md-typeset .simpaths-home-citation-band__guidance a {
+  color: #6f3d4e !important; text-decoration-color: rgba(111,61,78,0.42);
+  text-underline-offset: 0.18em;
+}
+.md-typeset .simpaths-home-citation-band__guidance a:hover,
+.md-typeset .simpaths-home-citation-band__guidance a:focus-visible {
+  color: #3f2430 !important; text-decoration-color: currentColor;
+}
+@media (max-width: 620px) {
+  .simpaths-home-citation-band { padding: 2.75rem 1rem 3rem; }
+  .md-typeset .simpaths-home-citation-band__inner { grid-template-columns: 1fr; gap: 1.15rem; }
+  .md-typeset .simpaths-home-citation-band__reference { font-size: 0.82rem; }
 }

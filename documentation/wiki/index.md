@@ -7,7 +7,7 @@ hide:
 <div class="simpaths-home-hero">
 <div class="simpaths-home-hero__inner">
   <div class="simpaths-home-hero__brand">
-    <img src="assets/images/homepage-hero-logo-dark.svg?v=1" alt="SimPaths logo showing people progressing across a rising path." class="simpaths-home-hero__logo">
+--8<-- "documentation/wiki/assets/images/homepage-hero-logo-dark.svg"
     <h1 class="simpaths-home-hero__title">SimPaths</h1>
     <p class="simpaths-home-hero__strap">Life Course Microsimulation</p>
   </div>
@@ -144,5 +144,15 @@ hide:
 </a>
 
 </div>
+</div>
+</section>
+
+<section class="simpaths-home-citation-band" aria-labelledby="home-citation-heading">
+<div class="simpaths-home-citation-band__inner">
+  <h2 id="home-citation-heading">How to cite</h2>
+  <div class="simpaths-home-citation-band__content">
+    <p class="simpaths-home-citation-band__reference">Bronka P, van de Ven J, Kopasker D, Katikireddi SV, Richiardi M (2025). SimPaths: an open-source microsimulation model for life course analysis. <em>International Journal of Microsimulation</em>, 18(1): 95-133.</p>
+    <p class="simpaths-home-citation-band__guidance">Please use this reference if you use SimPaths or derived work. <a href="https://microsimulation.pub/articles/00318">Read the paper</a><span aria-hidden="true"> · </span><a href="overview/how-to-cite/">Citation guidance</a></p>
+  </div>
 </div>
 </section>

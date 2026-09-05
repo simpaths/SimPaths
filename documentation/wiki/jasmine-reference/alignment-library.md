@@ -1,6 +1,8 @@
 # The JAS-mine Alignment Library
 
-Alignment is a technique widely used in (dynamic) microsimulation modelling to ensure that the simulated totals conform to some exogenously specified targets, or aggregate projections (Baekgaard, 2002; Klevmarken, 2002, Li and O’Donoghue, 2014). Alignment is a way to incorporate additional information which is not available in the estimation data. The underlying assumption is that the microsimulation model is a poor(er) model of the aggregate, but a good model of individual heterogeneity: by forcing the microsimulation outcomes to match the targets in a way that is as least distortive as possible, the microsimulation model is left with the task of distributing the totals in the population. In general, the above assumption is very dangerous and unwarranted, and alignment should be looked at with great suspicion.
+This page describes library-level algorithms, not a list of methods enabled in every SimPaths run. SimPaths schedules alignment in `SimPathsModel` and uses process-specific targets and routines. Trace the relevant event and loader using the [Repository Guide](../developer-guide/repository-guide.md#code-navigation-tips) before changing an alignment. The generic examples below are illustrative and are not standalone SimPaths code.
+
+Alignment is a technique widely used in (dynamic) microsimulation modelling to ensure that the simulated totals conform to some exogenously specified targets, or aggregate projections (Baekgaard, 2002; Klevmarken, 2002, Li and O’Donoghue, 2014). Alignment is a way to incorporate additional information which is not available in the estimation data. The underlying assumption is that the microsimulation model is a poor(er) model of the aggregate, but a good model of individual heterogeneity: by forcing the microsimulation outcomes to match the targets in a way that is as least distortive as possible, the microsimulation model is left with the task of distributing the totals in the population. Whether this assumption is appropriate depends on the process and targets. Report the target source, adjustment method and sensitivity of conclusions to alignment.
 
 One important thing to note is that the processes to be aligned are executed at an individual level, while alignment always takes place at the population level. That is, individual outcomes or probabilities are determined for each individual based on the chosen econometric specification and the estimated coefficients. This in general leads to a mismatch between the simulated (provisional) totals and the aggregate targets, which can of course be assessed only at the population level. The alignment algorithm then directly modifies the individual outcomes or probabilities of occurrence. 
 
@@ -60,7 +62,7 @@ new LogitScalingAlignment<Agent>().align(
 }
 ```
 
-## 2. Binary Choice Alignment
+## 3. Binary Choice Alignment {#2-binary-choice-alignment}
 
 In addition to Logit Scaling alignment, there are six binary alignment methods implemented in JAS-mine:
 
@@ -70,17 +72,17 @@ In addition to Logit Scaling alignment, there are six binary alignment methods i
 4. Resampling (RS).
 
 
-Implementation of (1)-(4) is based on Li and O'Donoghue (2014) (Jinjing Li kindly provided the Stata code used in that paper), while implementation of (5) closely follows Richiardi and Poggi (2014) and Leombruni and Richiardi (2006). 
+The following sections distinguish scaling, sorting and resampling approaches and provide their references.
 
-### 2.1 Multiplicative Scaling (MS)
+### 3.1 Multiplicative Scaling (MS) {#21-multiplicative-scaling-ms}
 
 **Multiplicative scaling** involves undertaking an unaligned simulation using Monte Carlo techniques and then comparing the proportion of transitions with the external control total. The average ratio between the desired transition rate and the actual transition is used as a scaling factor for the simulated probabilities. The method ensures that the average scaled simulated probability is the same as the desired transition rate. The method, however, is criticized by Morrison (2006) as probabilities are not guaranteed to stay in the range 0-1 after scaling, though the problem is rare in practice as the multiplicative ratio tends to be small.
 
-### 2.2 Sidewalk (SW)
+### 3.2 Sidewalk (SW) {#22-sidewalk-sw}
 
 **The Sidewalk** method was first introduced as a variance reduction technique, which was also used as an alternative to the random number based Monte Carlo simulation. It keeps a record of the accumulated probability from the first modelled binary outcome to the last. As long as there is a change of the integer part of the accumulated probability, the observation is assigned with an outcome value of 1.
 
-### 2.3 Sorting based alignment algorithms
+### 3.3 Sorting based alignment algorithms {#23-sorting-based-alignment-algorithms}
 
 Sorting based alignment algorithms involve sorting of the predicted probability adjusted with a stochastic component, and selects desired number of events according to the sorting order: **SBD** sorts by the difference between the predicted probability and a random number in (0,1), while
 **SBDL** sorts by a logistic transformation of the predicted probability.
@@ -88,15 +90,15 @@ Sorting based alignment algorithms involve sorting of the predicted probability 
 
 Both SBD and SBDL introduce a significant distortion in the estimated probabilities and their use is deprecated. However, they are included for replication exercises. 
 
-### 2.4 Resampling (RS)
+### 3.4 Resampling (RS) {#24-resampling-rs}
 
 **Resampling** involves drawing again the event, without altering the predicted probabilities, either for agents who have experienced the transition (if too many transitions have occurred) or for agents that have not experienced the transition (if too few events have occurred), until the target is reached. 
 
-### 2.5 Binary Logit Scaling (LSb)
+### 3.5 Binary Logit Scaling (LSb) {#25-binary-logit-scaling-lsb}
 
 Implementation of **binary Logit Scaling** (LSb) closely follows Stephensen (2016) and the description of the Bi-Proportional Scaling algorithm above, however it exploits the two-state property of the system to simplify the algorithm.
 
-### 2.6 Other Binary Alignment Algorithms
+### 3.6 Other Binary Alignment Algorithms {#26-other-binary-alignment-algorithms}
 
 Li and O'Donoghue (2014) analyse three other binary alignment algorithms:
 
@@ -106,7 +108,7 @@ Li and O'Donoghue (2014) analyse three other binary alignment algorithms:
 
 SNT and CLT have not been implemented yet in JAS-mine as they are relatively more complicated and run much slower than the other methods; SBP has not been implemented due to its theoretical shortcomings and poor empirical performances (see Li and O'Donoghue, 2014).
 
-### 2.7 Example: Binary Choice Alignment (SBD)
+### 3.7 Example: Binary Choice Alignment (SBD) {#27-example-binary-choice-alignment-sbd}
 
 ```java
 new SBDAlignment<Person>().align(   
@@ -139,7 +141,7 @@ new SBDAlignment<Person>().align(
 );
 ```
 
-## 3. Alignment with Weighting
+## 4. Alignment with Weighting {#3-alignment-with-weighting}
 
 Another new feature introduced in version 3.2.0 of JAS-mine is that alignment can now be done on an agent population where each agent carries a weighting that defines the number of individuals it represents. For example, an agent with a 'weighting' variable equal to 4 means that the agent should be considered to represent four individuals. These weightings need to be taken into account when alignment occurs as not all agents are considered to represent the same number of individuals.
 
@@ -154,7 +156,7 @@ The following alignment classes catering for variable agent weightings are avail
 * **LogitScalingBinaryWeightedAlignment** – the binary choice Logit Scaling (LSb) alignment algorithm for agents implementing the Weighting interface.
 
 
-## 4. References
+## 5. References {#4-references}
 
 Baekgaard H (2002). “Micro-macro linkage and the alignment of transition processes: some issues, techniques and examples”. National Centre for Social and Economic Modelling (NATSEM) Technical paper No. 25.
 

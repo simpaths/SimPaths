@@ -10,7 +10,7 @@ title: Investment income
 
 ## Retirement
 
-Retirement can occur for adults above an assumed threshold, set to age 50 in the UK parametrisation. Its treatment differs according to whether forward-looking expectations are implicit or explicit.
+Retirement can occur for adults above an assumed threshold, set to age 50 in the UK parameterisation. Its treatment differs according to whether forward-looking expectations are implicit or explicit.
 
 With implicit expectations, entry to retirement is described by a probit model conditional on gender, age, education, lagged employment status, lagged benefit-unit income quintile, lagged disability, whether the person has reached state pension age, region and year. For couples, the spouse's employment status and proximity to retirement age are also included.
 

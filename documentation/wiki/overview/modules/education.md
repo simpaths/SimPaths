@@ -10,13 +10,15 @@ title: Education
 
 ## Student status
 
-People leave continuous full-time education within an assumed age band, set to 16-29 in the UK parametrisation. Within that range, a probit model describes the probability of remaining in continuous education, conditional on gender, age, the education levels of the person's mother and father, region and year. Anyone still in continuous education above the upper age limit leaves.
+Students aged 16-29 are assigned a probability of remaining in education using a probit model (E1a). The current UK equation includes gender, age, lagged continuous-education status, parental education, lagged income quintile, region, ethnicity and time effects. Students below 16 remain in education; students above 29 leave. The student-share alignment adjustment is applied to E1a, not to re-entry.
 
-People who were not students in the preceding period may re-enter education. The re-entry equation conditions on gender, age, lagged education, lagged employment status, the lagged number of children in the household, the lagged number of children aged 0-2, parental education, region and year. A person who returns to education can leave again in a subsequent year. The research wiki describes a UK re-entry age band of 16-45; the current implementation no longer applies that upper-age condition and instead excludes people who were already retired in the preceding period.
+People who were neither students nor retired in the preceding period may re-enter education through a second probit model (E1b). Its covariates include gender, age, lagged partnership, education and employment status, lagged numbers of children and children aged 0-2, parental education, region, ethnicity and time effects. The implementation does not impose an upper age of 45 for re-entry. A person who returns can leave again in a subsequent year.
 
 ## Education level
 
-When a person ceases to be a student, education level is assigned using an ordered probit model conditional on gender, age, parental education, region and year. For people leaving education after returning to study, education may remain unchanged or increase, but cannot decrease.
+When a person ceases to be a student, education level is assigned using a generalised ordered logit model (E2), conditional on gender, age, lagged parental education, region, ethnicity and time effects. For people leaving education after returning to study, education may remain unchanged or increase, but cannot decrease.
+
+These specifications follow the [UK education estimation script](https://github.com/simpaths/SimPaths/blob/b223738b9cdf1d814cc3c6f09b04bc4930d3c667/input/InitialPopulations/compile/RegressionEstimates/01_reg_education.do) and [Java implementation](https://github.com/simpaths/SimPaths/blob/b223738b9cdf1d814cc3c6f09b04bc4930d3c667/src/main/java/simpaths/model/Person.java). Record the code revision and parameter files when reporting a simulation; historical releases and diagrams may use earlier specifications.
 
 ## Process diagram
 

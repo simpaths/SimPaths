@@ -7,6 +7,7 @@ on:
     paths:
       - '.github/workflows/deploy-docs.yml'
       - 'documentation/wiki/**'
+      - 'documentation/overrides/**'
       - 'documentation/scripts/**'
       - 'documentation/visual-tests/**'
       - 'mkdocs.yml'
@@ -41,8 +42,14 @@ jobs:
       - name: Check documentation CSS architecture
         run: bash documentation/scripts/check-docs-css.sh
 
+      - name: Check code highlighting preserves examples
+        run: python -m unittest discover -s documentation/scripts -p 'test_*.py'
+
       - name: Build documentation site
         run: mkdocs build --strict
+
+      - name: Check documentation content and internal links
+        run: python documentation/scripts/check-docs-content.py
 
       - name: Set up Node.js
         uses: actions/setup-node@v4

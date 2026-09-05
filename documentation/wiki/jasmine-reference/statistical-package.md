@@ -1,5 +1,7 @@
 # The JAS-mine Statistical Package
 
+In SimPaths, `SimPathsCollector` builds and exports summary statistics, while `SimPathsObserver` supplies live charts. See [Statistical display](../overview/modules/statistical-display.md) for run settings and the [collector source](https://github.com/simpaths/SimPaths/blob/b223738b9cdf1d814cc3c6f09b04bc4930d3c667/src/main/java/simpaths/experiment/SimPathsCollector.java) for the current implementations. The examples below explain JAS-mine concepts; generic agent and statistic names are not SimPaths configuration keys.
+
 The statistics package is the built-in library of JAS-mine specifically designed to collect data in a simulation context. Since data sets collected from simulations are frequently updated and sometimes data structures change at runtime, the code is optimized to reduce memory occupancy and CPU time consumption.
 
 The present guide shows step by step the package features and their use.

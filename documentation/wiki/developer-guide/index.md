@@ -254,7 +254,15 @@ hide:
   </div>
 </div>
 
-New developers of SimPaths are strongly recommended to familiarise themselves with the JAS-mine architecture, and in particular:
+## Start here
+
+1. Follow [Environment Setup](../getting-started/environment-setup.md) and run the [training example](../getting-started/first-simulation.md).
+2. Use the [Repository Guide](repository-guide.md) to locate the implementation, input files and estimation pipeline.
+3. Read [The Model and the Schedule](jasmine/model-and-schedule.md) before changing a process or its timing.
+4. Follow [Introduce a New Variable](how-to/new-variable.md) for changes to agent state, or [Add Parameters to the GUI](how-to/add-gui-parameters.md) for interactive controls.
+5. Use [Working in GitHub](working-in-github.md) to prepare a tested, reviewable contribution.
+
+The principles below explain the underlying JAS-mine architecture. For library-level reference material, consult:
 
 * [JAS-mine GitHub repository](https://github.com/jasmineRepo)
 * [JAS-mine core API](https://raw.githack.com/jasmineRepo/JAS-mine-core/master/microsim-core/doc/index.html)
@@ -286,7 +294,7 @@ Transparent coding for transparent modelling is achieved by
 
 1. enforcing a strict adherence to the **open source** paradigm, which makes it less of a black-box with respect to proprietary software and encourages cooperative development of the platform by the community of users: all functions can be inspected and, if necessary, modified or extended.
 
-2. allowing the user to choose from a wide range of classes and interfaces which **extend the standard Java language**, rather than providing an ad-hoc grammar and syntax. but  The JAS-mine libraries therefore provide open tools to “manufacture” a simulation model, making use whenever possible of solutions already available in the software development community (external functions can also be easily added as plug-ins). This also ensures a maximum amount of flexibility in model building. 
+2. allowing the user to choose from a wide range of classes and interfaces which **extend the standard Java language**. The libraries use Java rather than a separate modelling language, so model developers can also draw on the wider Java ecosystem.
 </details>
 
 ***

@@ -1,5 +1,9 @@
 # Multiple Runs
 
+For uncertainty experiments, check [Uncertainty Analysis](uncertainty-analysis.md) before interpreting variation across seeds. The verified development version enables coefficient resampling as well as simulation randomness; changing seeds does not isolate Monte Carlo variation.
+
+Avoid setting the same field at both the top level and under `model_args`: the latter is applied when constructing the model and can override the wrapper's value.
+
 `multirun.jar` runs a sequence of simulations using `simpaths.experiment.SimPathsMultiRun`. It is the main route for repeated runs, sensitivity work, and batch execution on a server or in CI.
 
 ## 1. Before you start

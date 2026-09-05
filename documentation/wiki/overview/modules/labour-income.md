@@ -41,7 +41,7 @@ The UK labour-supply model is estimated using UKMOD together with UKHLS data for
 
 ### Eligible decision units and alternatives
 
-In the current implementation, labour-supply-flexible adults are aged 16 to 75 and are not students, retired or disabled. The research wiki gives 15 as the lower bound; this page follows the current `MIN_AGE_FLEXIBLE_LABOUR_SUPPLY` value of 16. A flexible adult without a partner, or with a partner who is not flexible, is evaluated individually. Where both partners are flexible, their choices are evaluated jointly.
+In the current implementation, labour-supply-flexible adults are aged 16 to 75 and are not students, retired or disabled. The lower bound is set by `MIN_AGE_FLEXIBLE_LABOUR_SUPPLY`. A flexible adult without a partner, or with a partner who is not flexible, is evaluated individually. Where both partners are flexible, their choices are evaluated jointly.
 
 Each flexible adult chooses among seven mutually exclusive alternatives:
 

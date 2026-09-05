@@ -1,4 +1,4 @@
-# Modifying Tax-Benefit Parameters
+# Modifying Tax-Benefit Settings
 
 SimPaths does not hard-code a full tax-benefit system inside Java. Instead, tax and benefit outcomes are mainly read from donor data generated outside the model and then matched back onto simulated benefit units during a run.
 

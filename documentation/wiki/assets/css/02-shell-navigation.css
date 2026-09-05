@@ -440,14 +440,14 @@ body.sp-docs-navigation .md-sidebar--primary .md-nav__item:not(.md-nav__item--ne
 }
 
 body.sp-docs-navigation .md-sidebar--primary .md-nav--primary > .md-nav__list > .md-nav__item--active.md-nav__item--section > .md-nav__container > a.md-nav__link,
-body.sp-tab-model .md-sidebar--primary .md-nav--primary > .md-nav__list > .md-nav__item--active.md-nav__item--section > .md-nav__container > a.md-nav__link {
+html.sp-tab-model .md-sidebar--primary .md-nav--primary > .md-nav__list > .md-nav__item--active.md-nav__item--section > .md-nav__container > a.md-nav__link {
   color: var(--sp-midnight) !important;
   font-size: 0.75rem;
   font-weight: 720;
   letter-spacing: -0.005em;
 }
 
-body.sp-tab-model .md-sidebar--primary .md-nav--primary > .md-nav__list > .md-nav__item--active.md-nav__item--section > .md-nav__container {
+html.sp-tab-model .md-sidebar--primary .md-nav--primary > .md-nav__list > .md-nav__item--active.md-nav__item--section > .md-nav__container {
   margin-bottom: 0.55rem;
   padding-bottom: 0.45rem;
   border-bottom: 1px solid rgba(42, 56, 72, 0.105);

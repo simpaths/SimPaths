@@ -146,6 +146,7 @@ $RECYCLE.BIN/
 /target/
 /output/
 /site/
+/documentation/scripts/__pycache__/
 /documentation/visual-tests/node_modules/
 /documentation/visual-tests/playwright-report/
 /documentation/visual-tests/test-results/

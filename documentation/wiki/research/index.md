@@ -1,4 +1,5 @@
 ---
+title: Research
 hide:
   - navigation
   - toc
@@ -24,6 +25,13 @@ hide:
   <h2 id="further-references">Further references</h2>
 
   <div class="research-publications">
+
+  <article class="research-publication">
+    <p class="research-publication__source"><span>Conference abstract</span><span>European Journal of Public Health</span><span>2025</span></p>
+    <h3><a href="https://doi.org/10.1093/eurpub/ckaf161.076">Tax reforms vs benefit enhancement to address mental health inequalities: a microsimulation study</a></h3>
+    <p class="research-publication__authors">Igelström E, Kopasker D, Richiardi MG, Katikireddi SV</p>
+    <p class="research-publication__summary">Compares income-tax reforms alone with reforms combined with benefit increases, examining mental health inequalities in the UK. Published in the conference supplement, volume 35, supplement 4.</p>
+  </article>
 
   <article class="research-publication">
     <p class="research-publication__source"><span>Working paper</span><span>CeMPA WP 5/25</span></p>

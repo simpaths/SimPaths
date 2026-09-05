@@ -1,6 +1,6 @@
 # The SimPathsModel Class
 
-This page complements **[4.05 - The Model and the Schedule]** by explaining how SimPaths instantiates the generic JAS-mine scheduling framework in practice. It documents current SimPaths practice, not theory or design justification. It is not a complete specification of the model's behaviour, and should be read together with the codebase and validation documentation.
+This page complements [The Model and the Schedule](../jasmine/model-and-schedule.md) by explaining how SimPaths instantiates the generic JAS-mine scheduling framework in practice. It documents current SimPaths practice, not theory or design justification. It is not a complete specification of the model's behaviour, and should be read together with the codebase and validation documentation.
 
 ## 1. The SimPaths model manager
 
@@ -77,5 +77,4 @@ Scheduling, process identification, and process implementation are therefore sep
 Events in SimPaths may be defined during model construction or generated while the simulation is running. Processes can schedule additional events through the simulation engine when future actions must occur conditionally or at non-regular times.
 
 All dynamically created events are inserted into the same global event list and are executed according to simulation time and event ordering rules. Once scheduled, dynamically generated events are treated identically to pre-scheduled events. This allows model evolution to depend on realised states rather than only on predetermined schedules.
-
 

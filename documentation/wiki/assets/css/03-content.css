@@ -196,8 +196,8 @@
   --sp-code-text: #242a31;
   --sp-code-muted: #6f7780;
   --sp-code-keyword: #9d3169;
-  --sp-code-function: #6e4bb7;
-  --sp-code-type: #216b98;
+  --sp-code-function: #79552c;
+  --sp-code-type: #70428c;
   --sp-code-string: #2b704b;
   --sp-code-number: #b64d3b;
   --sp-code-operator: #495661;
@@ -213,11 +213,11 @@
   --sp-code-border: rgba(220,229,239,0.16);
   --sp-code-text: #d6e0e8;
   --sp-code-muted: #91a0ad;
-  --sp-code-keyword: #8bc6e2;
+  --sp-code-keyword: #e2a3c4;
   --sp-code-function: #d8b980;
-  --sp-code-type: #accde0;
+  --sp-code-type: #c6afe9;
   --sp-code-string: #9ec9aa;
-  --sp-code-number: #c0abd8;
+  --sp-code-number: #e9ad92;
   --sp-code-operator: #aebdca;
   --sp-code-annotation: #d5a4bd;
   --sp-code-error: #ffb5b5;
@@ -226,29 +226,18 @@
 
 .md-typeset code {
   border-radius: 0.35rem;
-  font-size: 0.78em;
-  font-weight: 520;
+  font-size: 0.95em;
+  font-weight: 450;
 }
 
 .md-typeset :not(pre) > code {
   padding: 0;
-  color: #1f5d84;
+  color: var(--sp-code-text);
   background: transparent;
   border: 0;
   border-radius: 0;
   box-shadow: none;
-  font-weight: 610;
-}
-
-[data-md-color-scheme="slate"] .md-typeset code {
-  color: #8dd0f7;
-}
-
-[data-md-color-scheme="slate"] .md-typeset :not(pre) > code {
-  color: #8dcef4;
-  background: transparent;
-  border: 0;
-  box-shadow: none;
+  font-weight: 450;
 }
 
 .md-typeset pre > code {
@@ -412,23 +401,26 @@
 .md-typeset .highlight .kr,
 .md-typeset .highlight .kt,
 .md-typeset .highlight .nb,
-.md-typeset .highlight .bp {
+.md-typeset .highlight .bp,
+.md-typeset code .sp-code-keyword {
   color: var(--sp-code-keyword) !important;
   font-weight: 650;
 }
 
 .md-typeset .highlight .nf,
-.md-typeset .highlight .fm {
+.md-typeset .highlight .fm,
+.md-typeset code .sp-code-function {
   color: var(--sp-code-function) !important;
 }
 
-.md-typeset .highlight .na,
 .md-typeset .highlight .nc,
-.md-typeset .highlight .nn {
+.md-typeset .highlight .nn,
+.md-typeset code .sp-code-type {
   color: var(--sp-code-type) !important;
 }
 
 .md-typeset .highlight .n,
+.md-typeset .highlight .na,
 .md-typeset .highlight .nv,
 .md-typeset .highlight .vc,
 .md-typeset .highlight .vg,
@@ -444,14 +436,16 @@
 .md-typeset .highlight .s1,
 .md-typeset .highlight .s2,
 .md-typeset .highlight .sb,
-.md-typeset .highlight .dl {
+.md-typeset .highlight .dl,
+.md-typeset code .sp-code-string {
   color: var(--sp-code-string) !important;
 }
 
 .md-typeset .highlight .m,
 .md-typeset .highlight .mi,
 .md-typeset .highlight .mf,
-.md-typeset .highlight .kc {
+.md-typeset .highlight .kc,
+.md-typeset code .sp-code-number {
   color: var(--sp-code-number) !important;
 }
 

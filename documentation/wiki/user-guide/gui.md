@@ -5,23 +5,7 @@ In this section, we discuss the different components that make up the JAS-mine G
 
 ![SimPaths GUI Screenshot](../figures/GUI/SimPaths%20GUI.png)
 
-JAS-mine supports three different types of execution mode:- [interactive mode](https://www.microsimulation.ac.uk/jas-mine/resources/cookbook/start/), [batch mode](https://www.microsimulation.ac.uk/jas-mine/resources/cookbook/start/) and [multi-run mode](https://www.microsimulation.ac.uk/jas-mine/resources/tutorials/run-a-simulation-many-times/). The most common mode for prototyping a JAS-mine project, developing an intuition about how it works and demonstrating it to an audience is the interactive mode. This features a graphical user interface, where model parameters can be set and updated during a simulation run, and pre-determined graphical objects can be displayed to allow for real-time inspection of a number of the model's output quantities.
-
-The interactive mode is launched by default when executing the Start class of a standard JAS-mine project (as created using the JAS-mine Plugin for Eclipse IDE tool). In order to turn off the GUI when using a standard JAS-mine project, the user should go to the main method in the project's Start class, and ensure that the Boolean variable `showGUI` (defined in the first line of the main method) is set to false:
-```java
-public static void main(String[] args) {  
-
-    boolean showGui = true;    // Toggle GUI on (off) by setting showGUI to true (false) 
-    SimulationEngine engine = SimulationEngine.getInstance(); 
-    MicrosimShell gui = null;
-    if (showGui) { 
-        gui = new MicrosimShell(engine);
-        gui.setVisible(true); 
-    }  
-    engine.setBuilderClass(StartDemo.class);
-    engine.setup();
-}
-```
+SimPaths uses the JAS-mine interface for interactive single runs. Start it with `java -jar singlerun.jar`; use `-g false` for headless execution. There is no need to edit a demo start class or install an Eclipse project-generation plugin. See [Single Runs](single-runs.md) for the supported commands.
 
 ## 2. First GUI run with bundled training data
 
@@ -115,7 +99,7 @@ Below the Menu tabs are the simulation control buttons. The user can easily disc
 * **Start simulation** – starts the execution of the simulation (note that the model must be built before it can be executed – this is done by clicking on the 'Build simulation model' button to the immediate left).
 * **Execute next scheduled action** – if the simulation is paused (see Pause button to the immediate right), by clicking on this button, the user can execute the next action scheduled in the simulation. This allows the user to perform a step-by-step execution of the simulation. To continue the simulation as normal, press the 'Start simulation' button again.
 * **Pause simulation** – pauses the simulation model. Press the 'Start simulation' button to continue the simulation.
-* **Update parameters in the live simulation** – if the user desires to change some of the [GUI parameters](https://www.microsimulation.ac.uk/jas-mine/resources/cookbook/gui-parameters/) (see 'Parameter Boxes' below) while the simulation is still running, first update the values of the GUI parameters and then click on this button. This is useful, for example, in seeing the impact of step changes in the parameters on the equilibrium state of a simulation model. Note that only parameters that are accessed by the model during the simulation after the update button has been clicked can have any impact on the simulation. For example, if a simulation uses a GUI parameter to determine the size of an agent population at the start of the simulation, and the population is subsequently evolved, the population size will not change despite the population size parameter having been updated if this parameter is only ever used by the model at the start of the simulation. In order to have a population size parameter that affects population size during the simulation, the model developer would need to explicitly code the simulation to check the size of the population at scheduled times during the simulation, and delete / create agents if the population size differs from the population size parameter.
+* **Update parameters in the live simulation** updates exposed settings while the model is running. Only subsequently read values take effect; see [Parameter Boxes](#33-parameter-boxes) for the distinction between initialisation and live settings.
 
 In addition, the toggle box **'Turn off database'** disables JAS-mine's [object-relational mapping](https://www.microsimulation.ac.uk/jas-mine/resources/focus/object-relational-mapping/) to the relational database management system. In this way, simulations with this toggle box ticked are running JAS-mine 'lite' – a lighter version without any of the database machinery. This may be useful if, for example, the user has no need of input or output databases in their simulation, and they want a way of reducing the memory requirements of their simulation and to potentially increase the speed of execution. Note that an exception will be thrown if a model requiring data from an input database is attempted to be built whilst the 'Turn off database' toggle box is ticked.
 
@@ -129,13 +113,15 @@ A JAS-mine model's *[GUI parameters](https://www.microsimulation.ac.uk/jas-mine/
 
 The description of a GUI parameter can be observed by hovering the mouse pointer over the value, upon which a yellow box containing the description appears if it has been defined as an attribute in the `@GUIparameter` annotation where the variable is declared, e.g.:
 ```java
-@GUIparameter(description = "Country to be simulated")
-private Country country = Country.IT;
+@GUIparameter(description = "Simulated population size (base year)")
+private Integer popSize = 50000;
 ```
 
-The type of parameters determines the way they are presented in the boxes, with boxes to hold numerical values, tick boxes for Boolean 'toggle' variables, and drop down menus enumerating categories. In the figure above, the Country drop down menu appears after clicking on the value to the right of the Country label (Country is an Enum variable that can hold one of a finite set of values). The default values in the parameter boxes are the values hard-coded to the GUI parameters in the manager classes. If the user wants to change the default values of the GUI parameters, this must be done in the code.
+Numeric fields use input boxes, Boolean fields use toggles, and enums can use category selectors. The controls shown depend on the revision; a historical screenshot is not an authoritative list of current settings.
 
-The GUI parameters can be adjusted from their default values before the model is built, or even during the execution of the simulation, although in this latter case the 'Update parameters in the live simulation' button in the Simulation Control Pane must be clicked for any parameters in the simulation to be updated. This is useful, for example, in seeing the impact of step changes in the parameters on the equilibrium state of a simulation model. Note that only parameters that are accessed by the model during the simulation after the update button has been clicked can have any impact on the simulation. For example, if a simulation uses a GUI parameter to determine the size of an agent population at the start of the simulation, and the population is subsequently evolved, the population size will not change despite the population size parameter having been updated if this parameter is only ever used by the model at the start of the simulation. In order to have a population size parameter that affects population size during the simulation, the model developer would need to explicitly code the simulation to check the size of the population at scheduled times during the simulation, and remove / add agents if the population size differs from the population size parameter.
+Set initialisation parameters before building the model. For live changes, edit the value and click **Update parameters in the live simulation**. Only code that reads the updated value afterwards can respond. Changing `popSize` during a run does not recreate the starting population.
+
+For code changes that expose a new setting, see [Add Parameters to the GUI](../developer-guide/how-to/add-gui-parameters.md).
 
 ### 3.4 Graphical Widgets (Charts)
 

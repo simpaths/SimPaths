@@ -1,9 +1,13 @@
+---
+title: Documentation
+---
+
 <div class="docs-hub docs-hub--index" markdown="1">
 
 <div class="docs-index__masthead">
   <div class="docs-index__mark" aria-hidden="true">
-    <img class="docs-index__mark-image docs-index__mark-image--light" src="../assets/images/documentation-logo-mark.svg" alt="">
-    <img class="docs-index__mark-image docs-index__mark-image--dark" src="../assets/images/documentation-logo-mark-dark.svg" alt="">
+--8<-- "documentation/wiki/assets/images/documentation-logo-mark.svg"
+--8<-- "documentation/wiki/assets/images/documentation-logo-mark-dark.svg"
   </div>
   <div class="docs-index__heading">
     <h1>SimPaths Documentation</h1>

@@ -106,4 +106,4 @@ Once the first run works, the next useful pages are:
 
 - [Single Runs](../user-guide/single-runs.md)
 - [Multiple Runs](../user-guide/multiple-runs.md)
-- [Modifying Tax-Benefit Parameters](../user-guide/tax-benefit-parameters.md)
+- [Modifying Tax-Benefit Settings](../user-guide/tax-benefit-parameters.md)

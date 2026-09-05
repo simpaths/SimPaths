@@ -14,7 +14,7 @@ The model distinguishes people above and below an age threshold when projecting 
 
 ### Older people
 
-For people aged 65 or over in the UK parametrisation, the model first determines whether care is needed. A probit equation conditions on gender, education, partnership status, whether care was needed in the preceding year, self-reported health and age. A similar set of characteristics is used to project whether care is received.
+For people aged 65 or over in the UK parameterisation, the model first determines whether care is needed. A probit equation conditions on gender, education, partnership status, whether care was needed in the preceding year, self-reported health and age. A similar set of characteristics is used to project whether care is received.
 
 For a person projected to receive care, a multinomial logit distinguishes among informal care only, formal and informal care, and formal care only. The equation also includes education, partnership status, age band and a lagged dependent variable.
 

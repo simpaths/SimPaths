@@ -63,17 +63,23 @@
 
   const updateSiteState = () => {
     const body = document.body;
-    managedBodyClasses.forEach((className) => body.classList.remove(className));
+    const pageRoots = [document.documentElement, body];
+    const togglePageClass = (className, active) => {
+      pageRoots.forEach((root) => root.classList.toggle(className, active));
+    };
+    managedBodyClasses.forEach((className) => {
+      pageRoots.forEach((root) => root.classList.remove(className));
+    });
 
-    body.classList.toggle("sp-page-home", Boolean(document.querySelector(".simpaths-home-hero")));
-    body.classList.toggle("sp-page-docs-index", Boolean(document.querySelector(".docs-hub--index")));
-    body.classList.toggle("sp-page-funding", Boolean(document.querySelector(".funding-page")));
-    body.classList.toggle("sp-page-roadmap", Boolean(document.querySelector(".roadmap-page")));
-    body.classList.toggle(
+    togglePageClass("sp-page-home", Boolean(document.querySelector(".simpaths-home-hero")));
+    togglePageClass("sp-page-docs-index", Boolean(document.querySelector(".docs-hub--index")));
+    togglePageClass("sp-page-funding", Boolean(document.querySelector(".funding-page")));
+    togglePageClass("sp-page-roadmap", Boolean(document.querySelector(".roadmap-page")));
+    togglePageClass(
       "sp-page-validation",
       Boolean(document.querySelector(".validation-page-marker"))
     );
-    body.classList.toggle(
+    togglePageClass(
       "sp-reserve-toc-space",
       Boolean(
         document.querySelector(
@@ -84,8 +90,8 @@
 
     const activeTab = document.querySelector(".md-tabs__item--active .md-tabs__link")
       ?.textContent.trim().toLocaleLowerCase();
-    body.classList.toggle("sp-tab-model", activeTab === "model");
-    body.classList.toggle("sp-tab-documentation", activeTab === "documentation");
+    togglePageClass("sp-tab-model", activeTab === "model");
+    togglePageClass("sp-tab-documentation", activeTab === "documentation");
 
     markNavigationState();
     bindSearchState();

@@ -10,13 +10,13 @@ title: Health
 
 ## Physical health
 
-Physical health is projected on a discrete five-point scale corresponding to self-reported survey responses from poor to excellent. Dynamics are estimated with an ordered probit model that distinguishes people who remain in continuous education from those who have left it.
+Self-rated health is projected on a five-point scale from poor to excellent. The current UK implementation uses a generalised ordered logit model (process H1), which allows relationships with the explanatory variables to differ across health thresholds.
 
-For continuing full-time students, the equation conditions on gender, age, lagged benefit-unit income quintile, lagged physical health, region and year. For people who have left continuous education, it also includes education, lagged employment status and lagged benefit-unit composition.
+The equation includes student status, gender, age, education, lagged SF-12 physical and mental health scores, lagged employment, income quintile, household composition and disability, as well as region, ethnicity and time effects. It is one model with these covariates, not separate equations for students and other adults.
 
 ## Long-term sickness and disability
 
-Any person aged 16 or over who is not in continuous education may become long-term sick or disabled. The probability is described by a probit equation conditional on lagged disability, current and lagged physical health, gender, age, education, income quintile and lagged family demographics.
+For people aged 16 or over who have left continuous education, a probit model (H2) determines long-term sickness or disability. Its covariates include lagged disability, lagged SF-12 physical and mental health scores, gender, age, education, lagged income quintile and household composition, region, ethnicity and time effects. Under intertemporal optimisation, this process also depends on the disability setting in the decision model.
 
 The disability decision is integrated into the physical-health implementation rather than run as a separate module.
 
@@ -38,5 +38,11 @@ The diagram shows the combined physical-health and disability process.
 ## Psychological distress
 
 SimPaths also projects psychological distress using the 12-item General Health Questionnaire. Its baseline estimates and subsequent adjustments for economic transitions and the Covid-19 period are described on the [Mental health](mental-health.md) page.
+
+## Other health and wellbeing measures
+
+Self-rated health is distinct from the continuous SF-12 physical and mental component scores (PCS and MCS). The implementation also projects these scores and life satisfaction using the equations in `reg_health_wellbeing.xlsx`. These outcomes should not be described as the five-category H1 process.
+
+The descriptions above follow the [UK parameter-loading code](https://github.com/simpaths/SimPaths/blob/b223738b9cdf1d814cc3c6f09b04bc4930d3c667/src/main/java/simpaths/data/Parameters.java) and [health estimation script](https://github.com/simpaths/SimPaths/blob/b223738b9cdf1d814cc3c6f09b04bc4930d3c667/input/InitialPopulations/compile/RegressionEstimates/05_reg_health.do). For reproducible analysis, record the code revision and parameter files used; historical releases and diagrams may describe earlier specifications.
 
 </div>
