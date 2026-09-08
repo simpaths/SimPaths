@@ -2581,6 +2581,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         demAge_12,
         demAge_13,
         demAge_14,
+	Dnc_L1_,
         Ded_Ydses_c5_Q3_L1,
         Ded_Ydses_c5_Q4_L1,
         Ded_Ydses_c5_Q5_L1,
@@ -2713,6 +2714,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         Dnc_L1, 						//Lag(1) of number of children of all ages in the benefitUnit
         Dnc02_L1, 						//Lag(1) of number of children aged 0-2 in the benefitUnit
         Dnc017, 						//Number of children aged 0-17 in the benefitUnit
+	PersistentEmployed,
         EmployedToUnemployed,
         Employmentsonflexiblefurlough,
         Employmentsonfullfurlough,
@@ -2733,6 +2735,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         Female,
         FertilityRate,
         FinancialDistress,
+	L_FinancialDistress,
         GrossEarningsYearly,
         GrossLabourIncomeMonthly,
         InverseMillsRatio,
@@ -2798,6 +2801,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         PersistentPoverty,
         PersistentUnemployed,
         PovertyToNonPoverty,
+	NoPoverty,
         Pt,
         Reached_Retirement_Age,						//Indicator whether individual is at or above retirement age
         Reached_Retirement_Age_Les, //Interaction term for being at or above retirement age and not employed in the previous year
@@ -2997,8 +3001,10 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         Ypnbihs_dv_L1,								//Gross personal non-benefit income lag(1)
         Ypnbihs_dv_L1_sq,							//Square of gross personal non-benefit income lag(1)
         Ypncp_L1,									//Lag(1) of capital income
+	L_Ypncp,
         Ypncp_L2,									//Lag(2) of capital income
         Ypnoab_L1,									//Lag(1) of pension income
+	L_Ypnoab,
         Ypnoab_L2,									//Lag(2) of pension income
         Yptciihs_dv_L1,								//Lag(1) of gross personal non-employment non-benefit income
         Yptciihs_dv_L2,								//Lag(2) of gross personal non-employment non-benefit income
@@ -4277,6 +4283,9 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
             case Dhmghq_L1 -> {
                 return gethealthPsyDstrss_lag1();
             }
+            case Dnc_L1_ -> {
+                return getDoubleValue(DoublesVariables.Dnc_L1);
+            }
             case Dhesp_L1 -> {
                 return (healthPartnerSelfRatedL1 != null) ? (double) healthPartnerSelfRatedL1.getValue() : 0.0;
             }
@@ -5115,13 +5124,13 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
             case Yptciihs_dv_L3 -> {
                 return yMiscPersGrossMonthL3;
             }
-            case Ypncp_L1 -> {
+            case Ypncp_L1, L_Ypncp -> {
                 return yCapitalPersMonthL1;
             }
             case Ypncp_L2 -> {
                 return yCapitalPersMonthL2;
             }
-            case Ypnoab_L1 -> {
+            case Ypnoab_L1, L_Ypnoab -> {
                 return yPensPersGrossMonthL1;
             }
             case Ypnoab_L2 -> {
@@ -5186,6 +5195,10 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
             case PersistentUnemployed -> {
                 return (labC4.equals(Les_c4.NotEmployed) && labC4L1.equals(Les_c4.NotEmployed) && healthDsblLongtermFlag.equals(Indicator.False) && healthDsblLongtermFlagL1.equals(Indicator.False)) ? 1. : 0.;
             }
+	    case PersistentEmployed -> {
+		    // Take the negative of the coefficient for the EmployedToUnemployed refactored baseline
+                return (labC4L1.equals(Les_c4.EmployedOrSelfEmployed) && labC4.equals(Les_c4.NotEmployed) && healthDsblLongtermFlag.equals(Indicator.False)) ? -1. : 0.;
+	    }
             case NonPovertyToPoverty -> {
                 if (benefitUnit.getYPvrtyFlagL1() != null) {
                     return (benefitUnit.getYPvrtyFlagL1() == 0 && benefitUnit.getYPvrtyFlag() == 1) ? 1. : 0.;
@@ -5201,6 +5214,12 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
                     return (benefitUnit.getYPvrtyFlagL1() == 1 && benefitUnit.getYPvrtyFlag() == 1) ? 1. : 0.;
                 } else return 0.;
             }
+	    case NoPoverty -> {
+		    // Take the negative of the coefficient for the NonPovertyToPoverty refactored baseline
+                if (benefitUnit.getYPvrtyFlagL1() != null) {
+                    return (benefitUnit.getYPvrtyFlagL1() == 0 && benefitUnit.getYPvrtyFlag() == 1) ? -1. : 0.;
+                } else return 0.;
+	    }
             case RealIncomeChange -> {
                 return (benefitUnit.getYearlyChangeInLogEDI());
             }
@@ -5894,7 +5913,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
             case econ_benefits_L1 -> {
                 return isReceivesBenefitsFlag_L1() ? 1. : 0.;
             }
-            case financial_distress_L1 -> {
+            case financial_distress_L1, L_FinancialDistress -> {
                 return (yFinDstrssFlag != null && yFinDstrssFlag) ? 1. : 0.;
             }
             case labWageHrlyL1 -> {
