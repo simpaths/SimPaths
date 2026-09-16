@@ -146,7 +146,6 @@ save "$dir_data\UKHLS_pooled_ipop.dta", replace /*panel dataset with missing val
 forvalues yy = $firstSimYear/$lastSimYear {
 * load pooled data with missing values removed  
 	use "$dir_data\ukhls_pooled_ipop.dta", clear
-	rename *, l
 	
 	* limit year
 	global year = `yy'
@@ -195,22 +194,22 @@ forvalues yy = $firstSimYear/$lastSimYear {
 	keep idhh idbenefitunit idperson idpartner idmother idfather swv dgn dag dnc02 dnc ded deh_c3 deh_c4 sedex dlltsd01 dhe ydses_c5 ///
 	yplgrs_dv ypnbihs_dv yptciihs_dv dcpyy dcpagdf ynbcpdf_dv der dehm_c3 dehf_c3 stm dhm scghq2_dv dhh_owned lhw ///
 	l1_lhw drgn1 les_c4 dhm_ghq adultchildflag dwt obs_earnings_hourly l1_obs_earnings_hourly total_wealth ///
-	total_pensions housing_wealth mortgage_debt need_socare formal_socare_hrs informal_socare_hrs formal_socare_cost ///
-	carehoursprovidedweekly econ_benefits econ_benefits_nonuc econ_benefits_uc disp_inc ypncp ypnoab dhe_mcs dhe_pcs dhe_mcssp ///
+	total_pensions housing_wealth mortgage_debt unsecured_low_debt unsecured_high_debt contRateOPEe contRateOPEr contRatePP need_socare formal_socare_hrs informal_socare_hrs formal_socare_cost ///
+	careHoursProvidedWeekly econ_benefits econ_benefits_nonuc econ_benefits_uc disp_inc ypncp ypnoab dhe_mcs dhe_pcs dhe_mcssp ///
 	dhe_pcssp dls dot dot01 unemp financial_distress liwwh
-	
+
 	order idhh idbenefitunit idperson idpartner idmother idfather swv dgn dag dnc02 dnc ded deh_c3 deh_c4 sedex dlltsd01 dhe ydses_c5 ///
 	yplgrs_dv ypnbihs_dv yptciihs_dv dcpyy dcpagdf ynbcpdf_dv der dehm_c3 dehf_c3 stm dhm scghq2_dv dhh_owned lhw ///
 	l1_lhw drgn1 les_c4 dhm_ghq adultchildflag dwt obs_earnings_hourly l1_obs_earnings_hourly total_wealth ///
-	total_pensions housing_wealth mortgage_debt need_socare formal_socare_hrs informal_socare_hrs formal_socare_cost ///
-	carehoursprovidedweekly econ_benefits econ_benefits_nonuc econ_benefits_uc disp_inc ypncp ypnoab dhe_mcs dhe_pcs dhe_mcssp ///
+	total_pensions housing_wealth mortgage_debt unsecured_low_debt unsecured_high_debt contRateOPEe contRateOPEr contRatePP need_socare formal_socare_hrs informal_socare_hrs formal_socare_cost ///
+	careHoursProvidedWeekly econ_benefits econ_benefits_nonuc econ_benefits_uc disp_inc ypncp ypnoab dhe_mcs dhe_pcs dhe_mcssp ///
 	dhe_pcssp dls dot dot01 unemp financial_distress liwwh
-	
+
 	recode idhh idbenefitunit idperson idpartner idmother idfather swv dgn dag dnc02 dnc ded deh_c3 deh_c4 sedex dlltsd01 dhe ydses_c5 ///
 	yplgrs_dv ypnbihs_dv yptciihs_dv dcpyy dcpagdf ynbcpdf_dv der dehm_c3 dehf_c3 stm dhm scghq2_dv dhh_owned lhw ///
 	l1_lhw drgn1 les_c4 dhm_ghq adultchildflag dwt obs_earnings_hourly l1_obs_earnings_hourly total_wealth ///
-	total_pensions housing_wealth mortgage_debt need_socare formal_socare_hrs informal_socare_hrs formal_socare_cost ///
-	carehoursprovidedweekly econ_benefits econ_benefits_nonuc econ_benefits_uc disp_inc ypncp ypnoab dhe_mcs dhe_pcs dhe_mcssp ///
+	total_pensions housing_wealth mortgage_debt unsecured_low_debt unsecured_high_debt contRateOPEe contRateOPEr contRatePP need_socare formal_socare_hrs informal_socare_hrs formal_socare_cost ///
+	careHoursProvidedWeekly econ_benefits econ_benefits_nonuc econ_benefits_uc disp_inc ypncp ypnoab dhe_mcs dhe_pcs dhe_mcssp ///
 	dhe_pcssp dls dot dot01 unemp financial_distress liwwh (missing = -9)
 	
 	
@@ -274,15 +273,14 @@ rename dot01 demEthnC6
 * --- Income, labour, wealth ---
 rename obs_earnings_hourly labWageHrly
 rename l1_obs_earnings_hourly labWageHrlyL1
-//rename liquid_wealth wealthLiq
-//rename tot_pen wealthPensValue
-//rename nvmhome wealthPrptyValue
 
 rename disp_inc yDispMonth //disposable income at the benefit unit level                 
 rename total_wealth wealthTotValue   //total wealth net of liabilities of benefit unit including housing, business and
 rename mortgage_debt wealthMortgageDebtValue  //total mortgage debt owed on main home of benefit unit
 rename housing_wealth wealthPrptyValue //value of main home gross of mortgage debt of benefit unit
 rename total_pensions wealthPensValue //value of all private (personal and occupational) pensions of benefit unit
+rename unsecured_low_debt wealthUnsecuredDebtLowValue //value of low-cost unsecured debt of benefit unit
+rename unsecured_high_debt wealthUnsecuredDebtHighValue //value of high-cost unsecured debt of benefit unit
 
 rename econ_benefits yBenReceivedFlag
 rename econ_benefits_nonuc yBenNonUCReceivedFlag
@@ -302,7 +300,7 @@ rename need_socare careNeedFlag
 rename formal_socare_hrs careHrsFormal
 rename informal_socare_hrs careHrsInformal
 rename formal_socare_cost careFormalX
-rename carehoursprovidedweekly careHrsProvidedWeek
+rename careHoursProvidedWeekly careHrsProvidedWeek
 
 * --- Health & wellbeing ---
 rename dhm healthWbScore0to36
@@ -317,7 +315,7 @@ rename financial_distress yFinDstrssFlag
 
 save "$dir_data/population_initial_UK_$year.dta", replace /*panel dataset with missing values removed*/
 
-recode demMaleFlag yDispMonth wealthTotValue  wealthMortgageDebtValue  wealthPrptyValue wealthPensValue ///
+recode demMaleFlag yDispMonth wealthTotValue  wealthMortgageDebtValue wealthUnsecuredDebtLowValue wealthUnsecuredDebtHighValue wealthPrptyValue wealthPensValue ///
 	careNeedFlag careHrsFormal careHrsInformal careFormalX careHrsProvidedWeek (-9=0)
 
 	export delimited using "$dir_data/population_initial_UK_$year.csv", nolabel replace

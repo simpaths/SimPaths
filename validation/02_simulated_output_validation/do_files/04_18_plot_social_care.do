@@ -2,11 +2,20 @@
 * PROJECT:  		SimPaths UK 
 * SECTION:			Validation
 * OBJECT: 			Social care
-* AUTHORS:			Ashley Burdett 
-* LAST UPDATE:		Feb 2026
-* COUNTRY: 			UK 
+* AUTHORS:			Ashley Burdett
+* LAST UPDATE:		Aug 2026
+* COUNTRY: 			UK
+* DESCRIPTION: 		Plots validation graphs comparing simulated vs. UKHLS
+* 					social care: need for care (1.1), receiving care (1.2),
+* 					type of care received (1.3), hours of care received --
+* 					overall/informal/formal, incl. quantile means (1.4-1.7),
+* 					providing care (1.8-1.9), and formal care spending
+* 					(1.10). Most subsections split by gender and/or age
+* 					group. Uses a shared plotting program (make_care_plot,
+* 					section 0), with a shaded band (mean +/- 1.96*SD across
+* 					$max_n_runs runs).
 ********************************************************************************
-* NOTES: 			
+* NOTES:
 *******************************************************************************/
 
 clear all 
@@ -81,7 +90,7 @@ collapse (mean) sim_careNeedFlag, by(year run)
 collapse (mean) sim_careNeedFlag ///
 		 (sd) sim_careNeedFlag_sd = sim_careNeedFlag, by(year)
 
-* Compute 95% confidence intervals
+
 gen sim_careNeedFlag_h = sim_careNeedFlag + 1.96*sim_careNeedFlag_sd
 gen sim_careNeedFlag_l = sim_careNeedFlag - 1.96*sim_careNeedFlag_sd
 
@@ -94,7 +103,7 @@ make_care_plot, ///
 	title("In Need of Care") ///
 	subtitle("Ages 65+") ///
 	saving("validation_${country}_need_care_ts_65plus_both") ///
-	note(`""Notes: ""') 
+	note(`""Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""') 
 
 graph drop _all 	
 	
@@ -128,7 +137,7 @@ collapse (mean) sim_careNeedFlag, by(year demMaleFlag run)
 collapse (mean) sim_careNeedFlag ///
 		 (sd) sim_careNeedFlag_sd = sim_careNeedFlag, by(year demMaleFlag)
 
-* Compute 95% confidence intervals
+
 gen sim_careNeedFlag_h = sim_careNeedFlag + 1.96*sim_careNeedFlag_sd
 gen sim_careNeedFlag_l = sim_careNeedFlag - 1.96*sim_careNeedFlag_sd
 
@@ -172,7 +181,7 @@ grc1leg health_female health_male, ///
 	legendfrom(health_female) rows(1) ///
 	ycomm ///
 	graphregion(color(white)) ///
-	note("Notes:  ", ///
+	note("Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))	
 	
 * Save figure
@@ -270,7 +279,6 @@ collapse (mean) care* ///
 		 , by(year)
 
 	
-* Approx 95% confidence interval 
 forvalues i=1(1)6 {
 	
 	gen care_f_`i'_sim_high = care_f`i' + 1.96*care_f_`i'_sd
@@ -358,7 +366,6 @@ foreach vble in "care_f" "care_m" {
 		legend(size(small)) ///
 		graphregion(color(white))
 
-
 }
 
 * Save figures
@@ -368,7 +375,7 @@ grc1leg care_f_1 care_f_2 care_f_3 care_f_4 care_f_5 care_f_6 , ///
 	legendfrom(care_f_1) ///
 	ycomm ///
 	graphregion(color(white)) ///
-note("Notes:  ", ///
+note("Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall)) 	
 	
 graph export ///
@@ -382,7 +389,7 @@ grc1leg care_m_1 care_m_2 care_m_3 care_m_4 care_m_5 care_m_6, ///
 	legendfrom(care_m_1) ///
 	ycomm ///
 	graphregion(color(white)) ///
-note("Notes: ", ///
+note("Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall)) 	
 	
 graph export ///
@@ -390,27 +397,6 @@ graph export ///
 	replace width(2400) height(1350) quality(100)
 
 graph drop _all 	
-
-
-/*
-* Define the subtitles in a local macro
-local titles "65-69" "70-74" "75-79" "80-84" "85-89" "90+"
-
-foreach vble in "care_f" "care_m" {
-    forvalues i = 1/6 {
-		
-        local t : word `i' of `titles'  
-        
-        twoway (rarea `vble'_`i'_sim_high `vble'_`i'_sim_low year, ///
-			sort color(red%20)) ///
-               (line `vble'_`i'_valid year, sort color(red)), ///
-               subtitle("Age `t'") name(`vble'_`i', replace) ///
-               ylabel(0(0.3)0.9, labsize(vsmall)) ///  
-               graphregion(color(white)) legend(off) 
-			   
-    }
-}
-*/
 
 
 ********************************************************************************
@@ -442,7 +428,7 @@ collapse (mean) sim_careReceiveFlag, by(year run)
 collapse (mean) sim_careReceiveFlag ///
 		 (sd) sim_careReceiveFlag_sd = sim_careReceiveFlag, by(year)
 
-* Compute 95% confidence intervals
+
 gen sim_careReceiveFlag_h = sim_careReceiveFlag + 1.96*sim_careReceiveFlag_sd
 gen sim_careReceiveFlag_l = sim_careReceiveFlag - 1.96*sim_careReceiveFlag_sd
 
@@ -455,7 +441,7 @@ make_care_plot, ///
 	title("Receive Care") ///
 	subtitle("Ages 65+") ///
 	saving("validation_${country}_receive_care_ts_65plus_both") ///
-	note(`""Notes: ""') 
+	note(`""Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""') 
 	
 	
 ********************************************************************************
@@ -487,7 +473,7 @@ collapse (mean) sim_careReceiveFlag, by(year demMaleFlag run)
 collapse (mean) sim_careReceiveFlag ///
 		 (sd) sim_careReceiveFlag_sd = sim_careReceiveFlag, by(year demMaleFlag)
 
-* Compute 95% confidence intervals
+
 gen sim_careReceiveFlag_h = sim_careReceiveFlag + 1.96*sim_careReceiveFlag_sd
 gen sim_careReceiveFlag_l = sim_careReceiveFlag - 1.96*sim_careReceiveFlag_sd
 
@@ -531,7 +517,7 @@ grc1leg health_female health_male, ///
 	legendfrom(health_female) rows(1) ///
 	ycomm ///
 	graphregion(color(white)) ///
-	note("Notes:  ", ///
+	note("Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))	
 	
 * Save figure
@@ -627,7 +613,6 @@ collapse (mean) care* ///
 		 , by(year)
 
 	
-* Approx 95% confidence interval 
 forvalues i=1(1)6 {
 	
 	gen care_f_`i'_sim_high = care_f`i' + 1.96*care_f_`i'_sd
@@ -724,7 +709,7 @@ grc1leg care_f_1 care_f_2 care_f_3 care_f_4 care_f_5 care_f_6 , ///
 	legendfrom(care_f_1) ///
 	ycomm ///
 	graphregion(color(white)) ///
-note("Notes:  ", ///
+note("Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall)) 	
 	
 graph export ///
@@ -738,7 +723,7 @@ grc1leg care_m_1 care_m_2 care_m_3 care_m_4 care_m_5 care_m_6, ///
 	legendfrom(care_m_1) ///
 	ycomm ///
 	graphregion(color(white)) ///
-note("Notes: ", ///
+note("Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall)) 	
 	
 graph export ///
@@ -787,7 +772,7 @@ collapse (mean) sim_careRecFormalOnly sim_careRecInformalOnly ///
 		 (sd) sim_careRecMix_sd = sim_careRecMix ///
 		 , by(year)
 
-* Compute 95% confidence intervals
+
 foreach varname in sim_careRecFormalOnly sim_careRecInformalOnly ///
 	sim_careRecMix {
 	
@@ -821,7 +806,7 @@ twoway ///
 		ylabel(, labsize(small)) ///			
         graphregion(color(white)) ///
 		legend(size(small)) ///
-	note("Note: Only those receiving care included in the sample. ", ///
+	note("Note: Only those receiving care included in the sample. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 		size(vsmall))  
     
 graph export ///
@@ -870,7 +855,7 @@ collapse (mean) sim_careRecFormalOnly sim_careRecInformalOnly ///
 		 (sd) sim_careRecMix_sd = sim_careRecMix ///
 		 , by(year demMaleFlag)
 
-* Compute 95% confidence intervals
+
 foreach varname in sim_careRecFormalOnly sim_careRecInformalOnly ///
 	sim_careRecMix {
 	
@@ -910,7 +895,7 @@ twoway ///
 		ylabel(, labsize(small)) ///			
         graphregion(color(white)) ///
 		legend(size(small)) ///
-	note("Note: Only those receiving care included in the sample. ", ///
+	note("Note: Only those receiving care included in the sample. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 		size(vsmall))  
     
 graph export ///
@@ -945,7 +930,7 @@ twoway ///
 		ylabel(, labsize(small)) ///			
         graphregion(color(white)) ///
 		legend(size(small)) ///
-	note("Note: Only those recieving care included in the sample. ", ///
+	note("Note: Only those recieving care included in the sample. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 		size(vsmall))  
     
 graph export ///
@@ -988,7 +973,7 @@ collapse (mean) sim_careReceiveHrs, by(year run)
 collapse (mean) sim_careReceiveHrs ///
 		 (sd) sim_careReceiveHrs_sd = sim_careReceiveHrs, by(year)
 
-* Compute 95% confidence intervals
+
 gen sim_careReceiveHrs_h = sim_careReceiveHrs + 1.96*sim_careReceiveHrs_sd
 gen sim_careReceiveHrs_l = sim_careReceiveHrs - 1.96*sim_careReceiveHrs_sd
 
@@ -1001,7 +986,7 @@ make_care_plot, ///
 	title("Hours of Care Received") ///
 	subtitle("Ages 65+") ///
 	saving("validation_${country}_care_hours_received_ts_65plus_both") ///
-	note(`""Notes: ""') 
+	note(`""Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""') 
 
 graph drop _all 
 
@@ -1037,7 +1022,7 @@ collapse (mean) sim_careReceiveHrs, by(year demMaleFlag run)
 collapse (mean) sim_careReceiveHrs ///
 		 (sd) sim_careReceiveHrs_sd = sim_careReceiveHrs, by(year demMaleFlag)
 
-* Compute 95% confidence intervals
+
 gen sim_careReceiveHrs_h = sim_careReceiveHrs + 1.96*sim_careReceiveHrs_sd
 gen sim_careReceiveHrs_l = sim_careReceiveHrs - 1.96*sim_careReceiveHrs_sd
 
@@ -1081,7 +1066,7 @@ grc1leg health_female health_male, ///
 	legendfrom(health_female) rows(1) ///
 	ycomm ///
 	graphregion(color(white)) ///
-	note("Notes: Only those receiving care included in sample.  ", ///
+	note("Notes: Only those receiving care included in sample. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))	
 	
 * Save figure
@@ -1131,7 +1116,6 @@ collapse (mean) sim_p25 = sim_p25_run ///
 				sim_p50_sd = sim_p50 ///
 				sim_p75_sd = sim_p75, by(year)
 		 
-* Approx 95% confidence intervals
 foreach p in 25 50 75 {
 	
     gen sim_p`p'_lo = sim_p`p' - 1.96*sim_p`p'_sd
@@ -1163,7 +1147,7 @@ twoway (rarea sim_p25_lo sim_p25_hi year, ///
 	ylabel(, labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: Percentiles computed on the 65+ population that report receiving positive hours of informal care.", size(vsmall))
+	note("Notes: Percentiles computed on the 65+ population that report receiving positive hours of informal care." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", size(vsmall))
 
 * Save figure
 graph export ///
@@ -1177,7 +1161,6 @@ graph drop _all
 * 1.5.1: Mean values over time - Quantile means of hours of care 
 *	 		received, by gender
 ********************************************************************************
-
 
 
 ********************************************************************************
@@ -1220,7 +1203,6 @@ collapse (mean) sim_p25 = sim_p25_run ///
 				sim_p75_sd = sim_p75, by(year)
 		 
 
-* Approx 95% confidence intervals
 foreach p in 25 50 75 {
 	
     gen sim_p`p'_lo = sim_p`p' - 1.96*sim_p`p'_sd
@@ -1252,7 +1234,7 @@ twoway (rarea sim_p25_lo sim_p25_hi year, ///
 	ylabel(, labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: Percentiles computed on the 65+ population that report receiving positive hours of informal care.", size(vsmall))
+	note("Notes: Percentiles computed on the 65+ population that report receiving positive hours of informal care." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", size(vsmall))
 
 * Save figure
 graph export ///
@@ -1261,11 +1243,11 @@ graph export ///
 
 graph drop _all 	
 
+
 ********************************************************************************
 * 1.6.1: Mean values over time - Quantile means of hours of informal care 
 *	 		received, by gender
 ********************************************************************************
-
 
 
 ********************************************************************************
@@ -1307,7 +1289,6 @@ collapse (mean) sim_p25 = sim_p25_run ///
 				sim_p50_sd = sim_p50 ///
 				sim_p75_sd = sim_p75, by(year)
 		 
-* Approx 95% confidence intervals
 foreach p in 25 50 75 {
 	
     gen sim_p`p'_lo = sim_p`p' - 1.96*sim_p`p'_sd
@@ -1339,7 +1320,8 @@ twoway (rarea sim_p25_lo sim_p25_hi year, ///
 	ylabel(, labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: Percentiles computed on the 65+ population that report receiving positive hours of formal care.", size(vsmall))
+	note("Notes: Percentiles computed on the 65+ population that report receiving positive hours of formal care." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
+		size(vsmall))
 
 * Save figure
 graph export ///
@@ -1352,7 +1334,6 @@ graph drop _all
 * 1.7.1: Mean values over time - Quantile means of hours of formal care 
 *	 		received, by gender
 ********************************************************************************
-
 
 
 ********************************************************************************
@@ -1382,7 +1363,7 @@ collapse (mean) sim_careProvideFlag, by(year run)
 collapse (mean) sim_careProvideFlag ///
 		 (sd) sim_careProvideFlag_sd = sim_careProvideFlag, by(year)
 
-* Compute 95% confidence intervals
+
 gen sim_careProvideFlag_h = sim_careProvideFlag + 1.96*sim_careProvideFlag_sd
 gen sim_careProvideFlag_l = sim_careProvideFlag - 1.96*sim_careProvideFlag_sd
 
@@ -1395,7 +1376,7 @@ make_care_plot, ///
 	title("Provide Care") ///
 	subtitle("Ages 16+") ///
 	saving("validation_${country}_provide_care_ts_16plus_both") ///
-	note(`""Notes: ""') 
+	note(`""Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""') 
 
 graph drop _all 		
 
@@ -1427,7 +1408,7 @@ collapse (mean) sim_careProvideFlag, by(year demMaleFlag run)
 collapse (mean) sim_careProvideFlag ///
 		 (sd) sim_careProvideFlag_sd = sim_careProvideFlag, by(year demMaleFlag)
 
-* Compute 95% confidence intervals
+
 gen sim_careProvideFlag_h = sim_careProvideFlag + 1.96*sim_careProvideFlag_sd
 gen sim_careProvideFlag_l = sim_careProvideFlag - 1.96*sim_careProvideFlag_sd
 
@@ -1471,7 +1452,7 @@ grc1leg care_female care_male, ///
 	legendfrom(care_female) rows(1) ///
 	ycomm ///
 	graphregion(color(white)) ///
-	note("Notes:  ", ///
+	note("Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))	
 	
 * Save figure
@@ -1566,7 +1547,6 @@ collapse (mean) care* ///
 		 , by(year)
 
 	
-* Approx 95% confidence interval 
 forvalues i=1(1)6 {
 	
 	gen care_f_`i'_sim_high = care_f`i' + 1.96*care_f_`i'_sd
@@ -1663,7 +1643,7 @@ grc1leg care_f_1 care_f_2 care_f_3 care_f_4 care_f_5 care_f_6 , ///
 	legendfrom(care_f_1) ///
 	ycomm ///
 	graphregion(color(white)) ///
-note("Notes:  ", ///
+note("Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall)) 	
 	
 graph export ///
@@ -1677,7 +1657,7 @@ grc1leg care_m_1 care_m_2 care_m_3 care_m_4 care_m_5 care_m_6, ///
 	legendfrom(care_m_1) ///
 	ycomm ///
 	graphregion(color(white)) ///
-note("Notes: ", ///
+note("Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall)) 	
 	
 graph export ///
@@ -1699,6 +1679,56 @@ keep if demAge >= 16
 keep if valid_careProvideFlag == 1	
  
 * Compute mean 
+collapse (mean) valid_careHrsProvide [aw = dwt], by(year)
+
+save "$dir_data/temp_valid_stats.dta", replace
+
+* Prepare simulated data 
+use run year idBu sim_careHrsProvidedWeek sim_careProvideFlag demAge using ///
+	"$dir_data/simulation_sample.dta", clear
+	
+keep if demAge >= 16
+keep if sim_careProvideFlag == 1		
+	
+* Compute mean	
+collapse (mean) sim_careHrsProvidedWeek, by(year run)
+
+collapse (mean) sim_careHrsProvidedWeek ///
+		 (sd) sim_careHrsProvidedWeek_sd = sim_careHrsProvidedWeek, by(year)
+
+
+gen sim_careHrsProvide_h = sim_careHrsProvidedWeek + ///
+	1.96*sim_careHrsProvidedWeek_sd
+gen sim_careHrsProvide_l = sim_careHrsProvidedWeek - ///
+	1.96*sim_careHrsProvidedWeek_sd
+
+
+* Combine datasets 
+merge 1:1 year using "$dir_data/temp_valid_stats.dta"
+
+* Plot figure 
+make_care_plot, ///
+	var("careHrsProvide") ///
+	title("Hours of Care Provided") ///
+	subtitle("Amoung providers, Ages 16+") ///
+	saving("validation_${country}_care_hours_provided_ts_16plus_both") ///
+	note(`""Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""') 
+
+graph drop _all
+	
+
+********************************************************************************
+* 1.9.1: Mean values over time - Quantile means of hours of care provided
+********************************************************************************
+
+* Prepare validation data 
+use year idBu dwt valid_careProvideFlag valid_careHrsProvidedWeek demAge ///
+	using "$dir_data/ukhls_validation_sample.dta", clear
+	
+keep if demAge >= 16
+keep if valid_careProvideFlag == 1	
+ 
+* Compute mean 
 collapse 	(p25) valid_p25 = valid_careHrsProvidedWeek ///
 			(p50) valid_p50 = valid_careHrsProvidedWeek	///
 			(p75) valid_p75 = valid_careHrsProvidedWeek [aw = dwt], by(year)
@@ -1706,8 +1736,11 @@ collapse 	(p25) valid_p25 = valid_careHrsProvidedWeek ///
 save "$dir_data/temp_valid_stats.dta", replace
 
 * Prepare simulated data 
-use run year idBu sim_careHrsProvidedWeek  demAge using ///
+use run year idBu sim_careHrsProvidedWeek sim_careProvideFlag demAge using ///
 	"$dir_data/simulation_sample.dta", clear
+	
+keep if demAge >= 16
+keep if sim_careProvideFlag == 1		
 	
 * Compute quantiles and sd 
 bysort year run: egen sim_p25_run = pctile(sim_careHrsProvidedWeek), p(25)
@@ -1721,7 +1754,6 @@ collapse (mean) sim_p25 = sim_p25_run ///
 				sim_p50_sd = sim_p50 ///
 				sim_p75_sd = sim_p75, by(year)
 
-* Approx 95% confidence intervals
 foreach p in 25 50 75 {
 	
     gen sim_p`p'_lo = sim_p`p' - 1.96*sim_p`p'_sd
@@ -1753,7 +1785,8 @@ twoway (rarea sim_p25_lo sim_p25_hi year, ///
 	ylabel(, labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: Percentiles computed on those age 16+ and provide care.", size(vsmall))
+	note("Notes: Percentiles computed on those age 16+ and provide care.""Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
+		size(vsmall))
 	
 * Save figure
 graph export ///
@@ -1765,7 +1798,7 @@ graph drop _all
 
 
 ********************************************************************************
-* 1.9.1: Mean values over time - Quantile means of hours of care provided, by 
+* 1.9.2: Mean values over time - Quantile means of hours of care provided, by 
 *			gender
 ********************************************************************************
 
@@ -1775,7 +1808,7 @@ graph drop _all
 * 			receive formal care 
 ********************************************************************************
 
-* Load validaiton data
+* Load validation data
 use year idBu dwt valid_careFormalX valid_careHrsFormal demAge using ///
 	"$dir_data/ukhls_validation_sample.dta", clear
 
@@ -1802,7 +1835,7 @@ collapse (mean) sim_careFormalX, by(year run)
 collapse (mean) sim_careFormalX ///
 		 (sd) sim_careFormalX_sd = sim_careFormalX, by(year)
 
-* Compute 95% confidence intervals
+
 gen sim_careFormalX_h = sim_careFormalX + 1.96*sim_careFormalX_sd
 gen sim_careFormalX_l = sim_careFormalX - 1.96*sim_careFormalX_sd
 
@@ -1823,7 +1856,8 @@ twoway (rarea sim_careFormalX_h sim_careFormalX_l year, ///
 	legend(size(small)) ///
 	name(`name', replace) ///
 	graphregion(color(white)) ///
-	note("Notes:", size(vsmall))  
+	note("Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
+		size(vsmall))  
     
     graph export "$dir_output_files/social_care/validation_${country}_formal_care_expenditure_both.jpg", ///
         replace width(2400) height(1350) quality(100)

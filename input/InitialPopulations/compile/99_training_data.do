@@ -24,7 +24,7 @@ global dir_do "${dir_work}/do"
 global dir_data "${dir_work}/data"
 
 global wealthStartYear = 2015
-global wealthEndYear = 2019
+global wealthEndYear = 2021
 
 
 /********************************************************************************/
@@ -184,7 +184,7 @@ rename dwt2 wgtHhCross
 save "$dir_data/temp10", replace
 
 // adjust continuous variables
-foreach vv of varlist yEmpPersGrossMonth yNonBenPersGrossMonth yMiscPersGrossMonth yPersAndPartnerGrossDiffMonth wealthTotValue wealthPensValue wealthPrptyValue wealthMortgageDebtValue ///
+foreach vv of varlist yEmpPersGrossMonth yNonBenPersGrossMonth yMiscPersGrossMonth yPersAndPartnerGrossDiffMonth wealthTotValue wealthPensValue wealthPrptyValue wealthMortgageDebtValue wealthUnsecuredDebtLowValue wealthUnsecuredDebtHighValue ///
 yDispMonth yCapitalPersMonth yPensPersGrossMonth careHrsFormal careHrsInformal careFormalX {
 	gen tmp = `vv'
 	order tmp, a(`vv')
@@ -212,7 +212,7 @@ save "$dir_data/temp11", replace
 
 // set benefit unit level variables
 use "$dir_data/temp11", clear
-foreach vv of varlist demRgn yHhQuintilesMonthC5 wealthPrptyFlag wgtHhCross wealthTotValue wealthPensValue wealthPrptyValue wealthMortgageDebtValue yDispMonth {
+foreach vv of varlist demRgn yHhQuintilesMonthC5 wealthPrptyFlag wgtHhCross wealthTotValue wealthPensValue wealthPrptyValue wealthMortgageDebtValue wealthUnsecuredDebtLowValue wealthUnsecuredDebtHighValue yDispMonth {
 	
 	rename `vv' `vv'i
 	bys idBu: egen `vv' = mean(`vv'i)
@@ -223,7 +223,7 @@ foreach vv of varlist demRgn yHhQuintilesMonthC5 wealthPrptyFlag wgtHhCross weal
 /**************************************************************************************
 *	export training data
 *************************************************************************************/
-recode demMaleFlag wealthTotValue wealthPensValue wealthPrptyValue wealthMortgageDebtValue careNeedFlag careHrsFormal careHrsInformal careFormalX (-9=0)
+recode demMaleFlag wealthTotValue wealthPensValue wealthPrptyValue wealthMortgageDebtValue wealthUnsecuredDebtLowValue wealthUnsecuredDebtHighValue careNeedFlag careHrsFormal careHrsInformal careFormalX (-9=0)
 export delimited using "$dir_data/training_population_initial_UK_$wealthEndYear.csv", nolabel replace
 
 

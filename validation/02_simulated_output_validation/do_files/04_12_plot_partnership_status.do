@@ -2,11 +2,17 @@
 * PROJECT:  		SimPaths UK 
 * SECTION:			Validation
 * OBJECT: 			Partnership
-* AUTHORS:			Ashley Burdett 
-* LAST UPDATE:		Jan 2026
-* COUNTRY: 			UK 
+* AUTHORS:			Ashley Burdett
+* LAST UPDATE:		Aug 2026
+* COUNTRY: 			UK
+* DESCRIPTION: 		Plots validation graphs comparing simulated vs. UKHLS
+* 					partnership status, ages 18-65. Section 1.1: share
+* 					partnered/single overall, with a shaded band (mean
+* 					+/- 1.96*SD across $max_n_runs runs). Section 1.2: same,
+* 					by age group. Section 1.3: partnership status
+* 					interacted with number of children.
 ********************************************************************************
-* NOTES: 			
+* NOTES:
 ********************************************************************************
 
 ********************************************************************************
@@ -44,7 +50,6 @@ collapse (mean) sim_partnered sim_single  ///
 		 sim_single_sd = sim_single ///
 		 , by(year)
 	
-* Approx 95% confidence interval 	
 foreach varname in sim_partnered sim_single  {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -70,7 +75,8 @@ twoway (rarea sim_partnered_high sim_partnered_low year, sort color(green%20) //
 	ylabel(0[0.1]0.9, labsize(small)) ///
 	legend(size(small)) ///	
 	graphregion(color(white)) ///
-	note("Notes: ", size(vsmall))	
+	note("Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
+		size(vsmall))	
 
 * Save figure
 graph export ///
@@ -94,7 +100,8 @@ twoway (rarea sim_partnered_high sim_partnered_low year, sort color(green%20) //
 	ylabel(0[0.1]0.8, labsize(small)) ///
 	legend(size(small)) ///	
 	graphregion(color(white)) ///
-	note("Notes: ", size(vsmall))	
+	note("Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
+		size(vsmall))	
 
 graph export ///
 "$dir_output_files/partnership/validation_${country}_partnership_ts_18_65_both.jpg", ///
@@ -171,7 +178,8 @@ forvalues i = 1/3 {
         ylabel(0(0.2)1, labsize(small)) ///
         legend(size(small)) ///    
         graphregion(color(white)) ///
-        note("Notes: ", size(vsmall))    
+        note("Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
+			size(vsmall))    
         
     graph export ///
     "$dir_output_files/partnership/validation_${country}_partnership_ts_`age_suff`i''_both.jpg", ///
@@ -229,7 +237,6 @@ collapse (mean) sim_partnered_children_0 sim_partnered_children_1 ///
 		sim_single_children_3plus_sd = sim_single_children_3plus ///
 		, by(year)
 		 
-* Approx 95% confidence interval 		 
 foreach varname in sim_partnered_children_0 sim_partnered_children_1 ///
 	sim_partnered_children_2 sim_partnered_children_3plus sim_single_children_0 ///
 	sim_single_children_1 sim_single_children_2 sim_single_children_3plus  {
@@ -283,7 +290,8 @@ grc1leg partnered_children_0 partnered_children_1 partnered_children_2 ///
 	rows(2) ///
 	graphregion(color(white)) ///
 	ycomm ///
-	note("Notes: Samples contains all individual ages 18-65. ", size(vsmall)) 
+	note("Notes: Sample contains all individual ages 18-65. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
+		size(vsmall)) 
 	
 graph export ///
 "$dir_output_files/partnership/validation_${country}_partnership_children_ts_18_65_partnered.jpg", ///
@@ -319,7 +327,8 @@ grc1leg single_children_0 single_children_1 single_children_2 ///
 	rows(2) ///
 	graphregion(color(white)) ///
 	ycomm ///
-	note("Notes: Samples contains all individual ages 18-65. ", size(vsmall)) 
+	note("Notes: Sample contains all individual ages 18-65. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
+		size(vsmall)) 
 	
 graph export ///
 "$dir_output_files/partnership/validation_${country}_partnership_children_ts_18_65_single.jpg", ///

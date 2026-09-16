@@ -79,12 +79,6 @@ public class ManagerRegressions {
             case SocialCareS2e -> {
                 return Parameters.getRegFormalCareHoursS2e();
             }
-            case SocialCareS3c -> {
-                return Parameters.getRegCareHoursProvS3c();
-            }
-            case SocialCareS3d -> {
-                return Parameters.getRegCareHoursProvS3d();
-            }
             // case SocialCareS1b -> {
             //     return Parameters.getRegCareHoursS1b();
             // }
@@ -198,6 +192,12 @@ public class ManagerRegressions {
         switch (regression) {
             case HealthHM1Case -> {
                 return Parameters.getRegHealthHM1Case();
+            }
+            case SocialCareS3c -> {
+                return Parameters.getRegCareHoursProvS3c();
+            }
+            case SocialCareS3d -> {
+                return Parameters.getRegCareHoursProvS3d();
             }
             default -> {
                 throw new RuntimeException("unrecognised regression (1)");
@@ -317,9 +317,6 @@ public class ManagerRegressions {
             case WagesFemalesNE -> {
                 code = "Wages_FemalesNE";
             }
-            case ChildcareC1b -> {
-                code = "C1b";
-            }
             default -> {
                 throw new InvalidParameterException("RMSE requested for unrecognised regression equation");
             }
@@ -389,7 +386,7 @@ public class ManagerRegressions {
 
     public static <E extends Enum<E> & IntegerValuedEnum> E getEvent(Map<E, Double> probs, double rand) {
 
-        List<E> eventList = (List<E>) probs.keySet();
+        List<E> eventList = new ArrayList<>(probs.keySet());
         eventList.sort(Comparator.comparingInt(IntegerValuedEnum::getValue));
 
         double prob = 0.0;

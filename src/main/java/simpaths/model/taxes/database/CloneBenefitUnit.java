@@ -17,13 +17,13 @@ public class CloneBenefitUnit {
     /**
      * ATTRIBUTES
      */
-    private List<Map> members = new ArrayList<>();
-    private Map target = null;
-    private Map spouse = null;
-    private List<Map> children = new ArrayList<>();
-    private List<Map> childrenUnder5 = new ArrayList<>();
-    private List<Map> children5To9 = new ArrayList<>();
-    private List<Map> children10To17 = new ArrayList<>();
+    private List<Map<String, Double>> members = new ArrayList<>();
+    private Map<String, Double> target = null;
+    private Map<String, Double> spouse = null;
+    private List<Map<String, Double>> children = new ArrayList<>();
+    private List<Map<String, Double>> childrenUnder5 = new ArrayList<>();
+    private List<Map<String, Double>> children5To9 = new ArrayList<>();
+    private List<Map<String, Double>> children10To17 = new ArrayList<>();
     String[] variablesAll;
     String[] HOUSEHOLD_VARIABLES = {"drgn1", "dwt", "dct", "dcz", "ddt", "ddt01", "dpd", "dot", "amrrm", "amrtn"};
     String[] SPOUSE_SPECIFIC_VARIABLES = {"dec", "dag", "deh", "dew", "dey"};
@@ -57,10 +57,10 @@ public class CloneBenefitUnit {
     }
 
 
-    public List<Map> getMembers() {return members;}
-    public Map getTarget() {return target;}
-    public Map getSpouse() {return spouse;}
-    public List<Map> getChildren() {return children;}
+    public List<Map<String, Double>> getMembers() {return members;}
+    public Map<String, Double> getTarget() {return target;}
+    public Map<String, Double> getSpouse() {return spouse;}
+    public List<Map<String, Double>> getChildren() {return children;}
 
 
     /**
@@ -138,7 +138,7 @@ public class CloneBenefitUnit {
 
         return change;
     }
-    private void setIncome(Map person, double incomeEnd) {
+    private void setIncome(Map<String, Double> person, double incomeEnd) {
 
         if (Math.abs(incomeEnd) < 0.01) {
             for (String var : INCOME_VARIABLES) {
@@ -149,7 +149,7 @@ public class CloneBenefitUnit {
             setIncome(person, incomeStart, incomeEnd);
         }
     }
-    private void setIncome(Map person, double incomeStart, double incomeEnd) {
+    private void setIncome(Map<String, Double> person, double incomeStart, double incomeEnd) {
 
         if (Math.abs(incomeEnd)<0.01) {
             for (String var : INCOME_VARIABLES) {
@@ -160,14 +160,14 @@ public class CloneBenefitUnit {
                 throw new RuntimeException("Attempt to adjust income for observation without any starting income");
             double adjFactor = incomeEnd / incomeStart;
             for (String var : INCOME_VARIABLES) {
-                person.replace(var, (double)person.get(var)*adjFactor);
+                person.replace(var, person.get(var)*adjFactor);
             }
         }
     }
-    private double getOriginalIncomePerMonth(Map person) {
+    private double getOriginalIncomePerMonth(Map<String, Double> person) {
         double income = 0.0;
         for (String var : INCOME_VARIABLES) {
-            income += (double)person.get(var);
+            income += person.get(var);
         }
         return income;
     }
@@ -175,12 +175,12 @@ public class CloneBenefitUnit {
 
         boolean change = false;
         double childcare = 0.0;
-        for (Map person : members) {
+        for (var person : members) {
             childcare += (double)person.get("xcc");
         }
         if ( (index==0) && (childcare>0) ) {
             change = true;
-            for (Map person : members) {
+            for (var person : members) {
                 person.replace("xcc", 0.0);
             }
         } else if ( (index==1) && (childcare<0.01) ) {
@@ -188,7 +188,7 @@ public class CloneBenefitUnit {
             if (children.isEmpty())
                 throw new RuntimeException("attempt to add childcare to household without children");
             if (!childrenUnder5.isEmpty()) {
-                for (Map child : childrenUnder5) {
+                for (var child : childrenUnder5) {
                     child.replace("xcc", 250.0);
                 }
             } else if (!children5To9.isEmpty()) {
@@ -299,15 +299,13 @@ public class CloneBenefitUnit {
     }
     public long matchChildrenIndex(int index, long newPersonId) {
 
-        boolean change = false;
         int child10To17index = index / 9;
         index -= 9*child10To17index;
         if ( child10To17index == 0 ) {
             if (!children10To17.isEmpty()) {
-                change = true;
-                Iterator<Map> ii = children10To17.iterator();
+                var ii = children10To17.iterator();
                 while (ii.hasNext()) {
-                    Map child = ii.next();
+                    var child = ii.next();
                     members.remove(child);
                     children.remove(child);
                     ii.remove();
@@ -315,8 +313,7 @@ public class CloneBenefitUnit {
             }
         } else {
             if (children10To17.isEmpty()) {
-                change = true;
-                Map child = newChild(newPersonId);
+                var child = newChild(newPersonId);
                 child.replace("dag",10.0);
                 child.replace("dec",3.0);
                 child.replace("deh",0.0);
@@ -329,11 +326,10 @@ public class CloneBenefitUnit {
         int child5To9index = index / 3;
         index -= 3*child5To9index;
         if ( child5To9index<children5To9.size() && child5To9index<2) {
-            change = true;
             int nn = children5To9.size();
-            Iterator<Map> ii = children5To9.iterator();
+            var ii = children5To9.iterator();
             while (ii.hasNext()) {
-                Map child = ii.next();
+                var child = ii.next();
                 members.remove(child);
                 children.remove(child);
                 ii.remove();
@@ -342,10 +338,9 @@ public class CloneBenefitUnit {
                     break;
             }
         } else if (child5To9index>children5To9.size()) {
-            change = true;
             int nn = child5To9index - children5To9.size();
             for (int ii=0; ii<nn; ii++) {
-                Map child = newChild(newPersonId);
+                var child = newChild(newPersonId);
                 child.replace("dag",5.0);
                 child.replace("dec",2.0);
                 child.replace("deh",0.0);
@@ -356,11 +351,10 @@ public class CloneBenefitUnit {
             }
         }
         if ( index<childrenUnder5.size() && index<2) {
-            change = true;
             int nn = childrenUnder5.size();
-            Iterator<Map> ii = childrenUnder5.iterator();
+            var ii = childrenUnder5.iterator();
             while (ii.hasNext()) {
-                Map child = ii.next();
+                var child = ii.next();
                 members.remove(child);
                 children.remove(child);
                 ii.remove();
@@ -369,10 +363,9 @@ public class CloneBenefitUnit {
                     break;
             }
         } else if (index>childrenUnder5.size()) {
-            change = true;
             int nn = index - childrenUnder5.size();
             for (int ii=0; ii<nn; ii++) {
-                Map child = newChild(newPersonId);
+                var child = newChild(newPersonId);
                 child.replace("dag",2.0);
                 child.replace("dec",0.0);
                 child.replace("deh",0.0);
@@ -386,15 +379,13 @@ public class CloneBenefitUnit {
     }
     public long matchAdultIndex(int index, long newPersonId) {
 
-        boolean change = false;
         if ( index==0 ) {
             if (spouse!=null) {
-                change = true;
                 members.remove(spouse);
                 spouse = null;
                 target.replace("dms",1.0);
                 target.replace("idpartner",0.0);
-                for (Map child : children) {
+                for (var child : children) {
                     if (getInteger(target,"dgn")==0) {
                         child.replace("idfather",0.0);
                     } else {
@@ -404,7 +395,6 @@ public class CloneBenefitUnit {
             }
         } else {
             if (spouse==null) {
-                change = true;
                 newSpouse(newPersonId);
                 members.add(spouse);
                 newPersonId++;
@@ -447,9 +437,9 @@ public class CloneBenefitUnit {
     /**
      * WORKER METHODS
      */
-    private Map newChild(long newPersonId) {
+    private Map<String, Double> newChild(long newPersonId) {
 
-        Map child = newPerson(HOUSEHOLD_VARIABLES, newPersonId);
+        var child = newPerson(HOUSEHOLD_VARIABLES, newPersonId);
         if (getInteger(target,"dgn")==0) {
             child.replace("idmother",target.get("idperson"));
             if (spouse!=null) {
@@ -472,7 +462,7 @@ public class CloneBenefitUnit {
         spouse.replace("dms",2.0);
         int spouseGender = 1-getInteger(target,"dgn");
         spouse.replace("dgn",(double)spouseGender);
-        for (Map child : children) {
+        for (var child : children) {
             if (spouseGender==0) {
                 child.replace("idmother",(double)newPersonId);
             } else {
@@ -481,9 +471,9 @@ public class CloneBenefitUnit {
         }
         spouse.replace("les",7.0);
     }
-    private Map newPerson(String[] variables, long newPersonId) {
+    private Map<String, Double> newPerson(String[] variables, long newPersonId) {
 
-        Map person = zeros();
+        var person = zeros();
         person.replace("idperson",(double)newPersonId);
         person.replace("idhh",target.get("idhh"));
         for (String var : variables) {
@@ -491,9 +481,9 @@ public class CloneBenefitUnit {
         }
         return person;
     }
-    private Map zeros() {
+    private Map<String, Double> zeros() {
 
-        Map values = new HashMap<>();
+        var values = new HashMap<String, Double>();
         for (String variable : variablesAll) {
             values.put(variable, 0.0);
         }
@@ -505,20 +495,20 @@ public class CloneBenefitUnit {
     }
     private long[] cloneAllHouseholdMembers(InputDataSet dataSet, long idhh, int idbu, long idTarget, long newHouseholdId, long newPersonId) {
 
-        List<Map> originalMembers = new ArrayList<>();
-        for (Map obs : dataSet.getSet()) {
+        var originalMembers = new ArrayList<Map<String, Double>>();
+        for (var obs : dataSet.getSet()) {
             if ((getLong(obs, "idhh") == idhh) && (getInteger(obs, "idorigbenunit") == idbu)) {
                 originalMembers.add(obs);
             }
         }
         return cloneAllHouseholdMembers(originalMembers, idTarget, newHouseholdId, newPersonId);
     }
-    private long[] cloneAllHouseholdMembers(List<Map> originalMembers, long idTarget, long newHouseholdId, long newPersonId) {
+    private long[] cloneAllHouseholdMembers(List<Map<String, Double>> originalMembers, long idTarget, long newHouseholdId, long newPersonId) {
 
         long fail = 0;
-        Map idKey = new HashMap<Long,Double>();
-        for (Map obs : originalMembers) {
-            Map clone = clone(obs);
+        var idKey = new HashMap<Long,Double>();
+        for (var obs : originalMembers) {
+            var clone = clone(obs);
             idKey.put(getLong(obs,"idperson"),(double)newPersonId);
             clone.replace("idperson",(double)newPersonId);
             clone.replace("idhh",(double)newHouseholdId);
@@ -542,7 +532,7 @@ public class CloneBenefitUnit {
             fail = 1;
         if (fail==0) {
 
-            for (Map obs : members) {
+            for (var obs : members) {
                 if (replaceId(idKey, obs, "idpartner")) {
                     replaceId(idKey, obs, "idfather");
                     replaceId(idKey, obs, "idmother");
@@ -551,7 +541,7 @@ public class CloneBenefitUnit {
                 }
             }
             if (fail==0) {
-                for (Map obs : members) {
+                for (var obs : members) {
                     getLong(obs, "idperson");
                     getLong(obs, "idpartner");
                     getLong(obs, "idmother");
@@ -562,12 +552,12 @@ public class CloneBenefitUnit {
         long[] result = {newHouseholdId, newPersonId, fail};
         return result;
     }
-    private boolean replaceId(Map idKey, Map obs, String name) {
+    private boolean replaceId(Map<Long, Double> idKey, Map<String, Double> obs, String name) {
 
         boolean pass = true;
         long idchk = getLong(obs,name);
         if (idchk!=0) {
-            Double val = (Double)idKey.get(idchk);
+            var val = idKey.get(idchk);
             if (!Parameters.checkFinite(val)) {
                 pass = false;
                 val = 0.0;
@@ -578,8 +568,8 @@ public class CloneBenefitUnit {
     }
     private long[] findTargetHouseholdId(long idTarget, InputDataSet dataSet) {
 
-        Map target = null;
-        for(Map obs : dataSet.getSet()) {
+        Map<String, Double> target = null;
+        for(var obs : dataSet.getSet()) {
             if (idTarget == getLong(obs, "idperson")) {
                 target = obs;
                 break;
@@ -590,24 +580,21 @@ public class CloneBenefitUnit {
         long[] result = {getLong(target,"idhh"), getInteger(target, "idorigbenunit")};
         return result;
     }
-    private long getLong(Map obj, String val) {
-        Object oo = obj.get(val);
-        if (oo==null)
-            throw new RuntimeException("problem copying value of " + val);
-        return Double.valueOf((double)oo).longValue();
+    private long getLong(Map<String, Double> obj, String val) {
+        return obj.get(val).longValue();
     }
-    private int getInteger(Map obj, String val) {
-        return Double.valueOf((double)obj.get(val)).intValue();
+    private int getInteger(Map<String, Double> obj, String val) {
+        return obj.get(val).intValue();
     }
-    private Map clone(Map obs) {
+    private Map<String, Double> clone(Map<String, Double> obs) {
 
-        Map values = new HashMap<>();
+        var values = new HashMap<String, Double>();
         for (String variable : variablesAll) {
             values.put(variable, obs.get(variable));
         }
         return values;
     }
-    private void adjHours(Map person, double hours) {
+    private void adjHours(Map<String, Double> person, double hours) {
 
         double hoursStart = (double)person.get("lhw");
         if (hoursStart > 0.0) {

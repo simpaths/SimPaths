@@ -2,12 +2,18 @@
 * PROJECT:  		SimPaths UK
 * SECTION:			Validation
 * OBJECT: 			Hourly wages
-* AUTHORS:			Ashley Burdett 
-* LAST UPDATE:		Jan 2026
-* COUNTRY: 			UK 
+* AUTHORS:			Ashley Burdett
+* LAST UPDATE:		Aug 2026
+* COUNTRY: 			UK
+* DESCRIPTION: 		Plots validation graphs comparing simulated vs. UKHLS
+* 					hourly wages for employed/self-employed individuals aged
+* 					16-65. Section 1: time-series means (all, and by gender),
+* 					with a shaded band (mean +/- 1.96*SD across $max_n_runs
+* 					runs). Section 2: histograms of the cross-sectional
+* 					distribution by year (all, and by gender). Same
+* 					standalone structure as 04_03-04_08.
 ********************************************************************************
-* NOTES: 			This master do file organises do files used for validating 
-* 					SimPaths model using UKHLS data. 
+* NOTES: 			Amounts in 2015 prices, top/bottom percentiles trimmed.
 ********************************************************************************
 
 ********************************************************************************
@@ -68,7 +74,6 @@ collapse (mean) sim_pred_wage ///
 		 (sd) sim_pred_wage_sd = sim_pred_wage ///
 		 , by(year)
 		 
-* Approx 95% confidence interval		 
 foreach varname in sim_pred_wage {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -93,7 +98,7 @@ twoway (rarea sim_pred_wage_high ///
 	xlabel(,labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: Statistics calculated on sample of employed and self-employed individuals. Amounts in 2015 prices.""Top and bottom percentiles trimmed.", ///
+	note("Notes: Statistics calculated on sample of employed and self-employed individuals. Amounts in 2015 prices." "Top and bottom percentiles trimmed. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))
 
 * Save figure
@@ -199,7 +204,7 @@ grc1leg wages_female wages_male, ///
 	legendfrom(wages_female) rows(1) ///
 	graphregion(color(white)) ///
 	ycomm ///
-	note("Notes: Statistics calculated on sample of employed anf self-employed individuals. Amounts in 2015 prices. Top and bottom" "percentiles trimmed.", ///
+	note("Notes: Statistics calculated on sample of employed and self-employed individuals. Amounts in 2015 prices." "Top and bottom" "percentiles trimmed." "Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))
 	
 * Save figure
@@ -241,7 +246,10 @@ if "$trim_outliers" == "true" {
 * Prepare info needed for dynamic y axis labels 
 qui sum year
 local min_year = 2011
+if "$min_sim_year" != "" local min_year = $min_sim_year
 local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' { 
 
@@ -282,7 +290,10 @@ append using "$dir_data/temp_valid_stats.dta"
 
 qui sum year
 local min_year = 2011
+if "$min_sim_year" != "" local min_year = $min_sim_year
 local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' {
 	
@@ -314,7 +325,7 @@ forval year = `min_year'/`max_year' {
 		ylabel(, labsize(small)) ///
 		legend(size(small)) ///
 		graphregion(color(white)) ///
-		note("Notes: Statistics calculated on subsample of employed and self-employed individuals aged 16-65. Amounts in 2015 prices.""Top percentiles and bottom percentiles trimmed.", size(vsmall))
+		note("Notes: Statistics calculated on subsample of employed and self-employed individuals aged 16-65. Amounts in 2015 prices. Top and bottom percentiles trimmed.", size(vsmall))
 	
 	graph export ///
 	"$dir_output_files/wages/validation_${country}_wages_dist_`year'.png", ///
@@ -356,7 +367,10 @@ if "$trim_outliers" == "true" {
 * Prepare info needed for dynamic y axis labels 
 qui sum year
 local min_year = 2011
+if "$min_sim_year" != "" local min_year = $min_sim_year
 local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' { 
 
@@ -398,7 +412,10 @@ append using "$dir_data/temp_valid_stats.dta"
 
 qui sum year
 local min_year = 2011
+if "$min_sim_year" != "" local min_year = $min_sim_year
 local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' {
 	
@@ -429,7 +446,7 @@ forval year = `min_year'/`max_year' {
 		xlabel(,labsize(small)) ///
 		legend(size(small)) ///
 		graphregion(color(white)) ///
-		note("Notes: Statistics calculated on subsample of employed and self-employed individuals aged 16-65. Amounts in 2015 prices.""Top and bottom percentails trimmed.", size(vsmall))
+		note("Notes: Statistics calculated on subsample of employed and self-employed individuals aged 16-65. Amounts in 2015 prices. Top and bottom percentiles trimmed.", size(vsmall))
 	
 	graph export ///
 	"$dir_output_files/wages/validation_${country}_wages_dist_`year'_female.png", ///
@@ -465,7 +482,10 @@ if "$trim_outliers" == "true" {
 * Prepare info needed for dynamic y axis labels 
 qui sum year
 local min_year = 2011
+if "$min_sim_year" != "" local min_year = $min_sim_year
 local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' { 
 
@@ -507,7 +527,10 @@ append using "$dir_data/temp_valid_stats.dta"
 
 qui sum year
 local min_year = 2011
+if "$min_sim_year" != "" local min_year = $min_sim_year
 local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
 
 forval year = `min_year'/`max_year' {
 	
@@ -538,7 +561,7 @@ forval year = `min_year'/`max_year' {
 		xlabel(,labsize(small)) ///
 		legend(size(small)) ///
 		graphregion(color(white)) ///
-		note("Notes: Statistics calculated on subsample of employed and self-employed individuals aged 16-65. Amounts in 2015 prices.""Top and bottom percentiles trimmed.", size(vsmall))
+		note("Notes: Statistics calculated on subsample of employed and self-employed individuals aged 16-65. Amounts in 2015 prices. "Top and bottom percentiles trimmed.", size(vsmall))
 
 	
 	graph export ///

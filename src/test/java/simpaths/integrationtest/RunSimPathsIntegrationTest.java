@@ -17,6 +17,11 @@ import org.junit.jupiter.api.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class RunSimPathsIntegrationTest {
+    /** Absolute epsilon for numeric comparison. */
+    private static final double ABS_EPSILON = 1e-9;
+    /** Relative epsilon for numeric comparison. */
+    private static final double REL_EPSILON = 1e-6;
+
     @Test
     @DisplayName("Initial database setup runs successfully")
     @Order(1)
@@ -63,38 +68,45 @@ public class RunSimPathsIntegrationTest {
         }
 
         @Test
-        public void compareStatistics1() throws IOException {
+        public void compareWealthIncomeStatistics() throws IOException {
             compareFiles(
-                    latestOutputDir.resolve("csv/Statistics1.csv"),
-                    Paths.get("src/test/java/simpaths/integrationtest/expected/Statistics1.csv")
+                    latestOutputDir.resolve("csv/WealthIncomeStatistics.csv"),
+                    Paths.get("src/test/java/simpaths/integrationtest/expected/WealthIncomeStatistics.csv")
             );
         }
         @Test
-        public void compareStatistics21() throws IOException {
+        public void compareDemographicStatistics() throws IOException {
         compareFiles(
-            latestOutputDir.resolve("csv/Statistics21.csv"),
-            Paths.get("src/test/java/simpaths/integrationtest/expected/Statistics21.csv")
+            latestOutputDir.resolve("csv/DemographicStatistics.csv"),
+            Paths.get("src/test/java/simpaths/integrationtest/expected/DemographicStatistics.csv")
         );
         }
         @Test
-        public void compareStatistics31() throws IOException {
-        compareFiles(
-            latestOutputDir.resolve("csv/Statistics31.csv"),
-            Paths.get("src/test/java/simpaths/integrationtest/expected/Statistics31.csv")
-        );
-        }
-        @Test
-        public void compareHealthStatistics1() throws IOException {
-            compareFiles(
-                    latestOutputDir.resolve("csv/HealthStatistics1.csv"),
-                    Paths.get("src/test/java/simpaths/integrationtest/expected/HealthStatistics1.csv")
+        public void verifyAlignmentStatisticsExported() {
+            assertTrue(
+                    Files.exists(latestOutputDir.resolve("csv/AlignmentStatistics.csv")),
+                    "Expected output file is missing: " + latestOutputDir.resolve("csv/AlignmentStatistics.csv")
             );
         }
         @Test
-        public void compareEmploymentStatistics1() throws IOException {
+        public void compareWellbeingByGender() throws IOException {
             compareFiles(
-                    latestOutputDir.resolve("csv/EmploymentStatistics1.csv"),
-                    Paths.get("src/test/java/simpaths/integrationtest/expected/EmploymentStatistics1.csv")
+                    latestOutputDir.resolve("csv/WellbeingByGender.csv"),
+                    Paths.get("src/test/java/simpaths/integrationtest/expected/WellbeingByGender.csv")
+            );
+        }
+        @Test
+        public void compareHealthStatistics() throws IOException {
+            compareFiles(
+                    latestOutputDir.resolve("csv/HealthStatistics.csv"),
+                    Paths.get("src/test/java/simpaths/integrationtest/expected/HealthStatistics.csv")
+            );
+        }
+        @Test
+        public void compareLabourStatistics() throws IOException {
+            compareFiles(
+                    latestOutputDir.resolve("csv/LabourStatistics.csv"),
+                    Paths.get("src/test/java/simpaths/integrationtest/expected/LabourStatistics.csv")
             );
         }
     }
@@ -185,7 +197,20 @@ public class RunSimPathsIntegrationTest {
         Double actualNumber = tryParseDouble(actualTrimmed);
 
         if (expectedNumber != null && actualNumber != null) {
-            return true;
+            double e = expectedNumber;
+            double a = actualNumber;
+            if (Double.isNaN(e) && Double.isNaN(a)) {
+                return true;
+            }
+            if (Double.isNaN(e) || Double.isNaN(a)) {
+                return false;
+            }
+            if (Double.isInfinite(e) || Double.isInfinite(a)) {
+                return Double.compare(e, a) == 0;
+            }
+            double diff = Math.abs(e - a);
+            double tolerance = Math.max(ABS_EPSILON, REL_EPSILON * Math.max(Math.abs(e), Math.abs(a)));
+            return diff <= tolerance;
         }
 
         return expectedToken.equals(actualToken);

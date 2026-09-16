@@ -2,8 +2,8 @@
 package simpaths.experiment;
 
 // import Java packages
-import org.apache.log4j.Level;
 import org.apache.commons.cli.*;
+import org.apache.commons.cli.help.HelpFormatter;
 import org.apache.commons.io.FileUtils;
 import org.yaml.snakeyaml.Yaml;
 import java.io.FileInputStream;
@@ -22,10 +22,15 @@ import microsim.engine.SimulationEngine;
 import microsim.gui.shell.MultiRunFrame;
 import simpaths.model.enums.Country;
 
+import org.apache.logging.log4j.Level;
 // Logging and file writing
-import org.apache.log4j.FileAppender;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.FileAppender;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.core.layout.PatternLayout;
+
 import java.io.*;
 
 
@@ -37,6 +42,7 @@ public class SimPathsMultiRun extends MultiRun {
 	private static int startYear;
 	private static int endYear = 2020;
 	private static int maxNumberOfRuns = 25;
+	private static boolean multiRunMode = false;
 	private static Long randomSeed = 615L;
 	public static boolean executeWithGui = true;
 
@@ -58,7 +64,7 @@ public class SimPathsMultiRun extends MultiRun {
 	private static double interestRateInnov = 0.0;
 	private static double disposableIncomeFromLabourInnov = 0.0;
 	private Long counter = 0L;
-	public static Logger log = Logger.getLogger(SimPathsMultiRun.class);
+	public static Logger log = LogManager.getLogger(SimPathsMultiRun.class);
 
 	private static boolean persist_population;
 	private static boolean persist_root;
@@ -72,6 +78,8 @@ public class SimPathsMultiRun extends MultiRun {
 	 */
 	public static void main(String[] args) {
 
+		multiRunMode = true;
+
 		// process Yaml config file
 		if (!parseYamlConfig(args)) {
 			// if parseYamlConfig returns false (indicating bad filename passed), exit main
@@ -83,13 +91,8 @@ public class SimPathsMultiRun extends MultiRun {
 		// set default values for country and start year
 		MultiKeyCoefficientMap lastDatabaseCountryAndYear = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + File.separator + Parameters.DatabaseCountryYearFilename + ".xlsx", "Data", 1);
 		try {
-			if (lastDatabaseCountryAndYear.keySet().stream().anyMatch(key -> key.toString().equals("MultiKey[IT]"))) {
-				countryString = "Italy";
-				country = Country.IT;
-			} else {
-				countryString = "United Kingdom";
-				country = Country.UK;
-			}
+			countryString = "United Kingdom";
+			country = Country.UK;
 			String valueYear = lastDatabaseCountryAndYear.getValue(country.toString()).toString();
 			startYear = Integer.parseInt(valueYear);
 		} catch (NullPointerException e) {
@@ -111,6 +114,8 @@ public class SimPathsMultiRun extends MultiRun {
 			return;
 		}
 		country = Country.getCountryFromNameString(countryString);
+
+		Parameters.validateStartYear(startYear);
 
 		//Save the last selected country and year to Excel to use in the model
 		String[] columnNames = {"Country", "Year"};
@@ -216,8 +221,7 @@ public class SimPathsMultiRun extends MultiRun {
 		options.addOption(helpOption);
 
 		CommandLineParser parser = new DefaultParser();
-		HelpFormatter formatter = new HelpFormatter();
-		formatter.setOptionComparator(null);
+		var formatter = HelpFormatter.builder().get();
 
 		try {
 			CommandLine cmd = parser.parse(options, args);
@@ -286,21 +290,24 @@ public class SimPathsMultiRun extends MultiRun {
 					System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream(logDir.getPath() + "/run_" + randomSeed + ".txt")), true));
 
 					// Writing logs to `run_[seed].log`
-					FileAppender appender = new FileAppender();
-					appender.setName("Run logging");
-					appender.setFile(logDir.getPath() + "/run_" + randomSeed + ".log");
-					appender.setAppend(false);
-					appender.setLayout(new PatternLayout("%d{yyyy MMM dd HH:mm:ss} - %m%n"));
-					appender.activateOptions();
-					Logger.getRootLogger().setLevel(Level.DEBUG);
-					Logger.getRootLogger().addAppender(appender);
+                    var layout = PatternLayout.newBuilder().setPattern("%d{yyyy MMM dd HH:mm:ss} - %m%n").build();
+					var appender = FileAppender.newBuilder()
+                        .setFileName(logDir.getPath() + "/run_" + randomSeed + ".log")
+                        .setName("Run logging")
+                        .setAppend(false)
+                        .setLayout(layout)
+                        .build();
+                    Configurator.setRootLevel(Level.DEBUG);
+                    var configuration = LoggerContext.getContext().getConfiguration();
+                    configuration.getRootLogger().addAppender(appender, Level.DEBUG, null);
+                    Configurator.reconfigure(configuration);
 				} catch (FileNotFoundException e) {
 					throw new RuntimeException(e);
 				}
 			}
 		} catch (ParseException e) {
 			System.err.println("Error parsing command line arguments: " + e.getMessage());
-			formatter.printHelp("SimPathsMultiRun", options);
+            printHelpMessage(formatter, options);
 			return false;
 		}
 
@@ -312,7 +319,11 @@ public class SimPathsMultiRun extends MultiRun {
 				"resetting the population to the start year and iterating from the start seed. " +
 				"It takes the following options:";
 		String footer = "When running with no display, `-g` must be set to `false`.";
-		formatter.printHelp("SimPathsMultiRun", header, options, footer, true);
+        try {
+            formatter.printHelp("SimPathsMultiRun", header, options, footer, true);
+        } catch (IOException e) {
+            System.err.println("failed to print CLI help: " + e.getMessage());
+        }
 	}
 
 	private static boolean parseYamlConfig(String[] args) {
@@ -533,8 +544,8 @@ public class SimPathsMultiRun extends MultiRun {
 	public void buildExperiment(SimulationEngine engine) {
 
 		SimPathsModel model = new SimPathsModel(Country.getCountryFromNameString(countryString), startYear);
-		if (persist_population) model.setPersistPopulation(true);
-		if (persist_root) model.setPersistDatabasePath(Parameters.getInputDirectory() + "input");
+		if (persist_population) SimPathsModel.setPersistPopulation(true);
+		if (persist_root) SimPathsModel.setPersistDatabasePath(Parameters.getInputDirectory() + "input");
 		updateLocalParameters(model);
 		if (modelArgs != null)
 			updateParameters(model, modelArgs);
@@ -579,6 +590,14 @@ public class SimPathsMultiRun extends MultiRun {
 		}
 	}
 	
+	public static int getMaxNumberOfRuns() {
+		return maxNumberOfRuns;
+	}
+
+	public static boolean isMultiRunMode() {
+		return multiRunMode;
+	}
+
 	@Override
 	public boolean nextModel() {
 		counter++;

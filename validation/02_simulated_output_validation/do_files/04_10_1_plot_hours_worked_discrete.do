@@ -2,12 +2,22 @@
 * PROJECT:  		SimPaths UK 
 * SECTION:			Validation
 * OBJECT: 			Hours worked (discrete)
-* AUTHORS:			Ashley Burdett 
-* LAST UPDATE:		Jan 2026
-* COUNTRY: 			UK 
+* AUTHORS:			Ashley Burdett
+* LAST UPDATE:		Aug 2026
+* COUNTRY: 			UK
+* DESCRIPTION: 		Plots validation graphs comparing simulated vs. UKHLS
+* 					discretized weekly hours worked (7 categories: 0, 10,
+* 					20, 30, 38, 45, 55 hours), ages 16-65, restricted to
+* 					employed/self-employed individuals with hours > 0.
+* 					Bar charts of category shares (pooled, by year, and by
+* 					year-by-gender) with error bars (mean +/- 1.96*SD across
+* 					$max_n_runs runs). Section 3 (comparing across the
+* 					heterogeneity scenarios explored in 04_10_0) is entirely
+* 					commented out and out of scope -- do not run or rely on
+* 					it as-is.
 ********************************************************************************
-* NOTES: 			Need to update to acocunt for additional labour supply 
-* 					categories 
+* NOTES: 			Need to update to account for additional labour supply
+* 					categories.
 *******************************************************************************/
 
 ********************************************************************************
@@ -92,7 +102,7 @@ twoway (bar prop_ukhls x_ukhls, barw(0.4) color(red%50)) ///
 	   ytitle("Proportion", size(small)) ///
        title("Share in Each Labour Hours Category") ///
 	   subtitle("Ages 16-65") ///
-       legend(order(1 "UKHLS" 2 "SimPaths" 3 "95% CI")) ///
+       legend(order(1 "UKHLS" 2 "SimPaths" 3 "+/- 1.96 SD")) ///
 		legend(size(small)) ///	
        graphregion(color(white)) ///
 	note("Notes: Years 2011-2023. Categories 1 = 6-15 hours, 2 = 16-25 hours, 3 = 26-35 hours , 4 = 36-40 hours, 5 = 41-49 hours," "6 = 55+ hours.", size(vsmall))
@@ -179,7 +189,7 @@ foreach y in `years' {
 	        ytitle("Proportion", size(small)) ///
 		 	title("Share in Each Labour Hours Category") ///
 			subtitle("`y'") ///
-	        legend(order(1 "UKHLS" 2 "SimPaths" 3 "95% CI")) ///
+	        legend(order(1 "UKHLS" 2 "SimPaths" 3 "+/- 1.96 SD")) ///
 			legend(size(small)) ///	
 	        graphregion(color(white)) ///
 			note("Notes: Ages 16-65. Categories 1 = 6-15 hours, 2 = 16-25 hours, 3 = 26-35 hours , 4 = 36-40 hours, 5 = 41-49 hours," "6 = 55+ hours.", size(vsmall))
@@ -283,7 +293,7 @@ foreach y in `years' {
 			ytitle("Proportion", size(small)) ///
 		 	title("Share in Each Labour Hours Category") ///
 			subtitle("`y', `sextext'") ///
-			legend(order(1 "UKHLS" 2 "SimPaths" 3 "95% CI")) ///
+			legend(order(1 "UKHLS" 2 "SimPaths" 3 "+/- 1.96 SD")) ///
 			legend(size(small)) ///	
 			graphregion(color(white)) ///
 			note("Notes: Comparison for `sextext' in `y'." "Categories: 1=6-15, 2=16-25, 3=26-35, 4=36-40, 5=41-49, 6=55+ hours.", size(vsmall))

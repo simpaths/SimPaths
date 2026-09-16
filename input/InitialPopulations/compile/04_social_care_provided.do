@@ -6,7 +6,7 @@
 * COUNTRY:              UK
 * DATA:         	    UKHLS EUL version - UKDA-6614-stata [to wave o]
 * AUTHORS: 				Justin van de Ven, Daria Popova 
-* LAST UPDATE:          15 Jan 2026 DP
+* LAST UPDATE:          11 Aug 2026 JV
 * NOTE:					Called from 00_master.do - see master file for further details
 ***************************************************************************************
 
@@ -20,6 +20,7 @@ log using "${dir_log}/04_social_care_provided.log", replace
 **********************************************************************/
 cd "${dir_data}"
 disp "identifying social care provision"
+set seed 12345
 
 // pooled data
 foreach waveid in $scProvWaves {
@@ -30,7 +31,52 @@ foreach waveid in $scProvWaves {
 	rename *, l
 	rename `waveid'_* *
 	gen swv = `waveno'
-	keep pidp swv aidhrs aidhu*
+	if (`waveno' < 14) {
+		rename indinui_xw wgt
+	} 
+	else {
+		rename inding2_xw wgt
+	}
+	
+	// reallocate aidhrs categories 8 and 9 to categories 1 to 7
+	qui {
+		
+		sum wgt if inlist(aidhrs, 1,2,3), meanonly
+		local sumw123 = r(sum)
+		sum wgt if aidhrs==1, meanonly
+		local p1 = r(sum) / `sumw123'
+		sum wgt if aidhrs==2, meanonly
+		local p2 = r(sum) / `sumw123'
+		local cut1 = `p1'
+		local cut2 = `p1' + `p2'
+		
+		sum wgt if inlist(aidhrs, 4,5,6,7), meanonly
+		local sumw4567 = r(sum)
+		sum wgt if aidhrs==4, meanonly
+		local p4 = r(sum) / `sumw4567'
+		sum wgt if aidhrs==5, meanonly
+		local p5 = r(sum) / `sumw4567'
+		sum wgt if aidhrs==6, meanonly
+		local p6 = r(sum) / `sumw4567'
+		local cut4 = `p4'
+		local cut5 = `cut4' + `p5'
+		local cut6 = `cut5' + `p6'
+		
+		gen _u = runiform()
+		rename aidhrs aidhrs_orig
+		gen aidhrs = aidhrs_orig
+		replace aidhrs = 1 if (aidhrs == 8 & _u <= `cut1')
+		replace aidhrs = 2 if (aidhrs == 8 & _u <= `cut2')
+		replace aidhrs = 3 if (aidhrs == 8)
+
+		replace aidhrs = 4 if (aidhrs == 9 & _u <= `cut4')
+		replace aidhrs = 5 if (aidhrs == 9 & _u <= `cut5')
+		replace aidhrs = 6 if (aidhrs == 9 & _u <= `cut6')
+		replace aidhrs = 7 if (aidhrs == 9)
+		drop _u
+	}
+	
+	keep pidp swv aidhrs aidhu* wgt
 	save "${dir_data}/int_temp.dta", replace
 	
 	use "${dir_ukhls_data}/`waveid'_egoalt.dta", clear
@@ -48,10 +94,9 @@ foreach waveid in $scProvWaves {
 	drop if (chk==1)
 	drop chk
 	merge 1:1 pidp using "${dir_data}/int_temp.dta", keep(2 3) nogen
-	keep pidp swv aidhrs aidhu* rindiv*
+	keep pidp swv aidhrs aidhu* rindiv* wgt
 	save "${dir_data}/ukhls_scprov_`waveid'.dta", replace
 }
-clear all
 foreach waveid in $scProvWaves {
 	if ("`waveid'" == "f") {
 		use "${dir_data}/ukhls_scprov_`waveid'.dta", clear
@@ -109,8 +154,8 @@ replace aidhrs_adj = 27 if (aidhrs==4)
 replace aidhrs_adj = 42 if (aidhrs==5)
 replace aidhrs_adj = 74.5 if (aidhrs==6)
 replace aidhrs_adj = 120 if (aidhrs==7)
-replace aidhrs_adj = 5.48 if (aidhrs==8) //weighted average of 1 to 3
-replace aidhrs_adj = 71.5 if (aidhrs==9) //weighted average of 4 to 7
+//replace aidhrs_adj = 5.48 if (aidhrs==8) //weighted average of 1 to 3
+//replace aidhrs_adj = 71.5 if (aidhrs==9) //weighted average of 4 to 7
 
 gen care_nonpartner = (care_parent + care_child + care_others > 0)
 gen careWho = 0

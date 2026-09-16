@@ -21,9 +21,15 @@ import java.util.Set;
  */
 public class InSchoolAlignment implements IEvaluation {
 
-    private final double targetStudentShare;
-    private final Set<Person> persons;
-    private final SimPathsModel model;
+    private static final int MIN_STUDENT_AGE = Parameters.MIN_AGE_TO_LEAVE_EDUCATION;
+    private static final int MAX_STUDENT_AGE = Parameters.MAX_AGE_TO_STAY_IN_CONTINUOUS_EDUCATION;
+
+    private double targetStudentShare;
+    private Set<Person> persons;
+    private SimPathsModel model;
+    private long numEligible;
+    private long numDeterministicStudents;
+    private double baseReEntryExpected;
 
 
     // CONSTRUCTOR
@@ -31,61 +37,74 @@ public class InSchoolAlignment implements IEvaluation {
         this.model = (SimPathsModel) SimulationEngine.getInstance().getManager(SimPathsModel.class.getCanonicalName());
         this.persons = persons;
         targetStudentShare = Parameters.getTargetShare(model.getYear(), TargetShares.Students);
+
+        numEligible = persons.stream()
+                .filter(person -> person.getLabC4() != null
+                        && person.getDemAge() >= MIN_STUDENT_AGE
+                        && person.getDemAge() <= MAX_STUDENT_AGE)
+                .count();
+
+        // Lagged students below minimum quitting age: deterministically remain students
+        numDeterministicStudents = persons.stream()
+                .filter(person -> person.getLabC4() != null
+                        && person.getDemAge() >= MIN_STUDENT_AGE
+                        && person.getDemAge() <= MAX_STUDENT_AGE
+                        && Les_c4.Student.equals(person.getLabC4L1())
+                        && person.getDemAge() < Parameters.MIN_AGE_TO_LEAVE_EDUCATION)
+                .count();
+
+        // Non-students who are not retired: E1b probability of re-entering (no adjustment applied)
+        baseReEntryExpected = persons.parallelStream()
+                .filter(person -> person.getLabC4() != null
+                        && person.getDemAge() >= MIN_STUDENT_AGE
+                        && person.getDemAge() <= MAX_STUDENT_AGE
+                        && !Les_c4.Student.equals(person.getLabC4L1())
+                        && !Les_c4.Retired.equals(person.getLabC4L1()))
+                .mapToDouble(person -> {
+                    double score = Parameters.getRegEducationE1b().getScore(person, Person.DoublesVariables.class);
+                    return Parameters.getRegEducationE1b().getProbability(score);
+                })
+                .sum();
     }
 
 
     /**
-     * Evaluates the discrepancy between the simulated and target total student share and adjusts probabilities if necessary.
+     * Evaluates the discrepancy between the expected (smooth) student share at a candidate adjustment
+     * and the target share. Uses sum of probit probabilities rather than stochastic realisations,
+     * yielding a smooth, deterministic objective for the root search.
      *
-     * This method focuses on the influence of the adjustment parameter 'args[0]' on the difference between the target and
-     * simulated student share (error).
+     * The adjustment only affects the E1a model (continuing students deciding whether to stay).
+     * The E1b model (re-entry) does not use the adjustment.
      *
-     * The error value is returned and serves as the stopping condition in root search routines.
-     *
-     * @param args An array of parameters, where args[0] represents the adjustment parameter.
-     * @return The error in the target aggregate share of students after potential adjustments.
+     * @param args An array of parameters, where args[0] represents the probit intercept adjustment.
+     * @return target student share minus expected student share at the given adjustment.
      */
     @Override
     public double evaluate(double[] args) {
 
-        // Ensure each trial point is evaluated from lagged status (pure function for root search).
-        persons.parallelStream().forEach(person -> {
-            if (person.getLes_c4_lag1() != null) {
-                person.setLes_c4(person.getLes_c4_lag1());
-            }
-            person.inSchool(args[0]);
-        });
+        if (numEligible == 0) return targetStudentShare;
 
-        return targetStudentShare - evalStudentShare();
+        // Lagged students within quitting age range: E1a probability of remaining (adjustment applies)
+        // Students above MAX_AGE_TO_STAY_IN_CONTINUOUS_EDUCATION deterministically leave → contribute 0
+        double expectedContinuing = persons.parallelStream()
+                .filter(person -> person.getLabC4() != null
+                        && person.getDemAge() >= MIN_STUDENT_AGE
+                        && person.getDemAge() <= MAX_STUDENT_AGE
+                        && Les_c4.Student.equals(person.getLabC4L1())
+                        && person.getDemAge() >= Parameters.MIN_AGE_TO_LEAVE_EDUCATION
+                        && person.getDemAge() <= Parameters.MAX_AGE_TO_STAY_IN_CONTINUOUS_EDUCATION)
+                .mapToDouble(person -> {
+                    double score = Parameters.getRegEducationE1a().getScore(person, Person.DoublesVariables.class);
+                    return Parameters.getRegEducationE1a().getProbability(score + args[0]);
+                })
+                .sum();
+
+        double expectedStudents = numDeterministicStudents + expectedContinuing + baseReEntryExpected;
+        double expectedStudentShare = expectedStudents / numEligible;
+        return targetStudentShare - expectedStudentShare;
     }
 
     public double getTargetStudentShare() {
         return targetStudentShare;
-    }
-
-    /**
-     * Evaluates the aggregate share of students.
-     *
-     * This method uses Java streams to count the number of students over the total number of individuals.
-     *
-     * @return The aggregate share of partnered persons among those eligible, or 0.0 if no eligible persons are found.
-     */
-    private double evalStudentShare() {
-
-        // Counts aligned students within education age range: 16-29 (range is defined in Model)
-        long numStudents = model.getPersons().stream()
-                .filter(person -> person.getDemAge() >= Parameters.MIN_AGE_TO_LEAVE_EDUCATION
-                        && person.getDemAge() <= Parameters.MAX_AGE_TO_STAY_IN_CONTINUOUS_EDUCATION
-                        && !person.isToLeaveSchool()
-                        && Les_c4.Student.equals(person.getLes_c4())) // count aligned student group only
-                .count();
-        // Counts individuals within education age range: 16-29 (range is defined in Model)
-        long numPeople = model.getPersons().stream()
-                .filter(person -> person.getDemAge() >= Parameters.MIN_AGE_TO_LEAVE_EDUCATION
-                        && person.getDemAge() <= Parameters.MAX_AGE_TO_STAY_IN_CONTINUOUS_EDUCATION
-                        && person.getLes_c4() != null)
-                .count();
-
-        return (numStudents > 0) ? (double) numStudents / numPeople : 0.0;
     }
 }

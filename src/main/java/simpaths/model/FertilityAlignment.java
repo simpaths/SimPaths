@@ -3,9 +3,7 @@ package simpaths.model;
 import microsim.engine.SimulationEngine;
 import simpaths.data.IEvaluation;
 import simpaths.data.Parameters;
-import simpaths.data.filters.FertileFilter;
-import simpaths.model.enums.Dcpst;
-import simpaths.model.enums.TimeSeriesVariable;
+import simpaths.data.filters.Filters;
 
 import java.util.Set;
 
@@ -25,6 +23,7 @@ public class FertilityAlignment implements IEvaluation {
     private double targetFertilityRate;
     private Set<Person> persons;
     private SimPathsModel model;
+    private long numFertile;
 
 
     // CONSTRUCTOR
@@ -32,49 +31,36 @@ public class FertilityAlignment implements IEvaluation {
         this.model = (SimPathsModel) SimulationEngine.getInstance().getManager(SimPathsModel.class.getCanonicalName());
         this.persons = persons;
         targetFertilityRate = Parameters.getFertilityRateByYear(model.getYear());
+        // FIXME: should cache fertile persons to only filter once
+        numFertile = persons.stream()
+                .filter(Filters.fertile())
+                .count();
     }
 
 
     /**
-     * Evaluates the discrepancy between the simulated and target total fertility rates adjusts probabilities if necessary.
+     * Evaluates the discrepancy between the expected (smooth) fertility rate at a candidate adjustment
+     * and the target rate. Uses sum of probit probabilities rather than stochastic realisations,
+     * yielding a smooth, deterministic objective for the root search.
      *
-     * This method focuses on the influence of the adjustment parameter 'args[0]' on the difference between the target and
-     * simulated fertility rates (error).
-     *
-     * The error value is returned and serves as the stopping condition in root search routines.
-     *
-     * @param args An array of parameters, where args[0] represents the adjustment parameter.
-     * @return The error in the target aggregate share of partnered persons after potential adjustments.
+     * @param args An array of parameters, where args[0] represents the probit intercept adjustment.
+     * @return target fertility rate minus expected fertility rate at the given adjustment.
      */
     @Override
     public double evaluate(double[] args) {
 
-        persons.parallelStream()
-                .forEach(person -> person.fertility(args[0]));
+        if (numFertile == 0) return targetFertilityRate;
 
-        return targetFertilityRate - evalFertilityRate();
-    }
-
-
-    /**
-     * Evaluates the aggregate share of persons with partners assigned in a test run of union matching among those eligible for partnership.
-     *
-     * This method uses Java streams to count the number of persons who meet the age criteria for cohabitation
-     * and the number of persons who currently have a test partner. The aggregate share is calculated as the
-     * ratio of successfully partnered persons to those eligible for partnership, with consideration for potential division by zero.
-     *
-     * @return The aggregate share of partnered persons among those eligible, or 0.0 if no eligible persons are found.
-     */
-    private double evalFertilityRate() {
-
-        FertileFilter filter = new FertileFilter();
-        long numFertilePersons = model.getPersons().stream()
-                .filter(person -> filter.evaluate(person))
-                .count();
-        long numBirths = model.getPersons().stream()
-                .filter(person -> (person.isToGiveBirth()))
-                .count();
-
-        return (numFertilePersons > 0) ? (double) numBirths / numFertilePersons : 0.0;
+        double expectedBirths = persons.parallelStream()
+                .filter(Filters.fertile())
+                .mapToDouble(person -> {
+                    double score = Parameters.getRegFertilityF1()
+                            .getScore(person, Person.DoublesVariables.class);
+                    return Parameters.getRegFertilityF1()
+                            .getProbability(score + args[0]);
+                })
+                .sum();
+        double expectedRate = expectedBirths / numFertile;
+        return targetFertilityRate - expectedRate;
     }
 }

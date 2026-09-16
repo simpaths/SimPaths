@@ -59,8 +59,8 @@ public enum RegressionName {
     SocialCareS2k(RegressionType.Linear),
     SocialCareS3a(RegressionType.Probit),
     SocialCareS3b(RegressionType.Probit),
-    SocialCareS3c(RegressionType.Linear),
-    SocialCareS3d(RegressionType.Linear),
+    SocialCareS3c(RegressionType.OrderedLogit),
+    SocialCareS3d(RegressionType.OrderedLogit),
     SocialCareS3e(RegressionType.Linear),
 
     UnemploymentU1a(RegressionType.Probit),
