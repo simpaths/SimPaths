@@ -14,7 +14,7 @@ class EmploymentHistoryFilterTest {
             Les_c4 les_c4_lag1
     ) {
         Person testPerson = new Person(true);
-        testPerson.setLes_c4_lag1(les_c4_lag1);
+        testPerson.setLabC4L1(les_c4_lag1);
 
         return testPerson;
     }
@@ -22,22 +22,21 @@ class EmploymentHistoryFilterTest {
     @Test
     @DisplayName("Employed filter only returns true for employed or self-employed persons")
     void employedOrSelfEmployed() {
-        EmploymentHistoryFilter filter = new EmploymentHistoryFilter(Les_c4.EmployedOrSelfEmployed);
-        assertTrue(filter.isFiltered(createTestPerson(Les_c4.EmployedOrSelfEmployed)));
-        assertFalse(filter.isFiltered(createTestPerson(Les_c4.NotEmployed)));
-        assertFalse(filter.isFiltered(createTestPerson(Les_c4.Student)));
-        assertFalse(filter.isFiltered(createTestPerson(Les_c4.Retired)));
+        var filter = Filters.employmentHistory(Les_c4.EmployedOrSelfEmployed);
+        assertTrue(filter.test(createTestPerson(Les_c4.EmployedOrSelfEmployed)));
+        assertFalse(filter.test(createTestPerson(Les_c4.NotEmployed)));
+        assertFalse(filter.test(createTestPerson(Les_c4.Student)));
+        assertFalse(filter.test(createTestPerson(Les_c4.Retired)));
     }
 
     @Test
     @DisplayName("Unemployed filter only returns true for unemployed persons")
     void unEmployed() {
-        EmploymentHistoryFilter filter = new EmploymentHistoryFilter(Les_c4.NotEmployed);
-        assertFalse(filter.isFiltered(createTestPerson(Les_c4.EmployedOrSelfEmployed)));
-        assertTrue(filter.isFiltered(createTestPerson(Les_c4.NotEmployed)));
-        assertFalse(filter.isFiltered(createTestPerson(Les_c4.Student)));
-        assertFalse(filter.isFiltered(createTestPerson(Les_c4.Retired)));
+        var filter = Filters.employmentHistory(Les_c4.NotEmployed);
+        assertFalse(filter.test(createTestPerson(Les_c4.EmployedOrSelfEmployed)));
+        assertTrue(filter.test(createTestPerson(Les_c4.NotEmployed)));
+        assertFalse(filter.test(createTestPerson(Les_c4.Student)));
+        assertFalse(filter.test(createTestPerson(Les_c4.Retired)));
     }
-
 
 }

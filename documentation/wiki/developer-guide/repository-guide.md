@@ -62,19 +62,22 @@ SimPaths/
 │   ├── projections_*.xlsx          # Mortality/fertility projections
 │   ├── DatabaseCountryYear.xlsx    # Database metadata
 │   ├── EUROMODpolicySchedule.xlsx  # Policy schedule
-│   ├── policy parameters.xlsx      # Tax-benefit parameters
+│   ├── social_care_parameters.xlsx # Social care parameters
 │   ├── validation_statistics.xlsx  # Validation targets
 │   └── input.mv.db                 # Initial-population and donor database
 │
 ├── output/                         # Simulation outputs
 │   ├── [timestamp]_[seed]_[run]/   # Timestamped output folders
 │   │   ├── csv/
-│   │   │   ├── WealthIncomeStatistics*.csv # Income and wealth summaries
-│   │   │   ├── DemographicStatistics*.csv # Demographic summaries
-│   │   │   ├── AlignmentStatistics*.csv  # Alignment diagnostics
-│   │   │   ├── Person<N>.csv            # Person-level output
-│   │   │   ├── BenefitUnit<N>.csv       # Benefit-unit-level output
-│   │   │   └── Household<N>.csv         # Household-level output
+│   │   │   ├── WealthIncomeStatistics*.csv  # Income and wealth; Gini, S-Index
+│   │   │   ├── DemographicStatistics*.csv   # Demographics by age band
+│   │   │   ├── AlignmentStatistics*.csv     # Alignment diagnostics
+│   │   │   ├── LabourStatistics*.csv        # Labour market transitions and participation
+│   │   │   ├── HealthStatistics*.csv        # Population health by age band
+│   │   │   ├── WellbeingByGender*.csv       # Wellbeing by gender, ages 25-64
+│   │   │   ├── Person*.csv               # Person-level output
+│   │   │   ├── BenefitUnit*.csv          # Benefit-unit-level output
+│   │   │   └── Household*.csv            # Household-level output
 │   │   ├── database/                    # Run-specific persistence output
 │   │   └── input/                       # Copied run input artifacts
 │   └── logs/                       # Log files (with -f flag on multirun)
@@ -191,13 +194,15 @@ SimPaths/
 
 | File Pattern | Purpose |
 |--------------|---------|
-| `align_*.xlsx` | Alignment targets (population, employment, education, etc.) |
+| `align_*.xlsx` and `alignment_targets_*.xlsx` | Population, education, employment and partnership targets |
+| `alignment_adjustment_series.xlsx` | Time-varying alignment adjustments |
+| `economic_time_series.xlsx` | Price and wage indices, returns, debt costs and care wages |
 | `reg_*.xlsx` | Regression parameters for behavioral processes |
 | `scenario_*.xlsx` | Policy scenarios and projections |
 | `projections_*.xlsx` | Demographic projections (mortality, fertility) |
 | `DatabaseCountryYear.xlsx` | Tracks current database country/year |
 | `EUROMODpolicySchedule.xlsx` | Tax-benefit policy schedule |
-| `policy parameters.xlsx` | Detailed policy parameters |
+| `social_care_parameters.xlsx` | Detailed social care parameters |
 
 **Subdirectories**:
 

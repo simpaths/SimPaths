@@ -2,12 +2,19 @@
 * PROJECT:  		SimPaths UK 
 * SECTION:			Validation
 * OBJECT: 			Children
-* AUTHORS:			Ashley Burdett 
-* LAST UPDATE:		Jan 2026
-* COUNTRY: 			UK 
+* AUTHORS:			Ashley Burdett
+* LAST UPDATE:		Aug 2026
+* COUNTRY: 			UK
+* DESCRIPTION: 		Plots validation graphs comparing simulated vs. UKHLS
+* 					benefit-unit composition by number of children (18-65
+* 					reference adults): share with 0/1/2/3+ children under 18
+* 					(1.1-1.2), share with a child under 3 (1.3-1.4), and
+* 					share with a newborn (1.5-1.6) -- each split all/by
+* 					gender, with a shaded band (mean +/- 1.96*SD across
+* 					$max_n_runs runs).
 ********************************************************************************
-* NOTES: 			This do file plots simulated and UKHLS % of benefit units
-*			 		with a given number of children 
+* NOTES: 			Plots the share of benefit units with a given number of
+* 					children.
 ********************************************************************************
 
 ********************************************************************************
@@ -27,7 +34,7 @@ keep if inrange(demAge,18,65)
 * Calculate weighted share of benefit units with 0, 1, 2, 3 or more children
 collapse (mean) children_* [aw = dwt], by(year)
 
-foreach varname in children_0 children_1 children_2 children_3p  {
+foreach varname in children_0 children_1 children_2 children_3p {
 	
 	rename `varname' valid_`varname'
 	
@@ -53,7 +60,7 @@ collapse (mean) children_* ///
 			  children_3p_sd = children_3p ///
 		 , by(year)
 		 
-foreach varname in children_0 children_1 children_2 children_3p  {
+foreach varname in children_0 children_1 children_2 children_3p {
 	
 	gen sim_`varname'_h = `varname' + 1.96*`varname'_sd
 	gen sim_`varname'_l = `varname' - 1.96*`varname'_sd
@@ -94,10 +101,12 @@ twoway (rarea sim_children_0_h sim_children_0_l year, ///
 	ylabel(, labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: Individual observations plotted.", size(vsmall))
+	note("Notes: Individual observations plotted.Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
+		size(vsmall))
 
 * Save figure
-graph export "$dir_output_files/children/validation_${country}_children_ts_18_65_both.jpg", ///
+graph export ///
+"$dir_output_files/children/validation_${country}_children_ts_18_65_both.jpg", ///
 	replace width(2400) height(1350) quality(100)
 
 	
@@ -186,10 +195,12 @@ twoway (rarea sim_children_0_h sim_children_0_l year, ///
 	ylabel(, labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: Individual observations plotted.", size(vsmall))
+	note("Notes: Individual observations plotted. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
+		size(vsmall))
 
 * Save figure
-graph export "$dir_output_files/children/validation_${country}_children_ts_18_65_male.jpg", ///
+graph export ///
+"$dir_output_files/children/validation_${country}_children_ts_18_65_male.jpg", ///
 	replace width(2400) height(1350) quality(100)	
 	
 restore 	
@@ -222,10 +233,12 @@ twoway (rarea sim_children_0_h sim_children_0_l year, ///
 	ylabel(, labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: Individual observations plotted.", size(vsmall))
+	note("Notes: Individual observations plotted. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
+		size(vsmall))
 
 * Save figure
-graph export "$dir_output_files/children/validation_${country}_children_ts_18_65_female.jpg", ///
+graph export ///
+"$dir_output_files/children/validation_${country}_children_ts_18_65_female.jpg", ///
 	replace width(2400) height(1350) quality(100)		
 	
 	
@@ -293,10 +306,12 @@ twoway (rarea sim_child02_h sim_child02_l year, ///
 	ylabel(, labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes:", size(vsmall)) 
+	note("Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
+		size(vsmall)) 
 	
 * Save figure
-graph export "$dir_output_files/children/validation_${country}_young_child_ts_18_65_both.jpg", ///
+graph export ///
+"$dir_output_files/children/validation_${country}_young_child_ts_18_65_both.jpg", ///
 	replace width(2400) height(1350) quality(100)
 
 graph drop _all 
@@ -372,10 +387,12 @@ twoway (rarea sim_child02_h sim_child02_l year, ///
 	ylabel(, labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: ", size(vsmall)) 
+	note("Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
+		size(vsmall)) 
 	
 * Save figure
-graph export "$dir_output_files/children/validation_${country}_young_child_ts_18_65_male.jpg", ///
+graph export ///
+"$dir_output_files/children/validation_${country}_young_child_ts_18_65_male.jpg", ///
 	replace width(2400) height(1350) quality(100)
 
 restore	
@@ -395,10 +412,12 @@ twoway (rarea sim_child02_h sim_child02_l year, ///
 	ylabel(, labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: ", size(vsmall)) 
+	note("Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
+		size(vsmall)) 
 	
 * Save figure
-graph export "$dir_output_files/children/validation_${country}_young_child_ts_18_65_female.jpg", ///
+graph export ///
+"$dir_output_files/children/validation_${country}_young_child_ts_18_65_female.jpg", ///
 	replace width(2400) height(1350) quality(100)
 	
 	
@@ -470,10 +489,12 @@ twoway (rarea sim_child0_h sim_child0_l year, ///
 	ylabel(, labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: COnstructed from benefit unit information.", size(vsmall)) 
+	note("Notes: COnstructed from benefit unit information. Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
+		size(vsmall)) 
 	
 * Save figure
-graph export "$dir_output_files/children/validation_${country}_new_born_child_ts_18_65_both.jpg", ///
+graph export ///
+"$dir_output_files/children/validation_${country}_new_born_child_ts_18_65_both.jpg", ///
 	replace width(2400) height(1350) quality(100)
 
 graph drop _all 
@@ -549,10 +570,12 @@ twoway (rarea sim_child0_h sim_child0_l year, ///
 	ylabel(, labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: ", size(vsmall)) 
+	note("Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
+		size(vsmall)) 
 	
 * Save figure
-graph export "$dir_output_files/children/validation_${country}_new_born_child_ts_18_65_male.jpg", ///
+graph export ///
+"$dir_output_files/children/validation_${country}_new_born_child_ts_18_65_male.jpg", ///
 	replace width(2400) height(1350) quality(100)
 
 restore	
@@ -572,10 +595,12 @@ twoway (rarea sim_child0_h sim_child0_l year, ///
 	ylabel(, labsize(small)) ///
 	legend(size(small)) ///
 	graphregion(color(white)) ///
-	note("Notes: ", size(vsmall)) 
+	note("Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
+		size(vsmall)) 
 	
 * Save figure
-graph export "$dir_output_files/children/validation_${country}_new_bron_child_ts_18_65_female.jpg", ///
+graph export ///
+	"$dir_output_files/children/validation_${country}_new_born_child_ts_18_65_female.jpg", ///
 	replace width(2400) height(1350) quality(100)
 	
 	

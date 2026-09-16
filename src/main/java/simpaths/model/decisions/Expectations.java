@@ -1,6 +1,7 @@
 package simpaths.model.decisions;
 
 import java.security.InvalidParameterException;
+import java.util.Map;
 
 import simpaths.data.ManagerRegressions;
 import simpaths.data.Parameters;
@@ -98,9 +99,9 @@ public class Expectations {
 
         // proxy to evaluate regression projections for current period
         benefitUnitProxyThisPeriod = new BenefitUnit(true);
-        benefitUnitProxyThisPeriod.setYearLocal(currentStates.getYear());
-        benefitUnitProxyThisPeriod.setOccupancyLocal(currentStates.getOccupancyCode());
-        benefitUnitProxyThisPeriod.setDeh_c4Local(currentStates.getEducationCode());
+        benefitUnitProxyThisPeriod.setI_demYear(currentStates.getYear());
+        benefitUnitProxyThisPeriod.setI_demOccupancy(currentStates.getOccupancyCode());
+        benefitUnitProxyThisPeriod.setI_eduHighestC4(currentStates.getEducationCode());
         benefitUnitProxyThisPeriod.setRegion(currentStates.getRegionCode());
     }
 
@@ -170,53 +171,53 @@ public class Expectations {
         // add new data for within period regression specifications
         personProxyThisPeriod = new Person(true);
         personProxyThisPeriod.setDemAge(ageYearsThisPeriod);
-        personProxyThisPeriod.setRegionLocal(currentStates.getRegionCode());
+        personProxyThisPeriod.setI_demRgn(currentStates.getRegionCode());
         personProxyThisPeriod.setDemMaleFlag(currentStates.getGenderCode());
-        personProxyThisPeriod.setDhe(currentStates.getHealthCode());
-        personProxyThisPeriod.setDeh_c4(currentStates.getEducationCode());
-        personProxyThisPeriod.setDcpstLocal(currentStates.getDcpst());
-        personProxyThisPeriod.setSocialCareProvision(currentStates.getSocialCareProvisionCode());
+        personProxyThisPeriod.setHealthSelfRated(currentStates.getHealthCode());
+        personProxyThisPeriod.setEduHighestC4(currentStates.getEducationCode());
+        personProxyThisPeriod.setI_demPartnerStatus(currentStates.getDcpst());
+        personProxyThisPeriod.setSocialCareProvision(currentStates.getSocialCareProvisionState());
         personProxyThisPeriod.populateSocialCareReceipt(currentStates.getSocialCareReceiptStateCode());
 
         // add person proxy for next period expectations
         personProxyNextPeriod = new Person(true);
-        personProxyNextPeriod.setYearLocal(currentStates.getYearByAge(ageYearsNextPeriod));
+        personProxyNextPeriod.setI_demYear(currentStates.getYearByAge(ageYearsNextPeriod));
         personProxyNextPeriod.setI_demCompHhC4L1(currentStates.getHouseholdTypeCode());
         personProxyNextPeriod.setI_yHhQuintilesC5(Ydses_c5.Q3);
-        personProxyNextPeriod.setNumberChildrenAllLocal_lag1(currentStates.getChildrenAll());
-        personProxyNextPeriod.setNumberChildrenAllLocal(currentStates.getChildrenAll());
-        personProxyNextPeriod.setNumberChildren02Local_lag1(currentStates.getChildren02());
+        personProxyNextPeriod.setI_demNchildL1(currentStates.getChildrenAll());
+        personProxyNextPeriod.setI_demNchild(currentStates.getChildrenAll());
+        personProxyNextPeriod.setI_demNchild0to2L1(currentStates.getChildren02());
         personProxyNextPeriod.setDemAge(ageYearsNextPeriod);
-        personProxyNextPeriod.setRegionLocal(currentStates.getRegionCode());
+        personProxyNextPeriod.setI_demRgn(currentStates.getRegionCode());
         personProxyNextPeriod.setDemMaleFlag(currentStates.getGenderCode());
-        personProxyNextPeriod.setDlltsd(currentStates.getDlltsd());
-        personProxyNextPeriod.setDlltsd_lag1(currentStates.getDlltsd());
-        personProxyNextPeriod.setDhe(currentStates.getHealthCode());
-        personProxyNextPeriod.setDhe_lag1(currentStates.getHealthCode());
+        personProxyNextPeriod.setHealthDsblLongtermFlag(currentStates.getDlltsd());
+        personProxyNextPeriod.setHealthDsblLongtermFlagL1(currentStates.getDlltsd());
+        personProxyNextPeriod.setHealthSelfRated(currentStates.getHealthCode());
+        personProxyNextPeriod.setHealthSelfRatedL1(currentStates.getHealthCode());
         personProxyNextPeriod.populateSocialCareReceipt_lag1(currentStates.getSocialCareReceiptStateCode());
-        personProxyNextPeriod.setSocialCareProvision_lag1(currentStates.getSocialCareProvisionCode());
-        personProxyNextPeriod.setDed(currentStates.getStudentIndicator());
-        personProxyNextPeriod.setDeh_c4(currentStates.getEducationCode());
-        personProxyNextPeriod.setDeh_c4_lag1(currentStates.getEducationCode());
-        personProxyNextPeriod.setDehf_c4(DecisionParams.EDUCATION_FATHER);
-        personProxyNextPeriod.setDehm_c4(DecisionParams.EDUCATION_MOTHER);
+        personProxyNextPeriod.setCareProvidedFlagL1(currentStates.getSocialCareProvisionState());
+        personProxyNextPeriod.setEduSpellFlag(currentStates.getStudentIndicator());
+        personProxyNextPeriod.setEduHighestC4(currentStates.getEducationCode());
+        personProxyNextPeriod.setEduHighestC4L1(currentStates.getEducationCode());
+        personProxyNextPeriod.setEduHighestFatherC4(DecisionParams.EDUCATION_FATHER);
+        personProxyNextPeriod.setEduHighestMotherC4(DecisionParams.EDUCATION_MOTHER);
         if (ageYearsNextPeriod <= DecisionParams.MAX_AGE_COHABITATION) {
-            personProxyNextPeriod.setDcpstLocal(currentStates.getDcpst());
+            personProxyNextPeriod.setI_demPartnerStatus(currentStates.getDcpst());
         } else {
             if (currentStates.getDcpst().equals(Dcpst.Partnered))
-                personProxyNextPeriod.setDcpstLocal(Dcpst.Single);
+                personProxyNextPeriod.setI_demPartnerStatus(Dcpst.Single);
             else
-                personProxyNextPeriod.setDcpstLocal(Dcpst.Single);
+                personProxyNextPeriod.setI_demPartnerStatus(Dcpst.Single);
         }
-        personProxyNextPeriod.setDcpst_lag1(currentStates.getDcpst());
+        personProxyNextPeriod.setDemPartnerStatusL1(currentStates.getDcpst());
         personProxyNextPeriod.setLiwwh((ageYearsNextPeriod - Parameters.AGE_TO_BECOME_RESPONSIBLE) * DecisionParams.MONTHS_EMPLOYED_PER_YEAR);
         personProxyNextPeriod.setLabWageFullTimeHrlyL1(labWageFullTimeHrly);
         personProxyNextPeriod.setIoFlag(true);
         if (cohabitation) {
-            personProxyNextPeriod.setDehsp_c4_lag1(currentStates.getEducationCode());
-            personProxyNextPeriod.setDhesp_lag1(DecisionParams.DEFAULT_HEALTH);
+            personProxyNextPeriod.setEduHighestPartnerC4L1(currentStates.getEducationCode());
+            personProxyNextPeriod.setHealthPartnerSelfRatedL1(DecisionParams.DEFAULT_HEALTH);
             personProxyNextPeriod.setDemPartnerNYearL1(DecisionParams.DEFAULT_YEARS_MARRIED);
-            personProxyNextPeriod.setDcpagdf_lag1(DecisionParams.DEFAULT_AGE_DIFFERENCE);
+            personProxyNextPeriod.setDemAgePartnerDiffL1(DecisionParams.DEFAULT_AGE_DIFFERENCE);
         }
     }
 
@@ -329,11 +330,11 @@ public class Expectations {
         }
 
         // non-discretionary expenditure
-        benefitUnitProxyThisPeriod.setLabourHoursWeekly1Local(labourHours1Weekly);
+        benefitUnitProxyThisPeriod.setI_labHrsWork1Week(labourHours1Weekly);
         if (cohabitation) {
-            benefitUnitProxyThisPeriod.setLabourHoursWeekly2Local(labourHours2Weekly);
+            benefitUnitProxyThisPeriod.setI_labHrsWork2Week(labourHours2Weekly);
         } else {
-            benefitUnitProxyThisPeriod.setLabourHoursWeekly2Local(null);
+            benefitUnitProxyThisPeriod.setI_labHrsWork2Week(null);
         }
         double childcareCostAnnual = evalChildcareCostWeekly() * Parameters.WEEKS_PER_YEAR;
         double socialCareCostAnnual = evalSocialCareCostWeekly() * Parameters.WEEKS_PER_YEAR;
@@ -365,16 +366,16 @@ public class Expectations {
         if (ageYearsNextPeriod <= DecisionParams.maxAge) {
 
             // update objects for interaction with regression models
-            personProxyNextPeriod.setLes_c4_lag1(currentStates.getLesCode(emp1Pr));
-            personProxyNextPeriod.setLesdf_c4_lag1(currentStates.getLesC4Code(emp1Pr, emp2Pr));
-            personProxyNextPeriod.setYpnbihs_dv_lag1(
+            personProxyNextPeriod.setLabC4L1(currentStates.getLesCode(emp1Pr));
+            personProxyNextPeriod.setLabStatusPartnerAndOwnC4L1(currentStates.getLesC4Code(emp1Pr, emp2Pr));
+            personProxyNextPeriod.setYNonBenPersGrossMonthL1(
                     asinh(labourIncome1Weekly*Parameters.WEEKS_PER_MONTH + (investmentIncome1Annual + pensionIncome1Annual) / 12.0));
             if (cohabitation) {
-                personProxyNextPeriod.setYnbcpdf_dv_lag1(
+                personProxyNextPeriod.setYPersAndPartnerGrossDiffMonthL1(
                         asinh(labourIncome1Weekly*Parameters.WEEKS_PER_MONTH + (investmentIncome1Annual + pensionIncome1Annual) / 12.0) -
                                 asinh(labourIncome2Weekly*Parameters.WEEKS_PER_MONTH + (investmentIncome2Annual + pensionIncome2Annual) / 12.0) );
             } else {
-                personProxyNextPeriod.setYnbcpdf_dv_lag1(0.0);
+                personProxyNextPeriod.setYPersAndPartnerGrossDiffMonthL1(0.0);
             }
 
             // instantiate expectations factory
@@ -468,8 +469,7 @@ public class Expectations {
 
             double probFormalChildCare = Parameters.getRegChildcareC1a().getProbability(benefitUnitProxyThisPeriod, BenefitUnit.Regressors.class);
             double logChildcareCostScore = Parameters.getRegChildcareC1b().getScore(benefitUnitProxyThisPeriod, BenefitUnit.Regressors.class);
-            double logChildcareRSME = ManagerRegressions.getRmse(RegressionName.ChildcareC1b);
-            childcareCostWeekly = Math.exp(logChildcareCostScore + logChildcareRSME*logChildcareRSME/2.0) * probFormalChildCare;
+            childcareCostWeekly = Math.exp(logChildcareCostScore) * probFormalChildCare;
         }
         return childcareCostWeekly;
     }
@@ -500,15 +500,15 @@ public class Expectations {
         double socialCareHoursProvidedWeekly = 0.0;
         if (Parameters.flagSocialCare && !Parameters.flagSuppressSocialCareCosts) {
 
-            SocialCareProvision status = currentStates.getSocialCareProvisionCode();
-            if (!SocialCareProvision.None.equals(status)) {
-                // With S3e retired, no separate regression is used for hours provided in expectations.
-                socialCareHoursProvidedWeekly = 0.0;
+            Indicator status = currentStates.getSocialCareProvisionState();
+            if (!Indicator.False.equals(status)) {
 
-                // Retired process (kept for future reuse): S3e provided care hours.
-                // double score = Parameters.getRegCareHoursProvS3e().getScore(personProxyThisPeriod,Person.DoublesVariables.class);
-                // double rmse = Parameters.getRMSEForRegression("S3e");
-                // socialCareHoursProvidedWeekly = Math.min(80.0, Math.exp(score + rmse*rmse/2.0));
+                RegressionName regression = cohabitation ? RegressionName.SocialCareS3d : RegressionName.SocialCareS3c;
+                Map<CareHoursProvidedCategory, Double> probabilities =
+                        ManagerRegressions.getProbabilities(personProxyThisPeriod, regression);
+                for (Map.Entry<CareHoursProvidedCategory, Double> entry : probabilities.entrySet()) {
+                    socialCareHoursProvidedWeekly += entry.getKey().getRepresentativeHours() * entry.getValue();
+                }
             }
         }
         return socialCareHoursProvidedWeekly;
@@ -584,9 +584,9 @@ public class Expectations {
         } else {
             double ptPremium;
             if (currentStates.getGenderCode()==Gender.Male) {
-                ptPremium = ManagerRegressions.getRegressionCoeff(RegressionName.WagesMalesE, "Pt");
+                ptPremium = ManagerRegressions.getRegressionCoeff(RegressionName.WagesMalesE, "labPt");
             } else {
-                ptPremium = ManagerRegressions.getRegressionCoeff(RegressionName.WagesFemalesE, "Pt");
+                ptPremium = ManagerRegressions.getRegressionCoeff(RegressionName.WagesFemalesE, "labPt");
             }
             return Math.exp( Math.log(labWageFullTimeHrly) + ptPremium);
         }

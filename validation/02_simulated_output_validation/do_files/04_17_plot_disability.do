@@ -1,12 +1,16 @@
 /*******************************************************************************
 * PROJECT:  		SimPaths UK 
 * SECTION:			Validation
-* OBJECT: 			Disability 
-* AUTHORS:			Ashley Burdett 
-* LAST UPDATE:		Jan 2026
-* COUNTRY: 			UK 
+* OBJECT: 			Disability
+* AUTHORS:			Ashley Burdett
+* LAST UPDATE:		Aug 2026
+* COUNTRY: 			UK
+* DESCRIPTION: 		Plots validation graphs comparing simulated vs. UKHLS
+* 					disability/long-term-sickness status, ages 18-65: overall
+* 					(1.1), by gender (1.2), and by age group (1.3), with a
+* 					shaded band (mean +/- 1.96*SD across $max_n_runs runs).
 ********************************************************************************
-* NOTES: 			
+* NOTES:
 *******************************************************************************/
 
 ********************************************************************************
@@ -62,7 +66,8 @@ twoway (rarea sim_healthDsblLongtermFlag_high ///
 	ylabel(, labsize(small)) ///
 	legend(size(small))  ///
 	graphregion(color(white)) ///
-	note("Notes: ", size(vsmall)) 
+	note("Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
+		size(vsmall)) 
 	
 graph export ///
 "$dir_output_files/disability/validation_${country}_disability_ts_18_65_both.jpg", ///
@@ -122,7 +127,8 @@ twoway (rarea sim_healthDsblLongtermFlag_high ///
 	ylabel(, labsize(small)) ///
 	legend(size(small))  ///
 	graphregion(color(white)) ///
-	note("Notes: ", size(vsmall)) 
+	note("Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
+		size(vsmall)) 
 
 graph export ///
 "$dir_output_files/disability/validation_${country}_disability_ts_18_65_male_female.jpg", ///
@@ -130,7 +136,7 @@ graph export ///
 
 
 ********************************************************************************
-* 1.2 : Mean values over time, by age group
+* 1.3 : Mean values over time, by age group
 ********************************************************************************
 
 * Prepare validation data 
@@ -311,7 +317,8 @@ grc1leg healthDsblLongtermFlag_1 healthDsblLongtermFlag_2 ///
 	legendfrom(healthDsblLongtermFlag_1) ///
 	graphregion(color(white)) ///
 	ycomm ///
-	note("Notes:", size(vsmall))
+	note("Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
+		size(vsmall))
 
 graph export ///
 "$dir_output_files/disability/validation_${country}_disability_ts_age_groups_both.jpg", ///

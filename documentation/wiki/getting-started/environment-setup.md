@@ -15,7 +15,7 @@ This page covers the local software requirements, repository setup, and the firs
 | Component | Version | Sources |
 | --- | --- | --- |
 | Java Development Kit (JDK) | 25 | [Adoptium](https://adoptium.net/temurin/releases/?version=25) |
-| Apache Maven | 3.8 or later | [Apache Maven](https://maven.apache.org/download.cgi) |
+| Apache Maven | 3.9.16 or later | [Apache Maven](https://maven.apache.org/download.cgi) |
 | Git | Not pinned | [Git](https://git-scm.com/install/) |
 
 It is worth checking the toolchain before going further:

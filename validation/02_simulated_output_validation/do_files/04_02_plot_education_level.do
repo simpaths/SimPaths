@@ -1,14 +1,18 @@
-********************************************************************************
+/*******************************************************************************
+* PROJECT:  		SimPaths UK
 * SECTION:			Validation
-* OBJECT: 			Education
-* AUTHORS:			Ashley Burdett 
-* LAST UPDATE:		Jan 2026
-* COUNTRY: 			UK 
+* OBJECT: 			Education level plots
+* AUTHORS:			Ashley Burdett
+* LAST UPDATE:		Aug 2026
+* COUNTRY: 			UK
+* DESCRIPTION: 		Plots validation graphs comparing simulated vs. UKHLS
+* 					educational attainment (high/medium/low/in-education),
+* 					across ~9 age-band and gender subgroups, plus attainment
+* 					at the time of leaving education. Same prepare/collapse/
+* 					merge/plot pattern as 04_01 (see its header for details).
 ********************************************************************************
-* NOTES: 			This do file plots simulated and UKHLS education. 
-* 					Unable to look at transitions because use X-sectional 
-* 					SILC data. 
-********************************************************************************
+* NOTES: 			
+*******************************************************************************/
 
 ********************************************************************************
 * 0 : Programmes
@@ -92,7 +96,6 @@ collapse (mean) sim_edu_high sim_edu_med sim_edu_low sim_edu_na ///
 		 sim_edu_na_sd = sim_edu_na ///
 		 , by(year)
 		 
-* Approx 95% confidence interval 		 
 foreach varname in sim_edu_high sim_edu_med sim_edu_low sim_edu_na {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -107,7 +110,7 @@ merge 1:1 year using "$dir_data/temp_valid_stats.dta", keep(3) nogen
 make_edu_plot, ///
 	subtitle("Ages 16-65") ///
 	saving("validation_${country}_education_ts_16_65_both") ///
-	note(`""Notes:""')
+	note(`""Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')
 
 	
 ********************************************************************************
@@ -146,7 +149,6 @@ collapse (mean) sim_edu_high sim_edu_med sim_edu_low sim_edu_na ///
 		 (sd) sim_edu_na_sd = sim_edu_na ///	 
 		 , by(year demMaleFlag )
 		 
-* Approx 95% confidence interval 		 
 foreach varname in sim_edu_high sim_edu_med sim_edu_low sim_edu_na  {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -166,7 +168,7 @@ keep if demMaleFlag == 0
 make_edu_plot, ///
 	subtitle("Ages 16-65, females") ///
 	saving("validation_${country}_education_ts_16_65_female") ///
-	note(`""Notes:""')
+	note(`""Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')
 
 restore 	
 
@@ -179,7 +181,7 @@ keep if demMaleFlag == 1
 make_edu_plot, ///
 	subtitle("Ages 16-65, males") ///
 	saving("validation_${country}_education_ts_16_65_male") ///
-	note(`""Notes:""')
+	note(`""Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')
 
 restore 	
 	
@@ -221,7 +223,6 @@ collapse (mean) sim_edu_high sim_edu_med sim_edu_low sim_edu_na ///
 		 sim_edu_na_sd = sim_edu_na ///
 		 , by(year)
 		
-* Approx 95% confidence interval 		
 foreach varname in sim_edu_high sim_edu_med sim_edu_low sim_edu_na {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -235,7 +236,7 @@ merge 1:1 year using "$dir_data/temp_valid_stats.dta", keep(3) nogen
 make_edu_plot, ///
 	subtitle("Ages 16-30") ///
 	saving("validation_${country}_education_ts_16_30_both") ///
-	note(`""Notes:""')
+	note(`""Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')
 
 	
 ********************************************************************************
@@ -276,7 +277,6 @@ collapse (mean) sim_edu_high sim_edu_med sim_edu_low sim_edu_na ///
 		 (sd) sim_edu_na_sd = sim_edu_na ///
 		 , by(year demMaleFlag)
 		 
-* Approx 95% confidence interval		 
 foreach varname in sim_edu_high sim_edu_med sim_edu_low sim_edu_na {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -297,7 +297,7 @@ keep if demMaleFlag == 0
 make_edu_plot, ///
 	subtitle("Ages 16-30, females") ///
 	saving("validation_${country}_education_ts_16_30_female") ///
-	note(`""Notes:""')
+	note(`""Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')
 
 restore 	
 
@@ -310,7 +310,7 @@ keep if demMaleFlag == 1
 make_edu_plot, ///
 	subtitle("Ages 16-30, males") ///
 	saving("validation_${country}_education_ts_16_30_male") ///
-	note(`""Notes:""')
+	note(`""Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')
 
 restore 
 
@@ -352,7 +352,6 @@ collapse (mean) sim_edu_high sim_edu_med sim_edu_low sim_edu_na ///
 		 sim_edu_na_sd = sim_edu_na ///
 		 , by(year)
 		
-* Approx 95% confidence interval 		
 foreach varname in sim_edu_high sim_edu_med sim_edu_low sim_edu_na {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -366,7 +365,7 @@ merge 1:1 year using "$dir_data/temp_valid_stats.dta", keep(3) nogen
 make_edu_plot, ///
 	subtitle("Ages 31-40") ///
 	saving("validation_${country}_education_ts_31_40_both") ///
-	note(`""Notes:""')
+	note(`""Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')
 
 	
 ********************************************************************************
@@ -407,7 +406,6 @@ collapse (mean) sim_edu_high sim_edu_med sim_edu_low sim_edu_na ///
 		 (sd) sim_edu_na_sd = sim_edu_na ///
 		 , by(year demMaleFlag)
 		 
-* Approx 95% confidence interval		 
 foreach varname in sim_edu_high sim_edu_med sim_edu_low sim_edu_na {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -428,7 +426,7 @@ keep if demMaleFlag == 0
 make_edu_plot, ///
 	subtitle("Ages 31-40, females") ///
 	saving("validation_${country}_education_ts_31_40_female") ///
-	note(`""Notes:""')
+	note(`""Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')
 
 restore 	
 
@@ -441,7 +439,7 @@ keep if demMaleFlag == 1
 make_edu_plot, ///
 	subtitle("Ages 31-40, males") ///
 	saving("validation_${country}_education_ts_31_40_male") ///
-	note(`""Notes:""')
+	note(`""Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')
 
 restore 
 	
@@ -483,7 +481,6 @@ collapse (mean) sim_edu_high sim_edu_med sim_edu_low sim_edu_na ///
 		 sim_edu_na_sd = sim_edu_na ///
 		 , by(year)
 		
-* Approx 95% confidence interval 		
 foreach varname in sim_edu_high sim_edu_med sim_edu_low sim_edu_na {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -497,7 +494,7 @@ merge 1:1 year using "$dir_data/temp_valid_stats.dta", keep(3) nogen
 make_edu_plot, ///
 	subtitle("Ages 41-65") ///
 	saving("validation_${country}_education_ts_41_65_both") ///
-	note(`""Notes:""')
+	note(`""Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')
 
 	
 ********************************************************************************
@@ -538,7 +535,6 @@ collapse (mean) sim_edu_high sim_edu_med sim_edu_low sim_edu_na ///
 		 (sd) sim_edu_na_sd = sim_edu_na ///
 		 , by(year demMaleFlag)
 		 
-* Approx 95% confidence interval		 
 foreach varname in sim_edu_high sim_edu_med sim_edu_low sim_edu_na {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -559,7 +555,7 @@ keep if demMaleFlag == 0
 make_edu_plot, ///
 	subtitle("Ages 41-65, females") ///
 	saving("validation_${country}_education_ts_41_65_female") ///
-	note(`""Notes:""')
+	note(`""Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')
 
 restore 	
 
@@ -572,7 +568,7 @@ keep if demMaleFlag == 1
 make_edu_plot, ///
 	subtitle("Ages 41-65, males") ///
 	saving("validation_${country}_education_ts_41_65_male") ///
-	note(`""Notes:""')
+	note(`""Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')
 
 restore 	
 
@@ -614,7 +610,6 @@ collapse (mean) sim_edu_high sim_edu_med sim_edu_low sim_edu_na ///
 		 sim_edu_na_sd = sim_edu_na ///
 		 , by(year)
 		
-* Approx 95% confidence interval 		
 foreach varname in sim_edu_high sim_edu_med sim_edu_low sim_edu_na {
 	
 	gen `varname'_high = `varname' + 1.96*`varname'_sd
@@ -628,7 +623,7 @@ merge 1:1 year using "$dir_data/temp_valid_stats.dta", keep(3) nogen
 make_edu_plot, ///
 	subtitle("Ages 66-70") ///
 	saving("validation_${country}_education_ts_66_70_both") ///
-	note(`""Notes:""')
+	note(`""Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.""')
 	
 	
 ********************************************************************************
@@ -710,7 +705,7 @@ twoway ///
 	xlabel(, labsize(small)) ///
 	ylabel(, labsize(small)) ///
 	legend(size(small)) ///
-	note("Notes: ", ///
+	note("Notes: Shaded area = mean +/- 1.96*SD across $max_n_runs simulation runs.", ///
 	size(vsmall))
 	
 graph export ///
