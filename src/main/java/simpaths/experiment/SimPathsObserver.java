@@ -339,7 +339,7 @@ public class SimPathsObserver extends AbstractSimulationObserverManager implemen
 			//	INTER-TIMESTEP CHARTS FOR CONVERGENCE PROCESS - those that update potentially several times in between 'time-steps' (scheduled events)
 			//
 			//----------------------------------------------------------------------------------------------------------------------------------------
-		    
+
 			//POTENTIAL EARNINGS & LABOUR MARKET CONVERGENCE PLOTS
 			int width = 400;
 			int height = 300;
@@ -379,7 +379,7 @@ public class SimPathsObserver extends AbstractSimulationObserverManager implemen
 		    	}
 			}
 			
-			
+
 			//This is the color palette used by graphs in the simulation
 			ArrayList<Color> colorArrayList = new ArrayList<>();
 			colorArrayList.add(new Color(162,56,255));
@@ -1287,7 +1287,7 @@ public class SimPathsObserver extends AbstractSimulationObserverManager implemen
 			GuiUtils.addWindow(chartsFrame, 300, 0, 1560, 660);
 		    
 			
-			
+
 		}
 							
 	}	
@@ -1303,6 +1303,7 @@ public class SimPathsObserver extends AbstractSimulationObserverManager implemen
 			for(JInternalFrame plot: updateChartSet) {
 				chartingEvents.addEvent(plot, CommonEventType.Update);
 			}
+//			getEngine().getEventQueue().scheduleOnce(chartingEvents, model.getStartYear(), Order.BEFORE_ALL.getOrdering()+1);
 			getEngine().getEventQueue().scheduleRepeat(chartingEvents, model.getStartYear(), ordering, displayFrequency);
 			getEngine().getEventQueue().scheduleRepeat(new SingleTargetEvent(this, Processes.ResetConvergenceChart), model.getStartYear(), ordering, displayFrequency);
 
@@ -1376,7 +1377,7 @@ public class SimPathsObserver extends AbstractSimulationObserverManager implemen
 		for(ScatterplotSimulationPlotterRefreshable plot: labourMarketPlots.values()) {
 			plot.update();
 		}
-		
+
 		//Increment iterations count
 		countIterations++;
 	}

@@ -326,9 +326,9 @@ public class ExpectationsFactory {
     private LocalExpectations compileSocialCareReceiptProbs() {
 
         // raw inputs
-        double probNeedCare = Parameters.getRegNeedCareS2a().getProbability(personProxyNextPeriod, Person.DoublesVariables.class);
-        double probRecCare = Parameters.getRegReceiveCareS2b().getProbability(personProxyNextPeriod, Person.DoublesVariables.class);
-        Map<SocialCareReceiptS2c,Double> probsCareFrom = Parameters.getRegSocialCareMarketS2c().getProbabilities(personProxyNextPeriod, Person.DoublesVariables.class);
+        double probNeedCare = Parameters.getRegNeedCareS2a().getProbability(personProxyNextPeriod, Person.Variables.class);
+        double probRecCare = Parameters.getRegReceiveCareS2b().getProbability(personProxyNextPeriod, Person.Variables.class);
+        Map<SocialCareReceiptS2c,Double> probsCareFrom = Parameters.getRegSocialCareMarketS2c().getProbabilities(personProxyNextPeriod, Person.Variables.class);
 
         // compile and package outputs
         int ii = 0;

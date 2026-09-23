@@ -80,7 +80,6 @@ public class LabourMarket {
             benefitUnitsCovid19Update.clear();
 
             for (BenefitUnit benefitUnit : benefitUnits) {
-                benefitUnit.updateNonLabourIncome();
                 if (benefitUnit.getAtRiskOfWork()) {
                     benefitUnitsCovid19Update.add(benefitUnit); // Put benefit units at risk of work in a set to update. Could use the same set as structural model, but seems cleaner to keep the two separate
                 } else {
@@ -118,8 +117,8 @@ public class LabourMarket {
                         male.initialise_les_c6_from_c4();
                         female.initialise_les_c6_from_c4();
 
-                        boolean setMaleSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(male, Person.DoublesVariables.class));
-                        boolean setFemaleSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(female, Person.DoublesVariables.class));
+                        boolean setMaleSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(male, Person.Variables.class));
+                        boolean setFemaleSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(female, Person.Variables.class));
                         if (setMaleSelfEmployed && male.getLabC4().equals(Les_c4.EmployedOrSelfEmployed)) {
                             male.setLabC7Covid(Les_c7_covid.SelfEmployed);
                         }
@@ -130,7 +129,7 @@ public class LabourMarket {
                         Person male = benefitUnit.getMale();
                         male.initialise_les_c6_from_c4();
                         personsInBenefitUnit.add(male);
-                        boolean setSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(male, Person.DoublesVariables.class));
+                        boolean setSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(male, Person.Variables.class));
                         if (setSelfEmployed && male.getLabC4().equals(Les_c4.EmployedOrSelfEmployed)) {
                             male.setLabC7Covid(Les_c7_covid.SelfEmployed);
                         }
@@ -138,7 +137,7 @@ public class LabourMarket {
                         Person female = benefitUnit.getFemale();
                         female.initialise_les_c6_from_c4();
                         personsInBenefitUnit.add(female);
-                        boolean setSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(female, Person.DoublesVariables.class));
+                        boolean setSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(female, Person.Variables.class));
                         if (setSelfEmployed && female.getLabC4().equals(Les_c4.EmployedOrSelfEmployed)) {
                             female.setLabC7Covid(Les_c7_covid.SelfEmployed);
                         }
@@ -158,14 +157,14 @@ public class LabourMarket {
                         personsInBenefitUnit.add(female);
                         if (male != null && male.getLabC7Covid() == null) {
                             male.initialise_les_c6_from_c4();
-                            boolean setMaleSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(male, Person.DoublesVariables.class));
+                            boolean setMaleSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(male, Person.Variables.class));
                             if (setMaleSelfEmployed && male.getLabC4().equals(Les_c4.EmployedOrSelfEmployed)) {
                                 male.setLabC7Covid(Les_c7_covid.SelfEmployed);
                             }
                         }
                         if (female != null && female.getLabC7Covid() == null) {
                             female.initialise_les_c6_from_c4();
-                            boolean setFemaleSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(female, Person.DoublesVariables.class));
+                            boolean setFemaleSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(female, Person.Variables.class));
                             if (setFemaleSelfEmployed && female.getLabC4().equals(Les_c4.EmployedOrSelfEmployed)) {
                                 female.setLabC7Covid(Les_c7_covid.SelfEmployed);
                             }
@@ -175,7 +174,7 @@ public class LabourMarket {
                         personsInBenefitUnit.add(male);
                         if (male != null && male.getLabC7Covid() == null) {
                             male.initialise_les_c6_from_c4();
-                            boolean setSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(male, Person.DoublesVariables.class));
+                            boolean setSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(male, Person.Variables.class));
                             if (setSelfEmployed && male.getLabC4().equals(Les_c4.EmployedOrSelfEmployed)) {
                                 male.setLabC7Covid(Les_c7_covid.SelfEmployed);
                             }
@@ -185,7 +184,7 @@ public class LabourMarket {
                         personsInBenefitUnit.add(female);
                         if (female != null && female.getLabC7Covid() == null) {
                             female.initialise_les_c6_from_c4();
-                            boolean setSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(female, Person.DoublesVariables.class));
+                            boolean setSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(female, Person.Variables.class));
                             if (setSelfEmployed && female.getLabC4().equals(Les_c4.EmployedOrSelfEmployed)) {
                                 female.setLabC7Covid(Les_c7_covid.SelfEmployed);
                             }
@@ -231,7 +230,6 @@ public class LabourMarket {
                     benefitUnitsByRegion.get(benefitUnit.getRegion()).add(benefitUnit);        //This is the collection of benefitUnits that will enter the labour market
                     benefitUnitsAllRegions.add(benefitUnit);
                 } else {
-                    benefitUnit.updateNonLabourIncome();
                     benefitUnit.updateDisposableIncomeIfNotAtRiskOfWork();
                 }
             }
@@ -260,6 +258,9 @@ public class LabourMarket {
             //Update Labour Supply
             benefitUnitsAllRegions.parallelStream()
                     .forEach(BenefitUnit::updateLabourSupplyAndIncome);
+//            for (BenefitUnit benefitUnit : benefitUnitsAllRegions) {
+//                benefitUnit.updateLabourSupplyAndIncome();
+//            }
 
             Map<Education, Double> potentialHourlyEarningsByEdu = new LinkedHashMap<Education, Double>();
             Map<Education, Integer> countByEdu = new LinkedHashMap<Education, Integer>();

@@ -1,7 +1,6 @@
 package simpaths.model.decisions;
 
 import simpaths.data.Parameters;
-import simpaths.model.AnnuityRates;
 import simpaths.model.enums.*;
 
 import java.io.File;
@@ -152,7 +151,7 @@ public class DecisionParams {
         }
 
         // asset returns
-        rSafeAssets = Parameters.getSampleAverageRate(TimeVaryingRate.RealSavingReturns) + Parameters.realInterestRateInnov;
+        rSafeAssets = Parameters.getSampleAverageRate(TimeVaryingRate.RealSavingReturn) + Parameters.realInterestRateInnov;
         rDebtLow = Parameters.getSampleAverageRate(TimeVaryingRate.RealDebtCostLow) + Parameters.realInterestRateInnov;
         rDebtHi = Parameters.getSampleAverageRate(TimeVaryingRate.RealDebtCostHigh) + Parameters.realInterestRateInnov;
 
@@ -192,9 +191,8 @@ public class DecisionParams {
             minAgeToRetire = Parameters.MIN_AGE_TO_RETIRE;
         minAgeReceiveSocialCare = Parameters.MIN_AGE_SOCIAL_CARE;
 
-        Parameters.annuityRates = new AnnuityRates();
-        maxPensionPYear = getMaxWealthByAge(Parameters.MAX_AGE_FLEXIBLE_LABOUR_SUPPLY) * Parameters.SHARE_OF_WEALTH_TO_ANNUITISE_AT_RETIREMENT /
-                Parameters.annuityRates.getAnnuityRate(Occupancy.Couple, minBirthYear, 65);
+        maxPensionPYear = getMaxWealthByAge(Parameters.MAX_AGE_FLEXIBLE_LABOUR_SUPPLY) * Parameters.pensionLumpSumShare /
+                Parameters.annuityRates.getAnnuityRateByOccupancyBirthYearAge(Occupancy.Couple, minBirthYear, 65);
         if (Parameters.saveImperfectTaxDBMatches)
             saveImperfectTaxDbMatches = true;
     }

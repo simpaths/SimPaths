@@ -150,6 +150,20 @@ model_args:
 #    lifetimeIncomeImpute: false       # impute lifetime income for the initial population at load
 
 
+# ── wealth_args: wealth-module configuration ──────────────────────────────────
+# The residual-cap controls apply only when the wealth module reconstructs
+# persistent states from the completed starting population. They do not alter
+# observed starting wealth levels or subsequent annual innovations. These
+# controls are currently configured through multi-run YAML rather than the
+# single-run GUI.
+
+wealth_args:
+#    capInitialHousingResiduals: false      # cap the imputed HW1c persistent state at population load only
+#    initialHousingResidualCapRmseMultiplier: 2.6  # symmetric cap in multiples of the HW1c innovation RMSE
+#    capInitialMortgageResiduals: false     # independently cap the imputed HW2c persistent state
+#    initialMortgageResidualCapRmseMultiplier: 2.6 # symmetric cap in multiples of the HW2c innovation RMSE
+
+
 # ── innovation_args: parameter variation across sequential runs ────────────────
 # These flags control how parameters change between run 0, run 1, run 2, etc.
 # Useful for sensitivity analysis and uncertainty quantification.

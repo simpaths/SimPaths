@@ -287,9 +287,9 @@ public class Expectations {
                 retiring = true;
             }
             if (retiring) {
-                pensionIncomePerYear = wealthLiqValue * Parameters.SHARE_OF_WEALTH_TO_ANNUITISE_AT_RETIREMENT /
-                        Parameters.annuityRates.getAnnuityRate(currentStates.getOccupancyCode(), currentStates.getBirthYear(), currentStates.getYear());
-                wealthLiqValue *= (1.0 - Parameters.SHARE_OF_WEALTH_TO_ANNUITISE_AT_RETIREMENT);
+                pensionIncomePerYear = wealthLiqValue * Parameters.pensionLumpSumShare /
+                        Parameters.annuityRates.getAnnuityRateByOccupancyBirthYearAge(currentStates.getOccupancyCode(), currentStates.getBirthYear(), currentStates.getYear());
+                wealthLiqValue *= (1.0 - Parameters.pensionLumpSumShare);
             }
         }
         if (cohabitation) {
@@ -467,8 +467,8 @@ public class Expectations {
         double childcareCostWeekly = 0.0;
         if (Parameters.flagFormalChildcare && !Parameters.flagSuppressChildcareCosts && currentStates.hasChildrenEligibleForCare()) {
 
-            double probFormalChildCare = Parameters.getRegChildcareC1a().getProbability(benefitUnitProxyThisPeriod, BenefitUnit.Regressors.class);
-            double logChildcareCostScore = Parameters.getRegChildcareC1b().getScore(benefitUnitProxyThisPeriod, BenefitUnit.Regressors.class);
+            double probFormalChildCare = Parameters.getRegChildcareC1a().getProbability(benefitUnitProxyThisPeriod, BenefitUnit.Variables.class);
+            double logChildcareCostScore = Parameters.getRegChildcareC1b().getScore(benefitUnitProxyThisPeriod, BenefitUnit.Variables.class);
             childcareCostWeekly = Math.exp(logChildcareCostScore) * probFormalChildCare;
         }
         return childcareCostWeekly;
@@ -482,7 +482,7 @@ public class Expectations {
             SocialCareReceiptState market = currentStates.getSocialCareReceiptStateCode();
             if (SocialCareReceiptState.Mixed.equals(market) || SocialCareReceiptState.Formal.equals(market)) {
 
-                double score = Parameters.getRegFormalCareHoursS2e().getScore(personProxyThisPeriod,Person.DoublesVariables.class);
+                double score = Parameters.getRegFormalCareHoursS2e().getScore(personProxyThisPeriod, Person.Variables.class);
                 double rmse = Parameters.getRMSEForRegression("S2e");
                 double hours = Math.min(Parameters.MAX_HOURS_WEEKLY_FORMAL_CARE, Math.exp(score + rmse*rmse/2.0));
                 socialCareCostWeekly = hours * Parameters.getTimeSeriesValue(currentStates.getYear(), TimeSeriesVariable.CarerWageRate);

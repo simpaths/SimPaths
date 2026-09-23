@@ -33,11 +33,11 @@ import org.jetbrains.annotations.NotNull;
 import simpaths.data.*;
 import simpaths.data.startingpop.Processed;
 import simpaths.experiment.SimPathsCollector;
+import simpaths.model.benefitunit.WealthModule;
 import simpaths.model.decisions.DecisionParams;
 import simpaths.model.decisions.ManagerPopulateGrids;
 import simpaths.model.enums.*;
 import simpaths.model.lifetime_incomes.BirthCohort;
-import simpaths.model.lifetime_incomes.Individual;
 import simpaths.model.lifetime_incomes.LifetimeIncomeImputation;
 import simpaths.model.lifetime_incomes.ManagerProjectLifetimeIncomes;
 import simpaths.model.taxes.*;
@@ -158,6 +158,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     private boolean useWeights = false;
 
     private boolean ignoreTargetsAtPopulationLoad = false;
+    private final WealthModule wealthModule = new WealthModule();
 
     @GUIparameter(description = "If unchecked, will use the standard matching method")
 //	private boolean useSBAMMatching = false;
@@ -269,10 +270,10 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     private boolean enableIntertemporalOptimisations = false;
 
     private boolean lifetimeIncomeGenerate = false;    // request to generate new set of lifetime incomes
-    private Integer lifetimeIncomeStartBirthYear;
-    private Integer lifetimeIncomeEndBirthYear;
-    private Integer lifetimeIncomeEndAge;
-    private Integer lifetimeIncomeCohortSize = 10000;
+    private Integer lifetimeIncomeStartBirthYear = 1934;
+    private Integer lifetimeIncomeEndBirthYear = 2019;
+    private Integer lifetimeIncomeEndAge = 80;
+    private Integer lifetimeIncomeCohortSize = 100000;
     private boolean lifetimeIncomeWriteToCSV = false;
     private long lifetimeIncomeRandomSeed = 505;
     private double lifetimeIncomeAge0StdDev = 0.9;
@@ -370,6 +371,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
 
         // time check
+        String outputPath = "./output/" + getEngine().getCurrentExperiment().runId;
         elapsedTime0 = System.currentTimeMillis();
         timerStartSim = elapsedTime0;
 
@@ -389,7 +391,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         if (lifetimeIncomeGenerate) {
             ManagerProjectLifetimeIncomes.run(log, lifetimeIncomeStartBirthYear,
                     lifetimeIncomeEndBirthYear, lifetimeIncomeEndAge, lifetimeIncomeCohortSize, lifetimeIncomeWriteToCSV,
-                    lifetimeIncomeRandomSeed, lifetimeIncomeAge0StdDev);
+                    lifetimeIncomeRandomSeed, lifetimeIncomeAge0StdDev, outputPath);
         }
         if (enableIntertemporalOptimisations) {
 
@@ -397,7 +399,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             DecisionParams.loadParameters(employmentOptionsOfPrincipalWorker, employmentOptionsOfSecondaryWorker,
                     responsesToHealth, minAgeForPoorHealth, responsesToDisability, responsesToRegion, responsesToEducation,
                     responsesToPension, responsesToLowWageOffer, responsesToRetirement, saveBehaviour,
-                    readGrid, getEngine().getCurrentExperiment().getOutputFolder(), startYear, endYear);
+                    readGrid, outputPath, startYear, endYear);
             //DecisionTests.compareGrids();
             //DatabaseExtension.extendInputData();
         }
@@ -519,7 +521,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         //yearlySchedule.addEvent(this, Processes.CheckForEmptyHouseholds);
 
         // Check whether persons have reached retirement Age
-        yearlySchedule.addCollectionEvent(persons, Person.Processes.ConsiderRetirement, false);
+        yearlySchedule.addCollectionEvent(persons, Person.Processes.Retirement, false);
 
         // EDUCATION MODULE
         // In School alignment — runs before InSchool decisions so the solved adjustment applies in the same year
@@ -570,6 +572,9 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         yearlySchedule.addCollectionEvent(persons, Person.Processes.GiveBirth, false);        //Cannot use read-only collection schedule as newborn children cause concurrent modification exception.  Need to specify false in last argument of Collection event.
         addCollectionEventToAllYears(benefitUnits, BenefitUnit.Processes.UpdateDemographics);
 
+        // Homeownership status - influenced by benefit unit demographics
+        yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.Homeownership);
+
         // TIME USE MODULE
         // Social care
         if (projectSocialCare) {
@@ -585,15 +590,34 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         if (enableIntertemporalOptimisations)
             yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.UpdateStates, false);
 
-        yearlySchedule.addEvent(this, Processes.LabourMarketAndIncomeUpdate);
+        yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.UpdateInvestmentIncome);
+        yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.UpdatePrivatePensionIncome);
+        yearlySchedule.addEvent(this, Processes.LabourMarketUpdate);
 
         // Assign benefit status to individuals in benefit units, from donors. Based on donor tax unit status.
         yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.ReceivesBenefits);
 
+        // Accumulate pension wealth stocks after final income is settled.
+        if (Parameters.projectPensionWealth) {
+
+            yearlySchedule.addCollectionEvent(persons, Person.Processes.UpdatePensionWealth);
+            yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.UpdatePensionWealth);
+        }
+
         // CONSUMPTION AND SAVINGS MODULE
-        if (enableIntertemporalOptimisations)
-            yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.ProjectDiscretionaryConsumption);
+        yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.ProjectDiscretionaryConsumption);
         yearlySchedule.addCollectionEvent(persons, Person.Processes.ProjectEquivConsumption);
+        if (Parameters.projectNonPensionWealth) {
+
+            yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.UpdateNonPensionWealth);
+            yearlySchedule.addEvent(this, Processes.AssignMortgageIncomeQuintiles);
+            yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.UpdateHousingWealth);
+            yearlySchedule.addEvent(this, Processes.AssignFinancialWealthRanks);
+            yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.UpdateUnsecuredDebt);
+            yearlySchedule.addCollectionEvent(persons, Person.Processes.UpdateNonPensionWealth);
+        }
+        yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.UpdateTotalWealth);
+
 
         // equivalised disposable income
         yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.CalculateChangeInEDI);
@@ -619,6 +643,8 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         yearlySchedule.addCollectionEvent(persons, Person.Processes.HealthMCS2);
         yearlySchedule.addCollectionEvent(persons, Person.Processes.HealthPCS2);
         yearlySchedule.addCollectionEvent(persons, Person.Processes.LifeSatisfaction2);
+
+        yearlySchedule.addCollectionEvent(persons, Person.Processes.Test);
 
         // mortality (migration) and population alignment at year's end
         addCollectionEventToAllYears(persons, Person.Processes.ConsiderMortality);
@@ -734,6 +760,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             pw.println(line);
             line = "useWeights: " + useWeights;
             pw.println(line);
+            wealthModule.writeRunParameters(pw);
             line = "projectMortality: " + projectMortality;
             pw.println(line);
             line = "alignPopulation: " + alignPopulation;
@@ -804,7 +831,9 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         StartYear,
         EndYear,
         UnionMatching,
-        LabourMarketAndIncomeUpdate,
+        LabourMarketUpdate,
+        AssignMortgageIncomeQuintiles,
+        AssignFinancialWealthRanks,
 
         //Alignment Processes
         FertilityAlignment,
@@ -841,6 +870,12 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                 System.out.println("Finished year " + year + " (in " + timerForYear + " seconds)");
                 if (commentsOn) log.info("Finished year " + year + " (in " + timerForYear + " seconds)");
                 elapsedTime0 = elapsedTime1;
+            }
+            case AssignFinancialWealthRanks -> {
+                assignFinancialWealthRanks();
+            }
+            case AssignMortgageIncomeQuintiles -> {
+                wealthModule.assignMortgageIncomeQuintiles(benefitUnits);
             }
             case PopulationAlignment -> {
 
@@ -905,7 +940,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                     System.out.println("Education levels will be aligned.");
                 }
             }
-            case LabourMarketAndIncomeUpdate -> {
+            case LabourMarketUpdate -> {
 
                 labourMarket.update(year);
                 if (commentsOn) log.info("Labour market update complete.");
@@ -958,6 +993,40 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
      * METHODS IMPLEMENTING PROCESS LEVEL COMPUTATIONS
      *
      */
+
+    private void assignFinancialWealthRanks() {
+
+        benefitUnits.forEach(BenefitUnit :: updateNetFinancialAssetsValue);
+        Map<BenefitUnit, Integer> wealthRanks = WeightedQuantileRanks.assign(
+                benefitUnits,
+                BenefitUnit::getNetFinancialWealthForRanking,
+                BenefitUnit::getWeight,
+                10);
+        wealthRanks.forEach(BenefitUnit::setNetFinancialWealthDecile);
+
+        Map<IncomeRankGroup, List<BenefitUnit>> incomeGroups = new LinkedHashMap<>();
+        for (BenefitUnit benefitUnit : benefitUnits) {
+            Double monthlyPrivateIncome = benefitUnit.getGrossIncomeMonthly();
+            if (monthlyPrivateIncome == null || !Double.isFinite(monthlyPrivateIncome))
+                throw new IllegalStateException("Current private income is not available for benefit unit "
+                        + benefitUnit.getId());
+            Person referencePerson = benefitUnit.getRefPerson();
+            boolean graduate = Education.High.equals(referencePerson.getEduHighestC4());
+            IncomeRankGroup group = new IncomeRankGroup(benefitUnit.getOccupancy(), graduate);
+            incomeGroups.computeIfAbsent(group, ignored -> new ArrayList<>()).add(benefitUnit);
+        }
+        for (List<BenefitUnit> group : incomeGroups.values()) {
+            Map<BenefitUnit, Integer> incomeRanks = WeightedQuantileRanks.assign(
+                    group,
+                    benefitUnit -> benefitUnit.getGrossIncomeMonthly(),
+                    BenefitUnit::getWeight,
+                    10);
+            incomeRanks.forEach(BenefitUnit::setPrivateIncomeDecile);
+        }
+    }
+
+    private record IncomeRankGroup(Occupancy occupancy, boolean graduate) {
+    }
 
 
     private void screenForExitingObjects() {
@@ -2569,6 +2638,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                 for (BenefitUnit benefitUnit : originalHousehold.getBenefitUnits()) {
                     if (benefitUnit.getId() > benefitUnitIdCounter)
                         benefitUnitIdCounter = benefitUnit.getId();
+                    wealthModule.prepareBenefitUnit(benefitUnit);
                     for (Person person : benefitUnit.getMembers()) {
                         if (person.getId() > personIdCounter)
                             personIdCounter = person.getId();
@@ -2603,7 +2673,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
                 System.out.println("Will expand the initial population to " + popSize + " individuals, each of whom has an equal weight.");
 
-                // approach to resampling considered here is designed to allow for surveys that over-sample some population
+                // Approach to resampling considered here is designed to allow for surveys that over-sample some population
                 // subgroups. In this case you may have many similar observations in the sample all with low survey weights
                 // so that replicating by a factor adjustment on weight of each observation may result in none of the
                 // observations being included in the simulated sample (unless the simulated sample was very large).
@@ -2614,6 +2684,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                     double hhweight = household.getWeight();
                     boolean hasChild = false;
                     for (BenefitUnit benefitUnit : household.getBenefitUnits()) {
+                        wealthModule.prepareBenefitUnit(benefitUnit);
                         for (Person person : benefitUnit.getMembers()) {
                             person.setAdditionalFieldsInInitialPopulation();
                             if (person.getDemAge()<Parameters.AGE_TO_BECOME_RESPONSIBLE)
@@ -2705,15 +2776,22 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                 }
             }
 
-            // save to processed repository
-
-            if (PersistPopulation) {
-                System.out.println("Saving compiled input data for future reference");
-                persistProcessed();
-            }
-
             stopwatch.stop();
             System.out.println("Time elapsed " + stopwatch.getTime()/1000 + " seconds");
+        }
+
+        if (Parameters.projectNonPensionWealth) {
+            // HW2c residual reconstruction uses the same common income ranks
+            // that are assigned immediately before housing projection later.
+            wealthModule.assignMortgageIncomeQuintiles(benefitUnits);
+        }
+        wealthModule.initializePopulation(benefitUnits);
+
+        // Save only newly compiled input data. The wealth module deliberately
+        // reconstructs its transient state whenever population data load.
+        if (processed == null && PersistPopulation) {
+            System.out.println("Saving compiled input data for future reference");
+            persistProcessed();
         }
 
         // finalise
@@ -3125,6 +3203,10 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
     public void setUseWeights(boolean useWeights) {
         this.useWeights = useWeights;
+    }
+
+    public WealthModule getWealthModule() {
+        return wealthModule;
     }
 
 

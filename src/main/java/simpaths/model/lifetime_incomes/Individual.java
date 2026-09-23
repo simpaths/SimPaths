@@ -85,7 +85,6 @@ public class Individual implements IDoubleSource {
         Age7,
         Age8,
         Age9,
-
         Age10,
         Age11,
         Age12,
@@ -156,7 +155,13 @@ public class Individual implements IDoubleSource {
         Age77,
         Age78,
         Age79,
+        Age80,
+        Age81,
+        Age82,
+        Age83,
+        Age84,
         Age80plus,
+        Age85plus,
         Log_GDP_per_capita
     }
     public double getDoubleValue(Enum<?> variableID) {
@@ -242,7 +247,13 @@ public class Individual implements IDoubleSource {
             case Age77 -> {return (year-getBirthYear()==77) ? 1: 0;}
             case Age78 -> {return (year-getBirthYear()==78) ? 1: 0;}
             case Age79 -> {return (year-getBirthYear()==79) ? 1: 0;}
+            case Age80 -> {return (year-getBirthYear()==80) ? 1: 0;}
+            case Age81 -> {return (year-getBirthYear()==81) ? 1: 0;}
+            case Age82 -> {return (year-getBirthYear()==82) ? 1: 0;}
+            case Age83 -> {return (year-getBirthYear()==83) ? 1: 0;}
+            case Age84 -> {return (year-getBirthYear()==84) ? 1: 0;}
             case Age80plus -> {return (year-getBirthYear()>79) ? 1: 0;}
+            case Age85plus -> {return (year-getBirthYear()>84) ? 1: 0;}
             case Log_GDP_per_capita -> {
                 return Math.log(Parameters.getTimeSeriesValue(year, TimeSeriesVariable.GDPperCapita));
             }

@@ -434,6 +434,7 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
         private boolean initialDistributionCalculated;
 
         public void update() {
+
             //Ydses_c5
             var hh_income_cs = new CrossSection<>(model::getBenefitUnits, BenefitUnit::getI_yNonBenHhGrossAsinhNoNull);
             var hh_income_stats = new Stats(hh_income_cs.get()).descrStats();
@@ -482,8 +483,8 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
             //Filter out people with non-finite or negative gross earnings
             Map<Person, Double> validPersonalGrossEarningsMap = new LinkedHashMap<Person, Double>();
             for(Person person: model.getPersons()) {
-                Double grossEarnings = person.getGrossEarningsWeekly();
-                if(grossEarnings != null && Double.isFinite(grossEarnings) && grossEarnings >= 0.) {
+                double grossEarnings = person.getEarningsWeekly();
+                if (grossEarnings >= 0.) {
                     validPersonalGrossEarningsMap.put(person, grossEarnings);
                 }
             }

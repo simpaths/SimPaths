@@ -70,6 +70,21 @@ public class ManagerRegressions {
             case LifeSatisfaction2Females -> {
                 return Parameters.getRegLifeSatisfaction2Females();
             }
+            case WealthHousingHW1c -> {
+                return Parameters.getRegHW1c();
+            }
+            case WealthHousingHW1d -> {
+                return Parameters.getRegHW1d();
+            }
+            case WealthHousingHW2c -> {
+                return Parameters.getRegHW2c();
+            }
+            case WealthHousingHW2d -> {
+                return Parameters.getRegHW2d();
+            }
+            case WealthFinancialFW2c -> {
+                return Parameters.getRegFW2c();
+            }
             case HealthEQ5D -> {
                 return Parameters.getRegEQ5D();
             }
@@ -130,6 +145,36 @@ public class ManagerRegressions {
             throw new RuntimeException("requested Binomial regression is not recognised: " + regression.name());
 
         switch (regression) {
+            case WealthFinancialFW2a -> {
+                return Parameters.getRegFW2a();
+            }
+            case WealthFinancialFW2b -> {
+                return Parameters.getRegFW2b();
+            }
+            case WealthHousingHW1a -> {
+                return Parameters.getRegHW1a();
+            }
+            case WealthHousingHW1b -> {
+                return Parameters.getRegHW1b();
+            }
+            case WealthHousingHW2a -> {
+                return Parameters.getRegHW2a();
+            }
+            case WealthHousingHW2b -> {
+                return Parameters.getRegHW2b();
+            }
+            case WealthPensionPW1a -> {
+                return Parameters.getRegPW1a();
+            }
+            case WealthPensionPW1b -> {
+                return Parameters.getRegPW1b();
+            }
+            case WealthPensionPW2a -> {
+                return Parameters.getRegPW2a();
+            }
+            case WealthPensionPW2b -> {
+                return Parameters.getRegPW2b();
+            }
             case EducationE1a -> {
                 return Parameters.getRegEducationE1a();
             }
@@ -235,6 +280,12 @@ public class ManagerRegressions {
             case SocialCareS2c -> {
                 return Parameters.getRegSocialCareMarketS2c();
             }
+            case WealthPensionPW1c -> {
+                return Parameters.getRegPW1c();
+            }
+            case WealthPensionPW1e -> {
+                return Parameters.getRegPW1e();
+            }
             // case SocialCareS2e -> {
             //     return Parameters.getRegPartnerSupplementaryCareS2e();
             // }
@@ -284,7 +335,7 @@ public class ManagerRegressions {
     public static double getScore(IDoubleSource person, RegressionName regression) {
 
         if (RegressionType.Linear.equals(regression.getType()))
-            return getLinearRegression(regression).getScore(person, Person.DoublesVariables.class);
+            return getLinearRegression(regression).getScore(person, Person.Variables.class);
 
         throw new RuntimeException("unrecognised regression in getScore");
     }
@@ -317,6 +368,21 @@ public class ManagerRegressions {
             case WagesFemalesNE -> {
                 code = "Wages_FemalesNE";
             }
+            case WealthHousingHW1c -> {
+                code = "HW1c";
+            }
+            case WealthHousingHW1d -> {
+                code = "HW1d";
+            }
+            case WealthHousingHW2c -> {
+                code = "HW2c";
+            }
+            case WealthHousingHW2d -> {
+                code = "HW2d";
+            }
+            case WealthFinancialFW2c -> {
+                code = "FW2c";
+            }
             default -> {
                 throw new InvalidParameterException("RMSE requested for unrecognised regression equation");
             }
@@ -326,14 +392,14 @@ public class ManagerRegressions {
 
     public static double getRegressionCoeff(Enum<?> regression, String coeff) {
         Object oo = getRegressionCoeffObject(regression, coeff, false);
-        if (oo instanceof Double) {
-            return (double) oo;
+        if (oo instanceof Number number) {
+            return number.doubleValue();
         } else {
             oo = getRegressionCoeffObject(regression, coeff, true);
-            if (oo instanceof Double) {
-                return (double) oo;
+            if (oo instanceof Number number) {
+                return number.doubleValue();
             } else {
-                throw new RuntimeException("Regression coefficiant " + coeff + " not found in " + regression.name());
+                throw new RuntimeException("Regression coefficient " + coeff + " not found in " + regression.name());
             }
         }
     }
@@ -366,22 +432,77 @@ public class ManagerRegressions {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static double getProbability(IDoubleSource obj, RegressionName regression) {
 
         if (!RegressionType.Logit.equals(regression.getType()) && !RegressionType.Probit.equals(regression.getType()))
             throw new InvalidParameterException("Failed to retrieve probability for unrecognised regression: " + regression.name());
 
-        return getBinomialRegression(regression).getProbability(obj, Person.DoublesVariables.class);
+        Class<? extends Enum<?>> regressorsClass = Arrays.stream(obj.getClass().getDeclaredClasses())
+                .filter(c -> c.isEnum() && c.getSimpleName().equals("Variables"))
+                .findFirst()
+                .map(c -> (Class<? extends Enum<?>>) c)
+                .orElseThrow(() -> new RuntimeException("No Variables enum found in class: " + obj.getClass().getName()));
+
+        return getBinomialRegression(regression).getProbability(obj, regressorsClass);
+    }
+
+    public static boolean getAnnualEventFromBiennial(IDoubleSource obj, boolean lagIncidence, double rand, RegressionName entryRegression, RegressionName persistRegression) {
+
+        if (!RegressionType.Logit.equals(entryRegression.getType()) && !RegressionType.Probit.equals(entryRegression.getType()))
+            throw new InvalidParameterException("Failed to retrieve probability for unrecognised regression: " + entryRegression.name());
+        if (!RegressionType.Logit.equals(persistRegression.getType()) && !RegressionType.Probit.equals(persistRegression.getType()))
+            throw new InvalidParameterException("Failed to retrieve probability for unrecognised regression: " + persistRegression.name());
+
+        double pent2 = getProbability(obj, entryRegression);
+        double pper2 = getProbability(obj, persistRegression);
+        double[] annualProbabilities = recoverAnnualEntryPersistence(pent2, pper2);
+        double pent = annualProbabilities[0];
+        double pper = annualProbabilities[1];
+        if (lagIncidence) {
+
+            return (rand < pper);
+        } else {
+
+            return (rand < pent);
+        }
+    }
+
+    public static double[] recoverAnnualEntryPersistence(double biennialEntry, double biennialPersistence) {
+        if (!Double.isFinite(biennialEntry) || !Double.isFinite(biennialPersistence) ||
+                biennialEntry < 0.0 || biennialEntry > 1.0 ||
+                biennialPersistence < 0.0 || biennialPersistence > 1.0) {
+            throw new IllegalArgumentException("biennial entry and persistence probabilities must lie in [0,1]");
+        }
+
+        if (biennialEntry < biennialPersistence) {
+
+            double persistenceGap = Math.sqrt(Math.max(0.0, biennialPersistence - biennialEntry));
+            double annualEntry = biennialEntry / (1.0 + persistenceGap);
+            double annualPersistence = annualEntry + persistenceGap;
+            return new double[] {annualEntry, annualPersistence};
+        } else {
+
+            double annualEntry = biennialEntry / 2.0;                   // ignores persistence and assumes equal entry in each period
+            double annualPersistence = Math.sqrt(biennialPersistence);  // ignores entry and assumes equal persistence in each period
+            return new double[] {annualEntry, annualPersistence};
+        }
     }
 
     public static <E extends Enum<E> & IntegerValuedEnum> double getProbability(E event, IDoubleSource obj, RegressionName regression) {
 
-        return getDiscreteVariableRegression(regression).getProbability(event, obj, Person.DoublesVariables.class);
+        return getDiscreteVariableRegression(regression).getProbability(event, obj, Person.Variables.class);
     }
 
     public static <E extends Enum<E> & IntegerValuedEnum> Map<E, Double> getProbabilities(IDoubleSource obj, RegressionName regression) {
 
-        return getDiscreteVariableRegression(regression).getProbabilities(obj, Person.DoublesVariables.class);
+        return getDiscreteVariableRegression(regression).getProbabilities(obj, Person.Variables.class);
+    }
+
+    public static <E extends Enum<E> & IntegerValuedEnum, R extends Enum<R>> Map<E, Double> getProbabilities(
+            IDoubleSource obj, Class<R> regressorsClass, RegressionName regression) {
+
+        return getDiscreteVariableRegression(regression).getProbabilities(obj, regressorsClass);
     }
 
     public static <E extends Enum<E> & IntegerValuedEnum> E getEvent(Map<E, Double> probs, double rand) {

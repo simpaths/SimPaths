@@ -54,6 +54,7 @@ public class SimPathsMultiRun extends MultiRun {
 
 	// passing args for config file
 	private static Map<String, Object> modelArgs;
+	private static Map<String, Object> wealthArgs;
 	private static Map<String, Object> innovationArgs;
 	private static Map<String, Object> collectorArgs;
 	private static Map<String, Object> parameterArgs;
@@ -356,6 +357,11 @@ public class SimPathsMultiRun extends MultiRun {
 					continue;
 				}
 
+				if ("wealth_args".equals(key)) {
+					wealthArgs = (Map<String, Object>) value;
+					continue;
+				}
+
 				if ("innovation_args".equals(key)) {
 					innovationArgs = (Map<String, Object>) value;
 					continue;
@@ -549,6 +555,8 @@ public class SimPathsMultiRun extends MultiRun {
 		updateLocalParameters(model);
 		if (modelArgs != null)
 			updateParameters(model, modelArgs);
+		if (wealthArgs != null)
+			updateParameters(model.getWealthModule(), wealthArgs);
 
 		engine.addSimulationManager(model);
 

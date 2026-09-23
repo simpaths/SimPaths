@@ -1,14 +1,15 @@
 package simpaths.model.lifetime_incomes;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
-import microsim.data.db.Experiment;
+import simpaths.data.CSV.CsvToObjectLoader;
+import simpaths.data.CSV.ObjectToCsvWriter;
 import simpaths.data.Parameters;
 import simpaths.model.enums.Gender;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -26,7 +27,7 @@ public class ManagerProjectLifetimeIncomes {
      * ENTRY POINT FOR MANAGER
      */
     public static void run(Logger log, Integer startBirthYear, Integer endBirthYear,
-                           Integer endAge, Integer simCohortSize, boolean writeToCSV, long seed, double age0StdDev) {
+                           Integer endAge, Integer simCohortSize, boolean writeToCSV, long seed, double age0StdDev, String outputDir) {
 
         log.info("Initialising lifetime income projections");
         System.out.println("Initialising lifetime income projections");
@@ -35,8 +36,83 @@ public class ManagerProjectLifetimeIncomes {
         initialiseLifetimeIncomeDatabase();
         RandomGenerator generator = new Random(seed);
 
+        // load initialisation values
+        String path = Parameters.getInputDirectory() + "lifetime_incomes" + File.separator + "initialisation_observations.csv";
+        ArrayList<InitialisationObservation> initialisationObservations;
+        try {
+            initialisationObservations = CsvToObjectLoader.loadList(path, InitialisationObservation.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Problem reading initialisation observations");
+        } catch (Throwable e) {
+            e.printStackTrace();
+            throw e;
+        }
+        int initSampleSize = initialisationObservations.size();
+
+        // load white noise estimates
+        path = Parameters.getInputDirectory() + "lifetime_incomes" + File.separator + "whitenoise_estimates.csv";
+        ArrayList<WhiteNoiseEstimate> whiteNoiseEstimates;
+        try {
+            whiteNoiseEstimates = CsvToObjectLoader.loadList(path, WhiteNoiseEstimate.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Problem reading initialisation observations");
+        } catch (Throwable e) {
+            e.printStackTrace();
+            throw e;
+        }
+        int noiseSampleSize = whiteNoiseEstimates.size();
+
+        // generate common set of z data for all age/gender cohorts
+        List<TemplateIndividual> templateIndividuals = new ArrayList<>();
+
+        // initialise template individuals
+        for (int ii=0; ii < simCohortSize; ii++) {
+
+            InitialisationObservation obs = initialisationObservations.get(generator.nextInt(initSampleSize));
+            TemplateIndividual individual = new TemplateIndividual(ii, obs, generator.nextLong());
+            templateIndividuals.add(individual);
+        }
+
+        // project lifetimes for template individuals
+        IntStream.range(0, simCohortSize).parallel().forEach(ii -> {
+            //for (TemplateIndividual individual : templateIndividuals) {
+
+            TemplateIndividual individual = templateIndividuals.get(ii);
+            for (int age = 1; age <= endAge; age++) {
+
+                WhiteNoiseEstimate noise = whiteNoiseEstimates.get(individual.getNextInt(noiseSampleSize));
+                double etaAdj = noise.getEtaHat() * AdjustmentFactors.getWhiteNoise(age);
+                individual.projectNormIncome(age, etaAdj);
+            }
+            //}
+        });
+
+        boolean writeToCSV2 = true;
+        if (writeToCSV2) {
+
+            path = outputDir + File.separator + "normalised_incomes.csv";
+            ArrayList<NormalisedIncome> incomes = new ArrayList<>();
+            for (TemplateIndividual individual : templateIndividuals) {
+
+                incomes.addAll(individual.getNormIncomes());
+            }
+            try {
+                ObjectToCsvWriter.write(path, incomes, NormalisedIncome.class);
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new RuntimeException("Problem reading initialisation observations");
+            } catch (Throwable e) {
+                e.printStackTrace();
+                throw e;
+            }
+        }
+
+
+        // loop over birth years
+        boolean initialised = true;
         for (int by = startBirthYear; by <= endBirthYear; by++) {
-            // loop over years
 
             log.info("Projecting lifetime incomes for birth year " + by);
             System.out.println("Projecting lifetime incomes for birth year " + by);
@@ -46,6 +122,7 @@ public class ManagerProjectLifetimeIncomes {
             Set<Individual> individuals = new LinkedHashSet<>();
             Set<AnnualIncome> annualIncomes = new LinkedHashSet<>();
 
+            // loop over genders
             for (Gender gender : Gender.values()) {
 
                 BirthCohort birthCohort = new BirthCohort(by, gender, endAge);
@@ -53,6 +130,7 @@ public class ManagerProjectLifetimeIncomes {
                 Individual[] individualsLocal = new Individual[simCohortSize];
                 AnnualIncome[] annualIncomesLocal = new AnnualIncome[simCohortSize*(endAge+1)];
 
+                // loop over individuals
                 final int birthYear = by;
                 IntStream.range(0, simCohortSize).parallel().forEach(ii -> {
 //                for (int ii=0; ii < simCohortSize; ii++) {
@@ -61,7 +139,7 @@ public class ManagerProjectLifetimeIncomes {
                     Individual individual = new Individual(birthCohort);
                     individualsLocal[ii] = individual;
 
-                    // define incomes
+                    // loop over ages
                     for (int aa = 0; aa <= endAge; aa++) {
 
                         double rnd = generator.nextDouble();
