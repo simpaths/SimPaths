@@ -335,7 +335,7 @@ public class Parameters {
     public static final boolean systemOut = true;
 
     //Bootstrap all the regression coefficients if true
-    public static final boolean bootstrapAll = true;
+    public static boolean bootstrapAll = false;
 
     //Scheduling
     public static final int MODEL_ORDERING = 0;
