@@ -7,6 +7,12 @@
 
 {% block extrahead %}
   {{ super() }}
+  <meta property="og:site_name" content="{{ config.site_name | e }}">
+  {% if page and page.is_homepage %}
+  <script type="application/ld+json">
+    {{ {"@context": "https://schema.org", "@type": "WebSite", "name": config.site_name, "url": config.site_url} | tojson }}
+  </script>
+  {% endif %}
   <link rel="preload" href="{{ 'assets/fonts/Inter.woff2' | url }}" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="{{ 'assets/images/homepage-hero-logo.svg' | url }}" as="image" type="image/svg+xml">
   <script>

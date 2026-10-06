@@ -13,7 +13,7 @@ copyright: >-
 theme:
   name: material
   custom_dir: documentation/overrides
-  favicon: assets/images/homepage-hero-logo.svg
+  favicon: assets/images/favicon-192.png
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
