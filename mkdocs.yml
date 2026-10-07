@@ -44,7 +44,7 @@ theme:
 extra_css:
   # Keep this order: later component files intentionally refine earlier layers.
   - assets/css/01-foundation.css?v=20261007-interior-layout-1
-  - assets/css/02-shell-navigation.css?v=20261007-interior-layout-1
+  - assets/css/02-shell-navigation.css?v=20261007-interior-layout-2
   - assets/css/03-content.css?v=20261007-interior-layout-1
   - assets/css/04-landing-components.css?v=20261007-interior-layout-1
   - assets/css/05-site-chrome.css?v=20261007-interior-layout-1

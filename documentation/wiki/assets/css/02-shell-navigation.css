@@ -233,7 +233,8 @@
 
 /* One rail and one moving marker; the theme still tracks the current heading. */
 @media screen and (min-width: 60em) {
-  .md-sidebar--secondary:not([hidden]) ~ .md-content .md-typeset :is(h2, h3, h4, h5, h6) { scroll-margin-top: calc(var(--sp-toc-header-height, var(--sp-header-height)) + 0.6rem); }
+  /* Stay within Material's heading threshold with the compact gap below the header. */
+  .md-sidebar--secondary:not([hidden]) ~ .md-content .md-typeset :is(h2, h3, h4, h5, h6) { scroll-margin-top: calc(var(--sp-toc-header-height, var(--sp-header-height)) + 0.3rem); }
   .md-sidebar--secondary.sp-toc-sidebar { top: var(--sp-toc-top) !important; }
   .sp-toc-sidebar .md-sidebar__scrollwrap { max-height: calc(100dvh - var(--sp-toc-top) - 2.4rem); }
   .sp-toc > .md-nav__list {

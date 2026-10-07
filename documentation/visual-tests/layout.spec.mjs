@@ -604,7 +604,8 @@ test("long nested contents keep the current entry visible", async ({ page }, tes
   await expect(nav).toHaveClass(/sp-toc--ready/);
   for (const id of ["23-generalised-ordered-logit-and-probit", "31-single-equation-models", "32-multiple-equation-models"]) {
     await page.locator(`.md-content__inner [id="${id}"]`).evaluate(element => {
-      window.scrollTo(0, window.scrollY + element.getBoundingClientRect().top - 150);
+      const clearance = parseFloat(getComputedStyle(element).scrollMarginTop);
+      window.scrollTo(0, window.scrollY + element.getBoundingClientRect().top - clearance);
     });
     const active = nav.locator(`a[href$="#${id}"]`);
     await expect(active).toHaveAttribute("aria-current", "location");
