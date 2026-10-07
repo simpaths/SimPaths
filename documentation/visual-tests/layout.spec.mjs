@@ -226,7 +226,7 @@ test("model overview keeps the established reading measure", async ({ page }) =>
   await page.setViewportSize({ width: 1512, height: 900 });
   await page.goto("/overview/", { waitUntil: "domcontentloaded" });
 
-  await expect(page.locator("body")).toHaveClass(/sp-reserve-toc-space/);
+  await expect(page.locator(".md-sidebar--secondary")).toBeHidden();
 
   const overviewMeasure = await page.locator(".model-overview").evaluate((element) => {
     return {
@@ -638,7 +638,7 @@ test("mobile keeps native search and contents navigation", async ({ page }, test
   await expect(page).toHaveURL(/#3-build-the-executables/);
 });
 
-test("homepage keeps its opening explanation together and links to the existing module list", async ({ page }) => {
+test("homepage keeps its explanation together and model routes reach the existing module list", async ({ page }) => {
   await page.goto("/");
   const intro = page.locator('.simpaths-home-intro-band__lede');
   await expect(intro).toContainText("Its modular design supports analysis");
@@ -647,9 +647,13 @@ test("homepage keeps its opening explanation together and links to the existing 
   await expect(description).toHaveCount(4);
   for (const paragraph of await description.all()) {
     await expect(paragraph).toHaveCSS('font-weight', '520');
-    await expect(paragraph).toHaveCSS('color', 'rgb(36, 42, 49)');
+    await expect(paragraph).toHaveCSS('color', 'rgb(52, 49, 52)');
   }
-  const modules = page.locator('.simpaths-home-paths').getByRole('link', { name: 'Simulated modules', exact: true });
+  const descriptionLink = page.locator('.simpaths-home-paths').getByRole('link', { name: 'Model description', exact: true });
+  await descriptionLink.click();
+  await expect(page).toHaveURL(/\/overview\/model-description\/$/);
+  await page.goto('/overview/');
+  const modules = page.locator('.model-overview__topics').getByRole('link', { name: /^Simulated modules / });
   await expect(modules).toHaveJSProperty('href', new URL('/overview/model-description/#simulated-modules', page.url()).href);
   await modules.click();
   await expect(page).toHaveURL(/\/overview\/model-description\/#simulated-modules$/);
@@ -672,8 +676,10 @@ test("homepage provides useful task routes and an editorial research band", asyn
   await expect(page.locator(".simpaths-home-explore")).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Use SimPaths" })).toBeVisible();
   await expect(page.locator(".simpaths-home-paths__header p")).toHaveCount(0);
-  await expect(page.locator(".simpaths-home-paths__route")).toHaveCount(4);
-  await expect(page.locator(".simpaths-home-paths__links a")).toHaveCount(12);
+  await expect(page.locator(".simpaths-home-paths__route")).toHaveCount(3);
+  await expect(page.locator(".simpaths-first-run__steps a")).toHaveCount(3);
+  await expect(page.locator(".simpaths-first-run__note")).toContainText("not substantive analysis");
+  await expect(page.locator(".simpaths-home-paths__links a")).toHaveCount(7);
   await expect(page.locator(".simpaths-home-intro-band__access")).toHaveCount(2);
   await expect(page.locator(".simpaths-home-citation-band")).toHaveCount(0);
 
@@ -696,13 +702,13 @@ test("homepage provides useful task routes and an editorial research band", asyn
       pathHeadingColor: getComputedStyle(paths.querySelector("h2")).color,
       researchBackground: getComputedStyle(band).backgroundColor,
       researchHeadingColor: getComputedStyle(header.querySelector("h2")).color,
-      pathColumns: getComputedStyle(routes).gridTemplateColumns.split(" ").length,
+      pathColumns: getComputedStyle(document.querySelector(".simpaths-home-paths__layout")).gridTemplateColumns.split(" ").length,
       pathBorders: routeItems.map((item) => getComputedStyle(item).borderTopWidth),
-      pathBorderColors: routeItems.map((item) => getComputedStyle(item).borderTopColor),
+      firstRunBeforeRoutes: document.querySelector(".simpaths-first-run").getBoundingClientRect().right < routes.getBoundingClientRect().left,
       pathFrameBackground: getComputedStyle(routes).backgroundColor,
       pathFrameShadow: getComputedStyle(routes).boxShadow,
       pathRouteBackgrounds: routeItems.map((item) => getComputedStyle(item).backgroundColor),
-      pathRouteHeights: routeItems.map((item) => Math.round(item.getBoundingClientRect().height)),
+      firstRunTopDifference: Math.abs(document.querySelector(".simpaths-first-run").getBoundingClientRect().top - routes.getBoundingClientRect().top),
       pathDescriptionCount: document.querySelectorAll(".simpaths-home-paths__route > p").length,
       pathBeforeResearch: paths.getBoundingClientRect().bottom <= band.getBoundingClientRect().top,
       bandHeight: band.getBoundingClientRect().height,
@@ -725,18 +731,19 @@ test("homepage provides useful task routes and an editorial research band", asyn
   });
 
   expect(presentation.pathHeight).toBeGreaterThan(420);
-  expect(presentation.pathHeight).toBeLessThan(550);
-  expect(presentation.pathBackground).toBe("rgb(25, 52, 73)");
-  expect(presentation.pathHeadingColor).toBe("rgb(255, 255, 255)");
-  expect(presentation.researchBackground).toBe("rgb(242, 240, 233)");
-  expect(presentation.researchHeadingColor).toBe("rgb(36, 42, 49)");
-  expect(presentation.pathColumns).toBe(4);
-  expect(presentation.pathBorders).toEqual(["0px", "0px", "0px", "0px"]);
-  expect(presentation.pathFrameBackground).toBe("rgb(222, 218, 208)");
-  expect(presentation.pathFrameShadow).not.toBe("none");
-  expect(new Set(presentation.pathRouteBackgrounds)).toEqual(new Set(["rgb(255, 254, 250)"]));
-  expect(new Set(presentation.pathRouteHeights).size).toBe(1);
-  expect(presentation.pathDescriptionCount).toBe(0);
+  expect(presentation.pathHeight).toBeLessThan(850);
+  expect(presentation.pathBackground).toBe("rgb(255, 255, 255)");
+  expect(presentation.pathHeadingColor).toBe("rgb(52, 49, 52)");
+  expect(presentation.researchBackground).toBe("rgb(244, 244, 246)");
+  expect(presentation.researchHeadingColor).toBe("rgb(52, 49, 52)");
+  expect(presentation.pathColumns).toBe(2);
+  expect(presentation.firstRunBeforeRoutes).toBe(true);
+  expect(presentation.firstRunTopDifference).toBeLessThanOrEqual(1);
+  expect(presentation.pathBorders).toEqual(["0px", "0px", "0px"]);
+  expect(presentation.pathFrameBackground).toBe("rgba(0, 0, 0, 0)");
+  expect(presentation.pathFrameShadow).toBe("none");
+  expect(new Set(presentation.pathRouteBackgrounds)).toEqual(new Set(["rgba(0, 0, 0, 0)"]));
+  expect(presentation.pathDescriptionCount).toBe(3);
   expect(presentation.pathBeforeResearch).toBe(true);
   expect(presentation.bandHeight).toBeGreaterThan(500);
   expect(presentation.columns).toBe(3);
@@ -753,8 +760,8 @@ test("homepage provides useful task routes and an editorial research band", asyn
   expect(presentation.entryArrows.every((arrow) => arrow !== "none")).toBe(true);
   expect(presentation.titleWeights.every((weight) => weight < 600)).toBe(true);
   expect(new Set(presentation.labelColors).size).toBe(3);
-  expect(new Set(presentation.journalColors)).toEqual(new Set(["rgb(82, 97, 113)"]));
-  expect(new Set(presentation.authorColors)).toEqual(new Set(["rgb(102, 113, 125)"]));
+  expect(new Set(presentation.journalColors)).toEqual(new Set(["rgb(100, 97, 107)"]));
+  expect(new Set(presentation.authorColors)).toEqual(new Set(["rgb(100, 97, 107)"]));
   expect(presentation.summaryCount).toBe(0);
   expect(presentation.headerLeft).toBeLessThan(presentation.firstEntryLeft);
 
@@ -781,7 +788,7 @@ test("homepage provides useful task routes and an editorial research band", asyn
     const footerCopy = document.querySelector(".md-copyright__highlight");
 
     return {
-      pathColumns: getComputedStyle(routes).gridTemplateColumns.split(" ").length,
+      pathColumns: getComputedStyle(document.querySelector(".simpaths-home-paths__layout")).gridTemplateColumns.split(" ").length,
       overflow: document.documentElement.scrollWidth - window.innerWidth,
       direction: getComputedStyle(inner).flexDirection,
       height: meta.getBoundingClientRect().height,
@@ -802,8 +809,8 @@ test("homepage provides useful task routes and an editorial research band", asyn
   expect(mobileFooter.height).toBeLessThan(260);
   expect(mobileFooter.copyrightWidth).toBeGreaterThan(0);
   expect(mobileFooter.copyrightWidth).toBeLessThanOrEqual(390);
-  expect(mobileFooter.background).toBe("rgb(25, 52, 73)");
-  expect(mobileFooter.textColor).toBe("rgb(187, 197, 206)");
+  expect(mobileFooter.background).toBe("rgb(39, 35, 45)");
+  expect(mobileFooter.textColor).toBe("rgb(198, 194, 205)");
   expect(mobileFooter.brandColor).toBe("rgb(255, 255, 255)");
   expect(Math.abs(mobileFooter.bandToFooterGap)).toBeLessThanOrEqual(1);
   expect(mobileFooter.textTransform).toBe("none");
@@ -1409,7 +1416,7 @@ test("documentation sidebar hover is neutral and keeps the current-page marker",
   await link.click();
   await expect(link).toHaveClass(/md-nav__link--active/);
   await link.hover();
-  await expect(link).toHaveCSS('background-color', 'rgba(36, 120, 181, 0.1)');
+  await expect(link).toHaveCSS('background-color', 'rgba(151, 42, 108, 0.07)');
   await expect(link).toHaveCSS('border-left-width', '2px');
   await expect(link).toHaveCSS('font-weight', '600');
   await page.keyboard.press('Tab');

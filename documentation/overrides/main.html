@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 
+{# Main navigation lives inside the header. #}
+{% block tabs %}{% endblock %}
+
 {% block content %}
   {{ super() }}
   {% include "partials/page-navigation.html" %}
@@ -23,7 +26,12 @@
       {% if page and page.url == "funding/" %}classes.push("sp-page-funding");{% endif %}
       {% if page and page.url == "overview/roadmap/" %}classes.push("sp-page-roadmap");{% endif %}
       {% if page and page.url == "validation/" %}classes.push("sp-page-validation");{% endif %}
-      {% if page and page.url in ["overview/", "documentation/", "user-guide/", "getting-started/", "developer-guide/jasmine/"] %}classes.push("sp-reserve-toc-space");{% endif %}
+      {% if page %}
+        {% set visible_toc = page.toc %}
+        {% set first_heading = visible_toc | first %}
+        {% if first_heading and first_heading.level == 1 %}{% set visible_toc = first_heading.children %}{% endif %}
+        {% if not visible_toc or (page.meta.hide and "toc" in page.meta.hide) %}classes.push("sp-no-toc");{% endif %}
+      {% endif %}
       {% if page and page.url.startswith("overview/") %}classes.push("sp-tab-model");{% endif %}
       {% if page and page.url.startswith(("documentation/", "getting-started/", "user-guide/", "developer-guide/", "jasmine-reference/")) %}classes.push("sp-tab-documentation");{% endif %}
       document.documentElement.classList.add(...classes);

@@ -5,7 +5,7 @@
 .md-typeset .roadmap-page {
   --roadmap-copy: rgba(35, 48, 63, 0.78);
   --roadmap-muted: var(--md-default-fg-color--light);
-  --roadmap-rule: rgba(42, 56, 72, 0.14);
+  --roadmap-rule: rgba(52, 49, 52, 0.14);
   --roadmap-line: rgba(61, 93, 130, 0.24);
   max-width: 49rem;
   padding-bottom: 1rem;
@@ -67,7 +67,7 @@
 .md-typeset .roadmap-sequence a:focus-visible .roadmap-sequence__name {
   color: var(--sp-midnight);
   text-decoration: underline;
-  text-decoration-color: rgba(42, 56, 72, 0.34);
+  text-decoration-color: rgba(52, 49, 52, 0.34);
   text-underline-offset: 0.14em;
 }
 .md-typeset .roadmap-sequence__name {
@@ -138,7 +138,7 @@
   font-weight: var(--sp-section-weight);
   letter-spacing: -0.022em;
   line-height: 1.25;
-  scroll-margin-top: 8rem;
+  scroll-margin-top: calc(var(--sp-header-height) + 0.75rem);
 }
 
 .md-typeset .roadmap-stage__heading p {
@@ -197,14 +197,14 @@
 .md-typeset .roadmap-meta a {
   color: inherit;
   text-decoration: underline;
-  text-decoration-color: rgba(42, 56, 72, 0.24);
+  text-decoration-color: rgba(52, 49, 52, 0.24);
   text-underline-offset: 0.12em;
 }
 
 .md-typeset .roadmap-meta a:hover,
 .md-typeset .roadmap-meta a:focus-visible {
   color: var(--sp-midnight);
-  text-decoration-color: rgba(42, 56, 72, 0.58);
+  text-decoration-color: rgba(52, 49, 52, 0.58);
 }
 
 .md-typeset .roadmap-contact {
@@ -237,18 +237,18 @@
 .md-typeset .roadmap-contact a {
   color: var(--sp-midnight);
   text-decoration: underline;
-  text-decoration-color: rgba(42, 56, 72, 0.28);
+  text-decoration-color: rgba(52, 49, 52, 0.28);
   text-underline-offset: 0.12em;
 }
 
 .md-typeset .roadmap-contact a:hover,
 .md-typeset .roadmap-contact a:focus-visible {
-  text-decoration-color: rgba(42, 56, 72, 0.62);
+  text-decoration-color: rgba(52, 49, 52, 0.62);
 }
 
 @media (max-width: 1219px) {
   .md-typeset .roadmap-stage__heading h2 {
-    scroll-margin-top: 5.5rem;
+    scroll-margin-top: calc(var(--sp-header-height) + 0.75rem);
   }
 }
 

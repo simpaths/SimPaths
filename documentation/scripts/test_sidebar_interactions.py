@@ -52,8 +52,8 @@ class SidebarInteractionTest(unittest.TestCase):
 
     def test_current_page_keeps_its_marker(self):
         rule = blocks(self.source, LEAF + "--active")[0]
-        self.assertEqual(rule["background"], "rgba(36, 120, 181, 0.1) !important")
-        self.assertEqual(rule["border-left"], "2px solid rgba(36, 120, 181, 0.74)")
+        self.assertEqual(rule["background"], "var(--sp-sidebar-active) !important")
+        self.assertEqual(rule["border-left"], "2px solid var(--sp-accent)")
         self.assertEqual(rule["font-weight"], "600")
 
     def test_documentation_home_has_a_distinct_flat_surface(self):

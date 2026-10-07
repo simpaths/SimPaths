@@ -2,16 +2,39 @@
 title: Model
 hide:
   - toc
+  - footer
 ---
 
 <div class="model-overview" markdown>
 
 # Model
 
-SimPaths is a family of models for individual and household life course events, all sharing common components. The framework is designed to project life histories through time, building up a detailed picture of career paths, family (inter)relations, health, and financial circumstances. It builds upon standardised assumptions and data sources, which facilitates adaptation to alternative countries.
+SimPaths projects how people's careers, family relationships, health and financial circumstances change over time. This section explains the model's structure, its simulated processes, and the data and assumptions that determine its projections.
 
-Although differences in the main structure with the [EU models](https://github.com/simpaths/SimPathsEU) are minimal, this documentation is specific to the UK model. Careful attention is paid to model validation, and sensitivity of projections to key assumptions.
+<nav class="model-overview__topics" aria-label="Explore the model">
+  <a class="model-overview__route" href="model-description/">
+    <h2>Model description</h2>
+    <p>Population structure, annual simulation and the relationships between model processes.</p>
+    <span aria-hidden="true">→</span>
+  </a>
+  <a class="model-overview__route" href="model-description/#simulated-modules">
+    <h2>Simulated modules</h2>
+    <p>The equations and rules for ageing, education, family life, care, health and economic outcomes.</p>
+    <span aria-hidden="true">→</span>
+  </a>
+  <a class="model-overview__route" href="parameterisation/">
+    <h2>Parameterisation</h2>
+    <p>Regression estimates, alignment targets, tax–benefit inputs and scenario assumptions.</p>
+    <span aria-hidden="true">→</span>
+  </a>
+</nav>
 
-The modular nature of the SimPaths framework is designed to facilitate analysis of alternative assumptions concerning the tax and benefit system, sensitivity to parameter estimates, and alternative approaches for projecting labour/leisure and consumption/savings decisions.
+<div class="model-overview__related" markdown>
+
+[Development roadmap →](roadmap.md) · [How to cite →](how-to-cite.md)
+
+</div>
+
+<p class="model-overview__scope">These pages document the UK model. Code for the other country implementations is available in the <a href="https://github.com/simpaths/SimPathsEU">EU repository</a>.</p>
 
 </div>

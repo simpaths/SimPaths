@@ -23,7 +23,7 @@ The Documentation sidebar's local hover trial uses a flat neutral-grey row
 and darker text, without shadows, movement or changing weights. Section-page
 links and their separate expand controls share one row surface; individual
 page links use the same feedback. Keep dimensions stable and preserve the
-distinct blue current-page background and left marker. Keyboard focus adds
+distinct berry current-page background and left marker. Keyboard focus adds
 a visible inset outline. Light/dark tokens are `--sp-sidebar-hover-ink` and
 `--sp-sidebar-hover-bg`; only colours fade, with no transition in reduced motion.
 The Documentation section-home link has a compact white surface, neutral border
@@ -67,31 +67,47 @@ separate from this convention and must not change typography or layout.
 Run `python3 -m unittest discover -s documentation/scripts -p 'test_*.py'` to check
 the shared scale and component adoption as well as code highlighting.
 
-## Palette preservation
+## Approved palette and page layouts
 
-Keep the existing warm palette independent of typography refinements. The
-neutral-grey and white/charcoal colour trials were not approved for publication.
-Reading pages retain `--sp-paper` (#FAF9F5), the homepage retains its existing
-cream introduction and card surfaces, and the Documentation description retains its original
-muted ink. Preserve the navy bands, grey navigation, white search, syntax colours
-and individual funder/research accents.
+The white, graphite and berry design was approved for publication on 7 October
+2026. It replaces the earlier cream surfaces, translucent grey navigation and
+navy Use SimPaths band. Use `--sp-paper` (#FFFFFF), graphite text (#343134),
+secondary text (#64616B) and berry links/selection (#972A6C). Keep the white
+search surface, syntax colours and individual funder/research accents. Dark
+reading pages retain their separate slate palette.
+
+The brand, main navigation and search share one header through
+`partials/header.html`. `--sp-header-height` controls its height and section
+scroll offsets. Keep the main template's tabs block empty to avoid duplicating
+the navigation. The mobile drawer remains native Material navigation. Desktop
+search hides the tabs while expanded, and restores them when closed.
+
+`sp-no-toc` identifies pages whose contents panel is hidden or empty, on both
+initial load and instant navigation. These pages must not reserve an empty
+right column. Centre the sidebar/article group on desktop and the reading
+column on tablet. Preserve the real contents panel on longer technical pages.
+The Model landing page provides three explanatory routes, plus roadmap and
+citation links; it omits the redundant Previous/Next pager. The Documentation
+directory uses a 42rem content measure. Keep the homepage's spacing independent
+of the tighter interior-page top spacing.
 
 Homepage introductory paragraphs and feature descriptions use solid charcoal
-(#242a31), without separate faded lead/body colours. This is a text-only
+(#343134), without separate faded lead/body colours. This is a text-only
 exception: retain the existing layout, heading scale and muted publication metadata.
 The introductory paragraphs share the 520 weight of the "The framework..."
 bridge sentence; feature descriptions keep their existing weight. Do not
 restore a lighter lead/body weight or increase their font size to compensate.
 
-The homepage's "Use SimPaths" section retains its navy #193449 band and white
-heading, with light #fffefa boxes in the original beige #dedad0 surround.
-"Selected Research" stays warm #f2f0e9 with charcoal headings, white cards and
-its existing accents. Keep the sections distinct: do not match their backgrounds
-or turn research near-white. Preserve spacing, destinations and the research-card
-treatments. Remove Material's trailing article margin on the homepage only so
-the final research band meets the footer.
-The shared footer retains navy #193449 in both themes; only the SimPaths brand is
-white, while the sentence-case description and links use readable grey #bbc5ce.
+The homepage's "Use SimPaths" section uses a white background. A pale #F7F5F8
+first-run panel groups three numbered steps using the training data; three open
+routes alongside it serve model assessment, research analysis and development.
+Stack these columns on smaller screens. Keep the training-data limitation and
+the direct link to the documentation directory. Do not restore four equal boxes.
+"Selected Research" uses #F4F4F6 with graphite headings, white cards and the
+existing topic accents. Remove Material's trailing article margin on the
+homepage only so the final research band meets the footer.
+The shared footer uses graphite #27232D in both themes; only the SimPaths brand is
+white, while the sentence-case description and links use readable grey #C6C2CD.
 It contains site identity and links, not page navigation. Disable the theme's
 generator line through `extra.generator: false` rather than hiding a line that
 still occupies space.

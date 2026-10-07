@@ -1,12 +1,12 @@
 /* ═══════════════════════════════════════════════
-   FOOTER — Compact navy band, white brand and muted supporting text
+   FOOTER — Compact graphite band, white brand and muted supporting text
 ═══════════════════════════════════════════════ */
 
 .md-footer {
-  --sp-footer-muted: #bbc5ce;
+  --sp-footer-muted: #C6C2CD;
   position: relative;
   z-index: 2;
-  background: #193449;
+  background: #27232D;
   color: var(--sp-footer-muted);
   border-top: none;
 }
@@ -180,7 +180,7 @@
     --sp-search-ink: 48, 48, 48;
     --sp-search-fg: rgb(var(--sp-search-ink));
     --sp-search-muted: rgba(var(--sp-search-ink), 0.7);
-    position: absolute; z-index: 5; top: 1.05rem; right: 0.2rem;
+    position: absolute; z-index: 5; top: calc((var(--sp-header-height) - 2.55rem) / 2); right: 0.2rem;
     width: 7.7rem; height: 2.55rem; flex: 0 0 auto; transform: none;
     transition: width 460ms cubic-bezier(0.22, 1, 0.36, 1);
   }
@@ -286,27 +286,24 @@
   .md-header .md-search__output { transition: none !important; }
 }
 
+html:not(.sp-page-home) .md-main__inner { margin-top: 0.5rem; }
+@media screen and (max-width: 76.24em) {
+  html.sp-no-toc:is(.sp-tab-model, .sp-tab-documentation):not(.sp-page-roadmap) .md-content__inner { margin-inline: auto; max-width: min(var(--sp-reading-measure), calc(100% - 1.6rem)); }
+}
 @media screen and (min-width: 60em) {
-  html.sp-page-validation .md-sidebar--primary {
-    display: none;
-  }
-
+  html.sp-page-validation .md-sidebar--primary { display: none; }
   html.sp-page-validation .md-content__inner {
     max-width: 42rem;
     margin-right: auto;
     margin-left: auto;
   }
-
-  html.sp-reserve-toc-space .md-main__inner > .md-sidebar--secondary[hidden] {
-    display: block;
-    visibility: hidden;
-  }
+  /* A hidden or empty contents panel must not leave a vacant column. */
+  html.sp-no-toc .md-sidebar--secondary { display: none; }
 }
-
 @media screen and (min-width: 76.25em) {
-  html.sp-reserve-toc-space .md-main__inner > .md-sidebar--secondary[hidden] ~ .md-content > .md-content__inner {
-    margin-right: 1.2rem;
-  }
+  html.sp-no-toc.sp-tab-model:not(.sp-page-roadmap) .md-main__inner { max-width: 56.5rem; }
+  html.sp-no-toc.sp-tab-documentation .md-main__inner { max-width: 58.4rem; }
+  html.sp-no-toc:is(.sp-tab-model, .sp-tab-documentation) .md-content__inner { margin-inline: 1.2rem; }
 }
 
 /* ═══════════════════════════════════════════════

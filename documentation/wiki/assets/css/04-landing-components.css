@@ -12,7 +12,7 @@ html.sp-page-docs-index .md-content .md-content__inner::before {
 }
 
 .md-typeset .docs-hub--index {
-  --docs-index-measure: 32.8rem;
+  --docs-index-measure: 42rem;
   --docs-panel-ink: #fff;
   --docs-panel-copy: #eee9e3;
   --docs-panel-rule: rgba(255, 255, 255, 0.24);

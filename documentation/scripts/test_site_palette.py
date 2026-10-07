@@ -1,4 +1,4 @@
-"""Source-level contracts for the retained palette; these are not browser tests."""
+"""Source-level contracts for the pristine palette preview; these are not browser tests."""
 
 from pathlib import Path
 import unittest
@@ -21,12 +21,12 @@ class SitePaletteTest(unittest.TestCase):
         self.assertTrue(found, f"Missing selector: {selector}")
         return {key: value for rule in found for key, value in rule.items()}
 
-    def test_original_light_palette_is_preserved(self):
+    def test_pristine_light_palette_roles(self):
         expected = {
-            "--sp-paper": "#FAF9F5", "--sp-midnight": "#2A3848",
-            "--sp-accent": "#2478b5", "--sp-ghost": "#C3C6D5",
-            "--sp-surface": "rgba(255,255,255,0.74)",
-            "--sp-surface-strong": "rgba(255,255,255,0.9)",
+            "--sp-paper": "#FFFFFF", "--sp-midnight": "#343134",
+            "--sp-accent": "#972A6C", "--sp-ghost": "#D5D2DA",
+            "--sp-surface": "#FFFFFF",
+            "--sp-surface-strong": "#FFFFFF",
         }
         for token, value in expected.items():
             self.assertEqual(self.tokens[token], value)
@@ -34,44 +34,41 @@ class SitePaletteTest(unittest.TestCase):
             self.assertNotIn(token, self.tokens)
         light = self.rule("01-foundation.css", '[data-md-color-scheme="default"]')
         self.assertEqual(light["--md-default-bg-color"], "var(--sp-paper)")
-        self.assertEqual(light["--md-default-bg-color--light"], "#f4f3ef")
-        self.assertNotIn("--md-default-fg-color", light)
+        self.assertEqual(light["--md-default-bg-color--light"], "#F6F6F8")
+        self.assertEqual(light["--md-default-fg-color"], "#343134")
 
-    def test_homepage_keeps_blue_use_simpaths_and_warm_research_without_changing_cards_or_hero(self):
+    def test_homepage_directory_follows_page_palette_while_research_and_hero_are_retained(self):
         expected = {
-            ".simpaths-home-intro-band": "#fffefa",
-            ".simpaths-home-paths": "#193449",
-            ".md-typeset .simpaths-home-paths__routes": "#dedad0",
-            ".md-typeset .simpaths-home-paths__route": "#fffefa",
-            ".simpaths-home-research-band": "#f2f0e9",
+            ".simpaths-home-intro-band": "#FFFFFF",
+            ".simpaths-home-paths": "var(--md-default-bg-color)",
+            ".simpaths-home-research-band": "#F4F4F6",
             ".md-typeset .simpaths-home-research-band a.research-entry": "#fff",
         }
         for selector, colour in expected.items():
             with self.subTest(selector=selector):
                 self.assertEqual(self.rule("08-home.css", selector)["background"], colour)
-        self.assertEqual(self.tokens["--sp-home-hero-bg"], "#000a2d")
+        self.assertEqual(self.tokens["--sp-home-hero-bg"], "#27232D")
 
-    def test_use_simpaths_restores_its_original_light_box_group(self):
+    def test_research_and_development_routes_have_no_card_frame_or_shadow(self):
         filename = "08-home.css"
         card = self.rule(filename, ".md-typeset .simpaths-home-paths__route")
         frame = self.rule(filename, ".md-typeset .simpaths-home-paths__routes")
         self.assertNotIn("border", card)
-        self.assertEqual(frame["box-shadow"], "0 14px 36px rgba(31,42,56,0.08)")
-        self.assertEqual(frame["background"], "#dedad0")
+        self.assertNotIn("box-shadow", frame)
+        self.assertNotIn("border-radius", frame)
+        self.assertNotIn("background", frame)
 
     def test_homepage_band_labels_follow_the_new_backgrounds(self):
         filename = "08-home.css"
-        self.assertEqual(self.rule(filename, ".md-typeset .simpaths-home-paths__header h2")["color"], "#fff")
-        self.assertEqual(self.rule(filename, ".md-typeset .simpaths-home-research-band .research-header .section-heading")["color"], "#242a31")
-        self.assertEqual(self.rule(filename, ".md-typeset .simpaths-home-research-band .archive-link")["color"], "#242a31 !important")
+        self.assertEqual(self.rule(filename, ".md-typeset .simpaths-home-paths__header h2")["color"], "var(--md-default-fg-color)")
+        self.assertEqual(self.rule(filename, ".md-typeset .simpaths-home-research-band .research-header .section-heading")["color"], "#343134")
+        self.assertEqual(self.rule(filename, ".md-typeset .simpaths-home-research-band .archive-link")["color"], "#343134 !important")
 
-    def test_footer_keeps_navy_and_reserves_white_for_the_brand(self):
+    def test_footer_uses_graphite_and_reserves_white_for_the_brand(self):
         filename = "05-site-chrome.css"
         footer = self.rule(filename, ".md-footer")
-        self.assertEqual(footer["background"], "#193449")
-        self.assertEqual(footer["background"],
-                         self.rule("08-home.css", ".simpaths-home-paths")["background"])
-        self.assertEqual(footer["--sp-footer-muted"], "#bbc5ce")
+        self.assertEqual(footer["background"], "#27232D")
+        self.assertEqual(footer["--sp-footer-muted"], "#C6C2CD")
         for selector in (".md-footer", ".md-footer-meta", ".md-copyright",
                          ".md-copyright__highlight", ".md-social__link::after",
                          ".md-social__link:hover::after"):
@@ -100,14 +97,14 @@ class SitePaletteTest(unittest.TestCase):
                          ".md-typeset .simpaths-capability-combination__features p"):
             with self.subTest(selector=selector):
                 rule = self.rule(filename, selector)
-                self.assertEqual(rule["color"], "#242a31")
+                self.assertEqual(rule["color"], "#343134")
                 self.assertNotIn("opacity", rule)
         for bridge in blocks(self.styles[filename], ".md-typeset .simpaths-home-intro-band__body--bridge"):
             self.assertNotIn("color", bridge)
             self.assertNotIn("opacity", bridge)
         for selector, colour in {
-            ".md-typeset .simpaths-home-research-band .research-journal": "#526171",
-            ".md-typeset .simpaths-home-research-band .research-authors": "#66717d",
+            ".md-typeset .simpaths-home-research-band .research-journal": "#64616B",
+            ".md-typeset .simpaths-home-research-band .research-authors": "#64616B",
         }.items():
             self.assertEqual(self.rule(filename, selector)["color"], colour)
 
@@ -115,10 +112,10 @@ class SitePaletteTest(unittest.TestCase):
         self.assertEqual(self.rule("04-landing-components.css", ".md-typeset .docs-index__intro")["color"],
                          "rgba(31, 38, 48, 0.72)")
         funding = self.rule("06-page-sections.css", ".md-typeset .funding-page")
-        self.assertEqual(funding["--funding-rule"], "#ded8cc")
+        self.assertEqual(funding["--funding-rule"], "#E1DFE5")
         self.assertEqual(funding["--funding-copy"], "#242a31")
-        self.assertEqual(funding["--funding-meta"], "#625c52")
-        self.assertEqual(funding["--funding-label-bg"], "#eee9de")
+        self.assertEqual(funding["--funding-meta"], "#64616B")
+        self.assertEqual(funding["--funding-label-bg"], "#F4F4F6")
 
     def test_documentation_sections_have_solid_surfaces_without_individual_card_frames(self):
         filename = "04-landing-components.css"
@@ -190,9 +187,9 @@ class SitePaletteTest(unittest.TestCase):
         for colour in ("#c62e67", "#7040a3", "#1f70aa"):
             self.assertIn(f"--research-accent: {colour};", self.styles["08-home.css"])
 
-    def test_grey_navigation_white_search_and_syntax_colours_are_unchanged(self):
+    def test_white_navigation_search_and_retained_syntax_colours(self):
         self.assertEqual(self.rule("02-shell-navigation.css", ".md-tabs")["background"],
-                         "rgba(8,16,32,0.45) !important")
+                         "var(--md-default-bg-color) !important")
         self.assertIn("--sp-search-surface: #fff;", self.styles["05-site-chrome.css"])
         self.assertIn("--sp-code-bg: #ffffff;", self.styles["03-content.css"])
 

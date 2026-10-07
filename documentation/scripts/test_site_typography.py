@@ -134,18 +134,10 @@ class SiteTypographyTest(unittest.TestCase):
         config = (CSS_DIR.parents[3] / "mkdocs.yml").read_text()
         self.assertIn("An open-source microsimulation initiative.", config)
 
-    def test_documentation_hub_hides_toc_and_preserves_its_column_width(self):
+    def test_documentation_hub_hides_toc(self):
         docs_dir = CSS_DIR.parents[2]
         landing = (docs_dir / "wiki/documentation/index.md").read_text()
         self.assertIn("hide:\n  - toc\n", landing.split("---", 2)[1])
-        template = (docs_dir / "overrides/main.html").read_text()
-        routes = re.search(r'page.url in \[([^\]]+)\].*classes.push\("sp-reserve-toc-space"\)', template)
-        self.assertIsNotNone(routes)
-        self.assertIn('"documentation/"', routes[1])
-        script = (docs_dir / "wiki/assets/js/site-state.js").read_text()
-        update = re.search(r'togglePageClass\(\s*"sp-reserve-toc-space",(.*?)\);', script, re.S)
-        self.assertIsNotNone(update)
-        self.assertIn(".docs-hub--index", update[1])
 
 
 if __name__ == "__main__":

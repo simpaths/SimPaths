@@ -5,7 +5,7 @@
     "sp-page-funding",
     "sp-page-roadmap",
     "sp-page-validation",
-    "sp-reserve-toc-space",
+    "sp-no-toc",
     "sp-tab-model",
     "sp-tab-documentation"
   ];
@@ -79,14 +79,8 @@
       "sp-page-validation",
       Boolean(document.querySelector(".validation-page-marker"))
     );
-    togglePageClass(
-      "sp-reserve-toc-space",
-      Boolean(
-        document.querySelector(
-          ".model-overview, .docs-hub--index, #user-guide, #getting-started, #jas-mine-architecture"
-        )
-      )
-    );
+    const tocSidebar = document.querySelector(".md-sidebar--secondary");
+    togglePageClass("sp-no-toc", !tocSidebar || tocSidebar.hidden || !tocSidebar.querySelector("a[href]"));
 
     const activeTab = document.querySelector(".md-tabs__item--active .md-tabs__link")
       ?.textContent.trim().toLocaleLowerCase();
