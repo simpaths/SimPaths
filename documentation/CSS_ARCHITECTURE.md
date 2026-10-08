@@ -126,17 +126,14 @@ The introductory paragraphs share the 520 weight of the "The framework..."
 bridge sentence; feature descriptions keep their existing weight. Do not
 restore a lighter lead/body weight or increase their font size to compensate.
 
-The homepage's "Use SimPaths" section is an open directory on a full-width pale
-blue band (#E8F0F5), between the white introduction and grey research band,
-with two equal columns and aligned headings. The first-simulation guide groups
-three numbered steps using the training data; three routes alongside it serve
-model assessment, research analysis and development. Keep graphite text, berry
-link accents and blue-grey dividers (#CCD9E1), with the same treatment in both
-themes. Apply the colour to the whole band; do not add individual tinted panels,
-coloured top borders or inset boxes. Use one supporting text and link size
-(0.8rem) and one subheading size (1rem) across both columns.
-Stack these columns on smaller screens. Keep the training-data limitation and
-the direct link to the documentation directory. Do not restore four equal boxes.
+The homepage's "Use SimPaths" section introduces a first simulation using the
+bundled training data. Keep the explanation, three numbered steps and a secondary
+link to the full documentation, which owns the broader guide directory. Display
+the steps in three open columns, stacking them on smaller screens. Keep the
+training-data limitation. Use the full-width pale blue band (#E8F0F5), graphite
+text, berry link accents and blue-grey dividers (#CCD9E1) in both themes, with
+one supporting text and link size (0.8rem). Do not add inset boxes or restore the
+separate model-assessment, research-analysis and development directories here.
 "Selected Research" uses #F7F7F9 with graphite headings, white cards and the
 existing topic accents. Remove Material's trailing article margin on the
 homepage only so the final research band meets the footer.
@@ -154,15 +151,14 @@ on small screens. Retain native links, keyboard focus and reduced-motion support
 Do not move navigation between containers with JavaScript or restore the tall
 full-width pager inside the navy footer.
 
-The Documentation directory uses solid section panels: light-blue Guides with
-a two-column link grid, then coral-orange Resources and magenta-purple Reference
-side by side. Resources uses #DF6059, a twelve-percent white lift of #DB4A42 from
-the first logo figure; Reference uses #B9318A from the third figure from the red/left
-end. Panels use a small 6px
-corner radius. The approved Resources fallback is light green #c8e3bd, with
-ink #274334, copy #3f5643 and divider rgba(39, 67, 52, 0.25).
-Guides and Resources define dark text, divider and focus colours; Reference
-retains light text. These colour pairs apply in both site themes.
+The Documentation directory uses muted section colours: blue Guides (#C8DDE8)
+with a two-column link grid, then terracotta Resources (#E8BEAD) and deeper plum
+Reference (#725B73) side by side. Guides and Resources use graphite headings
+and links (#343134), secondary copy (#55515C) and fine dividers
+(rgba(52, 49, 52, 0.16)). Reference uses white headings and links, light copy
+(#F4EDF3) and translucent white dividers. Keep the small 6px corner radius.
+These colour pairs apply in both site themes; retain sufficient contrast for
+copy and focus outlines.
 Links sit directly on each section surface with fine dividing rules and visible
 keyboard focus, not in individual coloured cards. Keep link surfaces unchanged on
 hover, focus and press; only arrows move, without shifting text. Do not restore

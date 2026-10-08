@@ -66,13 +66,10 @@ hide:
 <div class="simpaths-home-paths__inner">
   <header class="simpaths-home-paths__header">
     <h2 id="use-simpaths-title">Use SimPaths</h2>
-    <a class="simpaths-home-paths__browse" href="documentation/">Browse the documentation <span aria-hidden="true">→</span></a>
   </header>
 
-  <div class="simpaths-home-paths__layout">
-    <article class="simpaths-first-run" aria-labelledby="first-run-title">
-      <h3 id="first-run-title">Your first simulation</h3>
-      <p class="simpaths-first-run__intro">The repository includes a training population and tax–benefit data, so you can check your installation before preparing research inputs.</p>
+  <div class="simpaths-first-run">
+      <p class="simpaths-first-run__intro">Try a first simulation using the training population and tax–benefit data included in the repository. This lets you check the installation before preparing inputs for your own research.</p>
       <ol class="simpaths-first-run__steps" aria-label="Steps to a first simulation">
         <li><a href="getting-started/environment-setup/">
           <span class="simpaths-first-run__number" aria-hidden="true">01</span>
@@ -81,7 +78,7 @@ hide:
         </a></li>
         <li><a href="getting-started/data/">
           <span class="simpaths-first-run__number" aria-hidden="true">02</span>
-          <span><strong>Check the input data</strong><span class="simpaths-first-run__description">Understand the population, tax–benefit donors and parameter files.</span></span>
+          <span><strong>Check the input data</strong><span class="simpaths-first-run__description">Locate the training population, tax–benefit donors and parameter files.</span></span>
           <span class="simpaths-first-run__arrow" aria-hidden="true">→</span>
         </a></li>
         <li><a href="getting-started/first-simulation/">
@@ -90,36 +87,10 @@ hide:
           <span class="simpaths-first-run__arrow" aria-hidden="true">→</span>
         </a></li>
       </ol>
-      <p class="simpaths-first-run__note">Training data are for learning and testing, not substantive analysis.</p>
-    </article>
-
-    <nav class="simpaths-home-paths__routes" aria-label="Research and development guides">
-      <article class="simpaths-home-paths__route">
-        <h3>Assess the model</h3>
-        <p>Read which processes are simulated and where their parameter estimates come from.</p>
-        <div class="simpaths-home-paths__links">
-          <a href="overview/model-description/">Model description <span aria-hidden="true">→</span></a>
-          <a href="overview/parameterisation/">Parameter sources <span aria-hidden="true">→</span></a>
-        </div>
-      </article>
-      <article class="simpaths-home-paths__route">
-        <h3>Set up a research analysis</h3>
-        <p>Configure repeated runs, change tax–benefit settings and examine uncertainty.</p>
-        <div class="simpaths-home-paths__links">
-          <a href="user-guide/multiple-runs/">Run configuration <span aria-hidden="true">→</span></a>
-          <a href="user-guide/tax-benefit-parameters/">Policy settings <span aria-hidden="true">→</span></a>
-          <a href="user-guide/uncertainty-analysis/">Uncertainty <span aria-hidden="true">→</span></a>
-        </div>
-      </article>
-      <article class="simpaths-home-paths__route">
-        <h3>Change or extend the model</h3>
-        <p>Find your way through the code and follow the steps to add variables and parameters.</p>
-        <div class="simpaths-home-paths__links">
-          <a href="developer-guide/repository-guide/">Repository guide <span aria-hidden="true">→</span></a>
-          <a href="developer-guide/how-to/">Development guides <span aria-hidden="true">→</span></a>
-        </div>
-      </article>
-    </nav>
+      <footer class="simpaths-first-run__footer">
+        <p class="simpaths-first-run__note">Training data are for learning and testing, not substantive analysis.</p>
+        <a class="simpaths-home-paths__browse" href="documentation/">Browse the full documentation <span aria-hidden="true">→</span></a>
+      </footer>
   </div>
 </div>
 </section>

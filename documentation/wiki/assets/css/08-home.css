@@ -316,8 +316,7 @@ html.sp-page-home .md-main .md-top {
   max-width: var(--sp-home-max); margin: 0 auto;
 }
 .md-typeset .simpaths-home-paths__header {
-  display: flex; align-items: baseline; justify-content: space-between;
-  gap: 1rem; margin: 0 0 1.6rem;
+  margin: 0 0 0.8rem;
 }
 .md-typeset .simpaths-home-paths__header h2 {
   margin: 0 !important;
@@ -327,34 +326,23 @@ html.sp-page-home .md-main .md-top {
   font-weight: var(--sp-section-weight);
   line-height: 1.15; letter-spacing: -0.035em;
 }
-.simpaths-home-paths__layout {
-  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(2rem, 5vw, 4rem); align-items: start;
-}
 .md-typeset .simpaths-first-run {
   min-width: 0; color: var(--md-default-fg-color);
-}
-.md-typeset .simpaths-first-run h3,
-.md-typeset .simpaths-home-paths__route h3 {
-  margin: 0; color: var(--md-default-fg-color);
-  font-size: 1rem; font-weight: var(--sp-subheading-weight);
-  line-height: 1.3; letter-spacing: -0.02em;
 }
 .md-typeset .simpaths-first-run__intro,
 .md-typeset .simpaths-first-run__number,
 .md-typeset .simpaths-first-run__steps strong,
 .md-typeset .simpaths-first-run__description,
 .md-typeset .simpaths-first-run__note,
-.md-typeset .simpaths-home-paths__route p,
-.md-typeset .simpaths-home-paths__links a,
 .md-typeset .simpaths-home-paths__browse {
   font-size: 0.8rem; line-height: 1.6;
 }
 .md-typeset .simpaths-first-run__intro {
-  margin: 0.5rem 0 0.55rem; color: var(--md-default-fg-color--light);
+  max-width: 46rem; margin: 0; color: var(--md-default-fg-color--light);
 }
 .md-typeset ol.simpaths-first-run__steps {
-  margin: 1rem 0 0; padding: 0; list-style: none;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem; margin: 1.4rem 0 0; padding: 0; list-style: none;
 }
 .md-typeset ol.simpaths-first-run__steps li { margin: 0; padding: 0; }
 .md-typeset .simpaths-first-run__steps a {
@@ -376,26 +364,13 @@ html.sp-page-home .md-main .md-top {
 .simpaths-first-run__steps a:hover strong {
   text-decoration: underline; text-underline-offset: 0.2em;
 }
+.md-typeset .simpaths-first-run__footer {
+  display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between;
+  gap: 0.6rem 1.5rem; margin-top: 0.8rem;
+}
 .md-typeset .simpaths-first-run__note {
-  margin: 0.45rem 0 0; padding-top: 0.8rem;
-  color: var(--md-default-fg-color--light); border-top: 1px solid var(--md-default-fg-color--lightest);
+  margin: 0; color: var(--md-default-fg-color--light);
 }
-.md-typeset .simpaths-home-paths__routes {
-  display: grid; gap: 1.15rem;
-}
-.md-typeset .simpaths-home-paths__route {
-  min-width: 0; margin: 0; padding: 0 0 1.25rem;
-  border-bottom: 1px solid var(--md-default-fg-color--lightest);
-}
-.md-typeset .simpaths-home-paths__route:last-child { border-bottom: 0; padding-bottom: 0; }
-.md-typeset .simpaths-home-paths__route p {
-  max-width: 25rem; margin: 0.5rem 0 0.55rem;
-  color: var(--md-default-fg-color--light);
-}
-.md-typeset .simpaths-home-paths__links {
-  display: flex; flex-wrap: wrap; gap: 0.2rem 1.1rem;
-}
-.md-typeset .simpaths-home-paths__links a,
 .md-typeset .simpaths-home-paths__browse {
   display: inline-flex; align-items: baseline; gap: 0.45rem;
   padding: 0.3rem 0; color: var(--md-default-fg-color) !important;
@@ -403,7 +378,6 @@ html.sp-page-home .md-main .md-top {
   text-decoration: underline; text-decoration-color: var(--md-default-fg-color--lighter);
   text-underline-offset: 0.22em; text-decoration-thickness: 1px;
 }
-.simpaths-home-paths__links a:hover,
 .simpaths-home-paths__browse:hover { text-decoration-color: currentColor; }
 .md-typeset .simpaths-home-paths a:focus-visible {
   outline: 2px solid var(--sp-accent); outline-offset: 5px;
@@ -477,15 +451,13 @@ html.sp-page-home .md-main .md-top {
     padding-top: 0;
     padding-left: 0;
   }
-  .simpaths-home-paths__layout { grid-template-columns: 1fr; gap: 1.8rem; }
-  .md-typeset .simpaths-home-paths__route p { max-width: none; }
+  .md-typeset ol.simpaths-first-run__steps { grid-template-columns: 1fr; gap: 0; }
 }
 
 @media (max-width: 620px) {
   .simpaths-home-paths {
     padding: 1.7rem 1rem 2.2rem; scroll-margin-top: calc(var(--sp-header-height) + 0.75rem);
   }
-  .md-typeset .simpaths-home-paths__header { flex-wrap: wrap; gap: 0.35rem; margin-bottom: 1.2rem; }
 }
 
 /* Homepage research heading; scoped here because no other page uses it. */

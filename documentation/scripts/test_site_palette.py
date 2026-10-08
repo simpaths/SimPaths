@@ -49,10 +49,10 @@ class SitePaletteTest(unittest.TestCase):
                 self.assertEqual(self.rule("08-home.css", selector)["background"], colour)
         self.assertEqual(self.tokens["--sp-home-hero-bg"], "#27232D")
 
-    def test_research_and_development_routes_have_no_card_frame_or_shadow(self):
+    def test_first_run_steps_have_no_card_frame_or_shadow(self):
         filename = "08-home.css"
-        card = self.rule(filename, ".md-typeset .simpaths-home-paths__route")
-        frame = self.rule(filename, ".md-typeset .simpaths-home-paths__routes")
+        card = self.rule(filename, ".md-typeset .simpaths-first-run__steps a")
+        frame = self.rule(filename, ".md-typeset .simpaths-first-run")
         self.assertNotIn("border", card)
         self.assertNotIn("box-shadow", frame)
         self.assertNotIn("border-radius", frame)
@@ -119,20 +119,12 @@ class SitePaletteTest(unittest.TestCase):
 
     def test_documentation_sections_have_solid_surfaces_without_individual_card_frames(self):
         filename = "04-landing-components.css"
-        for section, colour in {"guides": "#b9daf0", "resources": "#DF6059", "reference": "#B9318A"}.items():
+        for section, colour in {"guides": "#C8DDE8", "resources": "#E8BEAD", "reference": "#725B73"}.items():
             selector = f".md-typeset .docs-index__section--{section}"
             self.assertEqual(self.rule(filename, selector)["--docs-panel-background"], colour)
         self.assertEqual(self.rule(filename, ".md-typeset .docs-index__section")["background"],
                          "var(--docs-panel-background)")
         self.assertEqual(self.rule(filename, ".md-typeset .docs-index__section")["border-radius"], "6px")
-        logo = (CSS_DIR.parent / "images/documentation-logo-mark.svg").read_text()
-        reference = self.rule(filename, ".md-typeset .docs-index__section--reference")["--docs-panel-background"]
-        for colour in ("#DB4A42", reference):
-            self.assertIn(f'fill="{colour}"', logo)
-        # Resources keeps the first figure's hue with a twelve-percent white lift.
-        lightened = "#" + "".join(f"{round(c + (255 - c) * 0.12):02X}" for c in (219, 74, 66))
-        self.assertEqual(self.rule(filename, ".md-typeset .docs-index__section--resources")["--docs-panel-background"],
-                         lightened)
         link = self.rule(filename, ".md-typeset .docs-hub--index .docs-index__section a.docs-index__link")
         self.assertEqual(link["background"], "transparent")
         self.assertEqual(link["border"], "0 !important")

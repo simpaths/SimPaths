@@ -1,12 +1,12 @@
 /* ═══════════════════════════════════════════════
    DOCUMENTATION LANDING PAGE
-   An editorial directory with solid-colour section panels.
+   An editorial directory with muted blue, terracotta and plum panels.
 ═══════════════════════════════════════════════ */
 
 .md-typeset .docs-hub--index {
-  --docs-panel-ink: #fff;
-  --docs-panel-copy: #eee9e3;
-  --docs-panel-rule: rgba(255, 255, 255, 0.24);
+  --docs-panel-ink: #343134;
+  --docs-panel-copy: #55515C;
+  --docs-panel-rule: rgba(52, 49, 52, 0.16);
   width: 100%;
   margin: 0;
   padding-bottom: 2rem;
@@ -94,22 +94,18 @@
   border-radius: 6px;
 }
 
-/* Resources slightly lightens the first figure; Reference uses the third. */
+/* Lighter guide/resource surfaces balance the deeper reference panel. */
 .md-typeset .docs-index__section--guides {
-  --docs-panel-background: #b9daf0;
-  --docs-panel-ink: #203c50;
-  --docs-panel-copy: #355365;
-  --docs-panel-rule: rgba(32, 60, 80, 0.25);
+  --docs-panel-background: #C8DDE8;
 }
 .md-typeset .docs-index__section--resources {
-  --docs-panel-background: #DF6059;
-  --docs-panel-ink: #100c0b;
-  --docs-panel-copy: #100c0b;
-  --docs-panel-rule: rgba(16, 12, 11, 0.25);
+  --docs-panel-background: #E8BEAD;
 }
 .md-typeset .docs-index__section--reference {
-  --docs-panel-background: #B9318A;
-  --docs-panel-copy: #f8edf7;
+  --docs-panel-background: #725B73;
+  --docs-panel-ink: #FFFFFF;
+  --docs-panel-copy: #F4EDF3;
+  --docs-panel-rule: rgba(255, 255, 255, 0.25);
 }
 
 .md-typeset .docs-index__secondary {

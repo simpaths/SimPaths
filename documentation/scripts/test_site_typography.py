@@ -66,7 +66,6 @@ class SiteTypographyTest(unittest.TestCase):
             "07-roadmap.css": [".md-typeset .roadmap-stage__heading h2", ".md-typeset .roadmap-item h3",
                                ".md-typeset .roadmap-contact h2"],
             "08-home.css": [".md-typeset .simpaths-home-paths__header h2",
-                            ".md-typeset .simpaths-home-paths__route h3",
                             ".md-typeset .simpaths-capability-combination__features h3"],
         }
         for filename, selectors in headings.items():
