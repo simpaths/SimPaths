@@ -222,6 +222,47 @@ test("audited guides expose the checked specifications and usable examples", asy
   await expect(page.locator('a[href*="overview/simulated-modules/"]')).toHaveCount(0);
 });
 
+test("interior pages share a frame, with standalone pages aligned to the Model navigation", async ({ page }) => {
+  const paths = ["/overview/", "/overview/model-description/", "/documentation/",
+    "/validation/", "/research/", "/funding/", "/overview/roadmap/",
+    "/overview/how-to-cite/", "/overview/modules/health/", "/developer-guide/repository-guide/"];
+  for (const width of [1512, 1280, 1024, 768, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    const measurements = [];
+    for (const path of paths) {
+      await page.goto(path, { waitUntil: "domcontentloaded" });
+      await page.evaluate(() => document.fonts.ready);
+      const measurement = await page.evaluate(() => {
+        const title = document.querySelector(".docs-index__heading, h1").getBoundingClientRect();
+        const article = document.querySelector(".md-content__inner").getBoundingClientRect();
+        const frame = document.querySelector(".md-main__inner").getBoundingClientRect();
+        const modelLink = document.querySelector('.md-sidebar--primary a[href$="/overview/"]');
+        return { titleX: title.x, titleY: title.y, articleX: article.x, width: article.width,
+          modelNavX: modelLink?.getBoundingClientRect().x,
+          frameX: frame.x, noSectionNav: document.documentElement.classList.contains("sp-no-section-nav"),
+          overflow: document.documentElement.scrollWidth - innerWidth };
+      });
+      expect(Math.abs(measurement.titleX - measurement.articleX), path).toBeLessThanOrEqual(1);
+      expect(measurement.overflow, path).toBeLessThanOrEqual(1);
+      if (measurement.noSectionNav) {
+        const expectedX = width >= 1220 ? measurements[0].modelNavX : measurement.frameX;
+        expect(Math.abs(measurement.articleX - expectedX), path).toBeLessThanOrEqual(1);
+      }
+      measurements.push(measurement);
+    }
+    for (const key of ["titleY"]) {
+      const values = measurements.map(item => item[key]);
+      expect(Math.max(...values) - Math.min(...values), `${width}px: ${key}`).toBeLessThanOrEqual(1);
+    }
+    for (const noSectionNav of [true, false]) {
+      for (const key of ["titleX", "width"]) {
+        const values = measurements.filter(item => item.noSectionNav === noSectionNav).map(item => item[key]);
+        expect(Math.max(...values) - Math.min(...values), `${width}px: ${key}`).toBeLessThanOrEqual(1);
+      }
+    }
+  }
+});
+
 test("model overview keeps the established reading measure", async ({ page }) => {
   await page.setViewportSize({ width: 1512, height: 900 });
   await page.goto("/overview/", { waitUntil: "domcontentloaded" });
@@ -258,8 +299,8 @@ test("validation omits its redundant desktop navigation", async ({ page }) => {
 
   expect(desktop.primaryDisplay).toBe("none");
   expect(desktop.secondaryDisplay).not.toBe("none");
-  expect(desktop.contentWidth).toBeGreaterThanOrEqual(800);
-  expect(desktop.contentWidth).toBeLessThanOrEqual(841);
+  expect(desktop.contentWidth).toBeGreaterThanOrEqual(1000);
+  expect(desktop.contentWidth).toBeLessThanOrEqual(1095);
 
   await page.setViewportSize({ width: 390, height: 844 });
   const mobilePrimaryVisibility = await page
@@ -733,9 +774,9 @@ test("homepage provides useful task routes and an editorial research band", asyn
 
   expect(presentation.pathHeight).toBeGreaterThan(420);
   expect(presentation.pathHeight).toBeLessThan(850);
-  expect(presentation.pathBackground).toBe("rgb(255, 255, 255)");
+  expect(presentation.pathBackground).toBe("rgb(232, 240, 245)");
   expect(presentation.pathHeadingColor).toBe("rgb(52, 49, 52)");
-  expect(presentation.researchBackground).toBe("rgb(244, 244, 246)");
+  expect(presentation.researchBackground).toBe("rgb(247, 247, 249)");
   expect(presentation.researchHeadingColor).toBe("rgb(52, 49, 52)");
   expect(presentation.pathColumns).toBe(2);
   expect(presentation.firstRunBeforeRoutes).toBe(true);
@@ -904,7 +945,8 @@ test("documentation masthead integrates the SimPaths mark", async ({ page }) => 
       fallbackTitles: [...document.querySelectorAll(".md-content__inner > h1")].map((item) =>
         item.textContent.trim()
       ),
-      columns: getComputedStyle(masthead).gridTemplateColumns.split(" ").length,
+      headingLayout: getComputedStyle(masthead.querySelector(".docs-index__heading")).display,
+      markGap: title.left - mark.right,
       markWidth: mark.width,
       markBackground: getComputedStyle(markElement).backgroundColor,
       markBeforeTitle: mark.right < title.left,
@@ -918,9 +960,11 @@ test("documentation masthead integrates the SimPaths mark", async ({ page }) => 
 
   expect(desktop.title).toBe("SimPaths Documentation");
   expect(desktop.fallbackTitles).toEqual([]);
-  expect(desktop.columns).toBe(2);
-  expect(desktop.markWidth).toBeGreaterThanOrEqual(110);
-  expect(desktop.markWidth).toBeLessThanOrEqual(140);
+  expect(desktop.headingLayout).toBe("flex");
+  expect(desktop.markGap).toBeGreaterThanOrEqual(10);
+  expect(desktop.markGap).toBeLessThanOrEqual(14);
+  expect(desktop.markWidth).toBeGreaterThanOrEqual(60);
+  expect(desktop.markWidth).toBeLessThanOrEqual(80);
   expect(desktop.markBackground).toBe("rgb(255, 255, 255)");
   expect(desktop.markBeforeTitle).toBe(true);
   expect(desktop.introAlignedWithMark).toBe(true);
@@ -965,70 +1009,76 @@ test("documentation masthead integrates the SimPaths mark", async ({ page }) => 
     const title = masthead.querySelector("h1").getBoundingClientRect();
 
     return {
-      columns: getComputedStyle(masthead).gridTemplateColumns.split(" ").length,
-      markAboveTitle: mark.bottom < title.top,
-      alignedLeft: Math.abs(mark.left - title.left) < 1,
+      headingLayout: getComputedStyle(masthead.querySelector(".docs-index__heading")).display,
+      markGap: title.left - mark.right,
+      markBeforeTitle: mark.right < title.left,
+      alignedCentre: Math.abs((mark.top + mark.bottom) / 2 - (title.top + title.bottom) / 2) < 1,
       overflow: document.documentElement.scrollWidth - window.innerWidth
     };
   });
 
-  expect(mobile.columns).toBe(1);
-  expect(mobile.markAboveTitle).toBe(true);
-  expect(mobile.alignedLeft).toBe(true);
+  expect(mobile.headingLayout).toBe("flex");
+  expect(mobile.markGap).toBeGreaterThanOrEqual(10);
+  expect(mobile.markGap).toBeLessThanOrEqual(14);
+  expect(mobile.markBeforeTitle).toBe(true);
+  expect(mobile.alignedCentre).toBe(true);
   expect(mobile.overflow).toBe(0);
   expect(logoRequests).toEqual([]);
 });
 
-test("research separates publication metadata and features the primary reference", async ({ page }, testInfo) => {
+test("research keeps readable citations beside year and type, stacking on mobile", async ({ page }, testInfo) => {
   await page.goto("/research/", { waitUntil: "domcontentloaded" });
-
-  const referencePaper = page.locator(".research-page .research-primary");
-  const presentation = await referencePaper.evaluate((element) => {
-    const styles = getComputedStyle(element);
-    const titleLink = element.querySelector("h3 a");
-    const source = element.querySelector(".research-publication__source");
-    const title = element.querySelector("h3");
-
-    return {
-      borderTopWidth: styles.borderTopWidth,
-      borderBottomWidth: styles.borderBottomWidth,
-      borderLeftWidth: styles.borderLeftWidth,
-      sourceAboveTitle: source.getBoundingClientRect().bottom <= title.getBoundingClientRect().top,
-      metadataAlignment: getComputedStyle(
-        element.querySelector(".research-publication__source")
-      ).textAlign,
-      titleDecoration: getComputedStyle(titleLink).textDecorationLine
-    };
-  });
-
-  expect(presentation).toEqual({
-    borderTopWidth: "1px",
-    borderBottomWidth: "1px",
-    borderLeftWidth: "1px",
-    sourceAboveTitle: true,
-    metadataAlignment: "left",
-    titleDecoration: "none"
-  });
-  await expect(page.locator(".research-publications .research-publication")).toHaveCount(6);
-  await expect(page.locator(".research-publication__type").first()).toHaveText("Conference abstract 2025");
-  const rows = await page.locator(".research-publication").evaluateAll(elements => elements.map(element => {
+  const catalogue = page.locator(".research-page");
+  await expect(catalogue.locator("h2")).toHaveText(["Model paper", "Selected publications"]);
+  for (const [heading, count] of [["Model paper", 1], ["Selected publications", 6]]) {
+    await expect(page.getByRole("region", { name: heading, exact: true }).locator("article")).toHaveCount(count);
+  }
+  await expect(page.locator(".sp-page-nav")).toHaveCount(0);
+  await expect(catalogue.locator("details")).toHaveCount(0);
+  await expect(catalogue.locator(".research-publication__summary")).toHaveCount(0);
+  await expect(catalogue.locator("article a")).toHaveCount(7);
+  await expect(catalogue.locator('a[href$=".pdf"]')).toHaveCount(2);
+  await expect(catalogue.locator('a[href$=".pdf"]').first()).toContainText("(PDF)");
+  await expect(catalogue.locator(".research-primary h3 a")).toHaveText("SimPaths: an open-source microsimulation model for life course analysis");
+  await expect(catalogue.getByText("Revised February 2025")).toBeVisible();
+  for (const author of await catalogue.locator(".research-publication__authors").all()) {
+    await expect(author).toBeVisible();
+  }
+  await expect(catalogue.locator("time")).toHaveText(["2025", "2025", "2025", "2025", "2024", "2024", "2024"]);
+  const rows = await catalogue.locator("article").evaluateAll(elements => elements.map(element => {
+    const title = element.querySelector("h3").getBoundingClientRect();
+    const authors = element.querySelector(".research-publication__authors").getBoundingClientRect();
     const source = element.querySelector(".research-publication__source").getBoundingClientRect();
-    const body = element.querySelector(".research-publication__body").getBoundingClientRect();
+    const meta = element.querySelector(".research-publication__meta").getBoundingClientRect();
     const link = element.querySelector("h3 a");
     return {
-      metadataBeside: source.right <= body.left && Math.abs(source.top - body.top) < 1,
-      metadataAbove: source.bottom <= body.top && Math.abs(source.left - body.left) < 1,
-      decoration: getComputedStyle(link).textDecorationLine,
-      sameColourAsHeading: getComputedStyle(link).color === getComputedStyle(link.parentElement).color,
-      wrap: getComputedStyle(link.parentElement).textWrap
+      titleFirst: title.bottom <= source.top,
+      detailsTogether: source.bottom <= authors.top,
+      aligned: Math.abs(title.left - source.left) < 1 && Math.abs(title.left - authors.left) < 1,
+      metadataPosition: window.innerWidth <= 640
+        ? meta.bottom <= title.top && Math.abs(meta.left - title.left) < 1
+        : meta.right < title.left && Math.abs(meta.top - title.top) < 1,
+      top: element.getBoundingClientRect().top,
+      bottom: element.getBoundingClientRect().bottom,
+      left: element.getBoundingClientRect().left,
+      decoration: getComputedStyle(link).textDecorationLine
     };
   }));
   for (const row of rows) {
-    expect(row).toMatchObject({ decoration: "none", sameColourAsHeading: true, wrap: "wrap" });
-    expect(page.viewportSize().width >= 720 ? row.metadataBeside : row.metadataAbove).toBe(true);
+    expect(row).toMatchObject({ titleFirst: true, detailsTogether: true, aligned: true, metadataPosition: true, decoration: "underline" });
+    expect(Math.abs(row.left - rows[0].left)).toBeLessThan(1);
+  }
+  for (let index = 1; index < rows.length; index++) {
+    expect(rows[index].top).toBeGreaterThanOrEqual(rows[index - 1].bottom);
   }
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBe(0);
-  await page.screenshot({ path: testInfo.outputPath("research-catalogue.png"), fullPage: true, animations: "disabled" });
+  const modelLink = catalogue.locator(".research-primary h3 a");
+  await modelLink.focus();
+  await modelLink.press("Tab");
+  const nextPaper = catalogue.locator(".research-publication:not(.research-primary) h3 a").first();
+  await expect(nextPaper).toBeFocused();
+  expect(await nextPaper.evaluate(element => getComputedStyle(element).outlineStyle)).toBe("solid");
+  await page.screenshot({ path: testInfo.outputPath("research-publications.png"), fullPage: true, animations: "disabled" });
 });
 
 test("funding uses a compact linked ledger without changing grant details", async ({ page }, testInfo) => {

@@ -10,9 +10,6 @@
   text-align: left; hyphens: none;
 }
 
-/* Keep the approved reading measure, not a cap on landing layouts. */
-html:is(.sp-tab-model, .sp-tab-documentation, .sp-page-validation):not(.sp-page-roadmap):not(.sp-page-docs-index) .md-content__inner { max-width: var(--sp-reading-measure); }
-
 .md-typeset .page-intro {
   max-width: 49rem;
   margin: -0.1rem 0 1.15rem;
@@ -62,6 +59,7 @@ html:is(.sp-tab-model, .sp-tab-documentation, .sp-page-validation):not(.sp-page-
 .md-typeset h1 {
   font-weight: var(--sp-title-weight);
   font-size: var(--sp-title-size);
+  line-height: 1.3;
   letter-spacing: -0.028em;
   border-bottom: none;
   padding-bottom: 0;

@@ -3,102 +3,104 @@ title: Research
 hide:
   - navigation
   - toc
+  - footer
 ---
 
 <div class="research-page">
 
 <h1>Research</h1>
 
-<p class="research-page__intro">SimPaths underpins a growing body of methodological and applied work across life course analysis, income support, care, and health inequalities. Start with the primary reference for an overview of the model. The selected publications that follow show how it is being applied.</p>
+<p class="research-page__intro">Selected research using SimPaths to examine life course dynamics, social care and the health effects of tax and benefit policy.</p>
 
-<section class="research-page__section research-page__section--primary" aria-labelledby="primary-reference">
-  <h2 id="primary-reference">Primary reference</h2>
-  <article class="research-primary">
-    <p class="research-publication__source"><span>International Journal of Microsimulation</span><span>2025</span></p>
-    <h3><a href="https://microsimulation.pub/articles/00318">SimPaths: an open-source microsimulation model for life course analysis</a></h3>
-    <p class="research-publication__authors">Bronka P, van de Ven J, Kopasker D, Katikireddi SV, Richiardi M</p>
-    <p class="research-publication__summary">Use this as the primary citation for the model and as the best high-level introduction to the SimPaths framework, scope, and design choices.</p>
+<section class="research-page__section" aria-labelledby="primary-reference">
+  <h2 id="primary-reference">Model paper</h2>
+  <article class="research-publication research-primary">
+    <div class="research-publication__meta">
+      <time datetime="2025">2025</time>
+      <span>Journal article</span>
+    </div>
+    <div class="research-publication__details">
+      <h3><a href="https://microsimulation.pub/articles/00318">SimPaths: an open-source microsimulation model for life course analysis</a></h3>
+      <p class="research-publication__source"><cite>International Journal of Microsimulation</cite>, 18(1), 95–133.</p>
+      <p class="research-publication__authors">Bronka P, van de Ven J, Kopasker D, Katikireddi SV, Richiardi M</p>
+    </div>
   </article>
 </section>
 
 <section class="research-page__section" aria-labelledby="further-references">
-  <h2 id="further-references">Further references</h2>
+  <h2 id="further-references">Selected publications</h2>
 
-  <div class="research-publications">
-
-  <article class="research-publication">
-    <div class="research-publication__source">
-      <p class="research-publication__type">Conference abstract <span>2025</span></p>
-      <p>European Journal of Public Health</p>
+  <article class="research-publication" id="journal-articles">
+    <div class="research-publication__meta">
+      <time datetime="2025">2025</time>
+      <span>Journal article</span>
     </div>
-    <div class="research-publication__body">
-    <h3><a href="https://doi.org/10.1093/eurpub/ckaf161.076">Tax reforms vs benefit enhancement to address mental health inequalities: a microsimulation study</a></h3>
-    <p class="research-publication__authors">Igelström E, Kopasker D, Richiardi MG, Katikireddi SV</p>
-    <p class="research-publication__summary">Compares income-tax reforms alone with reforms combined with benefit increases, examining mental health inequalities in the UK. Published in the conference supplement, volume 35, supplement 4.</p>
+    <div class="research-publication__details">
+      <h3><a href="https://doi.org/10.1016/j.jebo.2025.106911">Attenuation and reinforcement mechanisms over the life course</a></h3>
+      <p class="research-publication__source"><cite>Journal of Economic Behavior &amp; Organization</cite>, 231, 106911.</p>
+      <p class="research-publication__authors">Richiardi M, Bronka P, van de Ven J</p>
+    </div>
+  </article>
+
+  <article class="research-publication" id="working-papers">
+    <div class="research-publication__meta">
+      <time datetime="2025">2025</time>
+      <span>Working paper</span>
+    </div>
+    <div class="research-publication__details">
+      <h3><a href="https://www.iser.essex.ac.uk/wp-content/uploads/files/working-papers/cempa/cempa5-25.pdf">Welfare effects of social care policies<span class="research-publication__format"> (PDF)</span></a></h3>
+      <p class="research-publication__source">CeMPA Working Paper 5/25.</p>
+      <p class="research-publication__authors">van de Ven J, Bronka P, Richiardi M</p>
+    </div>
+  </article>
+
+  <article class="research-publication" id="conference-abstracts">
+    <div class="research-publication__meta">
+      <time datetime="2025">2025</time>
+      <span>Conference abstract</span>
+    </div>
+    <div class="research-publication__details">
+      <h3><a href="https://doi.org/10.1093/eurpub/ckaf161.076">Tax reforms vs benefit enhancement to address mental health inequalities: a microsimulation study</a></h3>
+      <p class="research-publication__source"><cite>European Journal of Public Health</cite>, 35 (Supplement 4).</p>
+      <p class="research-publication__authors">Igelström E, Kopasker D, Richiardi MG, Katikireddi SV</p>
     </div>
   </article>
 
   <article class="research-publication">
-    <div class="research-publication__source">
-      <p class="research-publication__type">Working paper</p>
-      <p>CeMPA WP 5/25</p>
+    <div class="research-publication__meta">
+      <time datetime="2024">2024</time>
+      <span>Journal article</span>
     </div>
-    <div class="research-publication__body">
-    <h3><a href="https://www.microsimulation.ac.uk/publications/publication-588564/">Welfare effects of social care policies</a></h3>
-    <p class="research-publication__authors">van de Ven J, Bronka P, Richiardi M</p>
-    <p class="research-publication__summary">A recent working paper using the model to examine social care policy effects through a life course lens.</p>
-    </div>
-  </article>
-
-  <article class="research-publication">
-    <div class="research-publication__source">
-      <p class="research-publication__type">Working paper</p>
-      <p>CeMPA WP 7/24</p>
-    </div>
-    <div class="research-publication__body">
-    <h3><a href="https://www.microsimulation.ac.uk/publications/publication-578383/">The life course effects of care</a></h3>
-    <p class="research-publication__authors">van de Ven J, Bronka P, Richiardi M</p>
-    <p class="research-publication__summary">Explores how caring responsibilities shape outcomes over time and illustrates the kind of policy questions SimPaths can support.</p>
+    <div class="research-publication__details">
+      <h3><a href="https://doi.org/10.1016/j.socscimed.2024.116953">Evaluating the influence of taxation and social security policies on psychological distress: a microsimulation study of the UK during the COVID-19 economic crisis</a></h3>
+      <p class="research-publication__source"><cite>Social Science &amp; Medicine</cite>, 351, 116953.</p>
+      <p class="research-publication__authors">Kopasker D, Bronka P, Thomson RM, Khodygo V, Kromydas T, Meier P, Heppenstall A, Bambra C, Lomax N, Craig P, Richiardi M, Katikireddi SV</p>
     </div>
   </article>
 
   <article class="research-publication">
-    <div class="research-publication__source">
-      <p class="research-publication__type">Journal article <span>2025</span></p>
-      <p>Journal of Economic Behavior &amp; Organization</p>
+    <div class="research-publication__meta">
+      <time datetime="2024">2024</time>
+      <span>Journal article</span>
     </div>
-    <div class="research-publication__body">
-    <h3><a href="https://www.sciencedirect.com/science/article/pii/S0167268125000319">Attenuation and reinforcement mechanisms over the life course</a></h3>
-    <p class="research-publication__authors">Richiardi M, Bronka P, van de Ven J</p>
-    <p class="research-publication__summary">An example of SimPaths informing broader theoretical questions about cumulative dynamics across the life course.</p>
-    </div>
-  </article>
-
-  <article class="research-publication">
-    <div class="research-publication__source">
-      <p class="research-publication__type">Journal article <span>2024</span></p>
-      <p>Social Science &amp; Medicine</p>
-    </div>
-    <div class="research-publication__body">
-    <h3><a href="https://doi.org/10.1016/j.socscimed.2024.116953">Evaluating the influence of taxation and social security policies on psychological distress: a microsimulation study of the UK during the COVID-19 economic crisis</a></h3>
-    <p class="research-publication__authors">Kopasker D, Bronka P, Thomson RM, Khodygo V, Kromydas T, Meier P, Heppenstall A, Bambra C, Lomax N, Craig P, Richiardi M, Katikireddi SV</p>
-    <p class="research-publication__summary">A policy-focused application linking tax-benefit reform scenarios to mental health outcomes during a period of acute economic disruption.</p>
+    <div class="research-publication__details">
+      <h3><a href="https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1004358">Short-term impacts of Universal Basic Income on population mental health inequalities in the UK: a microsimulation modelling study</a></h3>
+      <p class="research-publication__source"><cite>PLOS Medicine</cite>, 21(3), e1004358.</p>
+      <p class="research-publication__authors">Thomson RM, Kopasker D, Bronka P, Richiardi M, Khodygo V, Baxter AJ, Igelström E, Pearce A, Leyland AH, Katikireddi SV</p>
     </div>
   </article>
 
   <article class="research-publication">
-    <div class="research-publication__source">
-      <p class="research-publication__type">Journal article <span>2024</span></p>
-      <p>PLOS Medicine</p>
+    <div class="research-publication__meta">
+      <time datetime="2024">2024</time>
+      <span>Working paper</span>
     </div>
-    <div class="research-publication__body">
-    <h3><a href="https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1004358">Short-term impacts of Universal Basic Income on population mental health inequalities in the UK: a microsimulation modelling study</a></h3>
-    <p class="research-publication__authors">Thomson RM, Kopasker D, Bronka P, Richiardi M, Khodygo V, Baxter AJ, Igelström E, Pearce A, Leyland AH, Katikireddi SV</p>
-    <p class="research-publication__summary">Shows how the model can be used to examine distributional health effects of ambitious income-support policies.</p>
+    <div class="research-publication__details">
+      <h3><a href="https://www.iser.essex.ac.uk/wp-content/uploads/files/working-papers/cempa/cempa7-24.pdf">The life course effects of care<span class="research-publication__format"> (PDF)</span></a></h3>
+      <p class="research-publication__source">CeMPA Working Paper 7/24. <span>Revised February 2025</span>.</p>
+      <p class="research-publication__authors">van de Ven J, Bronka P, Richiardi M</p>
     </div>
   </article>
-
-  </div>
 </section>
 
 </div>

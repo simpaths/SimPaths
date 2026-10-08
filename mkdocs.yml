@@ -43,19 +43,19 @@ theme:
 
 extra_css:
   # Keep this order: later component files intentionally refine earlier layers.
-  - assets/css/01-foundation.css?v=20261007-interior-layout-1
-  - assets/css/02-shell-navigation.css?v=20261007-interior-layout-2
-  - assets/css/03-content.css?v=20261007-interior-layout-1
-  - assets/css/04-landing-components.css?v=20261007-interior-layout-1
-  - assets/css/05-site-chrome.css?v=20261007-interior-layout-1
-  - assets/css/06-page-sections.css?v=20261007-interior-layout-1
-  - assets/css/07-roadmap.css?v=20261007-interior-layout-1
-  - assets/css/08-home.css?v=20261007-interior-layout-1
+  - assets/css/01-foundation.css?v=20261008-header-row-1
+  - assets/css/02-shell-navigation.css?v=20261008-header-row-1
+  - assets/css/03-content.css?v=20261007-shared-grid-1
+  - assets/css/04-landing-components.css?v=20261008-masthead-2
+  - assets/css/05-site-chrome.css?v=20261008-header-row-1
+  - assets/css/06-page-sections.css?v=20261008-funding-width-1
+  - assets/css/07-roadmap.css?v=20261007-shared-grid-1
+  - assets/css/08-home.css?v=20261008-band-type-1
 
 extra_javascript:
   - assets/js/mathjax.js?v=20260831-math-svg-1
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js
-  - assets/js/site-state.js?v=20261007-interior-layout-1
+  - assets/js/site-state.js?v=20261008-page-edge-1
   - assets/js/toc-indicator.js?v=20260905-toc-marker-1
   - assets/js/sidebar-filter.js?v=20260907-sidebar-alignment-1
 

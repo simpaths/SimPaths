@@ -61,8 +61,7 @@ class SiteTypographyTest(unittest.TestCase):
     def test_page_specific_headings_do_not_restore_heavy_weights(self):
         headings = {
             "04-landing-components.css": [".md-typeset .docs-hub--index h1", ".md-typeset .docs-hub--index h2"],
-            "06-page-sections.css": [".md-typeset .funding-panel h2", ".md-typeset .research-primary h3",
-                                     ".md-typeset .research-publication h3", ".md-typeset .cite-section > h2",
+            "06-page-sections.css": [".md-typeset .funding-panel h2", ".md-typeset .cite-section > h2",
                                      ".md-typeset .module-detail > h1", ".md-typeset .module-detail > h2"],
             "07-roadmap.css": [".md-typeset .roadmap-stage__heading h2", ".md-typeset .roadmap-item h3",
                                ".md-typeset .roadmap-contact h2"],
@@ -83,7 +82,7 @@ class SiteTypographyTest(unittest.TestCase):
         prose = {
             "03-content.css": [".md-typeset .page-intro", ".md-typeset .page-intro--support"],
             "06-page-sections.css": [".md-typeset .funding-lead", ".md-typeset .research-page__intro",
-                                     ".md-typeset .research-publication__summary", ".md-typeset .cite-entry",
+                                     ".md-typeset .cite-entry",
                                      ".md-typeset .module-detail__lead"],
             "07-roadmap.css": [".md-typeset .roadmap-lede", ".md-typeset .roadmap-stage__heading p",
                                ".md-typeset .roadmap-item > p", ".md-typeset .roadmap-contact p"],

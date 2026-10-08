@@ -5,6 +5,7 @@
     "sp-page-funding",
     "sp-page-roadmap",
     "sp-page-validation",
+    "sp-no-section-nav",
     "sp-no-toc",
     "sp-tab-model",
     "sp-tab-documentation"
@@ -78,6 +79,10 @@
     togglePageClass(
       "sp-page-validation",
       Boolean(document.querySelector(".validation-page-marker"))
+    );
+    togglePageClass(
+      "sp-no-section-nav",
+      Boolean(document.querySelector(".research-page, .funding-page, .validation-page-marker"))
     );
     const tocSidebar = document.querySelector(".md-sidebar--secondary");
     togglePageClass("sp-no-toc", !tocSidebar || tocSidebar.hidden || !tocSidebar.querySelector("a[href]"));

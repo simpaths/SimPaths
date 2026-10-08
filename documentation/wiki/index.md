@@ -71,8 +71,7 @@ hide:
 
   <div class="simpaths-home-paths__layout">
     <article class="simpaths-first-run" aria-labelledby="first-run-title">
-      <span class="simpaths-first-run__label">Your first simulation</span>
-      <h3 id="first-run-title">Start with the training data</h3>
+      <h3 id="first-run-title">Your first simulation</h3>
       <p class="simpaths-first-run__intro">The repository includes a training population and tax–benefit data, so you can check your installation before preparing research inputs.</p>
       <ol class="simpaths-first-run__steps" aria-label="Steps to a first simulation">
         <li><a href="getting-started/environment-setup/">

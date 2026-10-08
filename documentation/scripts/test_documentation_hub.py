@@ -12,25 +12,21 @@ class DocumentationHubTest(unittest.TestCase):
     def setUpClass(cls):
         cls.css = (Path(__file__).resolve().parents[1] / "wiki/assets/css/04-landing-components.css").read_text()
 
-    def test_masthead_places_logo_on_left_and_stacks_without_an_extra_mobile_column(self):
-        masthead = blocks(self.css, ".md-typeset .docs-index__masthead")
+    def test_masthead_keeps_the_mark_next_to_the_title(self):
         mark = blocks(self.css, ".md-typeset .docs-index__mark")
         heading = blocks(self.css, ".md-typeset .docs-index__heading")
-        self.assertEqual(masthead[0]["grid-template-columns"], "6.2rem minmax(0, 1fr)")
-        self.assertEqual(mark[0]["grid-column"], "1")
-        self.assertEqual(heading[0]["grid-column"], "2")
-        self.assertEqual(masthead[-1]["grid-template-columns"], "minmax(0, 1fr)")
-        self.assertEqual(heading[-1]["grid-column"], "1")
-        self.assertEqual(heading[-1]["grid-row"], "2")
+        self.assertEqual(heading[0]["display"], "flex")
+        self.assertEqual(heading[0]["gap"], "0.6rem")
+        self.assertEqual(mark[0]["flex-shrink"], "0")
 
-    def test_logo_has_its_original_white_frame_without_a_dark_mode_image_swap(self):
+    def test_logo_reserves_a_compact_white_frame_without_a_dark_mode_image_swap(self):
         mark = blocks(self.css, ".md-typeset .docs-index__mark")
         self.assertEqual(mark[0]["background"], "#fff")
-        self.assertEqual(mark[0]["min-height"], "4.75rem")
-        self.assertEqual(mark[0]["padding"], "0.68rem 0.58rem")
+        self.assertEqual(mark[0]["height"], "2.34rem")
+        self.assertEqual(mark[0]["padding"], "0.1rem 0.3rem")
         self.assertEqual(mark[0]["border-radius"], "4px")
-        self.assertEqual(mark[-1]["min-height"], "4.15rem")
-        self.assertEqual(mark[-1]["padding"], "0.58rem 0.5rem")
+        self.assertTrue(any(rule.get("width") == "2.5rem" for rule in mark))
+        self.assertTrue(any(rule.get("padding-inline") == "0.1rem" for rule in mark))
         self.assertNotIn("aspect-ratio", mark[0])
         dark_prefix = '[data-md-color-scheme="slate"] .md-typeset .docs-index__mark'
         for suffix in ("", " svg.docs-index__mark-image--light", " svg.docs-index__mark-image--dark"):

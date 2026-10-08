@@ -37,11 +37,11 @@ class SitePaletteTest(unittest.TestCase):
         self.assertEqual(light["--md-default-bg-color--light"], "#F6F6F8")
         self.assertEqual(light["--md-default-fg-color"], "#343134")
 
-    def test_homepage_directory_follows_page_palette_while_research_and_hero_are_retained(self):
+    def test_homepage_directory_and_research_bands_keep_the_approved_palette(self):
         expected = {
             ".simpaths-home-intro-band": "#FFFFFF",
-            ".simpaths-home-paths": "var(--md-default-bg-color)",
-            ".simpaths-home-research-band": "#F4F4F6",
+            ".simpaths-home-paths": "#E8F0F5",
+            ".simpaths-home-research-band": "#F7F7F9",
             ".md-typeset .simpaths-home-research-band a.research-entry": "#fff",
         }
         for selector, colour in expected.items():

@@ -48,7 +48,7 @@ and the relevant component layer:
 - Subheadings: `--sp-subheading-size` / `--sp-subheading-weight` (0.95rem / 560).
 - Main prose: `--sp-reading-copy-size` / `--sp-reading-line-height` (0.82rem / 1.75).
 - Supporting labels: `--sp-label-size` / `--sp-label-weight` (0.7rem / 550).
-- Publication, grant and status metadata: `--sp-meta-size` (0.62rem).
+- Compact grant and status metadata: `--sp-meta-size` (0.62rem).
 - Sidebar links and the contents rail: `--sp-nav-size` / `--sp-toc-size`.
 
 Use these roles across Model, Documentation, Validation, Research, Funding,
@@ -59,10 +59,13 @@ headings, the Documentation masthead's mobile title and its compact description
 code and small supporting notes retain their
 purpose-specific treatments. Sharing typography does not mean sharing layouts.
 
-Long reading pages use `--sp-reading-measure` on the content container. Keep the
-homepage bands and catalogue/list layouts at their existing widths; do not add
-per-sentence width constraints or balanced/pretty wrapping. Palette changes are
-separate from this convention and must not change typography or layout.
+All interior pages use the shared grid in `05-site-chrome.css`. It owns the
+reading measure, horizontal position and top spacing. Pages with section navigation
+reserve its left rail; Validation, Research and Funding align with the Model
+sidebar text on desktop, including its 0.8rem inset from the frame. Do not centre
+individual page wrappers, add title padding or set per-page article widths. Homepage bands
+retain their distinct full-width composition. Palette changes are separate
+from this convention and must not change typography or layout.
 
 Run `python3 -m unittest discover -s documentation/scripts -p 'test_*.py'` to check
 the shared scale and component adoption as well as code highlighting.
@@ -78,18 +81,43 @@ reading pages retain their separate slate palette.
 
 The brand, main navigation and search share one header through
 `partials/header.html`. `--sp-header-height` controls its height and section
-scroll offsets. Keep the main template's tabs block empty to avoid duplicating
+scroll offsets. Within the brand, centre the logo above the SimPaths wordmark
+with a 0.2rem gap on desktop and mobile. Desktop uses a 5rem header with navigation
+and search lowered to the wordmark line via `--sp-header-row-offset`; the mobile
+header remains 4rem. Keep the main template's tabs block empty to avoid duplicating
 the navigation. The mobile drawer remains native Material navigation. Desktop
 search hides the tabs while expanded, and restores them when closed.
 
 `sp-no-toc` identifies pages whose contents panel is hidden or empty, on both
-initial load and instant navigation. These pages must not reserve an empty
-right column. Centre the sidebar/article group on desktop and the reading
-column on tablet. Preserve the real contents panel on longer technical pages.
+initial load and instant navigation. It only hides the panel; it must not move
+or resize the article. Desktop uses equal 11.5rem navigation/contents rails,
+1.2rem gaps and a central reading column capped at 42rem. Tablet keeps the
+reading column and right contents rail while the primary navigation becomes
+a drawer. Mobile uses one column with 0.8rem side gutters. Every interior page
+uses the same outer frame at each breakpoint. On desktop, `sp-no-section-nav`
+lets Validation, Research and Funding use the space otherwise reserved for
+section navigation, with a 0.8rem content inset matching the Model navigation text
+and any contents panel directly alongside. Other interior pages retain
+their section-navigation rail. Titles share a top baseline; pages of each layout
+share a left edge. Preserve the real contents panel
+on longer technical pages and the native mobile navigation drawer.
 The Model landing page provides three explanatory routes, plus roadmap and
 citation links; it omits the redundant Previous/Next pager. The Documentation
 directory uses a 42rem content measure. Keep the homepage's spacing independent
 of the tighter interior-page top spacing.
+
+Research inherits the shared article column and presents complete publication
+records. Put the model paper first, then selected publications by descending
+year. A narrow 6.5rem column holds year and publication type; the main column
+holds the actual linked title, publication details and all authors. The two
+columns stack below 40em, with year and type on one line. Publication records
+have their own compact scale: 0.85rem / 600 titles, 0.75rem authors and sources,
+and 0.7rem type labels. Rows use 0.8rem vertical padding. Use full foreground colour, italic journal names and
+ordinary citation punctuation. Keep PDF destinations labelled and keyboard
+focus visible. Use open edges, light rules and consistent spacing. Do not
+substitute editorial headlines for paper titles, hide citations, add summaries,
+use a two-column paper grid or add detached reading links. Omit the Previous/Next
+pager. Inherit the page frame and alignment from the shared no-section-navigation layout.
 
 Homepage introductory paragraphs and feature descriptions use solid charcoal
 (#343134), without separate faded lead/body colours. This is a text-only
@@ -98,12 +126,18 @@ The introductory paragraphs share the 520 weight of the "The framework..."
 bridge sentence; feature descriptions keep their existing weight. Do not
 restore a lighter lead/body weight or increase their font size to compensate.
 
-The homepage's "Use SimPaths" section uses a white background. A pale #F7F5F8
-first-run panel groups three numbered steps using the training data; three open
-routes alongside it serve model assessment, research analysis and development.
+The homepage's "Use SimPaths" section is an open directory on a full-width pale
+blue band (#E8F0F5), between the white introduction and grey research band,
+with two equal columns and aligned headings. The first-simulation guide groups
+three numbered steps using the training data; three routes alongside it serve
+model assessment, research analysis and development. Keep graphite text, berry
+link accents and blue-grey dividers (#CCD9E1), with the same treatment in both
+themes. Apply the colour to the whole band; do not add individual tinted panels,
+coloured top borders or inset boxes. Use one supporting text and link size
+(0.8rem) and one subheading size (1rem) across both columns.
 Stack these columns on smaller screens. Keep the training-data limitation and
 the direct link to the documentation directory. Do not restore four equal boxes.
-"Selected Research" uses #F4F4F6 with graphite headings, white cards and the
+"Selected Research" uses #F7F7F9 with graphite headings, white cards and the
 existing topic accents. Remove Material's trailing article margin on the
 homepage only so the final research band meets the footer.
 The shared footer uses graphite #27232D in both themes; only the SimPaths brand is
@@ -132,12 +166,18 @@ retains light text. These colour pairs apply in both site themes.
 Links sit directly on each section surface with fine dividing rules and visible
 keyboard focus, not in individual coloured cards. Keep link surfaces unchanged on
 hover, focus and press; only arrows move, without shifting text. Do not restore
-highlight fills or animated underlines. Disable motion for reduced-motion preferences. The compact masthead
-has an inline mark in its original padded, pure-white box on the left and a
-full-width description. The white box retains the light logo variant in both
-themes and reserves space before rendering. Keep the approved typography
-and content measure; stack the panels and links on small screens. Do not restore
+highlight fills or animated underlines. Disable motion for reduced-motion preferences.
+The compact masthead places the mark before the title in one flex row, separated by
+0.6rem. The mark has a padded, pure-white box; the mark and full-width introduction
+align with the shared reading edge.
+Below 360px, hide this repeated decorative mark so the heading fits comfortably.
+The white box retains the light logo variant in both themes and reserves space
+before rendering. Keep the approved typography; stack the panels and links on
+small screens. Do not restore
 the pastel card fills, coloured edge stripes or separate card frames.
+
+Funding's introduction and summary bar use the full width of the grant ledger.
+Do not restore a separate width cap for these two elements.
 
 `test_site_palette.py` guards these retained colours and surface treatments.
 `test_site_typography.py` also protects the Documentation description's original

@@ -7,7 +7,6 @@
   --roadmap-muted: var(--md-default-fg-color--light);
   --roadmap-rule: rgba(52, 49, 52, 0.14);
   --roadmap-line: rgba(61, 93, 130, 0.24);
-  max-width: 49rem;
   padding-bottom: 1rem;
 }
 .md-typeset .roadmap-page p,

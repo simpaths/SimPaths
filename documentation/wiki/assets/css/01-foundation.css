@@ -35,6 +35,9 @@
   --sp-reading-copy-size: 0.82rem;
   --sp-reading-line-height: 1.75;
   --sp-reading-measure: 42rem;
+  --sp-layout-rail: 11.5rem;
+  --sp-layout-gap: 1.2rem;
+  --sp-page-gutter: 0.8rem;
   --sp-section-gap: 2.1rem;
   --sp-subheading-gap: 1.35rem;
   --sp-label-size: 0.7rem;
@@ -42,7 +45,15 @@
   --sp-meta-size: 0.62rem;
   --sp-nav-size: 0.675rem;
   --sp-header-height: 4rem;
+  --sp-header-row-offset: 0rem;
   --sp-toc-size: 0.67rem;
+}
+
+@media (min-width: 64em) {
+  :root {
+    --sp-header-height: 5rem;
+    --sp-header-row-offset: 0.8rem;
+  }
 }
 
 /* ── White, graphite and berry — drawn from the SimPaths mark ── */
