@@ -10,9 +10,9 @@ title: Education
 
 ## Student status
 
-Students in the relevant age range (e.g. 16) are assigned a probability of remaining in education using a probit model (E1a). The current UK equation includes gender, age, lagged continuous-education status, parental education, lagged income quintile, region, ethnicity and time effects. Students below 16 remain in education; students above 29 leave. The student-share alignment adjustment is applied to E1a, not to re-entry.
+Students in the relevant age range (e.g. 16-29) are assigned a probability of remaining in education using a probit model (E1a). The current UK equation includes gender, age, lagged continuous-education status, parental education, lagged income quintile, region, ethnicity and time effects. Students below 16 remain in education; students above 29 leave. The student-share alignment adjustment is applied to E1a, not to re-entry.
 
-People who were neither students nor retired in the preceding period may re-enter education through a second probit model (E1b). Its covariates include gender, age, lagged partnership, education and employment status, lagged numbers of children and children aged 0-2, parental education, region, ethnicity and time effects. The implementation does not impose an upper age of 45 for re-entry. A person who returns can leave again in a subsequent year.
+People who were neither students nor retired in the preceding period may re-enter education through a second probit model (E1b). Its covariates include, whenever available, variables like gender, age, lagged partnership, education and employment status, lagged numbers of children and small children, parental education (not available for the EU models), region, ethnicity and time effects. A person who returns can leave again in a subsequent year.
 
 ## Education level
 
