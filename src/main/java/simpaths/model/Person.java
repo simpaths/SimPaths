@@ -350,7 +350,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
 
         this.demEnterSample = demEnterSample;
 
-        if (demEnterSample != SampleEntry.InputData && Parameters.lifetimeIncomeImpute) {
+        if (demEnterSample != SampleEntry.InputData && demEnterSample != SampleEntry.ProcessedInputData && Parameters.lifetimeIncomeImpute) {
 
             this.ltIncomeDonor = originalPerson.ltIncomeDonor;
             this.yLifeTime = originalPerson.getYLifeTime();

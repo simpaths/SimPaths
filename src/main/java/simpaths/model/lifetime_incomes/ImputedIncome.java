@@ -21,9 +21,7 @@ public class ImputedIncome {
         this.income = person.getImputedIncome(age);
         if (person.getDemAge() == age) {
 
-            double dispIncomePerYear = person.getBenefitUnit().getYDispMonth() * 12.0;
-            double equivScale = person.getBenefitUnit().getEquivalisedWeight();
-            this.observedIncome = dispIncomePerYear / equivScale;
+            this.observedIncome = person.getBenefitUnit().getHousehold().getEquivalisedDisposableIncomeYearly();
         }
         else {
             this.observedIncome = null;

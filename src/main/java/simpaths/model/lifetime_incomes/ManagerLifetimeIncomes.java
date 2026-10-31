@@ -245,7 +245,7 @@ public class ManagerLifetimeIncomes {
                 }
             }
             try {
-                String path = outputDir + File.separator + "imputed_incomes.csv";
+                String path = outputDir + File.separator + "imputed_incomes2.csv";
                 Writer writer = new FileWriter(path);
                 StatefulBeanToCsv beanToCsv = new StatefulBeanToCsvBuilder(writer).build();
                 beanToCsv.write(incomes);
