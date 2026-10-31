@@ -23,7 +23,6 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.util.Pair;
 import org.apache.poi.openxml4j.util.ZipSecureFile;
 import simpaths.model.decisions.Grids;
-import simpaths.model.lifetime_incomes.EquivalisedIncomeCDF;
 import simpaths.model.taxes.DonorTaxUnit;
 import simpaths.model.taxes.MatchFeature;
 import simpaths.model.taxes.database.TaxDonorDataParser;
@@ -2410,12 +2409,13 @@ public class Parameters {
     public static Double getEquivalisedIncome(Gender demSex, int age, int year) {
 
         Double val = null;
-        if (year<=equivalisedIncomeMaxYear && year>=equivalisedIncomeMinYear && age<=equivalisedIncomeMaxAge) {
+        int ageHere = Math.min(age, equivalisedIncomeMaxAge);
+        if (year<=equivalisedIncomeMaxYear && year>=equivalisedIncomeMinYear) {
             // obtain value from observed matrix
 
-            Number nn = ((Number) equivalisedIncomeByGenderAgeYear.getValue(demSex.toString(), age, year));
+            Number nn = ((Number) equivalisedIncomeByGenderAgeYear.getValue(demSex.toString(), ageHere, year));
             if (nn==null) {
-                throw new IllegalAccessError("ERROR - problem evaluating mean equivalised income for year: " + year + ", age: " + age + " and demSex " + demSex.toString());
+                throw new IllegalAccessError("ERROR - problem evaluating mean equivalised income for year: " + year + ", age: " + ageHere + " and demSex " + demSex.toString());
             }
             val = nn.doubleValue();
         }

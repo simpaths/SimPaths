@@ -263,7 +263,7 @@ When IO is enabled, this package creates projected income paths for birth cohort
 
 | Class | Purpose |
 | --- | --- |
-| `ManagerProjectLifetimeIncomes` | Generates the synthetic income trajectory database for all birth cohorts in the simulation horizon. |
+| `ManagerLifetimeIncomes` | Generates the synthetic income trajectory database for all birth cohorts in the simulation horizon. |
 | `LifetimeIncomeImputation` | Matches each simulated person to a donor income trajectory via binary search on the income CDF. |
 | `AnnualIncome` | Implements the AR(2) income process with age-gender anchoring. |
 | `BirthCohort` | Groups individuals by birth year for cohort-level income projection. |

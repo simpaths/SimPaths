@@ -4947,6 +4947,8 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
         return yDispMonth;
     }
 
+    public Double getYDispMonth() { return yDispMonth; }
+
     public Double getGrossIncomeMonthly() {
         return yGrossMonth;
     }
@@ -5459,7 +5461,7 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
     }
 
     public double getEquivalisedWeight() {
-        //Equivalence scale gives a weight of 1.0 to the first adult;
+        //OECD (BHC) equivalence scale gives a weight of 1.0 to the first adult;
         //0.5 to the second and each subsequent person aged 14 and over;
         //0.3 to each child aged under 14.
         double weight = 0.0;
