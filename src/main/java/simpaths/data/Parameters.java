@@ -568,8 +568,8 @@ public class Parameters {
     private static MultiKeyCoefficientMap coeffCovarianceHM1Level; //Step 1 coefficients for mental health
     private static MultiKeyCoefficientMap coeffCovarianceHM2LevelMales; //Step 2 coefficients for mental health for males
     private static MultiKeyCoefficientMap coeffCovarianceHM2LevelFemales;
-    private static MultiKeyCoefficientMap coeffCovarianceHM2LevelMalesU25; //Step 2 coefficient for males under 25
-    private static MultiKeyCoefficientMap coeffCovarianceHM2LevelFemalesU25;
+    // private static MultiKeyCoefficientMap coeffCovarianceHM2LevelMalesU25; //Step 2 coefficient for males under 25 in GQH estimation, we'll skip this for now
+    // private static MultiKeyCoefficientMap coeffCovarianceHM2LevelFemalesU25;
 
     private static MultiKeyCoefficientMap coeffCovarianceHM1Case;
     private static MultiKeyCoefficientMap coeffCovarianceHM2CaseMales;
