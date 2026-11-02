@@ -265,7 +265,7 @@ foreach file in "${dir_was_data}/was_round_5_person_eul_oct_2020.dta" ///
 		recode dvgiemp dvgise dvgippen dvgiinv dvoigrrannual_i dvoiggtannual_i dvoigegannual_i dvoigfrannual_i dvoigmaannual_i dvoigroannual_i dvoigopannual_i (missing=0)
 		gen inci = dvgiemp + dvgise + dvgippen + dvgiinv + dvoigrrannual_i + dvoiggtannual_i + dvoigegannual_i + dvoigfrannual_i + dvoigmaannual_i + dvoigroannual_i + dvoigopannual_i
 		gen pensioner = (dvgippen > 0.01)
-		
+
 		// fix some partner person numbers
 		duplicates tag case partno, gen(dup)	// Rows should be unique in case partno, assuming monogamy
 		replace dup=0 if partno==17				// partno=17 if no partner in household
@@ -774,7 +774,7 @@ foreach file in "${dir_was_data}/was_round_5_person_eul_oct_2020.dta" ///
 			cc_debt cc_debt_trans cc_debt_pers hp_debt loan_debt loan_debt_exc_slc loan_debt_slc ///
 			loan_doorstep loan_pawnbroker loan_payday informal_loan_debt highcost_loan_debt ///
 			mail_debt unsec_debt_total unsec_debt_core highcost_debt_proxy lowcost_debt ///
-			op_memb pp_membu op_membu op_db op_dc pensioners ///
+			op_memb pp_membu op_membu op_db op_dc pensioners ///
 			pp_core_annual pp_fallback_annual pp_contrib_annual pp_contrib_rate_income priv_total_contrib_rate_inc ///
 			pp_contrib_source_core pp_contrib_source_fallback occ_emp_contrib_rate occ_emp_contrib_annual ///
 			caser5 caser6 caser7 personw5 personw6 personr7
@@ -997,8 +997,6 @@ label var was_pid "Synthetic longitudinal person ID (WAS rounds 5-8 linkage)"
 
 sort was_pid year was_round
 save "${dir_data}/was_wealthdata.dta", replace
-
-
 /**************************************************************/
 *
 *	ANALYSIS OF WORKING VARIABLES

@@ -153,6 +153,36 @@ input/EUROMODoutput/baseline/*
 
 input/InitialPopulations/original/*
 input/InitialPopulations/base/*
+input/lifetime_incomes/sample/1994.csv
+input/lifetime_incomes/sample/1995.csv
+input/lifetime_incomes/sample/1996.csv
+input/lifetime_incomes/sample/1997.csv
+input/lifetime_incomes/sample/1998.csv
+input/lifetime_incomes/sample/1999.csv
+input/lifetime_incomes/sample/2000.csv
+input/lifetime_incomes/sample/2001.csv
+input/lifetime_incomes/sample/2002.csv
+input/lifetime_incomes/sample/2003.csv
+input/lifetime_incomes/sample/2004.csv
+input/lifetime_incomes/sample/2005.csv
+input/lifetime_incomes/sample/2006.csv
+input/lifetime_incomes/sample/2007.csv
+input/lifetime_incomes/sample/2008.csv
+input/lifetime_incomes/sample/2009.csv
+input/lifetime_incomes/sample/2010.csv
+input/lifetime_incomes/sample/2011.csv
+input/lifetime_incomes/sample/2012.csv
+input/lifetime_incomes/sample/2013.csv
+input/lifetime_incomes/sample/2014.csv
+input/lifetime_incomes/sample/2015.csv
+input/lifetime_incomes/sample/2016.csv
+input/lifetime_incomes/sample/2017.csv
+input/lifetime_incomes/sample/2018.csv
+input/lifetime_incomes/sample/2019.csv
+input/lifetime_incomes/sample/2020.csv
+input/lifetime_incomes/sample/2021.csv
+input/lifetime_incomes/sample/2022.csv
+input/lifetime_incomes/sample/2023.csv
 
 # Documentation build and browser-check output
 /site/

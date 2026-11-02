@@ -10,7 +10,7 @@ public class WhiteNoiseEstimate {
 
     @CsvBindByName private double pidp;         // person id
     @CsvBindByName private double etaHat;       // estimated white noise
-    @CsvBindByName private double age;          // observation age
+    @CsvBindByName private int age;          // observation age
     @CsvBindByName private double weight;       // survey weight
 
     // Required by CsvToObjectLoader (reflection-based instantiation).
@@ -22,5 +22,5 @@ public class WhiteNoiseEstimate {
     public void setPidp(double pidp) { this.pidp = pidp; }
     public double getEtaHat() { return etaHat; }
     public void setEtaHat(double etaHat) { this.etaHat = etaHat; }
-    public double getAge() { return age; }
+    public int getAge() { return age; }
 }

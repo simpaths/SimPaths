@@ -25,8 +25,8 @@ import simpaths.model.annotations.UpdateManager;
 import simpaths.model.decisions.Axis;
 import simpaths.model.decisions.DecisionParams;
 import simpaths.model.enums.*;
-import simpaths.model.lifetime_incomes.AnnualIncome;
-import simpaths.model.lifetime_incomes.Individual;
+import simpaths.model.lifetime_incomes.RegressionProxy;
+import simpaths.model.lifetime_incomes.TemplateIndividual;
 import simpaths.model.person.PrivatePension;
 
 import java.math.BigDecimal;
@@ -51,9 +51,6 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
             @JoinColumn(name = "burun", referencedColumnName = "simulation_run"),
             @JoinColumn(name = "prid", referencedColumnName = "working_id")
     }) private BenefitUnit benefitUnit;
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
-    @JoinColumn(name = "income_id", referencedColumnName = "id")
-    private Individual ltIncomeDonor;
 
     // identifiers
     private Long idPersOriginal;
@@ -151,6 +148,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
     @Lag(field="yBenUCReceivedFlag") @Transient private Boolean yBenUCReceivedFlagL1;
     @Column(name="yBenNonUCReceivedFlag") private Boolean yBenNonUCReceivedFlag;  // Person receives a benefit which is not UC
     @Lag(field="yBenNonUCReceivedFlag") @Transient private Boolean yBenNonUCReceivedFlagL1;
+    @Transient TemplateIndividual ltIncomeDonor;
     @NullInitialised @Column(name="yLifeTime") private Double yLifeTime;                  // mean annual equivalised household disposable income by age
 
     @Enumerated(EnumType.STRING) private Labour labHrsWorkEnumWeek;			//Number of hours of labour supplied each week
@@ -353,11 +351,11 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
 
         this.demEnterSample = demEnterSample;
 
-        if (originalPerson.ltIncomeDonor!=null) {
+        if (demEnterSample != SampleEntry.InputData && demEnterSample != SampleEntry.ProcessedInputData && Parameters.lifetimeIncomeImpute) {
+
             this.ltIncomeDonor = originalPerson.ltIncomeDonor;
-        }
-        if (Parameters.lifetimeIncomeImpute)
             this.yLifeTime = originalPerson.getYLifeTime();
+        }
 
         demAge = originalPerson.demAge;
         demAgeSq = demAge * demAge;
@@ -2614,6 +2612,95 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         labStatusC4Retired_MaleL1,
         labStatusPartnerC3NotEmployedL1,
         labStatusC4NotEmployed_MaleL1,
+        Age,
+        Age0,
+        Age1,
+        Age2,
+        Age3,
+        Age4,
+        Age5,
+        Age6,
+        Age7,
+        Age8,
+        Age9,
+        Age10,
+        Age11,
+        Age12,
+        Age13,
+        Age14,
+        Age15,
+        Age16,
+        Age17,
+        Age18,
+        Age19,
+        Age20,
+        Age21,
+        Age22,
+        Age23,
+        Age24,
+        Age25,
+        Age26,
+        Age27,
+        Age28,
+        Age29,
+        Age30,
+        Age31,
+        Age32,
+        Age33,
+        Age34,
+        Age35,
+        Age36,
+        Age37,
+        Age38,
+        Age39,
+        Age40,
+        Age41,
+        Age42,
+        Age43,
+        Age44,
+        Age45,
+        Age46,
+        Age47,
+        Age48,
+        Age49,
+        Age50,
+        Age51,
+        Age52,
+        Age53,
+        Age54,
+        Age55,
+        Age56,
+        Age57,
+        Age58,
+        Age59,
+        Age60,
+        Age61,
+        Age62,
+        Age63,
+        Age64,
+        Age65,
+        Age66,
+        Age67,
+        Age68,
+        Age69,
+        Age70,
+        Age71,
+        Age72,
+        Age73,
+        Age74,
+        Age75,
+        Age76,
+        Age77,
+        Age78,
+        Age79,
+        Age80,
+        Age81,
+        Age82,
+        Age83,
+        Age84,
+        Log_GDP_per_capita,
+        AgeSquared,
+        AgeCubed,
         Age20to24,
         Age25to29,
         Age30to34,
@@ -3179,6 +3266,94 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
             }
             case Dag_sq_L1 -> {
                 return (double) (demAge - 1) * (demAge - 1);
+            }
+            case Age0 -> {return (demAge==0) ? 1: 0;}
+            case Age1 -> {return (demAge==1) ? 1: 0;}
+            case Age2 -> {return (demAge==2) ? 1: 0;}
+            case Age3 -> {return (demAge==3) ? 1: 0;}
+            case Age4 -> {return (demAge==4) ? 1: 0;}
+            case Age5 -> {return (demAge==5) ? 1: 0;}
+            case Age6 -> {return (demAge==6) ? 1: 0;}
+            case Age7 -> {return (demAge==7) ? 1: 0;}
+            case Age8 -> {return (demAge==8) ? 1: 0;}
+            case Age9 -> {return (demAge==9) ? 1: 0;}
+            case Age10 -> {return (demAge==10) ? 1: 0;}
+            case Age11 -> {return (demAge==11) ? 1: 0;}
+            case Age12 -> {return (demAge==12) ? 1: 0;}
+            case Age13 -> {return (demAge==13) ? 1: 0;}
+            case Age14 -> {return (demAge==14) ? 1: 0;}
+            case Age15 -> {return (demAge==15) ? 1: 0;}
+            case Age16 -> {return (demAge==16) ? 1: 0;}
+            case Age17 -> {return (demAge==17) ? 1: 0;}
+            case Age18 -> {return (demAge==18) ? 1: 0;}
+            case Age19 -> {return (demAge==19) ? 1: 0;}
+            case Age20 -> {return (demAge==20) ? 1: 0;}
+            case Age21 -> {return (demAge==21) ? 1: 0;}
+            case Age22 -> {return (demAge==22) ? 1: 0;}
+            case Age23 -> {return (demAge==23) ? 1: 0;}
+            case Age24 -> {return (demAge==24) ? 1: 0;}
+            case Age25 -> {return (demAge==25) ? 1: 0;}
+            case Age26 -> {return (demAge==26) ? 1: 0;}
+            case Age27 -> {return (demAge==27) ? 1: 0;}
+            case Age28 -> {return (demAge==28) ? 1: 0;}
+            case Age29 -> {return (demAge==29) ? 1: 0;}
+            case Age30 -> {return (demAge==30) ? 1: 0;}
+            case Age31 -> {return (demAge==31) ? 1: 0;}
+            case Age32 -> {return (demAge==32) ? 1: 0;}
+            case Age33 -> {return (demAge==33) ? 1: 0;}
+            case Age34 -> {return (demAge==34) ? 1: 0;}
+            case Age35 -> {return (demAge==35) ? 1: 0;}
+            case Age36 -> {return (demAge==36) ? 1: 0;}
+            case Age37 -> {return (demAge==37) ? 1: 0;}
+            case Age38 -> {return (demAge==38) ? 1: 0;}
+            case Age39 -> {return (demAge==39) ? 1: 0;}
+            case Age40 -> {return (demAge==40) ? 1: 0;}
+            case Age41 -> {return (demAge==41) ? 1: 0;}
+            case Age42 -> {return (demAge==42) ? 1: 0;}
+            case Age43 -> {return (demAge==43) ? 1: 0;}
+            case Age44 -> {return (demAge==44) ? 1: 0;}
+            case Age45 -> {return (demAge==45) ? 1: 0;}
+            case Age46 -> {return (demAge==46) ? 1: 0;}
+            case Age47 -> {return (demAge==47) ? 1: 0;}
+            case Age48 -> {return (demAge==48) ? 1: 0;}
+            case Age49 -> {return (demAge==49) ? 1: 0;}
+            case Age50 -> {return (demAge==50) ? 1: 0;}
+            case Age51 -> {return (demAge==51) ? 1: 0;}
+            case Age52 -> {return (demAge==52) ? 1: 0;}
+            case Age53 -> {return (demAge==53) ? 1: 0;}
+            case Age54 -> {return (demAge==54) ? 1: 0;}
+            case Age55 -> {return (demAge==55) ? 1: 0;}
+            case Age56 -> {return (demAge==56) ? 1: 0;}
+            case Age57 -> {return (demAge==57) ? 1: 0;}
+            case Age58 -> {return (demAge==58) ? 1: 0;}
+            case Age59 -> {return (demAge==59) ? 1: 0;}
+            case Age60 -> {return (demAge==60) ? 1: 0;}
+            case Age61 -> {return (demAge==61) ? 1: 0;}
+            case Age62 -> {return (demAge==62) ? 1: 0;}
+            case Age63 -> {return (demAge==63) ? 1: 0;}
+            case Age64 -> {return (demAge==64) ? 1: 0;}
+            case Age65 -> {return (demAge==65) ? 1: 0;}
+            case Age66 -> {return (demAge==66) ? 1: 0;}
+            case Age67 -> {return (demAge==67) ? 1: 0;}
+            case Age68 -> {return (demAge==68) ? 1: 0;}
+            case Age69 -> {return (demAge==69) ? 1: 0;}
+            case Age70 -> {return (demAge==70) ? 1: 0;}
+            case Age71 -> {return (demAge==71) ? 1: 0;}
+            case Age72 -> {return (demAge==72) ? 1: 0;}
+            case Age73 -> {return (demAge==73) ? 1: 0;}
+            case Age74 -> {return (demAge==74) ? 1: 0;}
+            case Age75 -> {return (demAge==75) ? 1: 0;}
+            case Age76 -> {return (demAge==76) ? 1: 0;}
+            case Age77 -> {return (demAge==77) ? 1: 0;}
+            case Age78 -> {return (demAge==78) ? 1: 0;}
+            case Age79 -> {return (demAge==79) ? 1: 0;}
+            case Age80 -> {return (demAge==80) ? 1: 0;}
+            case Age81 -> {return (demAge==81) ? 1: 0;}
+            case Age82 -> {return (demAge==82) ? 1: 0;}
+            case Age83 -> {return (demAge==83) ? 1: 0;}
+            case Age84 -> {return (demAge==84) ? 1: 0;}
+            case Log_GDP_per_capita -> {
+                return Math.log(Parameters.getTimeSeriesValue(getYear(), TimeSeriesVariable.GDPperCapita));
             }
             case Age20to24 -> {
                 return (demAge >= 20 && demAge <= 24) ? 1. : 0.;
@@ -5083,6 +5258,70 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         }
     }
 
+    public void matchLifetimeIncome(int age, boolean agePlus, final double[] sortedZ, List<TemplateIndividual> templateIndividuals) {
+
+        boolean matchHere;
+        if (agePlus)
+            matchHere = (demAge >= age);
+        else
+            matchHere = (demAge == age);
+        if (matchHere) {
+
+            // identify normalised income target
+            double eqIncomePerYear = benefitUnit.getHousehold().getEquivalisedDisposableIncomeYearly();
+            if (eqIncomePerYear > 0.0) {
+
+                double gmEqDispIncomePerYear = getGMEquivalisedIncome(demAge, getYear());
+                double zTarget = Math.log(eqIncomePerYear / gmEqDispIncomePerYear);
+                int ii = Arrays.binarySearch(sortedZ, zTarget);
+                if (ii >= 0) {
+                    // exact match found
+                    setLtIncomeDonor(templateIndividuals.get(ii));
+                } else {
+                    // adopt nearest neighbour
+                    int ins = -ii - 1;
+                    if (ins == 0) {
+                        // lower bound
+                        setLtIncomeDonor(templateIndividuals.get(ins));
+                    } else if (ins == sortedZ.length) {
+                        // upper bound
+                        setLtIncomeDonor(templateIndividuals.get(ins - 1));
+                    } else if (zTarget - sortedZ[ins -1] < sortedZ[ins] - zTarget) {
+                        // choose lower bound
+                        setLtIncomeDonor(templateIndividuals.get(ins - 1));
+                    } else {
+                        // choose upper bound
+                        setLtIncomeDonor(templateIndividuals.get(ins));
+                    }
+                }
+            }
+            else {
+
+                setLtIncomeDonor(templateIndividuals.get(0));
+            }
+
+            // set lifetime income
+            setLtIncome(age);
+        }
+    }
+
+    private double getGMEquivalisedIncome(int age, int year) {
+
+        Double val = Parameters.getEquivalisedIncome(demMaleFlag, age, year);
+        if (!Parameters.isFinite(val)) {
+            // outside observed range, use regression model
+
+            RegressionProxy proxy = new RegressionProxy(age, year);
+            if (demMaleFlag.toBoolean()) {
+                val = Math.exp(Parameters.getRegLifetimeIncome1a().getScore(proxy, RegressionProxy.Variables.class));
+            }
+            else {
+                val = Math.exp(Parameters.getRegLifetimeIncome1b().getScore(proxy, RegressionProxy.Variables.class));
+            }
+        }
+        return val;
+    }
+
     public void setCareFromInformalFlag(boolean val) {
         careFromInformalFlag = val;
     }
@@ -6114,24 +6353,28 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         return healthPhysicalPcsL1;
     }
 
-    public void setLtIncomeDonor(Individual individual) {
-        ltIncomeDonor = individual;
+    public void setLtIncomeDonor(TemplateIndividual donor) {
+        ltIncomeDonor = donor;
+    }
+
+    public double getImputedIncome(int age) {
+
+        int year = age + getYear() - demAge;
+        double gmIncome = getGMEquivalisedIncome(age, year);
+        double annualIncome = Math.exp(ltIncomeDonor.getNormIncome(age).getZValue()) * gmIncome;
+        return annualIncome;
     }
 
     public void setLtIncome(int maxAge) {
         yLifeTime = 0.0;
-        if (demAge > 0) {
+        for (int age=0; age<=maxAge; age++) {
 
-            int birthYear = ltIncomeDonor.getBirthYear();
-            int ageLimit = Math.min(maxAge, demAge -1);
-            for (int aa=0; aa<=ageLimit; aa++) {
-                AnnualIncome annualIncome = ltIncomeDonor.getAnnualIncome(birthYear+aa);
-                if (annualIncome == null)
-                    throw new RuntimeException("Annual income for year " + (birthYear+aa) + " not found for donor " + ltIncomeDonor.getId());
-                yLifeTime += annualIncome.getValue();
-            }
-            yLifeTime /= (double)(ageLimit+1);
+            int year = age + getYear() - demAge;
+            double gmIncome = getGMEquivalisedIncome(age, year);
+            double annualIncome = Math.exp(ltIncomeDonor.getNormIncome(age).getZValue()) * gmIncome;
+            yLifeTime += annualIncome;
         }
+        yLifeTime /= (double)(maxAge+1);
     }
 
     public double getYLifeTime() {
@@ -6155,7 +6398,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         }
     }
 
-    public Individual getLtIncomeDonor() {return ltIncomeDonor;}
+    public TemplateIndividual getLtIncomeDonor() {return ltIncomeDonor;}
 
     public Integer getLiwwh() {
         return labEmpNyear;
