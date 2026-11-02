@@ -1,12 +1,15 @@
 /* ═══════════════════════════════════════════════
    DOCUMENTATION LANDING PAGE
-   An editorial directory with muted blue, terracotta and plum panels.
+   Related blue, rose and violet surfaces drawn from the SimPaths mark.
 ═══════════════════════════════════════════════ */
 
 .md-typeset .docs-hub--index {
   --docs-panel-ink: #343134;
   --docs-panel-copy: #55515C;
   --docs-panel-rule: rgba(52, 49, 52, 0.16);
+  --docs-guides-background: #D6E6F7;
+  --docs-resources-background: #F1D9E7;
+  --docs-reference-background: #E4DCF3;
   width: 100%;
   margin: 0;
   padding-bottom: 2rem;
@@ -95,18 +98,15 @@
   border-radius: 6px;
 }
 
-/* Lighter guide/resource surfaces balance the deeper reference panel. */
+/* Give each group a distinct hue with the same lightness and shared text colours. */
 .md-typeset .docs-index__section--guides {
-  --docs-panel-background: #C8DDE8;
+  --docs-panel-background: var(--docs-guides-background);
 }
 .md-typeset .docs-index__section--resources {
-  --docs-panel-background: #E8BEAD;
+  --docs-panel-background: var(--docs-resources-background);
 }
 .md-typeset .docs-index__section--reference {
-  --docs-panel-background: #725B73;
-  --docs-panel-ink: #FFFFFF;
-  --docs-panel-copy: #F4EDF3;
-  --docs-panel-rule: rgba(255, 255, 255, 0.25);
+  --docs-panel-background: var(--docs-reference-background);
 }
 
 .md-typeset .docs-index__secondary {
@@ -169,6 +169,12 @@
 }
 
 [data-md-color-scheme="slate"] .md-typeset .docs-hub--index {
+  --docs-panel-ink: #F3EEF5;
+  --docs-panel-copy: #DCD4E1;
+  --docs-panel-rule: rgba(243, 238, 245, 0.2);
+  --docs-guides-background: #293A50;
+  --docs-resources-background: #462F42;
+  --docs-reference-background: #38304D;
   color: #dce5ee;
 }
 
