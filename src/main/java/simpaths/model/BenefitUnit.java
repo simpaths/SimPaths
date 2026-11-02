@@ -4879,7 +4879,7 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
     }
 
     public int getNumberChildrenAll() {
-        return getNumberChildren(0,Parameters.AGE_TO_BECOME_RESPONSIBLE);
+        return getNumberChildren(0, Parameters.AGE_TO_BECOME_RESPONSIBLE - 1);
     }
     public int getNumberChildren(int age) {
         return getNumberChildren(age, age);
