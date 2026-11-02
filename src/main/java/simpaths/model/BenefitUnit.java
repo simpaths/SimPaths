@@ -5464,20 +5464,10 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
         //OECD (BHC) equivalence scale gives a weight of 1.0 to the first adult;
         //0.5 to the second and each subsequent person aged 14 and over;
         //0.3 to each child aged under 14.
-        double weight = 0.0;
-        boolean firstAdult = true;
+        //Start at 0.5 so that the first adult, who adds 0.5 in the loop, counts as 1.0.
+        double weight = 0.5;
         for (Person member : members) {
-            if (member.getDemAge() >= Parameters.AGE_TO_BECOME_RESPONSIBLE) {
-                if (firstAdult)
-                    weight += 1.0;
-                else
-                    weight += 0.5;
-            } else {
-                if (member.getDemAge()<14)
-                    weight += 0.3;
-                else
-                    weight += 0.5;
-            }
+            weight += (member.getDemAge() < 14) ? 0.3 : 0.5;
         }
         return weight;
     }
