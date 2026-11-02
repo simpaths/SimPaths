@@ -1403,7 +1403,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
      * Applies separate estimates for Male and Female Persons.
      * Runs <b>after</b> {@link #healthPCS1()}</p>
      *
-     * @filter Age 25-64 and Ages 18-24
+     * @filter Age 18-64
      * @updates {@code Person.healthPhysicalPcs}
      * @see <a href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/sf12pcs_dv/">sf12pcs_dv</a>
      */
