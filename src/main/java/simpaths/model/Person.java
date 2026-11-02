@@ -1345,21 +1345,30 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
      * Applies separate estimates for Male and Female Persons.
      * Runs <b>after</b> {@link #healthMCS1()}</p>
      *
-     * @filter Age 25-64
+     * @filter Age 18-64
      * @updates {@code Person.healthMentalMcs}
      * @see <a href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/sf12mcs_dv/">sf12mcs_dv</a>
      */
     protected void healthMCS2() {
 
         double mcsPrediction;
-        if (demAge >= 25 && demAge < MIN_AGE_SOCIAL_CARE) {
+        if (demAge >= AGE_TO_BECOME_RESPONSIBLE && demAge < 25) {
+            if (Gender.Male.equals(getDemMaleFlag())) {
+                mcsPrediction = Parameters.getRegHealthMCS2MalesU25().getScore(this, Variables.class);
+                healthMentalMcs = constrainSF12Estimate(mcsPrediction + healthMentalMcs);
+            } else if (Gender.Female.equals(getDemMaleFlag())){
+                mcsPrediction = Parameters.getRegHealthMCS2FemalesU25().getScore(this, Variables.class);
+                healthMentalMcs = constrainSF12Estimate(mcsPrediction + healthMentalMcs);
+            }
+        }
+        else if (demAge >= 25 && demAge < MIN_AGE_SOCIAL_CARE) {
             if (Gender.Male.equals(getDemMaleFlag())) {
                 mcsPrediction = Parameters.getRegHealthMCS2Males().getScore(this, Variables.class);
                 healthMentalMcs = constrainSF12Estimate(mcsPrediction + healthMentalMcs);
-            } else if (Gender.Female.equals(getDemMaleFlag())) {
+              } else if (Gender.Female.equals(getDemMaleFlag())) {
                 mcsPrediction = Parameters.getRegHealthMCS2Females().getScore(this, Variables.class);
                 healthMentalMcs = constrainSF12Estimate(mcsPrediction + healthMentalMcs);
-            }
+              }
         } else if (healthMentalMcs != null) {
             healthMentalMcs = constrainSF12Estimate(healthMentalMcs);
         }
@@ -1392,14 +1401,23 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
      * Applies separate estimates for Male and Female Persons.
      * Runs <b>after</b> {@link #healthPCS1()}</p>
      *
-     * @filter Age 25-64
+     * @filter Age 18-64
      * @updates {@code Person.healthPhysicalPcs}
      * @see <a href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/sf12pcs_dv/">sf12pcs_dv</a>
      */
     protected void healthPCS2() {
 
         double pcsPrediction;
-        if (demAge >= 25 && demAge < MIN_AGE_SOCIAL_CARE) {
+        if (demAge >= AGE_TO_BECOME_RESPONSIBLE && demAge < 25) {
+            if (Gender.Male.equals(getDemMaleFlag())) {
+                pcsPrediction = Parameters.getRegHealthPCS2MalesU25().getScore(this, Variables.class);
+                healthPhysicalPcs = constrainSF12Estimate(pcsPrediction + healthPhysicalPcs);
+            } else if (Gender.Female.equals(getDemMaleFlag())){
+                pcsPrediction = Parameters.getRegHealthPCS2FemalesU25().getScore(this, Variables.class);
+                healthPhysicalPcs = constrainSF12Estimate(pcsPrediction + healthPhysicalPcs);
+            }
+        }
+        else if (demAge >= 25 && demAge < MIN_AGE_SOCIAL_CARE) {
             if (Gender.Male.equals(getDemMaleFlag())) {
                 pcsPrediction = Parameters.getRegHealthPCS2Males().getScore(this, Variables.class);
                 healthPhysicalPcs = constrainSF12Estimate(pcsPrediction + healthPhysicalPcs);
