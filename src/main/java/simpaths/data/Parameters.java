@@ -287,6 +287,10 @@ public class Parameters {
     //Is it possible for people to start going to the labour module (e.g. age 17) while they are living with parents (until age 18)?
     //Cannot see how its possible if it is the household that decides how much labour to supply.  If someone finishes school at 17, they need to leave home before they can enter the labour market.  So set age for finishing school and leaving home to 18.
     public static final boolean USE_CONTINUOUS_LABOUR_SUPPLY_HOURS = true; // If true, a random number of hours of weekly labour supply within each bracket will be generated. Otherwise, each discrete choice of labour supply corresponds to a fixed number of hours of labour supply, which is the same for all persons
+    public static final int MAX_LABOUR_HOURS_IN_WEEK = 126;         // upper bound of realised hours; the enum of labour category FIFTY_FIVE hardcodes the same number, so change both together
+    public static boolean useRepresentativeHoursInUtility = true;   // If true, Labour.getHours returns each bracket's representative hours while the labour-supply choice is being scored (Person.isEvaluatingLabourChoice), instead of the person's realised hours.
+    public static boolean USE_UKHLS_LHW_DISTRIBUTION = true;        // If true, Labour categories draw realised hours from the UKHLS within-band distribution of observed hours. Falls back to a uniform draw within the band when off or unavailable.
+    private static UkhlsHoursDistribution ukhlsHoursDistribution;   // loaded in loadParameters when USE_UKHLS_LHW_DISTRIBUTION is true;
     public static int maxAge;										// maximum age possible in simulation
     public static final int AGE_TO_BECOME_RESPONSIBLE = 18;			// Age become reference person of own benefit unit
     public static final int MIN_AGE_LEAVE_PH = 18;                  // Minimum age for a person to leave the parental home
@@ -994,6 +998,7 @@ public class Parameters {
         setEnableIntertemporalOptimisations(enableIntertemporalOptimisations);
         String countryString = country.toString();
         loadTimeSeriesFactorMaps(country);
+        ukhlsHoursDistribution = USE_UKHLS_LHW_DISTRIBUTION ? UkhlsHoursDistribution.load(getInputDirectory() + UkhlsHoursDistribution.FILE_NAME) : null;
         instantiateAlignmentMaps();
 
         SAVINGS_RATE = 0.056;
@@ -2805,6 +2810,14 @@ public class Parameters {
         employedShareSingleDepMales = ExcelAssistant.loadCoefficientMap(ALIGNMENT_DIRECTORY + "alignment_targets_employment.xlsx", "SingleDep_Males", 1,1);
         employedShareSingleDepFemales = ExcelAssistant.loadCoefficientMap(ALIGNMENT_DIRECTORY + "alignment_targets_employment.xlsx", "SingleDep_Females", 1,1);
 
+    }
+
+    /**
+     * UKHLS hours distribution used to draw realised hours, or null when USE_UKHLS_LHW_DISTRIBUTION is off
+     * (Labour then falls back to a uniform draw within each band).
+     */
+    public static UkhlsHoursDistribution getUkhlsHoursDistribution() {
+        return USE_UKHLS_LHW_DISTRIBUTION ? ukhlsHoursDistribution : null;
     }
 
     public static void instantiateAlignmentMaps() {

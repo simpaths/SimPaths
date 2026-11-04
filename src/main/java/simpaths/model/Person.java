@@ -17,6 +17,7 @@ import simpaths.data.ManagerRegressions;
 import simpaths.data.MultiValEvent;
 import simpaths.data.Parameters;
 import simpaths.data.RegressionName;
+import simpaths.data.UkhlsHoursDistribution;
 import simpaths.experiment.SimPathsCollector;
 import simpaths.data.filters.Filters;
 import simpaths.model.annotations.Lag;
@@ -155,6 +156,8 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
     @Lag(getter="getLabourSupplyWeekly") @Transient private Labour labHrsWorkEnumWeekL1; // Lag(1) (previous year's value) of weekly labour supply
     @Column(name = "HOURS_WORKED_WEEKLY") private Integer labHrsWorkWeek;
     @Lag(field="labHrsWorkWeek") @Transient private Integer labHrsWorkWeekL1; // Lag(1) of hours worked weekly - use to initialise labour supply weekly_L1 (TODO)
+    @Transient private boolean evaluatingLabourChoice = false; // true while BenefitUnit is scoring the labour-supply choice; see Parameters.useRepresentativeHoursInUtility
+    @Transient private String ukhlsLhwSheet; // UKHLS hours-distribution sheet (sample type and gender) fixed at the start of each labour-supply choice pass; see Parameters.USE_UKHLS_LHW_DISTRIBUTION
 
 //	Potential earnings is the gross hourly wage an individual can earn while working
 //	and is estimated, for each individual, on the basis of observable characteristics as
@@ -5134,6 +5137,36 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
                 setLabC4(Les_c4.NotEmployed);
             }
         }
+    }
+
+    /**
+     * True while BenefitUnit is scoring the labour-supply choice across candidate hours brackets. While on (and
+     * Parameters.useRepresentativeHoursInUtility is true), Labour.getHours returns each bracket's representative
+     * hours instead of this person's realised hours.
+     */
+    public boolean isEvaluatingLabourChoice() {
+        return evaluatingLabourChoice;
+    }
+
+    public void setEvaluatingLabourChoice(boolean evaluating) {
+        evaluatingLabourChoice = evaluating;
+    }
+
+    /**
+     * Fixes the UKHLS hours-distribution sheet for the coming labour-supply choice pass (called from
+     * BenefitUnit.resetLabourStates), so the sample type is resolved once per pass rather than for every
+     * candidate hours bracket, which would rerun the partner's atRiskOfWork() each time.
+     */
+    public void updateUkhlsLhwSheet() {
+        ukhlsLhwSheet = (Parameters.getUkhlsHoursDistribution() != null) ? UkhlsHoursDistribution.sheetFor(this) : null;
+    }
+
+    /**
+     * UKHLS hours-distribution sheet used to draw realised hours (Parameters.USE_UKHLS_LHW_DISTRIBUTION):
+     * the one fixed at the start of the last labour-supply choice pass, otherwise the person's current sample type.
+     */
+    public String getUkhlsLhwSheet() {
+        return (ukhlsLhwSheet != null) ? ukhlsLhwSheet : UkhlsHoursDistribution.sheetFor(this);
     }
 
     public double getLabourSupplyHoursYearly() {
