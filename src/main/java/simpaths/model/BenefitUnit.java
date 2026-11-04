@@ -1847,7 +1847,6 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
 
             // prepare temporary storage variables
             MultiKey<? extends Labour> labourSupplyChoice = null;
-            MultiKeyMap<Labour, Match> taxDbMatchByLabourPairs = MultiKeyMap.multiKeyMap(new LinkedMap<>());
             LinkedHashSet<MultiKey<Labour>> possibleLabourCombinations = findPossibleLabourCombinations(); // Find possible labour combinations for this benefit unit
             MultiKeyMap<Labour, Double> labourSupplyUtilityRegressionScoresByLabourPairs = MultiKeyMap.multiKeyMap(new LinkedMap<>());
             boolean maleAtRiskOfWork = false, femaleAtRiskOfWork = false;
@@ -1939,7 +1938,6 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
                     regressionScore = -700.0;
                 }
 
-                taxDbMatchByLabourPairs.put(labourKey, evaluatedTransfers.getMatch());
                 labourSupplyUtilityRegressionScoresByLabourPairs.put(labourKey, regressionScore); //XXX: Adult children could contribute their income to the hh, but then utility would have to be joint for a household with adult children, and they couldn't be treated separately as they are at the moment?
             }
             } finally {
@@ -2029,7 +2027,7 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
 
             TaxEvaluation evaluatedTransfers = taxWrapper(maleWorkHoursWeekly, femaleWorkHoursWeekly, maleDisability, femaleDisability, originalIncomePerMonth, secondIncomePerMonth);
 
-            demDbMatchTax = taxDbMatchByLabourPairs.get(labourSupplyChoice);
+            demDbMatchTax = evaluatedTransfers.getMatch();
             idtaxDbDonor = demDbMatchTax.getCandidateID();
             yDispMonth = evaluatedTransfers.getDisposableIncomePerMonth();
             yBenAmountMonth = evaluatedTransfers.getBenefitsReceivedPerMonth();
