@@ -307,9 +307,15 @@ forval year = `min_year'/`max_year' {
 	gen max_value = max_d_valid_`year' if max_d_valid_`year' > max_d_sim 
 	replace max_value = max_d_sim if max_value == . 
 
-	sum max_value 
-	local max_y = 1.25*r(max)
-	local steps = `max_y'/2
+	quietly sum max_value, meanonly
+	if (r(N) == 0 | missing(r(max)) | r(max) <= 0) {
+		local max_y = 1
+		local steps = 0.5
+	}
+	else {
+		local max_y = 1.25*r(max)
+		local steps = `max_y'/2
+	}
 
 	* Plot all hours
 	twoway (hist sim_pred_wage if year == `year', ///
@@ -429,9 +435,15 @@ forval year = `min_year'/`max_year' {
 	gen max_value = max_d_valid_`year' if max_d_valid_`year' > max_d_sim 
 	replace max_value = max_d_sim if max_value == . 
 
-	sum max_value 
-	local max_y = 1.25*r(max)
-	local steps = `max_y'/2
+	quietly sum max_value, meanonly
+	if (r(N) == 0 | missing(r(max)) | r(max) <= 0) {
+		local max_y = 1
+		local steps = 0.5
+	}
+	else {
+		local max_y = 1.25*r(max)
+		local steps = `max_y'/2
+	}
 
 	* Plot all hours
 	twoway (hist sim_pred_wage if year == `year', ///
@@ -544,9 +556,15 @@ forval year = `min_year'/`max_year' {
 	gen max_value = max_d_valid_`year' if max_d_valid_`year' > max_d_sim 
 	replace max_value = max_d_sim if max_value == . 
 
-	sum max_value 
-	local max_y = 1.25*r(max)
-	local steps = `max_y'/2
+	quietly sum max_value, meanonly
+	if (r(N) == 0 | missing(r(max)) | r(max) <= 0) {
+		local max_y = 1
+		local steps = 0.5
+	}
+	else {
+		local max_y = 1.25*r(max)
+		local steps = `max_y'/2
+	}
 
 	* Plot all hours
 	twoway (hist sim_pred_wage if year == `year', ///
@@ -561,7 +579,7 @@ forval year = `min_year'/`max_year' {
 		xlabel(,labsize(small)) ///
 		legend(size(small)) ///
 		graphregion(color(white)) ///
-		note("Notes: Statistics calculated on subsample of employed and self-employed individuals aged 16-65. Amounts in 2015 prices. "Top and bottom percentiles trimmed.", size(vsmall))
+		note("Notes: Statistics calculated on subsample of employed and self-employed individuals aged 16-65. Amounts in 2015 prices. Top and bottom percentiles trimmed.", size(vsmall))
 
 	
 	graph export ///

@@ -292,9 +292,15 @@ forval year = `min_year'/`max_year' {
 	gen max_value = max_d_valid_`year' if max_d_valid_`year' > max_d_sim 
 	replace max_value = max_d_sim if max_value == . 
 
-	sum max_value 
-	local max_y = 1.25*r(max)
-	local steps = `max_y'/2
+	quietly sum max_value, meanonly
+	if (r(N) == 0 | missing(r(max)) | r(max) <= 0) {
+		local max_y = 1
+		local steps = 0.5
+	}
+	else {
+		local max_y = 1.25*r(max)
+		local steps = `max_y'/2
+	}
 
 	* Plot all hours
 	twoway (hist sim_yDispBuLevelYear if year == `year', width(2500) ///
@@ -324,10 +330,16 @@ forval year = `min_year'/`max_year' {
 			max_d_valid_`year'_`ls' > max_d_sim 
 		replace max_value = max_d_sim if max_value == . 
 
-		sum max_value 
-		local max_y = 1.25*r(max)
-		local steps = `max_y'/2	
-		
+		quietly sum max_value, meanonly
+		if (r(N) == 0 | missing(r(max)) | r(max) <= 0) {
+			local max_y = 1
+			local steps = 0.5
+		}
+		else {
+			local max_y = 1.25*r(max)
+			local steps = `max_y'/2
+		}
+
 		* Plot by weekly hours work
 		twoway (hist sim_yDispBuLevelYear if year == `year' & ///
 			sim_labHrsWorkEnumWeek == "`ls'", width(2500) color(green%30) ///
