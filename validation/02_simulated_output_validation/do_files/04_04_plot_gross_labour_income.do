@@ -318,11 +318,17 @@ forval year = `min_year'/`max_year' {
 	gen max_value = max_d_valid_`year' if max_d_valid_`year' > max_d_sim 
 	replace max_value = max_d_sim if max_value == . 
 
-	sum max_value 
-	local max_y = 1.25*r(max)
-	local steps = `max_y'/2	
-	
-	
+	quietly sum max_value, meanonly
+	if (r(N) == 0 | missing(r(max)) | r(max) <= 0) {
+		local max_y = 1
+		local steps = 0.5
+	}
+	else {
+		local max_y = 1.25*r(max)
+		local steps = `max_y'/2
+	}
+
+
     * Plot all hours
 	twoway (hist sim_yEmpBuGrossLevelYear if year == `year' , width(2500) ///
 		color(green%30) legend(label(1 "SimPaths"))) ///
@@ -353,10 +359,16 @@ forval year = `min_year'/`max_year' {
 			max_d_valid_`year'_`ls' > max_d_sim 
 		replace max_value = max_d_sim if max_value == . 
 
-		sum max_value 
-		local max_y = 1.25*r(max)
-		local steps = `max_y'/2	
-	
+		quietly sum max_value, meanonly
+		if (r(N) == 0 | missing(r(max)) | r(max) <= 0) {
+			local max_y = 1
+			local steps = 0.5
+		}
+		else {
+			local max_y = 1.25*r(max)
+			local steps = `max_y'/2
+		}
+
 		* Plot by weekly hours work
 		twoway (hist sim_yEmpBuGrossLevelYear if year == `year' & ///
 			sim_labHrsWorkEnumWeek == "`ls'", width(2500) color(green%30) ///
@@ -378,10 +390,16 @@ forval year = `min_year'/`max_year' {
 	}
 }
 
-* Combine plots by year 
-forvalues year = 2011/2023 {
-	
-	grc1leg gross_lab_inc_`year'_all ///  
+* Combine plots by year
+qui sum year
+local min_year = 2011
+if "$min_sim_year" != "" local min_year = $min_sim_year
+local max_year = 2023
+if "$max_sim_year" != "" local max_year = $max_sim_year
+
+forvalues year = `min_year'/`max_year' {
+
+	grc1leg gross_lab_inc_`year'_all ///
 		gross_lab_inc_`year'_TEN  ///
 		gross_lab_inc_`year'_TWENTY, ///
 		title("Benefit Unit Gross Labour Income by Weekly Hours of Work") ///
@@ -521,11 +539,17 @@ forval year = `min_year'/`max_year' {
 	gen max_value = max_d_valid_`year' if max_d_valid_`year' > max_d_sim 
 	replace max_value = max_d_sim if max_value == . 
 
-	sum max_value 
-	local max_y = 1.25*r(max)
-	local steps = `max_y'/2	
-	
-	
+	quietly sum max_value, meanonly
+	if (r(N) == 0 | missing(r(max)) | r(max) <= 0) {
+		local max_y = 1
+		local steps = 0.5
+	}
+	else {
+		local max_y = 1.25*r(max)
+		local steps = `max_y'/2
+	}
+
+
     * Plot all hours
 	twoway (hist sim_yEmpPersGrossLevelYear if year == `year' , width(2500) ///
 		color(green%30) legend(label(1 "SimPaths"))) ///
@@ -556,10 +580,16 @@ forval year = `min_year'/`max_year' {
 			max_d_valid_`year'_`ls' > max_d_sim 
 		replace max_value = max_d_sim if max_value == . 
 
-		sum max_value 
-		local max_y = 1.25*r(max)
-		local steps = `max_y'/2	
-	
+		quietly sum max_value, meanonly
+		if (r(N) == 0 | missing(r(max)) | r(max) <= 0) {
+			local max_y = 1
+			local steps = 0.5
+		}
+		else {
+			local max_y = 1.25*r(max)
+			local steps = `max_y'/2
+		}
+
 		* Plot by weekly hours work
 		twoway (hist sim_yEmpPersGrossLevelYear if year == `year' & ///
 			sim_labHrsWorkEnumWeek == "`ls'", width(2500) color(green%30) ///

@@ -649,10 +649,29 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
         Person male = getMale();
         if(male != null) {
             male.setLabourSupplyWeekly(null);
+            male.updateUkhlsLhwSheet();
         }
         Person female = getFemale();
         if(female != null) {
             female.setLabourSupplyWeekly(null);
+            female.updateUkhlsLhwSheet();
+        }
+    }
+
+    /**
+     * Marks both adults as being in the labour-supply choice evaluation. While on (and
+     * Parameters.useRepresentativeHoursInUtility is true), Labour.getHours returns each bracket's
+     * representative hours instead of the person's realised hours.
+     */
+    private void setEvaluatingLabourChoice(boolean evaluating) {
+
+        Person male = getMale();
+        if (male != null) {
+            male.setEvaluatingLabourChoice(evaluating);
+        }
+        Person female = getFemale();
+        if (female != null) {
+            female.setEvaluatingLabourChoice(evaluating);
         }
     }
 
@@ -1247,47 +1266,52 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
         cachedPossibleLabourCombinations = findPossibleLabourCombinations();
         cachedEvalByLabourPairs = MultiKeyMap.multiKeyMap(new LinkedMap<>());
 
-        // precompute tax/income for each discrete option
-        if (Occupancy.Couple.equals(occupancy)) {
+        setEvaluatingLabourChoice(true);
+        try {
+            // precompute tax/income for each discrete option
+            if (Occupancy.Couple.equals(occupancy)) {
 
-            for (MultiKey<? extends Labour> labourKey : cachedPossibleLabourCombinations) {
+                for (MultiKey<? extends Labour> labourKey : cachedPossibleLabourCombinations) {
 
-                male.setLabourSupplyWeekly(labourKey.getKey(0));
-                female.setLabourSupplyWeekly(labourKey.getKey(1));
+                    male.setLabourSupplyWeekly(labourKey.getKey(0));
+                    female.setLabourSupplyWeekly(labourKey.getKey(1));
 
-                double maleEmpPerMonth = Parameters.WEEKS_PER_MONTH * male.getEarningsWeekly();
-                double femaleEmpPerMonth = Parameters.WEEKS_PER_MONTH * female.getEarningsWeekly();
-                double maleIncome = maleEmpPerMonth + Math.sinh(male.getYMiscPersGrossMonth());
-                double femaleIncome = femaleEmpPerMonth + Math.sinh(female.getYMiscPersGrossMonth());
-                double originalIncomePerMonth = maleIncome + femaleIncome;
-                double secondIncomePerMonth = Math.min(maleIncome, femaleIncome);
+                    double maleEmpPerMonth = Parameters.WEEKS_PER_MONTH * male.getEarningsWeekly();
+                    double femaleEmpPerMonth = Parameters.WEEKS_PER_MONTH * female.getEarningsWeekly();
+                    double maleIncome = maleEmpPerMonth + Math.sinh(male.getYMiscPersGrossMonth());
+                    double femaleIncome = femaleEmpPerMonth + Math.sinh(female.getYMiscPersGrossMonth());
+                    double originalIncomePerMonth = maleIncome + femaleIncome;
+                    double secondIncomePerMonth = Math.min(maleIncome, femaleIncome);
 
-                TaxEvaluation ev = taxWrapper(labourKey.getKey(0).getHours(male), labourKey.getKey(1).getHours(female), male.getDisability(), female.getDisability(), originalIncomePerMonth, secondIncomePerMonth);
+                    TaxEvaluation ev = taxWrapper(labourKey.getKey(0).getHours(male), labourKey.getKey(1).getHours(female), male.getDisability(), female.getDisability(), originalIncomePerMonth, secondIncomePerMonth);
 
-                cachedEvalByLabourPairs.put(labourKey, new LabourEval(ev));
+                    cachedEvalByLabourPairs.put(labourKey, new LabourEval(ev));
+                }
+            } else if (Occupancy.Single_Male.equals(occupancy)) {
+
+                for (MultiKey<? extends Labour> labourKey : cachedPossibleLabourCombinations) {
+
+                    male.setLabourSupplyWeekly(labourKey.getKey(0));
+                    double maleEmpPerMonth = Parameters.WEEKS_PER_MONTH * male.getEarningsWeekly();
+                    double originalIncomePerMonth = maleEmpPerMonth + Math.sinh(male.getYMiscPersGrossMonth());
+                    TaxEvaluation ev = taxWrapper(labourKey.getKey(0).getHours(male), 0.0, male.getDisability(), -1, originalIncomePerMonth, 0.0);
+
+                    cachedEvalByLabourPairs.put(labourKey, new LabourEval(ev));
+                }
+            } else if (Occupancy.Single_Female.equals(occupancy)) {
+
+                for (MultiKey<? extends Labour> labourKey : cachedPossibleLabourCombinations) {
+
+                    female.setLabourSupplyWeekly(labourKey.getKey(1));
+                    double femaleEmpPerMonth = Parameters.WEEKS_PER_MONTH * female.getEarningsWeekly();
+                    double originalIncomePerMonth = femaleEmpPerMonth + Math.sinh(female.getYMiscPersGrossMonth());
+                    TaxEvaluation ev = taxWrapper(0.0, labourKey.getKey(1).getHours(female), -1, female.getDisability(), originalIncomePerMonth, 0.0);
+
+                    cachedEvalByLabourPairs.put(labourKey, new LabourEval(ev));
+                }
             }
-        } else if (Occupancy.Single_Male.equals(occupancy)) {
-
-            for (MultiKey<? extends Labour> labourKey : cachedPossibleLabourCombinations) {
-
-                male.setLabourSupplyWeekly(labourKey.getKey(0));
-                double maleEmpPerMonth = Parameters.WEEKS_PER_MONTH * male.getEarningsWeekly();
-                double originalIncomePerMonth = maleEmpPerMonth + Math.sinh(male.getYMiscPersGrossMonth());
-                TaxEvaluation ev = taxWrapper(labourKey.getKey(0).getHours(male), 0.0, male.getDisability(), -1, originalIncomePerMonth, 0.0);
-
-                cachedEvalByLabourPairs.put(labourKey, new LabourEval(ev));
-            }
-        } else if (Occupancy.Single_Female.equals(occupancy)) {
-
-            for (MultiKey<? extends Labour> labourKey : cachedPossibleLabourCombinations) {
-
-                female.setLabourSupplyWeekly(labourKey.getKey(1));
-                double femaleEmpPerMonth = Parameters.WEEKS_PER_MONTH * female.getEarningsWeekly();
-                double originalIncomePerMonth = femaleEmpPerMonth + Math.sinh(female.getYMiscPersGrossMonth());
-                TaxEvaluation ev = taxWrapper(0.0, labourKey.getKey(1).getHours(female), -1, female.getDisability(), originalIncomePerMonth, 0.0);
-
-                cachedEvalByLabourPairs.put(labourKey, new LabourEval(ev));
-            }
+        } finally {
+            setEvaluatingLabourChoice(false);
         }
     }
 
@@ -1470,31 +1494,36 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
         labourScoreCacheYear = model.getYear();
         cachedUtilityScoreByLabourPairs = MultiKeyMap.multiKeyMap(new LinkedMap<>());
 
-        for (MultiKey<? extends Labour> labourKey : cachedPossibleLabourCombinations) {
+        setEvaluatingLabourChoice(true);
+        try {
+            for (MultiKey<? extends Labour> labourKey : cachedPossibleLabourCombinations) {
 
-            // set candidate labour for regressors
-            if (Occupancy.Couple.equals(occupancy)) {
-                male.setLabourSupplyWeekly(labourKey.getKey(0));
-                female.setLabourSupplyWeekly(labourKey.getKey(1));
-            } else if (Occupancy.Single_Male.equals(occupancy)) {
-                male.setLabourSupplyWeekly(labourKey.getKey(0));
-            } else { // Single_Female
-                female.setLabourSupplyWeekly(labourKey.getKey(1));
+                // set candidate labour for regressors
+                if (Occupancy.Couple.equals(occupancy)) {
+                    male.setLabourSupplyWeekly(labourKey.getKey(0));
+                    female.setLabourSupplyWeekly(labourKey.getKey(1));
+                } else if (Occupancy.Single_Male.equals(occupancy)) {
+                    male.setLabourSupplyWeekly(labourKey.getKey(0));
+                } else { // Single_Female
+                    female.setLabourSupplyWeekly(labourKey.getKey(1));
+                }
+
+                // inject cached incomes into BU fields for regressors
+                LabourEval le = cachedEvalByLabourPairs.get(labourKey);
+                yDispMonth = le.disposableIncomeMonthly;
+                yBenAmountMonth = le.benefitsReceivedPerMonth;
+                yGrossMonth = le.grossIncomeMonthly;
+
+                double regressionScore = computeUtilityRegressionScoreWithoutFC(occupancy, male, female);
+
+                if (Double.isNaN(regressionScore) || Double.isInfinite(regressionScore)) {
+                    regressionScore = 0.0;
+                }
+
+                cachedUtilityScoreByLabourPairs.put(labourKey, regressionScore);
             }
-
-            // inject cached incomes into BU fields for regressors
-            LabourEval le = cachedEvalByLabourPairs.get(labourKey);
-            yDispMonth = le.disposableIncomeMonthly;
-            yBenAmountMonth = le.benefitsReceivedPerMonth;
-            yGrossMonth = le.grossIncomeMonthly;
-
-            double regressionScore = computeUtilityRegressionScoreWithoutFC(occupancy, male, female);
-
-            if (Double.isNaN(regressionScore) || Double.isInfinite(regressionScore)) {
-                regressionScore = 0.0;
-            }
-
-            cachedUtilityScoreByLabourPairs.put(labourKey, regressionScore);
+        } finally {
+            setEvaluatingLabourChoice(false);
         }
     }
 
@@ -1818,13 +1847,14 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
 
             // prepare temporary storage variables
             MultiKey<? extends Labour> labourSupplyChoice = null;
-            MultiKeyMap<Labour, Match> taxDbMatchByLabourPairs = MultiKeyMap.multiKeyMap(new LinkedMap<>());
             LinkedHashSet<MultiKey<Labour>> possibleLabourCombinations = findPossibleLabourCombinations(); // Find possible labour combinations for this benefit unit
             MultiKeyMap<Labour, Double> labourSupplyUtilityRegressionScoresByLabourPairs = MultiKeyMap.multiKeyMap(new LinkedMap<>());
             boolean maleAtRiskOfWork = false, femaleAtRiskOfWork = false;
 
             // Sometimes one of the occupants of the couple will be retired (or even under the age to work, which is currently the age to leave home).
             // For this case, the person (not at risk of work)'s labour supply will always be zero, while the other person at risk of work has a choice over the single person Labour Supply set.
+            setEvaluatingLabourChoice(true);
+            try {
             for (MultiKey<? extends Labour> labourKey : possibleLabourCombinations) { //PB: for each possible discrete number of hours
 
                 int maleWorkHoursWeekly = 0, femaleWorkHoursWeekly = 0, maleDisability = -1, femaleDisability = -1;
@@ -1908,8 +1938,10 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
                     regressionScore = -700.0;
                 }
 
-                taxDbMatchByLabourPairs.put(labourKey, evaluatedTransfers.getMatch());
                 labourSupplyUtilityRegressionScoresByLabourPairs.put(labourKey, regressionScore); //XXX: Adult children could contribute their income to the hh, but then utility would have to be joint for a household with adult children, and they couldn't be treated separately as they are at the moment?
+            }
+            } finally {
+                setEvaluatingLabourChoice(false);
             }
             if (labourSupplyUtilityRegressionScoresByLabourPairs.isEmpty()) {
                 // error check
@@ -1995,7 +2027,7 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
 
             TaxEvaluation evaluatedTransfers = taxWrapper(maleWorkHoursWeekly, femaleWorkHoursWeekly, maleDisability, femaleDisability, originalIncomePerMonth, secondIncomePerMonth);
 
-            demDbMatchTax = taxDbMatchByLabourPairs.get(labourSupplyChoice);
+            demDbMatchTax = evaluatedTransfers.getMatch();
             idtaxDbDonor = demDbMatchTax.getCandidateID();
             yDispMonth = evaluatedTransfers.getDisposableIncomePerMonth();
             yBenAmountMonth = evaluatedTransfers.getBenefitsReceivedPerMonth();
@@ -4879,7 +4911,7 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
     }
 
     public int getNumberChildrenAll() {
-        return getNumberChildren(0,Parameters.AGE_TO_BECOME_RESPONSIBLE);
+        return getNumberChildren(0, Parameters.AGE_TO_BECOME_RESPONSIBLE - 1);
     }
     public int getNumberChildren(int age) {
         return getNumberChildren(age, age);
@@ -5464,20 +5496,10 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
         //OECD (BHC) equivalence scale gives a weight of 1.0 to the first adult;
         //0.5 to the second and each subsequent person aged 14 and over;
         //0.3 to each child aged under 14.
-        double weight = 0.0;
-        boolean firstAdult = true;
+        //Start at 0.5 so that the first adult, who adds 0.5 in the loop, counts as 1.0.
+        double weight = 0.5;
         for (Person member : members) {
-            if (member.getDemAge() >= Parameters.AGE_TO_BECOME_RESPONSIBLE) {
-                if (firstAdult)
-                    weight += 1.0;
-                else
-                    weight += 0.5;
-            } else {
-                if (member.getDemAge()<14)
-                    weight += 0.3;
-                else
-                    weight += 0.5;
-            }
+            weight += (member.getDemAge() < 14) ? 0.3 : 0.5;
         }
         return weight;
     }
