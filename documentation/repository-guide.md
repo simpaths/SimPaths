@@ -74,7 +74,7 @@ SimPaths/
 ├── output/                             # Simulation outputs
 │   ├── [timestamp]_[seed]_[run]/       # Timestamped output folders
 │   │   ├── csv/
-│   │   │   ├── WealthIncomeStatistics.csv  # Income and wealth; Gini, S-Index
+│   │   │   ├── WealthIncomeStatistics.csv  # Income and wealth; Gini and percentiles
 │   │   │   ├── DemographicStatistics.csv   # Demographics by age band
 │   │   │   ├── AlignmentStatistics.csv     # Alignment diagnostics
 │   │   │   ├── LabourStatistics.csv        # Labour market transitions and participation

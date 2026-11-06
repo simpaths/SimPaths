@@ -62,10 +62,6 @@ public class WealthIncomeStatistics {
 	//Equivalised disposable income is reported as the income median yHhDispEquivP50;
 	//the legacy edi_p50 alias is intentionally removed to match the codebook naming rules.
 
-	//Percentiles of SIndex:
-	@Column(name = "statSIndexP50")
-	private double statSIndexP50;
-
 	//employment income, averaged over workers rather than over population, weekly and not equivalised
 	@Column(name = "labourIncome_perWorker_weekly_18_29")
 	private double statYLabWeeklyPerWorker18to29Avg;
@@ -176,14 +172,6 @@ public class WealthIncomeStatistics {
 
 	public void setYHhQuintilesC5P80(double yHhQuintilesC5P80) {
 		this.yHhQuintilesC5P80 = yHhQuintilesC5P80;
-	}
-
-	public double getStatSIndexP50() {
-		return statSIndexP50;
-	}
-
-	public void setStatSIndexP50(double statSIndexP50) {
-		this.statSIndexP50 = statSIndexP50;
 	}
 
 	public double getLabFceEarningsP20() { return yLabFceEarningsP20; }

@@ -131,15 +131,6 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     @GUIparameter(description = "If random seed is fixed, set to this number")
     private Long randomSeedIfFixed = 606L;
 
-    @GUIparameter(description = "Time window in years for (in)security index calculation")
-    private Integer sIndexTimeWindow = 5;
-
-    @GUIparameter(description = "Value of risk aversion parameter (alpha)")
-    private Double sIndexAlpha = 2.;
-
-    @GUIparameter(description = "Value of discount factor (delta)")
-    private Double sIndexDelta = 0.98;
-
     //The data comes from here: https://data.oecd.org/hha/household-savings.htm
     @GUIparameter(description = "Value of saving rate (s). The default value is based on average % of household disposable income saved between 2000 - 2019 reported by the OECD")
     private Double savingRate = 0.056;
@@ -751,10 +742,6 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             line = "fixRandomSeed: " + fixRandomSeed;
             pw.println(line);
             line = "randomSeedIfFixed: " + randomSeedIfFixed;
-            pw.println(line);
-            line = "sIndexAlpha: " + sIndexAlpha;
-            pw.println(line);
-            line = "sIndexDelta: " + sIndexDelta;
             pw.println(line);
             line = "savingRate: " + savingRate;
             pw.println(line);
@@ -3196,30 +3183,6 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
     public void setDisposableIncomeFromLabourInnov(double innov) {
         disposableIncomeFromLabourInnov = innov;
-    }
-
-    public Integer getsIndexTimeWindow() {
-        return sIndexTimeWindow;
-    }
-
-    public void setsIndexTimeWindow(Integer sIndexTimeWindow) {
-        this.sIndexTimeWindow = sIndexTimeWindow;
-    }
-
-    public Double getsIndexAlpha() {
-        return sIndexAlpha;
-    }
-
-    public void setsIndexAlpha(Double sIndexAlpha) {
-        this.sIndexAlpha = sIndexAlpha;
-    }
-
-    public Double getsIndexDelta() {
-        return sIndexDelta;
-    }
-
-    public void setsIndexDelta(Double sIndexDelta) {
-        this.sIndexDelta = sIndexDelta;
     }
 
     public Double getSavingRate() {

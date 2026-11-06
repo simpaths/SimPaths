@@ -97,7 +97,7 @@ Runs are configured via YAML files in `config/`. `default.yml` documents all ava
 ### Output
 
 Output is written to `output/<run-timestamp>/csv/` by `SimPathsCollector`. Key files:
-- `WealthIncomeStatistics.csv` — income and wealth (Gini, percentiles, S-Index, plus income and wealth by age band)
+- `WealthIncomeStatistics.csv` — income and wealth (Gini, percentiles, plus income and wealth by age band)
 - `DemographicStatistics.csv` — demographics by age band (partnership, dependent children, population counts)
 - `HealthStatistics.csv` — population health by age band (self-rated health, disability shares)
 - `LabourStatistics.csv` — labour market transitions, participation, full-time/part-time shares by age band
