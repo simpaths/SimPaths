@@ -32,7 +32,7 @@ public class PersonTest {
      * This must run before creating new Person(...) instances in tests.
      */
     private void mockStaticDependenciesForConstructor() {
-        // Mock the multivariate distribution needed by Person constructor's setMarriageTargets()
+        // Mock the multivariate distribution needed by Person constructor's setPartnershipTargets()
         double[] mockWageAgeValues = new double[]{0.0, 0.0};
 
         // Using explicit lambda call for robust static stubbing

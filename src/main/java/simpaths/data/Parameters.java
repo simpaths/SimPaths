@@ -299,7 +299,7 @@ public class Parameters {
     public static final int MIN_AGE_TO_PROVIDE_CARE = 16;           // Minimum age to provide social care
     public static final int MIN_AGE_TO_LEAVE_EDUCATION = 16;		// Minimum age for a person to leave (full-demYear) education
     public static final int MAX_AGE_TO_STAY_IN_CONTINUOUS_EDUCATION = 29;
-    public static final int MIN_AGE_COHABITATION = AGE_TO_BECOME_RESPONSIBLE;  	// Min age a person can marry
+    public static final int MIN_AGE_COHABITATION = AGE_TO_BECOME_RESPONSIBLE;  	// Minimum age for partnership formation
     public static final int MIN_AGE_TO_HAVE_INCOME = 16; //Minimum age to have non-employment non-benefit income
     public static final int MIN_AGE_TO_RETIRE = 50; //Minimum age to consider retirement
     public static final int DEFAULT_AGE_TO_RETIRE = 67; //if pension included, but retirement decision not
@@ -321,7 +321,7 @@ public class Parameters {
     public static double SAVINGS_RATE; //This is set in the country-specific part of this file
 
     //public static int MAX_AGE_IN_EDUCATION;// = MAX_AGE;//30;			// Max age a person can stay in education	//Cannot set here, as MAX_AGE is not known yet.  Now set to MAX_AGE in buildObjects in Model class.
-    //public static int MAX_AGE_MARRIAGE;// = MAX_AGE;//75;  			// Max age a person can marry		//Cannot set here, as MAX_AGE is not known yet.  Now set to MAX_AGE in buildObjects in Model class.
+    //public static int MAX_AGE_PARTNERSHIP;// = MAX_AGE;//75;  			// Max age a person can enter a partnership		//Cannot set here, as MAX_AGE is not known yet.  Now set to MAX_AGE in buildObjects in Model class.
     private static int MIN_START_YEAR = 2011; //Minimum allowed starting point. Should correspond to the oldest initial population.
     private static int MAX_START_YEAR = 2024; //Maximum allowed starting point. Should correspond to the most recent initial population.
     public static int startYear;
@@ -445,9 +445,9 @@ public class Parameters {
     private static MultiKeyCoefficientMap projectionsHighEdu;			//Alignment projections for High Education
     private static MultiKeyCoefficientMap projectionsLowEdu;			//Alignment projections for Medium Education
 
-    //For marriage types:
-    private static MultiKeyCoefficientMap marriageTypesFrequency;
-    private static Map<Gender, MultiKeyMap<Region, Double>> marriageTypesFrequencyByGenderAndRegion;
+    //For partnership types:
+    private static MultiKeyCoefficientMap partnershipTypesFrequency;
+    private static Map<Gender, MultiKeyMap<Region, Double>> partnershipTypesFrequencyByGenderAndRegion;
 
     //Mean and covariances for parametric matching
     private static MultiKeyCoefficientMap meanCovarianceParametricMatching;
@@ -458,7 +458,7 @@ public class Parameters {
 //	private static MultiKeyMap probSick;
 
     //MultivariateNormalDistribution of age and potential earnings differential to use in the parametric partnership process
-    public final static boolean MARRIAGE_MATCH_TO_MEANS = false;
+    public final static boolean PARTNERSHIP_MATCH_TO_MEANS = false;
     public static double targetMeanWageDifferential, targetMeanAgeDifferential;
     private static MultivariateNormalDistribution wageAndAgeDifferentialMultivariateNormalDistribution;
 
@@ -1036,9 +1036,9 @@ public class Parameters {
         projectionsHighEdu = ExcelAssistant.loadCoefficientMap(ALIGNMENT_DIRECTORY + "align_educLevel.xlsx", "High", 1);
         projectionsLowEdu = ExcelAssistant.loadCoefficientMap(ALIGNMENT_DIRECTORY + "align_educLevel.xlsx", "Low", 1);
 
-        //Marriage types frequencies:
-        marriageTypesFrequency = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "marriageTypes2.xlsx", countryString, 2);
-        marriageTypesFrequencyByGenderAndRegion = new LinkedHashMap<Gender, MultiKeyMap<Region, Double>>();	//Create a map of maps to store the frequencies
+        //Partnership type frequencies
+        partnershipTypesFrequency = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "partnershipTypes2.xlsx", countryString, 2);
+        partnershipTypesFrequencyByGenderAndRegion = new LinkedHashMap<Gender, MultiKeyMap<Region, Double>>();	//Create a map of maps to store the frequencies
 
         //Mortality rates
         mortalityProbabilityByGenderAgeYear = ExcelAssistant.loadCoefficientMap(PROJECTIONS_DIRECTORY + "projections_mortality.xlsx", "MortalityByGenderAgeYear", 2);
@@ -2413,8 +2413,8 @@ public class Parameters {
     }
     */
 
-    public static MultiKeyCoefficientMap getMarriageTypesFrequency() {
-        return marriageTypesFrequency;
+    public static MultiKeyCoefficientMap getPartnershipTypesFrequency() {
+        return partnershipTypesFrequency;
     }
 
     public static MultiKeyCoefficientMap getCoeffCovarianceHealthH1() { return coeffCovarianceHealthH1; }

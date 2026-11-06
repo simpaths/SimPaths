@@ -215,7 +215,7 @@ public class Expectations {
         if (cohabitation) {
             personProxyNextPeriod.setEduHighestPartnerC4L1(currentStates.getEducationCode());
             personProxyNextPeriod.setHealthPartnerSelfRatedL1(DecisionParams.DEFAULT_HEALTH);
-            personProxyNextPeriod.setDemPartnerNYearL1(DecisionParams.DEFAULT_YEARS_MARRIED);
+            personProxyNextPeriod.setDemPartnerNYearL1(DecisionParams.DEFAULT_YEARS_IN_PARTNERSHIP);
             personProxyNextPeriod.setDemAgePartnerDiffL1(DecisionParams.DEFAULT_AGE_DIFFERENCE);
         }
     }

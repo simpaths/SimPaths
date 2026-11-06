@@ -52,7 +52,7 @@ foreach vv in dgnsp dagsp dehsp_c3 dhesp lessp_c3 lessp_c4 {
 replace ssscp = 0 if idpartner==-9   
 //fre ssscp
 
-* adult is defined as 18 or over, or if married  
+* adult is defined as 18 or over, or if partnered
 cap gen adult = (dag>=${age_becomes_responsible}) 
 replace adult = 1 if (adult==0 & dcpst==1)
 cap gen child = 1 - adult

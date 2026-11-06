@@ -547,7 +547,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         labHrsWorkWeek = originalPerson.labHrsWorkWeek;
         labHrsWorkWeekL1 = originalPerson.labHrsWorkWeekL1;
         labHrsWorkEnumWeek = originalPerson.getLabourSupplyWeekly();
-        double[] sampleDifferentials = setMarriageTargets();
+        double[] sampleDifferentials = setPartnershipTargets();
         demAgeDiffDesired = Objects.requireNonNullElseGet(originalPerson.demAgeDiffDesired, () -> sampleDifferentials[0]);
         yWageDesired = Objects.requireNonNullElseGet(originalPerson.yWageDesired, () -> sampleDifferentials[1]);
 
@@ -598,8 +598,8 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         this.statSeed = statSeed;
         statInnovations = new Innovations(44, 1, 1, statSeed);
 
-        //Draw desired age and wage differential for parametric partnership formation for people above age to get married:
-        double[] sampleDifferentials = setMarriageTargets();
+        //Draw desired age and wage differential for parametric partnership formation:
+        double[] sampleDifferentials = setPartnershipTargets();
         demAgeDiffDesired = sampleDifferentials[0];
         yWageDesired = sampleDifferentials[1];
     }
@@ -617,10 +617,10 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         }
     }
 
-    private double[] setMarriageTargets() {
+    private double[] setPartnershipTargets() {
 
         double[] sampleDifferentials = new double[2];
-        if (Parameters.MARRIAGE_MATCH_TO_MEANS) {
+        if (Parameters.PARTNERSHIP_MATCH_TO_MEANS) {
             sampleDifferentials[0] = Parameters.targetMeanAgeDifferential;
             sampleDifferentials[1] = Parameters.targetMeanWageDifferential;
         } else {
@@ -2322,8 +2322,8 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
 
 
     // Assign education level to school leavers using MultiProbitRegression
-    // Note that persons are now assigned a Low education level by default at birth (to prevent null pointer exceptions when persons become old enough to marry while still being a student
-    // (we now allow students to marry, given they can re-enter school throughout their lives).
+    // Note that persons are now assigned a Low education level by default at birth (to prevent null pointer exceptions when persons become old enough to enter a partnership while still being a student
+    // (we now allow students to enter partnerships, given they can re-enter school throughout their lives).
     // The module only applies to students who are leaving school (activityStatus == Student and toLeaveSchool == true) - see inSchool()
     public void setEducationLevel() {
 
@@ -2337,8 +2337,8 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         Education newEducationLevel = Education.valueOf(regressionEducationLevel.name());
 
         //Education has been set to Low by default for all new born babies, so it should never be null.
-        //This is because we no longer prevent people in school to get married, given that people can re-enter education throughout their lives.
-        //Note that by not filtering out students, we must assign a low education level by default to persons at birth to prevent a null pointer exception when new born persons become old enough to marry if they have not yet left school because
+        //This is because we no longer prevent people in school from entering partnerships, given that people can re-enter education throughout their lives.
+        //Note that by not filtering out students, we must assign a low education level by default to persons at birth to prevent a null pointer exception when new born persons become old enough to form a partnership if they have not yet left school because
         //their education level has not yet been assigned.
 
         // --- Step 2: Update counters based on regression result ---
