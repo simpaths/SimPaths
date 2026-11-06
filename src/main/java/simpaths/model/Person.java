@@ -227,6 +227,8 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
     @NullInitialised @Transient private Region i_demRgn;
     @NullInitialised @Transient private Dhhtp_c4 i_demCompHhC4L1;
     @NullInitialised @Transient private Ydses_c5 i_yHhQuintilesC5;
+    // Previous-period quintile of the benefit unit the person belonged to; captured before membership changes
+    @Lag(getter="getYHhQuintilesMonthC5ForLag") @Transient private Ydses_c5 yHhQuintilesMonthC5L1;
     @NullInitialised @Transient private Integer i_demNchildL1;
     @NullInitialised @Transient private Integer i_demNchild;
     @NullInitialised @Transient private Integer i_demNchild0to2L1;
@@ -5916,12 +5918,20 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         if (model!=null) {
             if (benefitUnit==null)
                 throw new RuntimeException("attempt to access unassigned benefit unit");
-            return benefitUnit.getYHhQuintilesMonthC5L1();
+            if (yHhQuintilesMonthC5L1 != null)
+                return yHhQuintilesMonthC5L1;
+            // No personal history (e.g. newborn or immigrant): use the unit's lag, then the Q3 default used for new units
+            Ydses_c5 unitLag = benefitUnit.getYHhQuintilesMonthC5L1();
+            return (unitLag != null) ? unitLag : Ydses_c5.Q3;
         } else {
             if (i_yHhQuintilesC5 ==null)
                 throw new RuntimeException("attempt to access unassigned ydses_c5_lag1Local");
             return i_yHhQuintilesC5;
         }
+    }
+
+    private Ydses_c5 getYHhQuintilesMonthC5ForLag() {
+        return (benefitUnit != null) ? benefitUnit.getYHhQuintilesMonthC5() : null;
     }
 
     private Ydses_c5 getYHhQuintilesMonthC5Current() {
