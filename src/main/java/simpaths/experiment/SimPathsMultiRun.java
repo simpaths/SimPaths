@@ -488,8 +488,8 @@ public class SimPathsMultiRun extends MultiRun {
 				case "input_directory_initial_populations":
 					Parameters.setInputDirectoryInitialPopulations(value.toString());
 					break;
-				case "euromod_output_directory":
-					Parameters.setEuromodOutputDirectory(value.toString());
+				case "ukmod_output_directory":
+					Parameters.setUKMODOutputDirectory(value.toString());
 					break;
 				default:
 					try {

@@ -76,7 +76,7 @@ All three are JPA `@Entity` classes persisted via Hibernate/H2. Each carries a `
 
 ### Tax-benefit imputation (`model/taxes/`)
 
-Tax and benefit outcomes are not calculated analytically. Instead, the model uses **statistical matching**: simulated households are matched to a pre-built donor database derived from EUROMOD/UKMOD output. `TaxDonorDataParser` builds this database; `DonorTaxImputation` performs the matching using a nearest-neighbour key function (`KeyFunction1`–`KeyFunction4`).
+Tax and benefit outcomes are not calculated analytically. Instead, the model uses **statistical matching**: simulated households are matched to a pre-built donor database derived from UKMOD output. `TaxDonorDataParser` builds this database; `DonorTaxImputation` performs the matching using a nearest-neighbour key function (`KeyFunction1`–`KeyFunction4`).
 
 ### Intertemporal optimisation (`model/decisions/`)
 

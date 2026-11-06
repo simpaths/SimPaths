@@ -149,7 +149,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     private double disposableIncomeFromLabourInnov = 0.0;		// used to explore behavioural sensitivity to disposable income (Marshallian labour supply elasticity)
 
 //	@GUIparameter(description = "Force recreation of input database based on the data provided by the population_[country].csv file")
-//	private boolean refreshInputDatabase = false;		//Tables can be constructed in GUI dialog in launch, before JAS-mine GUI appears.  However, if skipping that, and manually altering the EUROMODpolicySchedule.xlsx file, this will need to be set to true to build new input database before simulation is run (though the new input database will only be viewable in the output/input/input.h2.db file).
+//	private boolean refreshInputDatabase = false;		//Tables can be constructed in GUI dialog in launch, before JAS-mine GUI appears.  However, if skipping that, and manually altering the UKMODpolicySchedule.xlsx file, this will need to be set to true to build new input database before simulation is run (though the new input database will only be viewable in the output/input/input.h2.db file).
 
 //	@GUIparameter(description = "If true, set initial earnings from data in input population, otherwise, set using the wage equation regression estimates")
     private boolean initialisePotentialEarningsFromDatabase = true;
@@ -446,7 +446,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
         // set start year for simulation
         year = startYear;
-        // EUROMODpolicyNameForThisYear = Parameters.getEUROMODpolicyForThisYear(year);
+        // UKMODpolicyNameForThisYear = Parameters.getUKMODpolicyForThisYear(year);
 
         //Display current country and start year in the console
         System.out.println("Country: " + country + ". Running simulation from: " + startYear + " to " + endYear);
@@ -2770,7 +2770,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
     /**
      * Note that this method makes minimal assumptions on the input database data.  It does NOT assume the data
-     * is from EUROMOD data files.  This makes the simulation very flexible with regards to input database data,
+     * is from UKMOD data files.  This makes the simulation very flexible with regards to input database data,
      * but it does mean that the method is not optimised for speed.
      *
      */
@@ -2992,7 +2992,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         }
     }
 
-    //Requires Labour Market to be initialised and EUROMOD policy scenario for start year to be specified, hence it is called after creating the Labour Market object
+    //Requires Labour Market to be initialised and UKMOD policy scenario for start year to be specified, hence it is called after creating the Labour Market object
     private void initialisePotentialEarningsByWageEquationAndEmployerSocialInsurance() {
         for(Person person: persons) {
             person.initialisePotentialHourlyEarnings();    //XXX: We override the initialisation of persons' earnings using the estimated wage equation (this may be necessary to ensure the proportional change in unit labour cost is not ridiculously large ~10^100, due to discrepancy between the earnings data in the input database population and the estimated earnings from the wage equation of Bargain et al.  Only once the current discrepancy is fixed (hopefully using our own wage equation), can we start to re-initialise using values in the input data).
@@ -3599,7 +3599,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     This is then uprated in this method, before being used in BenefitUnit to decide if a ratio or imputation of disposable income should be used.
      */
     public Double getUpratedMedianIncomeForCurrentYear() {
-        String policyName = Parameters.getEUROMODpolicyForThisYear(year);
+        String policyName = Parameters.getUKMODpolicyForThisYear(year);
         Double value = policyNameIncomeMedianMap.get(policyName) * (double) Parameters.upratingFactorsMap.get(year, policyName);
         return value;
     }
@@ -3669,10 +3669,10 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                 for (int ii = 0; ii < donorPool.size(); ii++) {
 
                     DonorTaxUnit donor = donorPool.get(ii);
-                    for (int fromYear : Parameters.EUROMODpolicyScheduleSystemYearMap.keySet()) {
+                    for (int fromYear : Parameters.UKMODpolicyScheduleSystemYearMap.keySet()) {
 
                         // populate taxdbReferences
-                        int systemYear = Parameters.EUROMODpolicyScheduleSystemYearMap.get(fromYear).getValue();
+                        int systemYear = Parameters.UKMODpolicyScheduleSystemYearMap.get(fromYear).getValue();
                         DonorTaxUnitPolicy donorPolicy = donor.getPolicyBySystemYear(systemYear);
                         for (int jj = 0; jj < Parameters.TAXDB_REGIMES; jj++) {
 

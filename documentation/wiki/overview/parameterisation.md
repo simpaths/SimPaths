@@ -6,7 +6,7 @@ The [repository input directory](https://github.com/simpaths/SimPaths/tree/devel
 
 ## Tax and benefit inputs {#1-description-of-the-tax-and-benefit-system-display}
 
-SimPaths imputes tax-benefit outcomes from precomputed UKMOD donor files in `input/EUROMODoutput/`. The policy schedule maps simulation years to policy systems. [Tax-Benefit Donors (UK)](../getting-started/data/tax-benefit-donors-uk.md) explains how to obtain and prepare the files; [Modifying Tax-Benefit Settings](../user-guide/tax-benefit-parameters.md) explains scenario configuration.
+SimPaths imputes tax-benefit outcomes from precomputed UKMOD donor files in `input/UKMOD/UKMODoutput/`. The policy schedule maps simulation years to policy systems. [Tax-Benefit Donors (UK)](../getting-started/data/tax-benefit-donors-uk.md) explains how to obtain and prepare the files; [Modifying Tax-Benefit Settings](../user-guide/tax-benefit-parameters.md) explains scenario configuration.
 
 Training donor data are available in the repository for testing. They are not a substitute for authorised research data.
 
@@ -18,7 +18,7 @@ Training donor data are available in the repository for testing. They are not a 
 | `align_*.xlsx` and `alignment_targets_*.xlsx` | Targets used to align selected simulated outcomes. |
 | `projections_*.xlsx` | Demographic projections, including fertility and mortality inputs. |
 | `scenario_*.xlsx` | Time paths and assumptions for the selected scenario. |
-| `EUROMODpolicySchedule.xlsx` | Maps simulation years to tax-benefit systems. |
+| `UKMODpolicySchedule.xlsx` | Maps simulation years to tax-benefit systems. |
 | `social_care_parameters.xlsx` | Social-care policy parameters. |
 | `economic_time_series.xlsx` | Price and wage indices, returns, debt costs and care wages. |
 | `alignment_adjustment_series.xlsx` | Time-varying adjustments for alignment processes. |

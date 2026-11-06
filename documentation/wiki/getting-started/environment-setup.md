@@ -92,10 +92,10 @@ If this step fails, fix the Java or Maven setup first. There is no point debuggi
 Before a real run, SimPaths expects the `input/` directory to contain:
 
 - `InitialPopulations/` for starting population CSV files
-- `EUROMODoutput/` for donor tax-benefit input files
-- Excel workbooks such as `EUROMODpolicySchedule.xlsx`, `DatabaseCountryYear.xlsx`, and the `align_*.xlsx`, `reg_*.xlsx`, `scenario_*.xlsx`, and `projections_*.xlsx` parameter files
+- `UKMODoutput/` for donor tax-benefit input files
+- Excel workbooks such as `UKMODpolicySchedule.xlsx`, `DatabaseCountryYear.xlsx`, and the `align_*.xlsx`, `reg_*.xlsx`, `scenario_*.xlsx`, and `projections_*.xlsx` parameter files
 
-The key point here is that SimPaths does **not** run directly from the raw CSV and EUROMOD files. During setup, the code rebuilds the local H2 database `input/input.mv.db` from those sources by calling `Parameters.databaseSetup()`.
+The key point here is that SimPaths does **not** run directly from the raw CSV and UKMOD files. During setup, the code rebuilds the local H2 database `input/input.mv.db` from those sources by calling `Parameters.databaseSetup()`.
 
 <aside class="setup-guide__note" aria-labelledby="6-training-data-fallback" markdown="1">
 
@@ -141,9 +141,9 @@ java -jar multirun.jar -DBSetup -config config/default.yml
 Setup does four important things:
 
 1. writes or refreshes `DatabaseCountryYear.xlsx`
-2. validates or rebuilds `EUROMODpolicySchedule.xlsx`
+2. validates or rebuilds `UKMODpolicySchedule.xlsx`
 3. rebuilds the starting-population database under `input/input.mv.db`
-4. rebuilds the donor tax-benefit database from `input/EUROMODoutput/`
+4. rebuilds the donor tax-benefit database from `input/UKMOD/UKMODoutput/`
 
 </aside>
 </div>
@@ -152,7 +152,7 @@ Setup does four important things:
 
 ### Policy schedule file { #7-policy-schedule-file }
 
-Single-run setup expects `input/EUROMODpolicySchedule.xlsx` to exist. If you need to rebuild that file from the EUROMOD output filenames, use the `--rewrite-policy-schedule` flag when running `singlerun.jar`.
+Single-run setup expects `input/UKMOD/UKMODpolicySchedule.xlsx` to exist. If you need to rebuild that file from the UKMOD output filenames, use the `--rewrite-policy-schedule` flag when running `singlerun.jar`.
 
 </aside>
 </section>
@@ -168,7 +168,7 @@ The usual setup failures are:
 | wrong Java version | the build or runtime fails before the model even starts |
 | missing initial population files | setup falls back to training data, or database creation fails |
 | missing donor files | the tax-benefit database cannot be rebuilt |
-| stale policy schedule | the EUROMOD output files and `EUROMODpolicySchedule.xlsx` do not line up |
+| stale policy schedule | the UKMOD output files and `UKMODpolicySchedule.xlsx` do not line up |
 | database needs rebuilding | donor files or schedule changed, but the old `input/input.mv.db` is still being reused |
 
 If donor inputs, donor years, or the policy schedule change, rebuild the database before trying to interpret any results.

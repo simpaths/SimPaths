@@ -111,8 +111,8 @@ local.properties
 input/~$reg_socialcare.xlsx
 input/InitialPopulations/compile/data/pool_indall.dta
 input/~$scenario_uprating_factor.xlsx
-/input/EUROMODoutput/*.txt
-/input/EUROMOD/EUROMODoutput/*.txt
+/input/UKMODoutput/*.txt
+/input/UKMOD/UKMODoutput/*.txt
 /input/InitialPopulations/*.csv
 /input/population_IT.csv
 /input/population_UK.csv
@@ -123,29 +123,29 @@ input/input.mv.db.new
 input/input.mv.db.old
 input/input.mv.db.original
 dependency-reduced-pom.xml
-input/EUROMODoutput/augmented1/
-input/EUROMODoutput/original/
-/input/EUROMOD/EUROMODoutput/augmented1/
-/input/EUROMOD/EUROMODoutput/original/
+input/UKMODoutput/augmented1/
+input/UKMODoutput/original/
+/input/UKMOD/UKMODoutput/augmented1/
+/input/UKMOD/UKMODoutput/original/
 *.stswp
 ~$*.*
 input/programming test database/DatabaseCountryYear.xlsx
-input/programming test database/EUROMODpolicySchedule.xlsx
+input/programming test database/UKMODpolicySchedule.xlsx
 input/programming test database/input.mv.db
 /input/databases
-/input/EUROMODoutput/base
-/input/EUROMOD/EUROMODoutput/base
+/input/UKMODoutput/base
+/input/UKMOD/UKMODoutput/base
 *.dta
 src/main/java/simpaths/data/startingpop/DataParser.new
 src/main/java/simpaths/data/startingpop/DataParser.old
-input/EUROMODoutput/limit/*
-/input/EUROMOD/EUROMODoutput/limit/*
+input/UKMODoutput/limit/*
+/input/UKMOD/UKMODoutput/limit/*
 input/InitialPopulations/limit/*
 input/InitialPopulations/baseline/*
-input/EUROMODoutput/baseline/*
+input/UKMODoutput/baseline/*
 .Rproj.user
-/input/EUROMODoutput/test
-/input/EUROMOD/EUROMODoutput/test
+/input/UKMODoutput/test
+/input/UKMOD/UKMODoutput/test
 /input/InitialPopulations/test
 
 # macOS

@@ -220,10 +220,10 @@ collector_args:
 parameter_args:
 #  input_directory: input                                         # path to input data folder
 #  input_directory_initial_populations: input/InitialPopulations  # path to initial population CSVs
-#  euromod_output_directory: input/EUROMOD/EUROMODoutput          # path to EUROMOD/UKMOD output files
+#  ukmod_output_directory: input/UKMOD/UKMODoutput    # path to UKMOD output files
 #  trainingFlag: false      # if true, use training data from input/…/training/ subfolders
                             # (set automatically by test configs; do not set for research runs)
-#  includeYears:            # list of policy years for which EUROMOD donor data is available;
+#  includeYears:            # list of policy years for which UKMOD donor data is available;
                             # only these years will be included in the donor database
 #    - 2011
 #    - 2012

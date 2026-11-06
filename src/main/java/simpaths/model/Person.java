@@ -164,7 +164,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
 //	age, education, civil status, number of children, etc. Hence, potential earnings
 //	is a separate process in the simulation, and it is computed for every adult
 //	individual in the simulated population, in each simulated period.
-    @Column(name="labWageHrly") private Double labWageFullTimeHrly;		//Is hourly rate.  Initialised with value: ils_earns / (4.34 * lhw), where lhw is the weekly hours a person worked in EUROMOD input data
+    @Column(name="labWageHrly") private Double labWageFullTimeHrly;		//Is hourly rate.  Initialised with value: ils_earns / (4.34 * lhw), where lhw is the weekly hours a person worked in UKMOD input data
     @Lag(field="labWageFullTimeHrly") @Transient private Double labWageFullTimeHrlyL1; // Lag(1) of potentialHourlyEarnings
     @Transient private Double yDispEquivYear;
     @NullInitialised private Double xEquivYear;
@@ -4982,8 +4982,8 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
     }
 
     /*
-     * In the initial population, there is continuous health score and an indicator for long-term sickness or disability. In EUROMOD to which we match, health is either
-     * Good or Poor. This method checks the Dlltsd indicator and returns corresponding HealthStatus to use in matching the EUROMOD donor.
+     * In the initial population, there is continuous health score and an indicator for long-term sickness or disability. In UKMOD to which we match, health is either
+     * Good or Poor. This method checks the Dlltsd indicator and returns corresponding HealthStatus to use in matching the UKMOD donor.
      */
     public HealthStatus getHealthStatusConversion() {
         if(healthDsblLongtermFlag != null && healthDsblLongtermFlag.equals(Indicator.True)) {

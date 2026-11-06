@@ -12,7 +12,7 @@ popSize: 50000
 
 parameter_args:
   populationProjectionFilename: align_popProjections.xlsx
-  EUROMODpolicyScheduleFilename: EUROMODpolicySchedule_wealth_scenarios
+  UKMODpolicyScheduleFilename: UKMODpolicySchedule_wealth_scenarios
 
 model_args:
   bequestSyntheticRecipientCount: 2

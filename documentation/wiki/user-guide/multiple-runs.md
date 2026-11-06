@@ -15,7 +15,7 @@ mvn clean package
 java -jar multirun.jar -DBSetup
 ```
 
-The setup step rebuilds `input/input.mv.db` from the initial-population files and the EUROMOD / UKMOD donor outputs. If you have already completed setup and none of those inputs have changed, you do not need to repeat it before every run.
+The setup step rebuilds `input/input.mv.db` from the initial-population files and the UKMOD donor outputs. If you have already completed setup and none of those inputs have changed, you do not need to repeat it before every run.
 
 ## 2. Basic command
 
@@ -112,8 +112,8 @@ java -jar multirun.jar \
 Run `-DBSetup` again before your batch if you have changed any of the following:
 
 - files in `input/InitialPopulations/`
-- files in `input/EUROMODoutput/`
-- `input/EUROMODpolicySchedule.xlsx`
+- files in `input/UKMOD/UKMODoutput/`
+- `input/UKMOD/UKMODpolicySchedule.xlsx`
 - input paths in `parameter_args`
 
 If those inputs have not changed, a normal multi-run can start directly from the existing database.
