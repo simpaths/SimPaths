@@ -67,7 +67,7 @@ jobs:
         id: check_file
         uses: thebinaryfelix/check-file-existence-action@2.0.0
         with:
-          files: 'input/input.mv.db, input/EUROMODpolicySchedule.xlsx, input/DatabaseCountryYear.xlsx'
+          files: 'input/input.mv.db, input/UKMOD/UKMODpolicySchedule.xlsx, input/UKMOD/UKMODoutput/training/DatabaseCountryYear.xlsx'
 
   run-simpaths-persist-root:
     needs: build
@@ -89,7 +89,7 @@ jobs:
       id: check_file
       uses: thebinaryfelix/check-file-existence-action@2.0.0
       with:
-        files: 'input/input.mv.db, input/EUROMODpolicySchedule.xlsx, input/DatabaseCountryYear.xlsx'
+        files: 'input/input.mv.db, input/UKMOD/UKMODpolicySchedule.xlsx, input/UKMOD/UKMODoutput/training/DatabaseCountryYear.xlsx'
     - name: Do two runs with persistence to root database
       run: java -jar multirun.jar -config test_run.yml --persist=root
 
@@ -113,6 +113,6 @@ jobs:
       id: check_file
       uses: thebinaryfelix/check-file-existence-action@2.0.0
       with:
-        files: 'input/input.mv.db, input/EUROMODpolicySchedule.xlsx, input/DatabaseCountryYear.xlsx'
+        files: 'input/input.mv.db, input/UKMOD/UKMODpolicySchedule.xlsx, input/UKMOD/UKMODoutput/training/DatabaseCountryYear.xlsx'
     - name: Do two runs with no persistence
       run: java -jar multirun.jar -config test_run.yml --persist=none

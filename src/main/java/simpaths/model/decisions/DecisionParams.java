@@ -57,7 +57,7 @@ public class DecisionParams {
     public static int maxAge;                                         // evaluation of simpaths.data.Parameters.getMaxAge() returned value 0
 
     // ASSUMED YEARS IN RELATIONSHIP
-    public static final int DEFAULT_YEARS_MARRIED = 5;                // used by regression equation to model likelihood of separation
+    public static final int DEFAULT_YEARS_IN_PARTNERSHIP = 5;        // used by regression equation to model likelihood of separation
     public static final int DEFAULT_AGE_DIFFERENCE = 0;               // used by regression equation to model likelihood of separation
 
     // CONSUMPTION PARAMETERS

@@ -4,15 +4,15 @@ SimPaths does not hard-code a full tax-benefit system inside Java. Instead, tax 
 
 In practice, changing tax-benefit settings usually means changing one of three things:
 
-1. the EUROMOD / UKMOD output files stored in `input/EUROMODoutput/`
-2. the policy schedule in `input/EUROMODpolicySchedule.xlsx`
+1. the UKMOD output files stored in `input/UKMOD/UKMODoutput/`
+2. the policy schedule in `input/UKMOD/UKMODpolicySchedule.xlsx`
 3. the runtime settings that control how donor information is used
 
 ## 1. Donor policy files
 
 The donor database is built from policy output files such as:
 
-- `input/EUROMODoutput/*.txt`
+- `input/UKMOD/UKMODoutput/*.txt`
 
 During setup, `TaxDonorDataParser.constructAggregateTaxDonorPopulationCSVfile()` reads those text files, extracts the required policy-dependent and policy-invariant variables, and writes an aggregate donor CSV that is then loaded into the H2 input database.
 
@@ -25,7 +25,7 @@ If that consistency breaks, database setup fails.
 
 ## 2. Policy schedule
 
-`input/EUROMODpolicySchedule.xlsx` tells SimPaths which donor policy should apply from which simulation year onward.
+`input/UKMOD/UKMODpolicySchedule.xlsx` tells SimPaths which donor policy should apply from which simulation year onward.
 
 The relevant columns are:
 
@@ -34,7 +34,7 @@ The relevant columns are:
 - `Policy_System_Year`
 - `Description`
 
-In code, this file is loaded by `Parameters.calculateEUROMODpolicySchedule()`, which builds the map from simulation years to policy names.
+In code, this file is loaded by `Parameters.calculateUKMODpolicySchedule()`, which builds the map from simulation years to policy names.
 
 The most important rules are:
 
@@ -66,9 +66,9 @@ These are model settings rather than replacements for a new policy schedule. If 
 
 If you want to introduce a new policy system or adjust an existing one, the usual sequence is:
 
-1. generate the required EUROMOD / UKMOD output `.txt` files
-2. copy them into `input/EUROMODoutput/`
-3. update `input/EUROMODpolicySchedule.xlsx`
+1. generate the required UKMOD output `.txt` files
+2. copy them into `input/UKMOD/UKMODoutput/`
+3. update `input/UKMOD/UKMODpolicySchedule.xlsx`
 4. rebuild the donor database
 5. rerun the simulation
 
@@ -88,15 +88,15 @@ java -jar multirun.jar -DBSetup -config config/default.yml
 
 You should rebuild `input/input.mv.db` whenever you change:
 
-- any donor `.txt` file in `input/EUROMODoutput/`
-- `input/EUROMODpolicySchedule.xlsx`
+- any donor `.txt` file in `input/UKMOD/UKMODoutput/`
+- `input/UKMOD/UKMODpolicySchedule.xlsx`
 - donor-data paths in `parameter_args`
 
 Changing only higher-level run controls such as `startYear`, `endYear`, or output settings does not by itself require a rebuild.
 
 ## What this page does not cover
 
-This page is about how SimPaths consumes tax-benefit inputs. It does not document the full external policy-modelling workflow inside EUROMOD / UKMOD itself. For donor-data preparation, see [Input Data](../getting-started/data/index.md).
+This page is about how SimPaths consumes tax-benefit inputs. It does not document the full external policy-modelling workflow inside UKMOD itself. For donor-data preparation, see [Input Data](../getting-started/data/index.md).
 
 ## Related pages
 

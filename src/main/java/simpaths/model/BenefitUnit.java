@@ -780,7 +780,7 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
     protected void updateDisposableIncomeIfNotAtRiskOfWork() {
 
         if (!getAtRiskOfWork()) {
-            // Get donor benefitUnits from EUROMOD - the most similar benefitUnits for our criteria, matched by:
+            // Get donor benefitUnits from UKMOD - the most similar benefitUnits for our criteria, matched by:
             // BenefitUnit characteristics: occupancy, region, number of children;
             // Individual characteristics (potentially for each partner): gender, education, number of hours worked (binned in classes), work sector, health, age;
             // and with minimum difference between gross (market) income.
@@ -3413,7 +3413,7 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
 
                 //Values are divided by powers of 10, as in the tables of Bargain et al. (2014) Working Paper
             }
-            case IncomeSquared -> {        //Income is disposable income, inputed from 'donor' benefitUnits in EUROMOD
+            case IncomeSquared -> {        //Income is disposable income, inputed from 'donor' benefitUnits in UKMOD
                 return getDisposableIncomeMonthlyUpratedToBasePriceYear() * getDisposableIncomeMonthlyUpratedToBasePriceYear() * 1.e-4;
             }
             case HousingPersistence -> {

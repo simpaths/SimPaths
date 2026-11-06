@@ -827,7 +827,7 @@ graph drop _all
 restore
 
 
-* Marital status 
+* Partnership status
 preserve
 
 collapse (mean) dlltsd01 pred_dlltsd01* [aw = dwt], by(dcpst stm)

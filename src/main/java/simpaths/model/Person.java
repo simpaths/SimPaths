@@ -164,7 +164,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
 //	age, education, civil status, number of children, etc. Hence, potential earnings
 //	is a separate process in the simulation, and it is computed for every adult
 //	individual in the simulated population, in each simulated period.
-    @Column(name="labWageHrly") private Double labWageFullTimeHrly;		//Is hourly rate.  Initialised with value: ils_earns / (4.34 * lhw), where lhw is the weekly hours a person worked in EUROMOD input data
+    @Column(name="labWageHrly") private Double labWageFullTimeHrly;		//Is hourly rate.  Initialised with value: ils_earns / (4.34 * lhw), where lhw is the weekly hours a person worked in UKMOD input data
     @Lag(field="labWageFullTimeHrly") @Transient private Double labWageFullTimeHrlyL1; // Lag(1) of potentialHourlyEarnings
     @Transient private Double yDispEquivYear;
     @NullInitialised private Double xEquivYear;
@@ -227,6 +227,8 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
     @NullInitialised @Transient private Region i_demRgn;
     @NullInitialised @Transient private Dhhtp_c4 i_demCompHhC4L1;
     @NullInitialised @Transient private Ydses_c5 i_yHhQuintilesC5;
+    // Previous-period quintile of the benefit unit the person belonged to; captured before membership changes
+    @Lag(getter="getYHhQuintilesMonthC5ForLag") @Transient private Ydses_c5 yHhQuintilesMonthC5L1;
     @NullInitialised @Transient private Integer i_demNchildL1;
     @NullInitialised @Transient private Integer i_demNchild;
     @NullInitialised @Transient private Integer i_demNchild0to2L1;
@@ -547,7 +549,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         labHrsWorkWeek = originalPerson.labHrsWorkWeek;
         labHrsWorkWeekL1 = originalPerson.labHrsWorkWeekL1;
         labHrsWorkEnumWeek = originalPerson.getLabourSupplyWeekly();
-        double[] sampleDifferentials = setMarriageTargets();
+        double[] sampleDifferentials = setPartnershipTargets();
         demAgeDiffDesired = Objects.requireNonNullElseGet(originalPerson.demAgeDiffDesired, () -> sampleDifferentials[0]);
         yWageDesired = Objects.requireNonNullElseGet(originalPerson.yWageDesired, () -> sampleDifferentials[1]);
 
@@ -598,8 +600,8 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         this.statSeed = statSeed;
         statInnovations = new Innovations(44, 1, 1, statSeed);
 
-        //Draw desired age and wage differential for parametric partnership formation for people above age to get married:
-        double[] sampleDifferentials = setMarriageTargets();
+        //Draw desired age and wage differential for parametric partnership formation:
+        double[] sampleDifferentials = setPartnershipTargets();
         demAgeDiffDesired = sampleDifferentials[0];
         yWageDesired = sampleDifferentials[1];
     }
@@ -617,10 +619,10 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         }
     }
 
-    private double[] setMarriageTargets() {
+    private double[] setPartnershipTargets() {
 
         double[] sampleDifferentials = new double[2];
-        if (Parameters.MARRIAGE_MATCH_TO_MEANS) {
+        if (Parameters.PARTNERSHIP_MATCH_TO_MEANS) {
             sampleDifferentials[0] = Parameters.targetMeanAgeDifferential;
             sampleDifferentials[1] = Parameters.targetMeanWageDifferential;
         } else {
@@ -2322,8 +2324,8 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
 
 
     // Assign education level to school leavers using MultiProbitRegression
-    // Note that persons are now assigned a Low education level by default at birth (to prevent null pointer exceptions when persons become old enough to marry while still being a student
-    // (we now allow students to marry, given they can re-enter school throughout their lives).
+    // Note that persons are now assigned a Low education level by default at birth (to prevent null pointer exceptions when persons become old enough to enter a partnership while still being a student
+    // (we now allow students to enter partnerships, given they can re-enter school throughout their lives).
     // The module only applies to students who are leaving school (activityStatus == Student and toLeaveSchool == true) - see inSchool()
     public void setEducationLevel() {
 
@@ -2337,8 +2339,8 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         Education newEducationLevel = Education.valueOf(regressionEducationLevel.name());
 
         //Education has been set to Low by default for all new born babies, so it should never be null.
-        //This is because we no longer prevent people in school to get married, given that people can re-enter education throughout their lives.
-        //Note that by not filtering out students, we must assign a low education level by default to persons at birth to prevent a null pointer exception when new born persons become old enough to marry if they have not yet left school because
+        //This is because we no longer prevent people in school from entering partnerships, given that people can re-enter education throughout their lives.
+        //Note that by not filtering out students, we must assign a low education level by default to persons at birth to prevent a null pointer exception when new born persons become old enough to form a partnership if they have not yet left school because
         //their education level has not yet been assigned.
 
         // --- Step 2: Update counters based on regression result ---
@@ -4982,8 +4984,8 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
     }
 
     /*
-     * In the initial population, there is continuous health score and an indicator for long-term sickness or disability. In EUROMOD to which we match, health is either
-     * Good or Poor. This method checks the Dlltsd indicator and returns corresponding HealthStatus to use in matching the EUROMOD donor.
+     * In the initial population, there is continuous health score and an indicator for long-term sickness or disability. In UKMOD to which we match, health is either
+     * Good or Poor. This method checks the Dlltsd indicator and returns corresponding HealthStatus to use in matching the UKMOD donor.
      */
     public HealthStatus getHealthStatusConversion() {
         if(healthDsblLongtermFlag != null && healthDsblLongtermFlag.equals(Indicator.True)) {
@@ -5916,12 +5918,20 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         if (model!=null) {
             if (benefitUnit==null)
                 throw new RuntimeException("attempt to access unassigned benefit unit");
-            return benefitUnit.getYHhQuintilesMonthC5L1();
+            if (yHhQuintilesMonthC5L1 != null)
+                return yHhQuintilesMonthC5L1;
+            // No personal history (e.g. newborn or immigrant): use the unit's lag, then the Q3 default used for new units
+            Ydses_c5 unitLag = benefitUnit.getYHhQuintilesMonthC5L1();
+            return (unitLag != null) ? unitLag : Ydses_c5.Q3;
         } else {
             if (i_yHhQuintilesC5 ==null)
                 throw new RuntimeException("attempt to access unassigned ydses_c5_lag1Local");
             return i_yHhQuintilesC5;
         }
+    }
+
+    private Ydses_c5 getYHhQuintilesMonthC5ForLag() {
+        return (benefitUnit != null) ? benefitUnit.getYHhQuintilesMonthC5() : null;
     }
 
     private Ydses_c5 getYHhQuintilesMonthC5Current() {

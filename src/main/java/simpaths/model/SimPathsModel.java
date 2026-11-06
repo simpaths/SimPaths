@@ -131,15 +131,6 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     @GUIparameter(description = "If random seed is fixed, set to this number")
     private Long randomSeedIfFixed = 606L;
 
-    @GUIparameter(description = "Time window in years for (in)security index calculation")
-    private Integer sIndexTimeWindow = 5;
-
-    @GUIparameter(description = "Value of risk aversion parameter (alpha)")
-    private Double sIndexAlpha = 2.;
-
-    @GUIparameter(description = "Value of discount factor (delta)")
-    private Double sIndexDelta = 0.98;
-
     //The data comes from here: https://data.oecd.org/hha/household-savings.htm
     @GUIparameter(description = "Value of saving rate (s). The default value is based on average % of household disposable income saved between 2000 - 2019 reported by the OECD")
     private Double savingRate = 0.056;
@@ -149,7 +140,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     private double disposableIncomeFromLabourInnov = 0.0;		// used to explore behavioural sensitivity to disposable income (Marshallian labour supply elasticity)
 
 //	@GUIparameter(description = "Force recreation of input database based on the data provided by the population_[country].csv file")
-//	private boolean refreshInputDatabase = false;		//Tables can be constructed in GUI dialog in launch, before JAS-mine GUI appears.  However, if skipping that, and manually altering the EUROMODpolicySchedule.xlsx file, this will need to be set to true to build new input database before simulation is run (though the new input database will only be viewable in the output/input/input.h2.db file).
+//	private boolean refreshInputDatabase = false;		//Tables can be constructed in GUI dialog in launch, before JAS-mine GUI appears.  However, if skipping that, and manually altering the UKMODpolicySchedule.xlsx file, this will need to be set to true to build new input database before simulation is run (though the new input database will only be viewable in the output/input/input.h2.db file).
 
 //	@GUIparameter(description = "If true, set initial earnings from data in input population, otherwise, set using the wage equation regression estimates")
     private boolean initialisePotentialEarningsFromDatabase = true;
@@ -223,11 +214,11 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
     private Set<Person> persons;
 
-    //For marriage matching - types based on region and gender:
-    //private Map<Gender, LinkedHashMap<Region, Double>> marriageTargetsGenderRegion;
-    private MultiKeyMap<Object, Double> marriageTargetsByGenderAndRegion;
+    //For partnership matching - types based on region and gender:
+    //private Map<Gender, LinkedHashMap<Region, Double>> partnershipTargetsGenderRegion;
+    private MultiKeyMap<Object, Double> partnershipTargetsByGenderAndRegion;
 
-    private LinkedHashMap<String, Double>  marriageTargetsByKey;
+    private LinkedHashMap<String, Double>  partnershipTargetsByKey;
 
     private long elapsedTime0;
 
@@ -446,7 +437,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
         // set start year for simulation
         year = startYear;
-        // EUROMODpolicyNameForThisYear = Parameters.getEUROMODpolicyForThisYear(year);
+        // UKMODpolicyNameForThisYear = Parameters.getUKMODpolicyForThisYear(year);
 
         //Display current country and start year in the console
         System.out.println("Country: " + country + ". Running simulation from: " + startYear + " to " + endYear);
@@ -458,8 +449,8 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         System.out.println("Time to create initial population structures: " + (elapsedTime1 - elapsedTime0)/1000. + " seconds.");
         elapsedTime0 = elapsedTime1;
 
-        // initialise variables used to match marriage unions
-        createDataStructuresForMarriageMatching();
+        // initialise variables used to match partnerships
+        createDataStructuresForPartnershipMatching();
 
         // earnings potential
         labourMarket = new LabourMarket(benefitUnits);
@@ -571,7 +562,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 //        yearlySchedule.addCollectionEvent(persons, Person.Processes.HealthMCS1);
 //        yearlySchedule.addCollectionEvent(persons, Person.Processes.HealthPCS1);
 //        yearlySchedule.addCollectionEvent(persons, Person.Processes.LifeSatisfaction1);
-        // HOUSEHOLD COMPOSITION MODULE: Decide whether to enter into a union (marry / cohabit), and then perform union matching (marriage) between a male and female
+        // HOUSEHOLD COMPOSITION MODULE: Decide whether to form a partnership, and then match partners
 
         // Update potential earnings so that as up to date as possible to decide partner in union matching.
         yearlySchedule.addCollectionEvent(persons, Person.Processes.UpdatePotentialHourlyEarnings);
@@ -751,10 +742,6 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             line = "fixRandomSeed: " + fixRandomSeed;
             pw.println(line);
             line = "randomSeedIfFixed: " + randomSeedIfFixed;
-            pw.println(line);
-            line = "sIndexAlpha: " + sIndexAlpha;
-            pw.println(line);
-            line = "sIndexDelta: " + sIndexDelta;
             pw.println(line);
             line = "savingRate: " + savingRate;
             pw.println(line);
@@ -1748,7 +1735,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     */
 
     /*
-     * unionMatchingSBAM implements a marriage matching method presented by Stephensen 2013.
+     * unionMatchingSBAM implements a partnership matching method presented by Stephensen 2013.
      */
 
     int partnershipsCreated = 0;
@@ -1775,10 +1762,10 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
          */
         boolean adjustZeroEntries = true;
 
-        //1. Load distribution of marriages observed in Excel using ExcelLoader from marriageTypes2.xlsx file. Store a copy in marriageTypesToAdjust, which is
-        // a MultiKeyCoefficientMap - it has 2 string keys that identify a value. 1st key is person type, 2nd key is partner type, value is the number of marriages between these types
+        //1. Load distribution of partnerships observed in Excel using ExcelLoader from partnershipTypes2.xlsx file. Store a copy in partnershipTypesToAdjust, which is
+        // a MultiKeyCoefficientMap - it has 2 string keys that identify a value. 1st key is person type, 2nd key is partner type, value is the number of partnerships between these types
         // observed in the data.
-        MultiKeyCoefficientMap marriageTypesToAdjustMap = Parameters.getMarriageTypesFrequency().clone(); //Clone the original map loaded from Excel to adjust frequencies on a copy
+        MultiKeyCoefficientMap partnershipTypesToAdjustMap = Parameters.getPartnershipTypesFrequency().clone(); //Clone the original map loaded from Excel to adjust frequencies on a copy
 
         //Create a set of keys on which the types are defined: currently Gender, Region, Education, Age Group
         var keysMultiKeySet = new LinkedHashSet<MultiKey<Object>>();
@@ -1807,16 +1794,16 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                         //Now add the number of people to match for gender, region, education as target
                         double tmpTargetDouble = personsToMatch2.get(tmpKeyString).size();
 
-                        //Create a set containing row keys of marriageTypesToAdjust:
+                        //Create a set containing row keys of partnershipTypesToAdjust:
                         Set<String> tmpKeysStringSet = new LinkedHashSet<String>();
-                        for (var tmpKeyMultiKey : marriageTypesToAdjustMap.keySet()) {
+                        for (var tmpKeyMultiKey : partnershipTypesToAdjustMap.keySet()) {
                             String key0String = tmpKeyMultiKey.getKey(0).toString();
                             tmpKeysStringSet.add(key0String); //The only types not in the set should be those that don't have any matches in the data
                         }
 
                         if(tmpKeysStringSet.contains(tmpKeyString)) { //Check if the target is contained in frequencies from the data - if not, 0 entries cannot be adjusted anyway
 
-                            marriageTargetsByKey.put(tmpKeyString, tmpTargetDouble); //Update marriageTargetByKey
+                            partnershipTargetsByKey.put(tmpKeyString, tmpTargetDouble); //Update partnershipTargetByKey
                             var tmpKeyMultiKey = new MultiKey<Object>(gender, region, education, ageGroup);
                             keysMultiKeySet.add(tmpKeyMultiKey); //Add MultiKey to set of keys
                             keysStringSet.add(tmpKeyString);
@@ -1845,21 +1832,21 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                     Education education2 = (Education) key2.getKey(2);
                     int ageGroup2 = (int) key2.getKey(3);
                     String key2String = gender2 + " " + region2 + " " + education2 + " " + ageGroup2;
-                    if(marriageTypesToAdjustMap.get(key1String, key2String) != null) { //Value present, do nothing
+                    if(partnershipTypesToAdjustMap.get(key1String, key2String) != null) { //Value present, do nothing
 
                     } else if(!key1String.equals(key2String))  { //Null value, if not the same type, set to small number
 
-                        marriageTypesToAdjustMap.put(key1String, key2String, 1.e-6);
+                        partnershipTypesToAdjustMap.put(key1String, key2String, 1.e-6);
                     }
                     //else {
-                    //	marriageTypesToAdjust.put(key1String, key2String, 0.); //Same sex and cross-region matches to have 0 frequency -> this is now handled in the matching closure, by not matching such couples
+                    //	partnershipTypesToAdjust.put(key1String, key2String, 0.); //Same sex and cross-region matches to have 0 frequency -> this is now handled in the matching closure, by not matching such couples
                     //}
-                    // System.out.print(marriageTypesToAdjust.get(key1String, key2String) + " ");
+                    // System.out.print(partnershipTypesToAdjust.get(key1String, key2String) + " ");
                 }
             }
         }
 
-        //Iterate as on a matrix until the cumulative difference between frequencies in marriageTypesToAdjust and the targets from marriageTargetsByKey is smaller than the specified precision:
+        //Iterate as on a matrix until the cumulative difference between frequencies in partnershipTypesToAdjust and the targets from partnershipTargetsByKey is smaller than the specified precision:
         int tmpCountInt = 0;
         double errorDouble = Double.MAX_VALUE;
         double precisionDouble = 1.e-1;
@@ -1876,9 +1863,9 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             LinkedHashMap<String, Double> colMprMap = new LinkedHashMap<String, Double>();
 
             //Instead of iterating through rows and columns, go through every element of the map and add to the row / col sum depending on key1 and key2
-            //marriageTypesToAdjust is a map, where key is a MultiKey with two values (Strings): first value identifies one type, second value identifies second type, value stores the frequency of matches.
+            //partnershipTypesToAdjust is a map, where key is a MultiKey with two values (Strings): first value identifies one type, second value identifies second type, value stores the frequency of matches.
             //Instead of iterating through rows and columns, can iterate through each cell of the map and add it to rowSum (and later on to colSum).
-            for (var mapEntry : marriageTypesToAdjustMap.entrySet()) {
+            for (var mapEntry : partnershipTypesToAdjustMap.entrySet()) {
                 var tmpKeyMultiKey = mapEntry.getKey(); //Get MultiKey identifying each cell (mk.getKey(0) is row, mk.getKey(1) is column)
                 var keyStr = tmpKeyMultiKey.getKey(0).toString();
                 double tmpValueDouble = ((Number) mapEntry.getValue()).doubleValue();
@@ -1886,7 +1873,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                 rowSumsMap.put(keyStr, tmpValueDouble);
             }
             //Get target by key and divide by row sum for that key to get row multiplier, same for column later on
-            marriageTargetsByKey.keySet().iterator().forEachRemaining(key -> rowMprMap.put(key, marriageTargetsByKey.get(key)/rowSumsMap.get(key)));
+            partnershipTargetsByKey.keySet().iterator().forEachRemaining(key -> rowMprMap.put(key, partnershipTargetsByKey.get(key)/rowSumsMap.get(key)));
 
             //After the first iteration, rowSum might = 0 which means division is undefined resulting in null rowMpr entry - adjust to 0 if that happens
             rowMprMap.keySet().iterator().forEachRemaining(key -> {
@@ -1895,8 +1882,8 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                 if(rowMprMap.get(key).isInfinite()) rowMprMap.put(key, 0.);
             });
 
-            //Now knowing the row multiplier, multiply entries in the frequency map (marriageTypesToAdjust)
-            var frequenciesIterator = marriageTypesToAdjustMap.mapIterator();
+            //Now knowing the row multiplier, multiply entries in the frequency map (partnershipTypesToAdjust)
+            var frequenciesIterator = partnershipTypesToAdjustMap.mapIterator();
             while (frequenciesIterator.hasNext()) {
 
                 frequenciesIterator.next();
@@ -1907,7 +1894,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             }
 
             //Have to repeat for columns:
-            frequenciesIterator = marriageTypesToAdjustMap.mapIterator();
+            frequenciesIterator = partnershipTypesToAdjustMap.mapIterator();
             while (frequenciesIterator.hasNext()) {
 
                 frequenciesIterator.next();
@@ -1925,7 +1912,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                 colSumsMap.put(tmpKeyMultiKey.getKey(1).toString(), tmpValueDouble);
             }
 
-            marriageTargetsByKey.keySet().iterator().forEachRemaining(key -> colMprMap.put(key, marriageTargetsByKey.get(key)/colSumsMap.get(key)));
+            partnershipTargetsByKey.keySet().iterator().forEachRemaining(key -> colMprMap.put(key, partnershipTargetsByKey.get(key)/colSumsMap.get(key)));
 
             //As for rows, make sure multipliers are defined
             colMprMap.keySet().iterator().forEachRemaining(key -> {
@@ -1935,7 +1922,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             });
 
             //Now knowing the col multiplier, multiply entries in the map with frequencies
-            frequenciesIterator = marriageTypesToAdjustMap.mapIterator();
+            frequenciesIterator = partnershipTypesToAdjustMap.mapIterator();
             while (frequenciesIterator.hasNext()) {
 
                 frequenciesIterator.next();
@@ -1946,10 +1933,10 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             }
 
             //Calculate error as the cumulative difference between targets and row and column sums
-            for (String key : marriageTargetsByKey.keySet()) {
+            for (String key : partnershipTargetsByKey.keySet()) {
 
-                errorDouble += Math.abs(marriageTargetsByKey.get(key) - rowSumsMap.get(key));
-                errorDouble += Math.abs(marriageTargetsByKey.get(key) - colSumsMap.get(key));
+                errorDouble += Math.abs(partnershipTargetsByKey.get(key) - rowSumsMap.get(key));
+                errorDouble += Math.abs(partnershipTargetsByKey.get(key) - colSumsMap.get(key));
             }
 
             // System.out.println("Error is " + error + " and iteration is " + tmpCount);
@@ -1958,7 +1945,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         }
 
         //Print out adjusted frequencies
-        marriageTypesToAdjustMap.keySet().iterator().forEachRemaining(key -> System.out.println(key + "=" + marriageTypesToAdjustMap.get(key)));
+        partnershipTypesToAdjustMap.keySet().iterator().forEachRemaining(key -> System.out.println(key + "=" + partnershipTypesToAdjustMap.get(key)));
 
         /*
          * Use matching method provided with JAS-mine:
@@ -1970,9 +1957,9 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
                 //Get number of people that should be matched for key, keyOther combination
                 int tmpTargetInt;
-                if(marriageTypesToAdjustMap.get(key, keyOther) != null) {
+                if(partnershipTypesToAdjustMap.get(key, keyOther) != null) {
 
-                    tmpTargetInt = (int) Math.round(((Number) marriageTypesToAdjustMap.getValue(key, keyOther)).doubleValue());
+                    tmpTargetInt = (int) Math.round(((Number) partnershipTypesToAdjustMap.getValue(key, keyOther)).doubleValue());
                 } else tmpTargetInt = 0;
 
                 //Check if for the combination of key, keyOther matches should be formed:
@@ -1991,7 +1978,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                     unmatchedQ2FullSet.addAll(personsToMatch2.get(keyOther)); //Add people to match with
                     Set<Person> unmatchedQ2Set = new LinkedHashSet<Person>();
 
-                    //Keep only the number of people in unmatchedQ2 that is equal to the adjusted number of matches to create from marriageTypesToAdjust:
+                    //Keep only the number of people in unmatchedQ2 that is equal to the adjusted number of matches to create from partnershipTypesToAdjust:
                     Iterator<Person> unmatchedQ2FullSetIterator = unmatchedQ2FullSet.iterator();
                     for(int n = 0; n < tmpTargetInt && unmatchedQ2FullSetIterator.hasNext(); n++) {
 
@@ -2109,7 +2096,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         evalMatches(unmatched, alignmentRun);
 
         if (!alignmentRun) {
-            if (commentsOn) log.debug("Marriage matched");
+            if (commentsOn) log.debug("Partnership matched");
         }
     }
 
@@ -2770,7 +2757,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
     /**
      * Note that this method makes minimal assumptions on the input database data.  It does NOT assume the data
-     * is from EUROMOD data files.  This makes the simulation very flexible with regards to input database data,
+     * is from UKMOD data files.  This makes the simulation very flexible with regards to input database data,
      * but it does mean that the method is not optimised for speed.
      *
      */
@@ -2992,15 +2979,15 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         }
     }
 
-    //Requires Labour Market to be initialised and EUROMOD policy scenario for start year to be specified, hence it is called after creating the Labour Market object
+    //Requires Labour Market to be initialised and UKMOD policy scenario for start year to be specified, hence it is called after creating the Labour Market object
     private void initialisePotentialEarningsByWageEquationAndEmployerSocialInsurance() {
         for(Person person: persons) {
             person.initialisePotentialHourlyEarnings();    //XXX: We override the initialisation of persons' earnings using the estimated wage equation (this may be necessary to ensure the proportional change in unit labour cost is not ridiculously large ~10^100, due to discrepancy between the earnings data in the input database population and the estimated earnings from the wage equation of Bargain et al.  Only once the current discrepancy is fixed (hopefully using our own wage equation), can we start to re-initialise using values in the input data).
         }
     }
 
-    // initialise attributes used to manage marriage matching
-    private void createDataStructuresForMarriageMatching() {
+    // initialise attributes used to manage partnership matching
+    private void createDataStructuresForPartnershipMatching() {
 
         personsToMatch = new LinkedHashMap<>();
         for (Gender gender: Gender.values()) {
@@ -3013,7 +3000,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         for (Gender gender : Gender.values()) {
             for (Region region : Region.values()) {
                 for(Education education: Education.values()) {
-                    for(int ageGroup = 0; ageGroup <= 6; ageGroup++) { //Age groups with numerical values are created in Person class setAdditionalFieldsInInitialPopulation() method and must match Excel marriageTypes2.xlsx file.
+                    for(int ageGroup = 0; ageGroup <= 6; ageGroup++) { //Age groups with numerical values are created in Person class setAdditionalFieldsInInitialPopulation() method and must match Excel partnershipTypes2.xlsx file.
                         String tmpKey = gender + " " + region + " " + education + " " + ageGroup;
                         personsToMatch2.put(tmpKey, new LinkedHashSet<>());
                     }
@@ -3022,14 +3009,14 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         }
 
         // For SBAM matching, initial targets:
-        marriageTargetsByGenderAndRegion = MultiKeyMap.multiKeyMap(new LinkedMap<>());
+        partnershipTargetsByGenderAndRegion = MultiKeyMap.multiKeyMap(new LinkedMap<>());
         for (Gender gender : Gender.values()) {
             for (Region region : Parameters.getCountryRegions()) {
                 double tmpTarget = personsToMatch.get(gender).get(region).size();
-                marriageTargetsByGenderAndRegion.put(gender, region, tmpTarget);
+                partnershipTargetsByGenderAndRegion.put(gender, region, tmpTarget);
             }
         }
-        marriageTargetsByKey = new LinkedHashMap<>();
+        partnershipTargetsByKey = new LinkedHashMap<>();
     }
 
     // ---------------------------------------------------------------------
@@ -3196,30 +3183,6 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
     public void setDisposableIncomeFromLabourInnov(double innov) {
         disposableIncomeFromLabourInnov = innov;
-    }
-
-    public Integer getsIndexTimeWindow() {
-        return sIndexTimeWindow;
-    }
-
-    public void setsIndexTimeWindow(Integer sIndexTimeWindow) {
-        this.sIndexTimeWindow = sIndexTimeWindow;
-    }
-
-    public Double getsIndexAlpha() {
-        return sIndexAlpha;
-    }
-
-    public void setsIndexAlpha(Double sIndexAlpha) {
-        this.sIndexAlpha = sIndexAlpha;
-    }
-
-    public Double getsIndexDelta() {
-        return sIndexDelta;
-    }
-
-    public void setsIndexDelta(Double sIndexDelta) {
-        this.sIndexDelta = sIndexDelta;
     }
 
     public Double getSavingRate() {
@@ -3599,7 +3562,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     This is then uprated in this method, before being used in BenefitUnit to decide if a ratio or imputation of disposable income should be used.
      */
     public Double getUpratedMedianIncomeForCurrentYear() {
-        String policyName = Parameters.getEUROMODpolicyForThisYear(year);
+        String policyName = Parameters.getUKMODpolicyForThisYear(year);
         Double value = policyNameIncomeMedianMap.get(policyName) * (double) Parameters.upratingFactorsMap.get(year, policyName);
         return value;
     }
@@ -3669,10 +3632,10 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                 for (int ii = 0; ii < donorPool.size(); ii++) {
 
                     DonorTaxUnit donor = donorPool.get(ii);
-                    for (int fromYear : Parameters.EUROMODpolicyScheduleSystemYearMap.keySet()) {
+                    for (int fromYear : Parameters.UKMODpolicyScheduleSystemYearMap.keySet()) {
 
                         // populate taxdbReferences
-                        int systemYear = Parameters.EUROMODpolicyScheduleSystemYearMap.get(fromYear).getValue();
+                        int systemYear = Parameters.UKMODpolicyScheduleSystemYearMap.get(fromYear).getValue();
                         DonorTaxUnitPolicy donorPolicy = donor.getPolicyBySystemYear(systemYear);
                         for (int jj = 0; jj < Parameters.TAXDB_REGIMES; jj++) {
 
@@ -3763,7 +3726,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         for (Gender gender : Gender.values()) {
             for (Region region : Region.values()) {
                 for (Education education: Education.values()) {
-                    for (int ageGroup = 0; ageGroup <= 6; ageGroup++) { //Age groups with numerical values are created in Person class setAdditionalFieldsInInitialPopulation() method and must match Excel marriageTypes2.xlsx file.
+                    for (int ageGroup = 0; ageGroup <= 6; ageGroup++) { //Age groups with numerical values are created in Person class setAdditionalFieldsInInitialPopulation() method and must match Excel partnershipTypes2.xlsx file.
                         String tmpKey = gender + " " + region + " " + education + " " + ageGroup;
                         personsToMatch2.get(tmpKey).clear();
                     }

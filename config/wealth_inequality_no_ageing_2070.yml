@@ -14,7 +14,7 @@ popSize: 50000
 
 parameter_args:
   populationProjectionFilename: align_popProjections_no_ageing_2026.xlsx
-  EUROMODpolicyScheduleFilename: EUROMODpolicySchedule_wealth_scenarios
+  UKMODpolicyScheduleFilename: UKMODpolicySchedule_wealth_scenarios
 
 model_args:
   bequestSyntheticRecipientCount: 2

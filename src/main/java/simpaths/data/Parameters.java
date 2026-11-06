@@ -60,14 +60,14 @@ public class Parameters {
         ZipSecureFile.setMinInflateRatio(POI_MIN_INFLATE_RATIO);
     }
 
-    // EUROMOD variables
+    // UKMOD variables
 
 
-    // Insert here names of EUROMOD variables to use in Person and BenefitUnit tables of the input database
+    // Insert here names of UKMOD variables to use in Person and BenefitUnit tables of the input database
     // NOTE: The model economises set-up costs for the donor population by considering policy projections generated
     // for multiple "system years" for the same input data. All non-financial statistics should consequently be the
     // same for the donor population (described under DONOR_STATIC_VARIABLES). Memory is further economised by assuming
-    // a constant inflation adjustment for all factors in EUROMOD, so that exogenous financial inputs vary by system year
+    // a constant inflation adjustment for all factors in UKMOD, so that exogenous financial inputs vary by system year
     // only by the inflation rate. Setting this rate to the rate of inflation loaded in via scenario_uprating_factor.xls
     // permits these exogenous inputs to be inferred across system years without storing them separately for each year
     // The only financial statistics that vary by system should consequently be policy dependant variables,
@@ -105,12 +105,12 @@ public class Parameters {
 
     public static final String[] DONOR_POLICY_VARIABLES = new String[] {
         "xcc",                  //childcare costs
-        "ils_earns",			//EUROMOD output variable:- total labour earnings (employment + self-employment income + potentially other labour earnings like temporary employment, depending on country classification)
-        "ils_origy",			//EUROMOD output variable:- all gross income from labour, private pensions, investment income, property income, private transfers etc.
-		"ils_dispy",			//Disposable income : from EUROMOD output data after tax / benefit transfers (monthly demYear-scale)
-		"ils_benmt",			//EUROMOD output variable: income list: monetary benefits
-		"ils_bennt",			//EUROMOD output variable: income list: non-monetary benefits
-        "bsauc_s",              //EUROMOD output variable: simulated UC receipt
+        "ils_earns",			//UKMOD output variable:- total labour earnings (employment + self-employment income + potentially other labour earnings like temporary employment, depending on country classification)
+        "ils_origy",			//UKMOD output variable:- all gross income from labour, private pensions, investment income, property income, private transfers etc.
+		"ils_dispy",			//Disposable income : from UKMOD output data after tax / benefit transfers (monthly demYear-scale)
+		"ils_benmt",			//UKMOD output variable: income list: monetary benefits
+		"ils_bennt",			//UKMOD output variable: income list: non-monetary benefits
+        "bsauc_s",              //UKMOD output variable: simulated UC receipt
         "bho_s",
         "bwkmt_s",
         "bfamt_s",
@@ -199,9 +199,9 @@ public class Parameters {
 		//"yem", 					    //employment income
 		//"yse", 					    //self-employment income
 
-		//From EUROMOD output data before tax / benefit transfers, so not affected by EUROMOD policy scenario (monthly demYear-scale).  We just use them calculated from EUROMOD output because EUROMOD has the correct way of aggregating each country's different component definitions
-		//"ils_earns", 			//EUROMOD output variable:- total labour earnings (employment + self-employment income + potentially other labour earnings like temporary employment, depending on country classification)
-		//"ils_origy"			//EUROMOD output variable:- all gross income from labour, private pensions, investment income, property income, private transfers etc.
+		//From UKMOD output data before tax / benefit transfers, so not affected by UKMOD policy scenario (monthly demYear-scale).  We just use them calculated from UKMOD output because UKMOD has the correct way of aggregating each country's different component definitions
+		//"ils_earns", 			//UKMOD output variable:- total labour earnings (employment + self-employment income + potentially other labour earnings like temporary employment, depending on country classification)
+		//"ils_origy"			//UKMOD output variable:- all gross income from labour, private pensions, investment income, property income, private transfers etc.
     };
 
     //Parameters for managing tax and benefit imputations
@@ -299,7 +299,7 @@ public class Parameters {
     public static final int MIN_AGE_TO_PROVIDE_CARE = 16;           // Minimum age to provide social care
     public static final int MIN_AGE_TO_LEAVE_EDUCATION = 16;		// Minimum age for a person to leave (full-demYear) education
     public static final int MAX_AGE_TO_STAY_IN_CONTINUOUS_EDUCATION = 29;
-    public static final int MIN_AGE_COHABITATION = AGE_TO_BECOME_RESPONSIBLE;  	// Min age a person can marry
+    public static final int MIN_AGE_COHABITATION = AGE_TO_BECOME_RESPONSIBLE;  	// Minimum age for partnership formation
     public static final int MIN_AGE_TO_HAVE_INCOME = 16; //Minimum age to have non-employment non-benefit income
     public static final int MIN_AGE_TO_RETIRE = 50; //Minimum age to consider retirement
     public static final int DEFAULT_AGE_TO_RETIRE = 67; //if pension included, but retirement decision not
@@ -321,7 +321,7 @@ public class Parameters {
     public static double SAVINGS_RATE; //This is set in the country-specific part of this file
 
     //public static int MAX_AGE_IN_EDUCATION;// = MAX_AGE;//30;			// Max age a person can stay in education	//Cannot set here, as MAX_AGE is not known yet.  Now set to MAX_AGE in buildObjects in Model class.
-    //public static int MAX_AGE_MARRIAGE;// = MAX_AGE;//75;  			// Max age a person can marry		//Cannot set here, as MAX_AGE is not known yet.  Now set to MAX_AGE in buildObjects in Model class.
+    //public static int MAX_AGE_PARTNERSHIP;// = MAX_AGE;//75;  			// Max age a person can enter a partnership		//Cannot set here, as MAX_AGE is not known yet.  Now set to MAX_AGE in buildObjects in Model class.
     private static int MIN_START_YEAR = 2011; //Minimum allowed starting point. Should correspond to the oldest initial population.
     private static int MAX_START_YEAR = 2024; //Maximum allowed starting point. Should correspond to the most recent initial population.
     public static int startYear;
@@ -359,27 +359,27 @@ public class Parameters {
     public static int femaleMaxAgeSick = Integer.MIN_VALUE;
     public static int maleMaxAgeSick = Integer.MIN_VALUE;
 
-    //For use with EUROMOD and h2 input database construction
+    //For use with UKMOD and h2 input database construction
     public static String WORKING_DIRECTORY = System.getProperty("user.dir");
     public static String INPUT_DIRECTORY = WORKING_DIRECTORY + File.separator + "input" + File.separator;
     public static boolean trainingFlag = false;
     public static String INPUT_DIRECTORY_INITIAL_POPULATIONS = INPUT_DIRECTORY + "InitialPopulations" + File.separator; //Path to directory containing initial population for each year
     public static String ALIGNMENT_DIRECTORY = INPUT_DIRECTORY + "alignment_files" + File.separator;
-    public static String EUROMOD_DIRECTORY = INPUT_DIRECTORY + "EUROMOD" + File.separator;
-    public static String EUROMOD_OUTPUT_DIRECTORY = EUROMOD_DIRECTORY + "EUROMODoutput" + File.separator;
+    public static String UKMOD_DIRECTORY = INPUT_DIRECTORY + "UKMOD" + File.separator;
+    public static String UKMOD_OUTPUT_DIRECTORY = UKMOD_DIRECTORY + "UKMODoutput" + File.separator;
     public static String PROJECTIONS_DIRECTORY = INPUT_DIRECTORY + "projections" + File.separator;
     public static String REGRESSION_DIRECTORY = INPUT_DIRECTORY + "regression_files" + File.separator;
     public static String SCENARIO_DIRECTORY = INPUT_DIRECTORY + "scenario" + File.separator;
-    public static String EUROMOD_TRAINING_DIRECTORY = EUROMOD_OUTPUT_DIRECTORY + "training" + File.separator;
-    public static String EUROMODpolicyScheduleFilename = "EUROMODpolicySchedule";
+    public static String UKMOD_TRAINING_DIRECTORY = UKMOD_OUTPUT_DIRECTORY + "training" + File.separator;
+    public static String UKMODpolicyScheduleFilename = "UKMODpolicySchedule";
     public static String DatabaseCountryYearFilename = "DatabaseCountryYear";
 
-    //Headings in Excel file of EUROMOD policy scenarios
-    public static final String EUROMODpolicyScheduleHeadingFilename = "Filename";
-    public static final String EUROMODpolicyScheduleHeadingScenarioSystemYear = "Policy_System_Year";
-    public static final String EUROMODpolicyScheduleHeadingScenarioYearBegins = "Policy_Start_Year";
-    public static final String EUROMODpolicySchedulePlanHeadingDescription = "Description";
-    //Names of donor attributes that depend on EUROMOD policy parameters
+    //Headings in Excel file of UKMOD policy scenarios
+    public static final String UKMODpolicyScheduleHeadingFilename = "Filename";
+    public static final String UKMODpolicyScheduleHeadingScenarioSystemYear = "Policy_System_Year";
+    public static final String UKMODpolicyScheduleHeadingScenarioYearBegins = "Policy_Start_Year";
+    public static final String UKMODpolicySchedulePlanHeadingDescription = "Description";
+    //Names of donor attributes that depend on UKMOD policy parameters
     public static final String DISPOSABLE_INCOME_VARIABLE_NAME = "DISPOSABLE_INCOME_MONTHLY";
     public static final String EMPLOYER_SOCIAL_INSURANCE_VARIABLE_NAME = "EMPLOYER_SOCIAL_INSURANCE_CONTRIBUTION_PER_HOUR";
     public static final String GROSS_EARNINGS_VARIABLE_NAME = "GROSS_EARNINGS_MONTHLY";
@@ -406,8 +406,8 @@ public class Parameters {
 
 
     /////////////////////////////////////////////////////////////////// INITIALISATION OF DATA STRUCTURES //////////////////////////////////
-    public static Map<Integer, String> EUROMODpolicySchedule = new TreeMap<Integer, String>();
-    public static Map<Integer, Pair<String, Integer>> EUROMODpolicyScheduleSystemYearMap = new TreeMap<>(); // This map stores year from which policy applies, and then a Pair of <name of policy, policy system year as specified in EM>. This is used when uprating values from the policy system year to a current simulated year.
+    public static Map<Integer, String> UKMODpolicySchedule = new TreeMap<Integer, String>();
+    public static Map<Integer, Pair<String, Integer>> UKMODpolicyScheduleSystemYearMap = new TreeMap<>(); // This map stores year from which policy applies, and then a Pair of <name of policy, policy system year as specified in EM>. This is used when uprating values from the policy system year to a current simulated year.
     private static MultiKeyMap<Object, Double> fertilityRateByRegionYear;
     public static AnnuityRates annuityRates = new AnnuityRates();
     public static double annuityRealRateOfReturn = 0.011;
@@ -445,9 +445,9 @@ public class Parameters {
     private static MultiKeyCoefficientMap projectionsHighEdu;			//Alignment projections for High Education
     private static MultiKeyCoefficientMap projectionsLowEdu;			//Alignment projections for Medium Education
 
-    //For marriage types:
-    private static MultiKeyCoefficientMap marriageTypesFrequency;
-    private static Map<Gender, MultiKeyMap<Region, Double>> marriageTypesFrequencyByGenderAndRegion;
+    //For partnership types:
+    private static MultiKeyCoefficientMap partnershipTypesFrequency;
+    private static Map<Gender, MultiKeyMap<Region, Double>> partnershipTypesFrequencyByGenderAndRegion;
 
     //Mean and covariances for parametric matching
     private static MultiKeyCoefficientMap meanCovarianceParametricMatching;
@@ -458,7 +458,7 @@ public class Parameters {
 //	private static MultiKeyMap probSick;
 
     //MultivariateNormalDistribution of age and potential earnings differential to use in the parametric partnership process
-    public final static boolean MARRIAGE_MATCH_TO_MEANS = false;
+    public final static boolean PARTNERSHIP_MATCH_TO_MEANS = false;
     public static double targetMeanWageDifferential, targetMeanAgeDifferential;
     private static MultivariateNormalDistribution wageAndAgeDifferentialMultivariateNormalDistribution;
 
@@ -1001,7 +1001,7 @@ public class Parameters {
         startYear = startYearModel;
         endYear = endYearModel;
 
-        EUROMODpolicySchedule = calculateEUROMODpolicySchedule(country);
+        UKMODpolicySchedule = calculateUKMODpolicySchedule(country);
         taxDonorInputFileName = "population_" + country;
         populationInitialisationInputFileName = "population_initial_" + country;
         setCountryRegions(country);
@@ -1036,9 +1036,9 @@ public class Parameters {
         projectionsHighEdu = ExcelAssistant.loadCoefficientMap(ALIGNMENT_DIRECTORY + "align_educLevel.xlsx", "High", 1);
         projectionsLowEdu = ExcelAssistant.loadCoefficientMap(ALIGNMENT_DIRECTORY + "align_educLevel.xlsx", "Low", 1);
 
-        //Marriage types frequencies:
-        marriageTypesFrequency = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "marriageTypes2.xlsx", countryString, 2);
-        marriageTypesFrequencyByGenderAndRegion = new LinkedHashMap<Gender, MultiKeyMap<Region, Double>>();	//Create a map of maps to store the frequencies
+        //Partnership type frequencies
+        partnershipTypesFrequency = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "partnershipTypes2.xlsx", countryString, 2);
+        partnershipTypesFrequencyByGenderAndRegion = new LinkedHashMap<Gender, MultiKeyMap<Region, Double>>();	//Create a map of maps to store the frequencies
 
         //Mortality rates
         mortalityProbabilityByGenderAgeYear = ExcelAssistant.loadCoefficientMap(PROJECTIONS_DIRECTORY + "projections_mortality.xlsx", "MortalityByGenderAgeYear", 2);
@@ -2012,56 +2012,56 @@ public class Parameters {
         }
     }
 
-    public static TreeMap<Integer, String> calculateEUROMODpolicySchedule(Country country) {
+    public static TreeMap<Integer, String> calculateUKMODpolicySchedule(Country country) {
         //Load current values for policy description and initiation year
-        MultiKeyCoefficientMap currentEUROMODpolicySchedule;
+        MultiKeyCoefficientMap currentUKMODpolicySchedule;
 
         if (trainingFlag) {
-            File trainingSchedule = new File(EUROMOD_TRAINING_DIRECTORY + EUROMODpolicyScheduleFilename + ".xlsx");
-            File runSchedule = new File(EUROMOD_DIRECTORY + EUROMODpolicyScheduleFilename + ".xlsx");
+            File trainingSchedule = new File(UKMOD_TRAINING_DIRECTORY + UKMODpolicyScheduleFilename + ".xlsx");
+            File runSchedule = new File(UKMOD_DIRECTORY + UKMODpolicyScheduleFilename + ".xlsx");
             try {
                 FileUtils.copyFile(trainingSchedule, runSchedule);
             } catch (IOException e) {
-                System.err.println("Could not replace EUROMODoutput.xlsx from training data");
+                System.err.println("Could not replace UKMODoutput.xlsx from training data");
             }
         }
         
-        currentEUROMODpolicySchedule = ExcelAssistant.loadCoefficientMap(EUROMOD_DIRECTORY + EUROMODpolicyScheduleFilename + ".xlsx", country.toString(), 1, 3);
-        TreeMap<Integer, String> newEUROMODpolicySchedule = new TreeMap<>();
+        currentUKMODpolicySchedule = ExcelAssistant.loadCoefficientMap(UKMOD_DIRECTORY + UKMODpolicyScheduleFilename + ".xlsx", country.toString(), 1, 3);
+        TreeMap<Integer, String> newUKMODpolicySchedule = new TreeMap<>();
 
-        for (var k : currentEUROMODpolicySchedule.keySet()) {
+        for (var k : currentUKMODpolicySchedule.keySet()) {
             if(k.getKey(0) != null) {
                 String name = k.getKey(0).toString();
                 if(name != null &&
-                        currentEUROMODpolicySchedule.getValue(name, EUROMODpolicyScheduleHeadingScenarioYearBegins) != null &&
-                        currentEUROMODpolicySchedule.getValue(name, EUROMODpolicyScheduleHeadingScenarioSystemYear) != null) {
-                    String policyStartYearString = currentEUROMODpolicySchedule.getValue(name, EUROMODpolicyScheduleHeadingScenarioYearBegins).toString();
-                    String policySystemYearString = currentEUROMODpolicySchedule.getValue(name, EUROMODpolicyScheduleHeadingScenarioSystemYear).toString();
+                        currentUKMODpolicySchedule.getValue(name, UKMODpolicyScheduleHeadingScenarioYearBegins) != null &&
+                        currentUKMODpolicySchedule.getValue(name, UKMODpolicyScheduleHeadingScenarioSystemYear) != null) {
+                    String policyStartYearString = currentUKMODpolicySchedule.getValue(name, UKMODpolicyScheduleHeadingScenarioYearBegins).toString();
+                    String policySystemYearString = currentUKMODpolicySchedule.getValue(name, UKMODpolicyScheduleHeadingScenarioSystemYear).toString();
                     if(policyStartYearString != null && !policyStartYearString.isEmpty()) {
                         Integer policyStartYear = Integer.parseInt(policyStartYearString);
                         Integer policySystemYear = Integer.parseInt(policySystemYearString);
-                        if(newEUROMODpolicySchedule.containsKey(policyStartYear)) {
-                            throw new IllegalArgumentException("ERROR - there is more than one EUROMOD policy scenario with the same policy start year of " + policyStartYear + "!");
+                        if(newUKMODpolicySchedule.containsKey(policyStartYear)) {
+                            throw new IllegalArgumentException("ERROR - there is more than one UKMOD policy scenario with the same policy start year of " + policyStartYear + "!");
                         }
-                        newEUROMODpolicySchedule.put(policyStartYear, name.split(".txt")[0]);
+                        newUKMODpolicySchedule.put(policyStartYear, name.split(".txt")[0]);
 
                         if (policySystemYearString == null) {
-                            throw new IllegalArgumentException("ERROR - there is at least one EUROMOD policy scenario (" + name + ") with policy start year but no policy system year!");
+                            throw new IllegalArgumentException("ERROR - there is at least one UKMOD policy scenario (" + name + ") with policy start year but no policy system year!");
                         } else {
                             Pair<String, Integer> policyNameSystemYearPair = new Pair<>(name.split(".txt")[0], policySystemYear);
-                            EUROMODpolicyScheduleSystemYearMap.put(policyStartYear, policyNameSystemYearPair);
+                            UKMODpolicyScheduleSystemYearMap.put(policyStartYear, policyNameSystemYearPair);
                         }
                     }
                 }
             }
         }
-        if(newEUROMODpolicySchedule.isEmpty())
-            throw new IllegalArgumentException("ERROR - there are no EUROMOD policies with valid \'" + EUROMODpolicyScheduleHeadingScenarioYearBegins + "\' values specified in worksheet \'" + country + "\' of the " + EUROMODpolicyScheduleFilename + ".xlsx file");
+        if(newUKMODpolicySchedule.isEmpty())
+            throw new IllegalArgumentException("ERROR - there are no UKMOD policies with valid \'" + UKMODpolicyScheduleHeadingScenarioYearBegins + "\' values specified in worksheet \'" + country + "\' of the " + UKMODpolicyScheduleFilename + ".xlsx file");
 
-        // validate EUROMOD input years
+        // validate UKMOD input years
         boolean flagMissingBasePriceYear = true;
-        for (int fromYear : EUROMODpolicyScheduleSystemYearMap.keySet()) {
-            int systemYear = EUROMODpolicyScheduleSystemYearMap.get(fromYear).getValue();
+        for (int fromYear : UKMODpolicyScheduleSystemYearMap.keySet()) {
+            int systemYear = UKMODpolicyScheduleSystemYearMap.get(fromYear).getValue();
             if (systemYear == BASE_PRICE_YEAR) {
                 flagMissingBasePriceYear = false;
                 break;
@@ -2070,13 +2070,13 @@ public class Parameters {
         if (flagMissingBasePriceYear)
             throw new RuntimeException("Must include a tax database generated for the base price year assumed for analysis (" + BASE_PRICE_YEAR + ")");
 
-        return newEUROMODpolicySchedule;
+        return newUKMODpolicySchedule;
     }
 
-    public static String getEUROMODpolicyForThisYear(int year, Map<Integer, String> scenarioPlan) {
+    public static String getUKMODpolicyForThisYear(int year, Map<Integer, String> scenarioPlan) {
         String policyName;
         policyName = scenarioPlan.get(year);
-        if(policyName == null) {	//Then, no EUROMOD policy begins in that year.  Instead, must apply the prevailing policy.
+        if(policyName == null) {	//Then, no UKMOD policy begins in that year.  Instead, must apply the prevailing policy.
             for(Integer policyStartYear: scenarioPlan.keySet()) {	//Should iterate in order of increasing value of integer
                 if(policyStartYear <= year) {		//In case the start year of the whole simulation is later than the first entry, assign but iterate again and check the following year.  Stop when the policyStartYear is greater than the year
                     policyName = scenarioPlan.get(policyStartYear);
@@ -2099,7 +2099,7 @@ public class Parameters {
         }
     }
 
-    //Benefit Unit ID is different in different countries of EUROMOD. This method creates a map with name of the country and name of the benefit unit variable. It is used to create input database in the
+    //Benefit Unit ID is different in different countries of UKMOD. This method creates a map with name of the country and name of the benefit unit variable. It is used to create input database in the
     //SQLdataParser class.
     public static LinkedHashMap<Country, String> countryBenefitUnitNames = new LinkedHashMap<>();
 
@@ -2391,15 +2391,15 @@ public class Parameters {
         }
     }
 
-    public static String getEuromodOutputDirectory() {
+    public static String getUKMODOutputDirectory() {
         if (TESTING_FLAG)
-            return EUROMOD_OUTPUT_DIRECTORY;
+            return UKMOD_OUTPUT_DIRECTORY;
         else
-            return (trainingFlag) ? EUROMOD_TRAINING_DIRECTORY : EUROMOD_OUTPUT_DIRECTORY;
+            return (trainingFlag) ? UKMOD_TRAINING_DIRECTORY : UKMOD_OUTPUT_DIRECTORY;
     }
 
-    public static String getEUROMODpolicyForThisYear(int year) {
-        return getEUROMODpolicyForThisYear(year, EUROMODpolicySchedule);
+    public static String getUKMODpolicyForThisYear(int year) {
+        return getUKMODpolicyForThisYear(year, UKMODpolicySchedule);
     }
 
     /*
@@ -2413,8 +2413,8 @@ public class Parameters {
     }
     */
 
-    public static MultiKeyCoefficientMap getMarriageTypesFrequency() {
-        return marriageTypesFrequency;
+    public static MultiKeyCoefficientMap getPartnershipTypesFrequency() {
+        return partnershipTypesFrequency;
     }
 
     public static MultiKeyCoefficientMap getCoeffCovarianceHealthH1() { return coeffCovarianceHealthH1; }
@@ -3680,12 +3680,12 @@ public class Parameters {
     private static void updateInputSubdirectories() {
         INPUT_DIRECTORY_INITIAL_POPULATIONS = INPUT_DIRECTORY + "InitialPopulations" + File.separator;
         ALIGNMENT_DIRECTORY = INPUT_DIRECTORY + "alignment_files" + File.separator;
-        EUROMOD_DIRECTORY = INPUT_DIRECTORY + "EUROMOD" + File.separator;
-        EUROMOD_OUTPUT_DIRECTORY = EUROMOD_DIRECTORY + "EUROMODoutput" + File.separator;
+        UKMOD_DIRECTORY = INPUT_DIRECTORY + "UKMOD" + File.separator;
+        UKMOD_OUTPUT_DIRECTORY = UKMOD_DIRECTORY + "UKMODoutput" + File.separator;
         PROJECTIONS_DIRECTORY = INPUT_DIRECTORY + "projections" + File.separator;
         REGRESSION_DIRECTORY = INPUT_DIRECTORY + "regression_files" + File.separator;
         SCENARIO_DIRECTORY = INPUT_DIRECTORY + "scenario" + File.separator;
-        EUROMOD_TRAINING_DIRECTORY = EUROMOD_OUTPUT_DIRECTORY + "training" + File.separator;
+        UKMOD_TRAINING_DIRECTORY = UKMOD_OUTPUT_DIRECTORY + "training" + File.separator;
     }
 
     public static void setWorkingDirectory(String workingDirectory) {
@@ -3712,14 +3712,14 @@ public class Parameters {
         }
     }
 
-    public static void setEuromodOutputDirectory(String euromodOutputDirectory) {
-        File inputPath = new File(euromodOutputDirectory);
+    public static void setUKMODOutputDirectory(String ukmodOutputDirectory) {
+        File inputPath = new File(ukmodOutputDirectory);
         if (inputPath.isAbsolute()){
-            EUROMOD_OUTPUT_DIRECTORY = euromodOutputDirectory + File.separator;
+            UKMOD_OUTPUT_DIRECTORY = ukmodOutputDirectory + File.separator;
         } else {
-            EUROMOD_OUTPUT_DIRECTORY = WORKING_DIRECTORY + File.separator + euromodOutputDirectory + File.separator;
+            UKMOD_OUTPUT_DIRECTORY = WORKING_DIRECTORY + File.separator + ukmodOutputDirectory + File.separator;
         }
-        EUROMOD_TRAINING_DIRECTORY = EUROMOD_OUTPUT_DIRECTORY + "training" + File.separator;
+        UKMOD_TRAINING_DIRECTORY = UKMOD_OUTPUT_DIRECTORY + "training" + File.separator;
     }
 
     public static void validateRegressors(MultiKeyCoefficientMap map, String excelFileName, String sheetName) {

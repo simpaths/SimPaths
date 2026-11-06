@@ -271,10 +271,10 @@ foreach file in "${dir_was_data}/was_round_5_person_eul_oct_2020.dta" ///
 		replace dup=0 if partno==17				// partno=17 if no partner in household
 		tab dup
 		sort case person
-		gen mari = inlist(dvmrdf,1,2,8)		/* Married/cohabiting/couple */
-		label var mari "Married/cohabiting/in couple"
-		/* Person 2's spouse is person 1 if the two are married, in the same HH, and person 1's spouse is person 2 */
-		replace partno=1 if partno==2 & person==2 & person[_n-1]==1 & partno[_n-1]==2 & mari==1 & case==case[_n-1]
+		gen partnered = inlist(dvmrdf,1,2,8)		/* Married/cohabiting/couple categories */
+		label var partnered "In a partnership"
+		/* Person 2's partner is person 1 if they are in the same HH and person 1's partner is person 2 */
+		replace partno=1 if partno==2 & person==2 & person[_n-1]==1 & partno[_n-1]==2 & partnered==1 & case==case[_n-1]
 		drop dup
 		duplicates tag case partno, gen(dup)
 		replace dup=0 if partno==17

@@ -6,7 +6,7 @@ public enum Region implements IntegerValuedEnum {
 	
 	//Uses NUTS Level 1 system for each country
 	
-	//UK									//Name							//EUROMOD drgn1 value
+	//UK									//Name							//UKMOD drgn1 value
 	UKC("North East", 1),					//North East					//1
 	UKD("North West", 2),					//North West					//2
 	UKE("Yorkshire and the Humber", 4),	//Yorkshire and the Humber		//4		//Note, there is no 3 in the definition!
@@ -20,7 +20,7 @@ public enum Region implements IntegerValuedEnum {
 	UKM("Scotland", 12),					//Scotland						//12
 	UKN("Northern Ireland", 13);			//Northern Ireland				//13?
 //	UKmissing,		//Included by Ambra in estimates where people lacked regional information.  For the input we use in our simulations, everyone has a region, so there is no need to include the UKmissing region here (in fact, if we did, we would have to check for UKmissing when looping through regions so as not to include it in the method to prevent null pointer exceptions). 
-//	See https://www.iser.essex.ac.uk/files/euromod/country-reports/CR_UK2006-11_final_13-12-11.pdf, table on pg 59 for EUROMOD variable drgn1 definition for UK:
+//	See https://www.iser.essex.ac.uk/files/euromod/country-reports/CR_UK2006-11_final_13-12-11.pdf, table on pg 59 for UKMOD variable drgn1 definition for UK:
 		
 	
 //	//Uses NUTS Level 1 codes for each country
@@ -47,10 +47,10 @@ public enum Region implements IntegerValuedEnum {
 	private final String name;
 	private final int value;
 
-    Region(String name, int drgn1EUROMODvariable)
+    Region(String name, int drgn1UKMODvariable)
     {
         this.name = name;
-        this.value = drgn1EUROMODvariable;
+        this.value = drgn1UKMODvariable;
     }
 
     public String getName() {

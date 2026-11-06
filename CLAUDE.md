@@ -76,7 +76,7 @@ All three are JPA `@Entity` classes persisted via Hibernate/H2. Each carries a `
 
 ### Tax-benefit imputation (`model/taxes/`)
 
-Tax and benefit outcomes are not calculated analytically. Instead, the model uses **statistical matching**: simulated households are matched to a pre-built donor database derived from EUROMOD/UKMOD output. `TaxDonorDataParser` builds this database; `DonorTaxImputation` performs the matching using a nearest-neighbour key function (`KeyFunction1`–`KeyFunction4`).
+Tax and benefit outcomes are not calculated analytically. Instead, the model uses **statistical matching**: simulated households are matched to a pre-built donor database derived from UKMOD output. `TaxDonorDataParser` builds this database; `DonorTaxImputation` performs the matching using a nearest-neighbour key function (`KeyFunction1`–`KeyFunction4`).
 
 ### Intertemporal optimisation (`model/decisions/`)
 
@@ -97,7 +97,7 @@ Runs are configured via YAML files in `config/`. `default.yml` documents all ava
 ### Output
 
 Output is written to `output/<run-timestamp>/csv/` by `SimPathsCollector`. Key files:
-- `WealthIncomeStatistics.csv` — income and wealth (Gini, percentiles, S-Index, plus income and wealth by age band)
+- `WealthIncomeStatistics.csv` — income and wealth (Gini, percentiles, plus income and wealth by age band)
 - `DemographicStatistics.csv` — demographics by age band (partnership, dependent children, population counts)
 - `HealthStatistics.csv` — population health by age band (self-rated health, disability shares)
 - `LabourStatistics.csv` — labour market transitions, participation, full-time/part-time shares by age band
@@ -123,3 +123,12 @@ Tax donor matching therefore requires a two-step price bridge:
 2. Deflate the imputed financial values from the matched donor record back to 2015 prices.
 
 The default uprating series is `TimeSeriesVariable.Inflation`, sourced from the `inflation` worksheet in `input/economic_time_series.xlsx`. An alternative option (added 2026-04) allows wage growth to be used instead of price growth for the initial matching step, controlled via a config flag.
+### Lagged benefit-unit income quintile
+
+`Person.yHhQuintilesMonthC5L1` is stored on the person, captured in `Person.Update` (before demographic events change benefit-unit membership). It therefore describes the unit the person belonged to in the previous period, not their current unit. When a person has no history (newborns, immigrants), the getter falls back to the current unit's lag, then to Q3 (the default for new units), rather than silently using the Q1 reference category.
+
+Whether the education equations (E1a/E1b) should use parental rather than own-unit income is a separate, unresolved specification question (issue #543); it needs consistent re-estimation and Java changes.
+
+### Equivalence scale
+
+`BenefitUnit.getEquivalisedWeight()` and `Household.getEquivalisedDisposableIncomeYearly()` must both use the OECD scale: 1.0 for the first adult, 0.5 for each further person aged 14+, 0.3 per child under 14 (issue #541).

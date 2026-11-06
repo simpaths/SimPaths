@@ -40,14 +40,6 @@ model_args:
   # --- Random number controls ---
 #    fixRandomSeed: true                      # if true, each run uses the same fixed seed (randomSeedIfFixed)
 
-  # --- Income security (S-Index) ---
-  # The S-Index is an economic (in)security index computed from a rolling window of
-  # equivalised consumption, discounted and weighted by a risk-aversion parameter.
-  # SIndex_p50 is reported in WealthIncomeStatistics.csv each year.
-#    sIndexTimeWindow: 5      # length of rolling window in years (default 5)
-#    sIndexAlpha: 2           # coefficient of relative risk aversion (higher = more sensitivity to drops)
-#    sIndexDelta: 0.98        # annual discount factor applied to past consumption observations
-
   # --- Savings ---
 #    savingRate: 0.056        # fraction of equivalised disposable income saved (used when IO is disabled);
                               # default is OECD average UK household saving rate 2000–2019
@@ -188,7 +180,7 @@ innovation_args:
 #
 # Output files (one row per year unless noted):
 #   WealthIncomeStatistics.csv — income and wealth: Gini coefficients, income percentiles,
-#                        median EDI, S-Index, and income/wealth by age band (18-29, 30-54, 55-74)
+#                        median EDI and income/wealth by age band (18-29, 30-54, 55-74)
 #   DemographicStatistics.csv  — demographics by age band: partnership rates, dependent children,
 #                        population counts
 #   HealthStatistics.csv       — population health by age band: self-rated health and disability shares
@@ -220,10 +212,10 @@ collector_args:
 parameter_args:
 #  input_directory: input                                         # path to input data folder
 #  input_directory_initial_populations: input/InitialPopulations  # path to initial population CSVs
-#  euromod_output_directory: input/EUROMOD/EUROMODoutput          # path to EUROMOD/UKMOD output files
+#  ukmod_output_directory: input/UKMOD/UKMODoutput    # path to UKMOD output files
 #  trainingFlag: false      # if true, use training data from input/…/training/ subfolders
                             # (set automatically by test configs; do not set for research runs)
-#  includeYears:            # list of policy years for which EUROMOD donor data is available;
+#  includeYears:            # list of policy years for which UKMOD donor data is available;
                             # only these years will be included in the donor database
 #    - 2011
 #    - 2012

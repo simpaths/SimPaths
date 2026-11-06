@@ -613,7 +613,6 @@ These methods are direct setters/getters in statistics output classes. Java meth
 | `Statistics` | `getYdses_p40()` / `setYdses_p40(...)` | `getYHhQuintilesC5P40()` / `setYHhQuintilesC5P40(...)` |
 | `Statistics` | `getYdses_p60()` / `setYdses_p60(...)` | `getYHhQuintilesC5P60()` / `setYHhQuintilesC5P60(...)` |
 | `Statistics` | `getYdses_p80()` / `setYdses_p80(...)` | `getYHhQuintilesC5P80()` / `setYHhQuintilesC5P80(...)` |
-| `Statistics` | `getsIndex_p50()` / `setsIndex_p50(...)` | `getSIndex_p50()` / `setSIndex_p50(...)` |
 | `Statistics` | `getGrossLabourIncome_p20()` / `setGrossLabourIncome_p20(...)` | `getYLabP20()` / `setYLabP20(...)` |
 | `Statistics` | `getGrossLabourIncome_p40()` / `setGrossLabourIncome_p40(...)` | `getYLabP40()` / `setYLabP40(...)` |
 | `Statistics` | `getGrossLabourIncome_p60()` / `setGrossLabourIncome_p60(...)` | `getYLabP60()` / `setYLabP60(...)` |
