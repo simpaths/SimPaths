@@ -33,18 +33,18 @@ import org.jetbrains.annotations.NotNull;
 import simpaths.data.*;
 import simpaths.data.startingpop.Processed;
 import simpaths.experiment.SimPathsCollector;
+import simpaths.model.benefitunit.WealthModule;
 import simpaths.model.decisions.DecisionParams;
 import simpaths.model.decisions.ManagerPopulateGrids;
 import simpaths.model.enums.*;
-import simpaths.model.lifetime_incomes.BirthCohort;
-import simpaths.model.lifetime_incomes.Individual;
-import simpaths.model.lifetime_incomes.LifetimeIncomeImputation;
-import simpaths.model.lifetime_incomes.ManagerProjectLifetimeIncomes;
+import simpaths.model.lifetime_incomes.ManagerLifetimeIncomes;
+import simpaths.model.lifetime_incomes.TemplateIndividual;
 import simpaths.model.taxes.*;
 import simpaths.model.taxes.database.DatabaseExtension;
 import simpaths.model.taxes.database.TaxDonorDataParser;
 
 import java.io.*;
+import java.nio.file.Path;
 import java.sql.*;
 import java.time.Duration;
 import java.time.Instant;
@@ -131,15 +131,6 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     @GUIparameter(description = "If random seed is fixed, set to this number")
     private Long randomSeedIfFixed = 606L;
 
-    @GUIparameter(description = "Time window in years for (in)security index calculation")
-    private Integer sIndexTimeWindow = 5;
-
-    @GUIparameter(description = "Value of risk aversion parameter (alpha)")
-    private Double sIndexAlpha = 2.;
-
-    @GUIparameter(description = "Value of discount factor (delta)")
-    private Double sIndexDelta = 0.98;
-
     //The data comes from here: https://data.oecd.org/hha/household-savings.htm
     @GUIparameter(description = "Value of saving rate (s). The default value is based on average % of household disposable income saved between 2000 - 2019 reported by the OECD")
     private Double savingRate = 0.056;
@@ -149,7 +140,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     private double disposableIncomeFromLabourInnov = 0.0;		// used to explore behavioural sensitivity to disposable income (Marshallian labour supply elasticity)
 
 //	@GUIparameter(description = "Force recreation of input database based on the data provided by the population_[country].csv file")
-//	private boolean refreshInputDatabase = false;		//Tables can be constructed in GUI dialog in launch, before JAS-mine GUI appears.  However, if skipping that, and manually altering the EUROMODpolicySchedule.xlsx file, this will need to be set to true to build new input database before simulation is run (though the new input database will only be viewable in the output/input/input.h2.db file).
+//	private boolean refreshInputDatabase = false;		//Tables can be constructed in GUI dialog in launch, before JAS-mine GUI appears.  However, if skipping that, and manually altering the UKMODpolicySchedule.xlsx file, this will need to be set to true to build new input database before simulation is run (though the new input database will only be viewable in the output/input/input.h2.db file).
 
 //	@GUIparameter(description = "If true, set initial earnings from data in input population, otherwise, set using the wage equation regression estimates")
     private boolean initialisePotentialEarningsFromDatabase = true;
@@ -158,6 +149,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     private boolean useWeights = false;
 
     private boolean ignoreTargetsAtPopulationLoad = false;
+    private final WealthModule wealthModule = new WealthModule();
 
     @GUIparameter(description = "If unchecked, will use the standard matching method")
 //	private boolean useSBAMMatching = false;
@@ -168,9 +160,20 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
     private boolean alignPopulation = true; //TODO: routine fails to replicate results for minor variations between simulations
 
+    private final InheritanceModule inheritanceModule = new InheritanceModule();
+    private int bequestSyntheticRecipientCount = 2;
+    private Path inheritanceOutputDirectory;
+    private final Map<Long, List<Person>> inheritanceClonesBySourceId = new HashMap<>();
+    private final List<PendingParentLink> pendingInheritanceParentLinks = new ArrayList<>();
+    private long validImmigrantParentReferences = 0;
+    private long unresolvedImmigrantParentReferences = 0;
+
+    private record PendingParentLink(Person child, long sourceChildId, Long sourceMotherId,
+                                     Long sourceFatherId, SampleEntry entry) { }
+
     //	@GUIparameter(description = "If checked, will align fertility")
     private boolean alignFertility = false;
-    private static final int FERTILITY_ALIGNMENT_END_YEAR = 2040;
+    private int FERTILITY_ALIGNMENT_END_YEAR = 2040;
     private Double lastFertilityAdjustment = null;
 
     private boolean alignEducation = false; //Set to true to align level of education
@@ -180,7 +183,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     private Double lastInSchoolAdjustment = null;
 
     private boolean alignCohabitation = true; //Set to true to align share of couples (cohabiting individuals)
-    private static final int PARTNERSHIP_ALIGNMENT_END_YEAR = 2023;
+    private int PARTNERSHIP_ALIGNMENT_END_YEAR = 2023;
     private Double lastPartnershipAdjustment = null;
 
     private boolean alignEmployment = false; //Set to true to align employment share
@@ -211,11 +214,11 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
     private Set<Person> persons;
 
-    //For marriage matching - types based on region and gender:
-    //private Map<Gender, LinkedHashMap<Region, Double>> marriageTargetsGenderRegion;
-    private MultiKeyMap<Object, Double> marriageTargetsByGenderAndRegion;
+    //For partnership matching - types based on region and gender:
+    //private Map<Gender, LinkedHashMap<Region, Double>> partnershipTargetsGenderRegion;
+    private MultiKeyMap<Object, Double> partnershipTargetsByGenderAndRegion;
 
-    private LinkedHashMap<String, Double>  marriageTargetsByKey;
+    private LinkedHashMap<String, Double>  partnershipTargetsByKey;
 
     private long elapsedTime0;
 
@@ -268,15 +271,13 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     @GUIparameter(description = "tick to enable intertemporal optimised consumption and labour decisions")
     private boolean enableIntertemporalOptimisations = false;
 
-    private boolean lifetimeIncomeGenerate = false;    // request to generate new set of lifetime incomes
-    private Integer lifetimeIncomeStartBirthYear;
-    private Integer lifetimeIncomeEndBirthYear;
-    private Integer lifetimeIncomeEndAge;
-    private Integer lifetimeIncomeCohortSize = 10000;
-    private boolean lifetimeIncomeWriteToCSV = false;
+    private boolean lifetimeIncomeImpute = false;      // request to generate new set of lifetime incomes
+    private Integer lifetimeIncomeCapAge = 80;
+    private Integer lifetimeIncomeEndAge = 120;
+    private Integer lifetimeIncomeCohortSize = 500000;
+    private boolean lifetimeIncomeWriteToCSV = true;
     private long lifetimeIncomeRandomSeed = 505;
-    private double lifetimeIncomeAge0StdDev = 0.9;
-    private boolean lifetimeIncomeImpute = false;       // request to impute lifetime income data for population at load
+    List<TemplateIndividual> lifetimeIncomeTemplates = new ArrayList<>();
 
     @GUIparameter(description = "tick to use behavioural solutions saved by a previous simulation")
     private boolean useSavedBehaviour = false;
@@ -370,11 +371,14 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
 
         // time check
+        String outputPath = "./output/" + getEngine().getCurrentExperiment().runId;
         elapsedTime0 = System.currentTimeMillis();
         timerStartSim = elapsedTime0;
 
         // set seed for random number generator
         if (fixRandomSeed) SimulationEngine.getRnd().setSeed(randomSeedIfFixed);
+        inheritanceModule.setSeed(Objects.requireNonNullElse(randomSeedIfFixed, 606L));
+        inheritanceModule.setSyntheticRecipientCount(bequestSyntheticRecipientCount);
         cohabitInnov = new Random(SimulationEngine.getRnd().nextLong());
         initialiseInnov1 = new Random(SimulationEngine.getRnd().nextLong());
         initialiseInnov2 = new Random(SimulationEngine.getRnd().nextLong());
@@ -386,10 +390,12 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                 projectSocialCare, donorPoolAveraging, taxDonorUpratingByWage, fixTimeTrend, flagDefaultToTimeSeriesAverages,
                 saveImperfectTaxDBMatches, timeTrendStopsIn, startYear, endYear, interestRateInnov,
                 disposableIncomeFromLabourInnov, flagSuppressChildcareCosts, flagSuppressSocialCareCosts, lifetimeIncomeImpute);
-        if (lifetimeIncomeGenerate) {
-            ManagerProjectLifetimeIncomes.run(log, lifetimeIncomeStartBirthYear,
-                    lifetimeIncomeEndBirthYear, lifetimeIncomeEndAge, lifetimeIncomeCohortSize, lifetimeIncomeWriteToCSV,
-                    lifetimeIncomeRandomSeed, lifetimeIncomeAge0StdDev);
+        if (lifetimeIncomeImpute) {
+            ManagerLifetimeIncomes.generateNormalisedProfiles(log, lifetimeIncomeCapAge, lifetimeIncomeEndAge, lifetimeIncomeCohortSize, lifetimeIncomeTemplates,
+                    lifetimeIncomeWriteToCSV, lifetimeIncomeRandomSeed, outputPath);
+            boolean projectSample = true;
+            if (projectSample)
+                ManagerLifetimeIncomes.imputeProfiles2(log, lifetimeIncomeCapAge, lifetimeIncomeRandomSeed, lifetimeIncomeTemplates, lifetimeIncomeWriteToCSV, outputPath);
         }
         if (enableIntertemporalOptimisations) {
 
@@ -397,7 +403,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             DecisionParams.loadParameters(employmentOptionsOfPrincipalWorker, employmentOptionsOfSecondaryWorker,
                     responsesToHealth, minAgeForPoorHealth, responsesToDisability, responsesToRegion, responsesToEducation,
                     responsesToPension, responsesToLowWageOffer, responsesToRetirement, saveBehaviour,
-                    readGrid, getEngine().getCurrentExperiment().getOutputFolder(), startYear, endYear);
+                    readGrid, outputPath, startYear, endYear);
             //DecisionTests.compareGrids();
             //DatabaseExtension.extendInputData();
         }
@@ -405,6 +411,10 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         System.out.println("Time to load parameters: " + (elapsedTime1 - elapsedTime0)/1000. + " seconds.");
 
         RunDatabasePath = DatabaseUtils.databaseInputUrl;
+        // MultiRun uses a seed-suffixed run directory for CSV exports, while
+        // the engine experiment's runId points to its parent directory.
+        inheritanceOutputDirectory = Path.of(RunDatabasePath).toAbsolutePath().normalize()
+                .getParent().getParent().resolve("csv");
 
         if (null == PersistDatabasePath) setPersistDatabasePath(RunDatabasePath);
 
@@ -427,7 +437,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
         // set start year for simulation
         year = startYear;
-        // EUROMODpolicyNameForThisYear = Parameters.getEUROMODpolicyForThisYear(year);
+        // UKMODpolicyNameForThisYear = Parameters.getUKMODpolicyForThisYear(year);
 
         //Display current country and start year in the console
         System.out.println("Country: " + country + ". Running simulation from: " + startYear + " to " + endYear);
@@ -439,8 +449,8 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         System.out.println("Time to create initial population structures: " + (elapsedTime1 - elapsedTime0)/1000. + " seconds.");
         elapsedTime0 = elapsedTime1;
 
-        // initialise variables used to match marriage unions
-        createDataStructuresForMarriageMatching();
+        // initialise variables used to match partnerships
+        createDataStructuresForPartnershipMatching();
 
         // earnings potential
         labourMarket = new LabourMarket(benefitUnits);
@@ -512,6 +522,9 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         yearlySchedule.addCollectionEvent(persons, Person.Processes.Update);
 
         yearlySchedule.addCollectionEvent(persons, Person.Processes.Aging);
+        // Ageing also creates the new adult's benefit unit. Release their
+        // deferred inheritance before this year's economic decisions.
+        addEventToAllYears(Processes.ReleaseMatureTrusts);
 
         // Health Alignment - redrawing alignment used adjust state of individuals to projections by Gender and Age
         //Turned off for now as health determined below based on individual characteristics
@@ -519,7 +532,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         //yearlySchedule.addEvent(this, Processes.CheckForEmptyHouseholds);
 
         // Check whether persons have reached retirement Age
-        yearlySchedule.addCollectionEvent(persons, Person.Processes.ConsiderRetirement, false);
+        yearlySchedule.addCollectionEvent(persons, Person.Processes.Retirement, false);
 
         // EDUCATION MODULE
         // In School alignment — runs before InSchool decisions so the solved adjustment applies in the same year
@@ -549,7 +562,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 //        yearlySchedule.addCollectionEvent(persons, Person.Processes.HealthMCS1);
 //        yearlySchedule.addCollectionEvent(persons, Person.Processes.HealthPCS1);
 //        yearlySchedule.addCollectionEvent(persons, Person.Processes.LifeSatisfaction1);
-        // HOUSEHOLD COMPOSITION MODULE: Decide whether to enter into a union (marry / cohabit), and then perform union matching (marriage) between a male and female
+        // HOUSEHOLD COMPOSITION MODULE: Decide whether to form a partnership, and then match partners
 
         // Update potential earnings so that as up to date as possible to decide partner in union matching.
         yearlySchedule.addCollectionEvent(persons, Person.Processes.UpdatePotentialHourlyEarnings);
@@ -570,6 +583,9 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         yearlySchedule.addCollectionEvent(persons, Person.Processes.GiveBirth, false);        //Cannot use read-only collection schedule as newborn children cause concurrent modification exception.  Need to specify false in last argument of Collection event.
         addCollectionEventToAllYears(benefitUnits, BenefitUnit.Processes.UpdateDemographics);
 
+        // Homeownership status - influenced by benefit unit demographics
+        yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.Homeownership);
+
         // TIME USE MODULE
         // Social care
         if (projectSocialCare) {
@@ -585,15 +601,34 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         if (enableIntertemporalOptimisations)
             yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.UpdateStates, false);
 
-        yearlySchedule.addEvent(this, Processes.LabourMarketAndIncomeUpdate);
+        yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.UpdateInvestmentIncome);
+        yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.UpdatePrivatePensionIncome);  // initialises privatePension for pensioners, including transition for new pensioners
+        yearlySchedule.addEvent(this, Processes.LabourMarketUpdate);    // pension contributions for workers not yet pensioners
 
         // Assign benefit status to individuals in benefit units, from donors. Based on donor tax unit status.
         yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.ReceivesBenefits);
 
+        // Accumulate pension wealth stocks after final income is settled.
+        if (Parameters.projectPensionWealth) {
+
+            yearlySchedule.addCollectionEvent(persons, Person.Processes.UpdatePensionWealth);
+            yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.UpdatePensionWealth);
+        }
+
         // CONSUMPTION AND SAVINGS MODULE
-        if (enableIntertemporalOptimisations)
-            yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.ProjectDiscretionaryConsumption);
+        yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.ProjectDiscretionaryConsumption);
         yearlySchedule.addCollectionEvent(persons, Person.Processes.ProjectEquivConsumption);
+        if (Parameters.projectNonPensionWealth) {
+
+            yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.UpdateNonPensionWealth);
+            yearlySchedule.addEvent(this, Processes.AssignMortgageIncomeQuintiles);
+            yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.UpdateHousingWealth);
+            yearlySchedule.addEvent(this, Processes.AssignFinancialWealthRanks);
+            yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.UpdateUnsecuredDebt);
+            yearlySchedule.addCollectionEvent(persons, Person.Processes.UpdateNonPensionWealth);
+        }
+        yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.UpdateTotalWealth);
+
 
         // equivalised disposable income
         yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.CalculateChangeInEDI);
@@ -623,6 +658,8 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         // mortality (migration) and population alignment at year's end
         addCollectionEventToAllYears(persons, Person.Processes.ConsiderMortality);
         addEventToAllYears(Processes.PopulationAlignment); // start population alignment in year 0 (startYear)
+        addEventToAllYears(Processes.SettleInheritance);
+        addCollectionEventToAllYears(benefitUnits, BenefitUnit.Processes.UpdateDemographics);
         // yearlySchedule.addEvent(this, Processes.PopulationAlignment);
 
         // END OF YEAR PROCESSES
@@ -706,10 +743,6 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             pw.println(line);
             line = "randomSeedIfFixed: " + randomSeedIfFixed;
             pw.println(line);
-            line = "sIndexAlpha: " + sIndexAlpha;
-            pw.println(line);
-            line = "sIndexDelta: " + sIndexDelta;
-            pw.println(line);
             line = "savingRate: " + savingRate;
             pw.println(line);
             line = "addRegressionStochasticComponent: " + addRegressionStochasticComponent;
@@ -734,9 +767,17 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             pw.println(line);
             line = "useWeights: " + useWeights;
             pw.println(line);
+            wealthModule.writeRunParameters(pw);
             line = "projectMortality: " + projectMortality;
             pw.println(line);
             line = "alignPopulation: " + alignPopulation;
+            pw.println(line);
+            line = "bequestRule: pooled_last_adult";
+            pw.println(line);
+            line = "bequestSyntheticRecipientCount: " +
+                    inheritanceModule.getSyntheticRecipientCount();
+            pw.println(line);
+            line = "pensionInheritanceRule: remaining_modelled_pot_before_retirement";
             pw.println(line);
             line = "alignFertility: " + alignFertility;
             pw.println(line);
@@ -802,13 +843,17 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     public enum Processes {
 
         StartYear,
+        ReleaseMatureTrusts,
         EndYear,
         UnionMatching,
-        LabourMarketAndIncomeUpdate,
+        LabourMarketUpdate,
+        AssignMortgageIncomeQuintiles,
+        AssignFinancialWealthRanks,
 
         //Alignment Processes
         FertilityAlignment,
         PopulationAlignment,
+        SettleInheritance,
         CohabitationAlignment,
         // HealthAlignment,
         InSchoolAlignment,
@@ -842,6 +887,12 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                 if (commentsOn) log.info("Finished year " + year + " (in " + timerForYear + " seconds)");
                 elapsedTime0 = elapsedTime1;
             }
+            case AssignFinancialWealthRanks -> {
+                assignFinancialWealthRanks();
+            }
+            case AssignMortgageIncomeQuintiles -> {
+                wealthModule.assignMortgageIncomeQuintiles(benefitUnits);
+            }
             case PopulationAlignment -> {
 
                 if (alignPopulation) {
@@ -859,6 +910,11 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                         if (commentsOn) log.info("Population alignment skipped as simulated year exceeds period covered by population projections.");
                     }
                 }
+            }
+            case ReleaseMatureTrusts -> inheritanceModule.releaseMatureTrusts(year, persons);
+            case SettleInheritance -> {
+                markOrphanExits(benefitUnits);
+                inheritanceModule.settleYear(year, persons, benefitUnits);
             }
             case CohabitationAlignment -> {
 
@@ -905,7 +961,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                     System.out.println("Education levels will be aligned.");
                 }
             }
-            case LabourMarketAndIncomeUpdate -> {
+            case LabourMarketUpdate -> {
 
                 labourMarket.update(year);
                 if (commentsOn) log.info("Labour market update complete.");
@@ -943,6 +999,13 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             }
             case CleanUp -> {
 
+                try {
+                    inheritanceModule.updateImmigrantLinkAudit(
+                            validImmigrantParentReferences, unresolvedImmigrantParentReferences);
+                    inheritanceModule.writeLedger(inheritanceOutputDirectory);
+                } catch (IOException exception) {
+                    throw new RuntimeException("Failed to save inheritance transfer ledger", exception);
+                }
                 if (Parameters.saveImperfectTaxDBMatches)
                     DatabaseExtension.extendInputData(getEngine().getCurrentExperiment().getOutputFolder());
             }
@@ -959,6 +1022,55 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
      *
      */
 
+    private void assignFinancialWealthRanks() {
+
+        benefitUnits.forEach(BenefitUnit :: updateNetFinancialAssetsValue);
+        Map<BenefitUnit, Integer> wealthRanks = WeightedQuantileRanks.assign(
+                benefitUnits,
+                BenefitUnit::getNetFinancialWealthForRanking,
+                BenefitUnit::getWeight,
+                10);
+        wealthRanks.forEach(BenefitUnit::setNetFinancialWealthDecile);
+
+        Map<IncomeRankGroup, List<BenefitUnit>> incomeGroups = new LinkedHashMap<>();
+        for (BenefitUnit benefitUnit : benefitUnits) {
+            Double monthlyPrivateIncome = benefitUnit.getGrossIncomeMonthly();
+            if (monthlyPrivateIncome == null || !Double.isFinite(monthlyPrivateIncome))
+                throw new IllegalStateException("Current private income is not available for benefit unit "
+                        + benefitUnit.getId());
+            Person referencePerson = benefitUnit.getRefPerson();
+            boolean graduate = Education.High.equals(referencePerson.getEduHighestC4());
+            IncomeRankGroup group = new IncomeRankGroup(benefitUnit.getOccupancy(), graduate);
+            incomeGroups.computeIfAbsent(group, ignored -> new ArrayList<>()).add(benefitUnit);
+        }
+        for (List<BenefitUnit> group : incomeGroups.values()) {
+            Map<BenefitUnit, Integer> incomeRanks = WeightedQuantileRanks.assign(
+                    group,
+                    benefitUnit -> benefitUnit.getGrossIncomeMonthly(),
+                    BenefitUnit::getWeight,
+                    10);
+            incomeRanks.forEach(BenefitUnit::setPrivateIncomeDecile);
+        }
+    }
+
+    private record IncomeRankGroup(Occupancy occupancy, boolean graduate) {
+    }
+
+
+    /** Record dependent exits before inheritance matching and annual output,
+     * rather than allowing next year's cleanup to remove them silently. */
+    static void markOrphanExits(Set<BenefitUnit> units) {
+        for (BenefitUnit unit : units) {
+            boolean hasLivingAdult = unit.getMembers().stream().anyMatch(person ->
+                    SampleExit.NotYet.equals(person.getSampleExit()) &&
+                            person.getDemAge() >= Parameters.AGE_TO_BECOME_RESPONSIBLE);
+            if (!hasLivingAdult)
+                for (Person person : unit.getMembers())
+                    if (SampleExit.NotYet.equals(person.getSampleExit()) &&
+                            person.getDemAge() < Parameters.AGE_TO_BECOME_RESPONSIBLE)
+                        person.setSampleExit(SampleExit.Orphan);
+        }
+    }
 
     private void screenForExitingObjects() {
 
@@ -1282,6 +1394,27 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     }
 
 
+    /** Keep a living responsible adult when dependent children remain in the unit.
+     * Members marked as exited remain attached until the next cleanup, so couple
+     * status alone does not establish that another adult will survive.
+     */
+    static boolean canRemoveForPopulationAlignment(Person candidate, BenefitUnit unit) {
+        if (!SampleExit.NotYet.equals(candidate.getSampleExit()))
+            return false;
+        if (candidate.getDemAge() < Parameters.AGE_TO_BECOME_RESPONSIBLE)
+            return true;
+
+        boolean hasLivingDependent = false;
+        for (Person member : unit.getMembers()) {
+            if (member == candidate || !SampleExit.NotYet.equals(member.getSampleExit()))
+                continue;
+            if (member.getDemAge() >= Parameters.AGE_TO_BECOME_RESPONSIBLE)
+                return true;
+            hasLivingDependent = true;
+        }
+        return !hasLivingDependent;
+    }
+
     /*********************************************
      *
      * Method that uses international migration and death to adjust for population alignment
@@ -1351,9 +1484,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                     if ( benefitUnit == null ) {
                         throw new RuntimeException("Missing benefit unit for candidate to kill in population alignment.");
                     }
-                    if ( (!candidate.equals(benefitUnit.getMale()) && !candidate.equals(benefitUnit.getFemale())) ||
-                        benefitUnit.getOccupancy().equals(Occupancy.Couple) || benefitUnit.getMembers().size() == 1 ) {
-                        // death of person should not affect existence of any other person in model
+                    if (canRemoveForPopulationAlignment(candidate, benefitUnit)) {
 
                         candidate.setSampleExit(SampleExit.DeathAlignment);
 
@@ -1389,6 +1520,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                     households.add(newHousehold);
                     BenefitUnit immigrantBU = cloneBenefitUnit(immigrant.getBenefitUnit(), newHousehold, SampleEntry.ImmigrationAlignment);
                     immigrantBU.setRegion(region);
+                    inheritanceModule.recordAlignmentEntry(year, immigrantBU);
 
                     // update counters and references
                     for (Person person : immigrantBU.getMembers()) {
@@ -1415,9 +1547,12 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         households.add(newHousehold);
         if (originalHousehold.getBenefitUnits().isEmpty())
             throw new RuntimeException("problem identifying household benefit units to clone");
+        Map<Long, Person> clonedHouseholdPersons = new HashMap<>();
+        List<PendingParentLink> parentLinks = new ArrayList<>();
         for (BenefitUnit originalBenefitUnit : originalHousehold.getBenefitUnits()) {
-            cloneBenefitUnit(originalBenefitUnit, newHousehold, sampleEntry);
+            cloneBenefitUnit(originalBenefitUnit, newHousehold, sampleEntry, clonedHouseholdPersons, parentLinks);
         }
+        remapClonedParentLinks(clonedHouseholdPersons, parentLinks);
         newHousehold.resetWeights(1.0d);
     }
 
@@ -1428,6 +1563,20 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
      *
      *********************************************************/
     private BenefitUnit cloneBenefitUnit(BenefitUnit originalBenefitUnit, Household newHousehold, SampleEntry sampleEntry) {
+
+        Map<Long, Person> clonedUnitPersons = new HashMap<>();
+        List<PendingParentLink> parentLinks = new ArrayList<>();
+        BenefitUnit result = cloneBenefitUnit(originalBenefitUnit, newHousehold, sampleEntry,
+                clonedUnitPersons, parentLinks);
+        remapClonedParentLinks(clonedUnitPersons, parentLinks);
+        if (SampleEntry.ImmigrationAlignment.equals(sampleEntry))
+            inheritanceModule.cloneBalances(clonedUnitPersons);
+        return result;
+    }
+
+    private BenefitUnit cloneBenefitUnit(BenefitUnit originalBenefitUnit, Household newHousehold,
+                                         SampleEntry sampleEntry, Map<Long, Person> clonedPersons,
+                                         List<PendingParentLink> parentLinks) {
 
         // initialise objects
 
@@ -1448,6 +1597,12 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             Person newPerson = new Person(originalPerson, seed, sampleEntry);
             newPerson.setBenefitUnit(newBenefitUnit);
             persons.add(newPerson);
+            clonedPersons.put(originalPerson.getId(), newPerson);
+            parentLinks.add(new PendingParentLink(newPerson, originalPerson.getId(),
+                    originalPerson.getIdMother(), originalPerson.getIdFather(), sampleEntry));
+            if (SampleEntry.InputData.equals(sampleEntry))
+                inheritanceClonesBySourceId.computeIfAbsent(originalPerson.getId(), ignored -> new ArrayList<>())
+                        .add(newPerson);
         }
 
         // final clean-up
@@ -1456,6 +1611,76 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         }
 
         return newBenefitUnit;
+    }
+
+    private void remapClonedParentLinks(Map<Long, Person> clonedPersons, List<PendingParentLink> parentLinks) {
+        for (PendingParentLink link : parentLinks) {
+            if (SampleEntry.ProcessedInputData.equals(link.entry())) {
+                // Cached clones retain their simulated IDs. A parent in
+                // another household therefore retains the same ID as well.
+                link.child().setParentIds(link.sourceMotherId(), link.sourceFatherId());
+                continue;
+            }
+            Person mother = clonedPersons.get(link.sourceMotherId());
+            Person father = clonedPersons.get(link.sourceFatherId());
+            link.child().setParentIds(mother == null ? null : mother.getId(),
+                    father == null ? null : father.getId());
+            if (SampleEntry.ImmigrationAlignment.equals(link.entry())) {
+                if (link.sourceMotherId() != null) {
+                    if (mother == null) unresolvedImmigrantParentReferences++;
+                    else validImmigrantParentReferences++;
+                }
+                if (link.sourceFatherId() != null) {
+                    if (father == null) unresolvedImmigrantParentReferences++;
+                    else validImmigrantParentReferences++;
+                }
+            }
+            if (SampleEntry.InputData.equals(link.entry()) &&
+                    (mother == null && link.sourceMotherId() != null ||
+                            father == null && link.sourceFatherId() != null))
+                pendingInheritanceParentLinks.add(link);
+        }
+    }
+
+    private void resolveUnambiguousCrossHouseholdParents() {
+        long resolvedAcrossHouseholds = 0;
+        long unresolved = 0;
+        for (PendingParentLink link : pendingInheritanceParentLinks) {
+            Long motherId = link.child().getIdMother();
+            Long fatherId = link.child().getIdFather();
+            if (motherId == null && link.sourceMotherId() != null) {
+                motherId = uniqueSourceCloneId(link.sourceChildId(), link.sourceMotherId());
+                if (motherId == null) unresolved++; else resolvedAcrossHouseholds++;
+            }
+            if (fatherId == null && link.sourceFatherId() != null) {
+                fatherId = uniqueSourceCloneId(link.sourceChildId(), link.sourceFatherId());
+                if (fatherId == null) unresolved++; else resolvedAcrossHouseholds++;
+            }
+            link.child().setParentIds(motherId, fatherId);
+        }
+        Set<Long> simulatedIds = new HashSet<>();
+        persons.forEach(person -> simulatedIds.add(person.getId()));
+        long valid = 0;
+        for (Person person : persons) {
+            if (person.getIdMother() != null && simulatedIds.contains(person.getIdMother())) valid++;
+            if (person.getIdFather() != null && simulatedIds.contains(person.getIdFather())) valid++;
+        }
+        inheritanceModule.setFamilyLinkAudit(new InheritanceModule.FamilyLinkAudit(
+                startYear, valid, resolvedAcrossHouseholds, unresolved, 0, 0));
+        System.out.println("Inheritance family links at load: " + valid + " valid parent references, " +
+                resolvedAcrossHouseholds + " resolved across households, " + unresolved + " unresolved.");
+        pendingInheritanceParentLinks.clear();
+        inheritanceClonesBySourceId.clear();
+    }
+
+    private Long uniqueSourceCloneId(long sourceChildId, Long sourceParentId) {
+        if (sourceParentId == null)
+            return null;
+        List<Person> children = inheritanceClonesBySourceId.get(sourceChildId);
+        List<Person> parents = inheritanceClonesBySourceId.get(sourceParentId);
+        if (children == null || children.size() != 1 || parents == null || parents.size() != 1)
+            return null;
+        return parents.getFirst().getId();
     }
 
 
@@ -1510,7 +1735,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     */
 
     /*
-     * unionMatchingSBAM implements a marriage matching method presented by Stephensen 2013.
+     * unionMatchingSBAM implements a partnership matching method presented by Stephensen 2013.
      */
 
     int partnershipsCreated = 0;
@@ -1537,10 +1762,10 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
          */
         boolean adjustZeroEntries = true;
 
-        //1. Load distribution of marriages observed in Excel using ExcelLoader from marriageTypes2.xlsx file. Store a copy in marriageTypesToAdjust, which is
-        // a MultiKeyCoefficientMap - it has 2 string keys that identify a value. 1st key is person type, 2nd key is partner type, value is the number of marriages between these types
+        //1. Load distribution of partnerships observed in Excel using ExcelLoader from partnershipTypes2.xlsx file. Store a copy in partnershipTypesToAdjust, which is
+        // a MultiKeyCoefficientMap - it has 2 string keys that identify a value. 1st key is person type, 2nd key is partner type, value is the number of partnerships between these types
         // observed in the data.
-        MultiKeyCoefficientMap marriageTypesToAdjustMap = Parameters.getMarriageTypesFrequency().clone(); //Clone the original map loaded from Excel to adjust frequencies on a copy
+        MultiKeyCoefficientMap partnershipTypesToAdjustMap = Parameters.getPartnershipTypesFrequency().clone(); //Clone the original map loaded from Excel to adjust frequencies on a copy
 
         //Create a set of keys on which the types are defined: currently Gender, Region, Education, Age Group
         var keysMultiKeySet = new LinkedHashSet<MultiKey<Object>>();
@@ -1569,16 +1794,16 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                         //Now add the number of people to match for gender, region, education as target
                         double tmpTargetDouble = personsToMatch2.get(tmpKeyString).size();
 
-                        //Create a set containing row keys of marriageTypesToAdjust:
+                        //Create a set containing row keys of partnershipTypesToAdjust:
                         Set<String> tmpKeysStringSet = new LinkedHashSet<String>();
-                        for (var tmpKeyMultiKey : marriageTypesToAdjustMap.keySet()) {
+                        for (var tmpKeyMultiKey : partnershipTypesToAdjustMap.keySet()) {
                             String key0String = tmpKeyMultiKey.getKey(0).toString();
                             tmpKeysStringSet.add(key0String); //The only types not in the set should be those that don't have any matches in the data
                         }
 
                         if(tmpKeysStringSet.contains(tmpKeyString)) { //Check if the target is contained in frequencies from the data - if not, 0 entries cannot be adjusted anyway
 
-                            marriageTargetsByKey.put(tmpKeyString, tmpTargetDouble); //Update marriageTargetByKey
+                            partnershipTargetsByKey.put(tmpKeyString, tmpTargetDouble); //Update partnershipTargetByKey
                             var tmpKeyMultiKey = new MultiKey<Object>(gender, region, education, ageGroup);
                             keysMultiKeySet.add(tmpKeyMultiKey); //Add MultiKey to set of keys
                             keysStringSet.add(tmpKeyString);
@@ -1607,21 +1832,21 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                     Education education2 = (Education) key2.getKey(2);
                     int ageGroup2 = (int) key2.getKey(3);
                     String key2String = gender2 + " " + region2 + " " + education2 + " " + ageGroup2;
-                    if(marriageTypesToAdjustMap.get(key1String, key2String) != null) { //Value present, do nothing
+                    if(partnershipTypesToAdjustMap.get(key1String, key2String) != null) { //Value present, do nothing
 
                     } else if(!key1String.equals(key2String))  { //Null value, if not the same type, set to small number
 
-                        marriageTypesToAdjustMap.put(key1String, key2String, 1.e-6);
+                        partnershipTypesToAdjustMap.put(key1String, key2String, 1.e-6);
                     }
                     //else {
-                    //	marriageTypesToAdjust.put(key1String, key2String, 0.); //Same sex and cross-region matches to have 0 frequency -> this is now handled in the matching closure, by not matching such couples
+                    //	partnershipTypesToAdjust.put(key1String, key2String, 0.); //Same sex and cross-region matches to have 0 frequency -> this is now handled in the matching closure, by not matching such couples
                     //}
-                    // System.out.print(marriageTypesToAdjust.get(key1String, key2String) + " ");
+                    // System.out.print(partnershipTypesToAdjust.get(key1String, key2String) + " ");
                 }
             }
         }
 
-        //Iterate as on a matrix until the cumulative difference between frequencies in marriageTypesToAdjust and the targets from marriageTargetsByKey is smaller than the specified precision:
+        //Iterate as on a matrix until the cumulative difference between frequencies in partnershipTypesToAdjust and the targets from partnershipTargetsByKey is smaller than the specified precision:
         int tmpCountInt = 0;
         double errorDouble = Double.MAX_VALUE;
         double precisionDouble = 1.e-1;
@@ -1638,9 +1863,9 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             LinkedHashMap<String, Double> colMprMap = new LinkedHashMap<String, Double>();
 
             //Instead of iterating through rows and columns, go through every element of the map and add to the row / col sum depending on key1 and key2
-            //marriageTypesToAdjust is a map, where key is a MultiKey with two values (Strings): first value identifies one type, second value identifies second type, value stores the frequency of matches.
+            //partnershipTypesToAdjust is a map, where key is a MultiKey with two values (Strings): first value identifies one type, second value identifies second type, value stores the frequency of matches.
             //Instead of iterating through rows and columns, can iterate through each cell of the map and add it to rowSum (and later on to colSum).
-            for (var mapEntry : marriageTypesToAdjustMap.entrySet()) {
+            for (var mapEntry : partnershipTypesToAdjustMap.entrySet()) {
                 var tmpKeyMultiKey = mapEntry.getKey(); //Get MultiKey identifying each cell (mk.getKey(0) is row, mk.getKey(1) is column)
                 var keyStr = tmpKeyMultiKey.getKey(0).toString();
                 double tmpValueDouble = ((Number) mapEntry.getValue()).doubleValue();
@@ -1648,7 +1873,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                 rowSumsMap.put(keyStr, tmpValueDouble);
             }
             //Get target by key and divide by row sum for that key to get row multiplier, same for column later on
-            marriageTargetsByKey.keySet().iterator().forEachRemaining(key -> rowMprMap.put(key, marriageTargetsByKey.get(key)/rowSumsMap.get(key)));
+            partnershipTargetsByKey.keySet().iterator().forEachRemaining(key -> rowMprMap.put(key, partnershipTargetsByKey.get(key)/rowSumsMap.get(key)));
 
             //After the first iteration, rowSum might = 0 which means division is undefined resulting in null rowMpr entry - adjust to 0 if that happens
             rowMprMap.keySet().iterator().forEachRemaining(key -> {
@@ -1657,8 +1882,8 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                 if(rowMprMap.get(key).isInfinite()) rowMprMap.put(key, 0.);
             });
 
-            //Now knowing the row multiplier, multiply entries in the frequency map (marriageTypesToAdjust)
-            var frequenciesIterator = marriageTypesToAdjustMap.mapIterator();
+            //Now knowing the row multiplier, multiply entries in the frequency map (partnershipTypesToAdjust)
+            var frequenciesIterator = partnershipTypesToAdjustMap.mapIterator();
             while (frequenciesIterator.hasNext()) {
 
                 frequenciesIterator.next();
@@ -1669,7 +1894,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             }
 
             //Have to repeat for columns:
-            frequenciesIterator = marriageTypesToAdjustMap.mapIterator();
+            frequenciesIterator = partnershipTypesToAdjustMap.mapIterator();
             while (frequenciesIterator.hasNext()) {
 
                 frequenciesIterator.next();
@@ -1687,7 +1912,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                 colSumsMap.put(tmpKeyMultiKey.getKey(1).toString(), tmpValueDouble);
             }
 
-            marriageTargetsByKey.keySet().iterator().forEachRemaining(key -> colMprMap.put(key, marriageTargetsByKey.get(key)/colSumsMap.get(key)));
+            partnershipTargetsByKey.keySet().iterator().forEachRemaining(key -> colMprMap.put(key, partnershipTargetsByKey.get(key)/colSumsMap.get(key)));
 
             //As for rows, make sure multipliers are defined
             colMprMap.keySet().iterator().forEachRemaining(key -> {
@@ -1697,7 +1922,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             });
 
             //Now knowing the col multiplier, multiply entries in the map with frequencies
-            frequenciesIterator = marriageTypesToAdjustMap.mapIterator();
+            frequenciesIterator = partnershipTypesToAdjustMap.mapIterator();
             while (frequenciesIterator.hasNext()) {
 
                 frequenciesIterator.next();
@@ -1708,10 +1933,10 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             }
 
             //Calculate error as the cumulative difference between targets and row and column sums
-            for (String key : marriageTargetsByKey.keySet()) {
+            for (String key : partnershipTargetsByKey.keySet()) {
 
-                errorDouble += Math.abs(marriageTargetsByKey.get(key) - rowSumsMap.get(key));
-                errorDouble += Math.abs(marriageTargetsByKey.get(key) - colSumsMap.get(key));
+                errorDouble += Math.abs(partnershipTargetsByKey.get(key) - rowSumsMap.get(key));
+                errorDouble += Math.abs(partnershipTargetsByKey.get(key) - colSumsMap.get(key));
             }
 
             // System.out.println("Error is " + error + " and iteration is " + tmpCount);
@@ -1720,7 +1945,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         }
 
         //Print out adjusted frequencies
-        marriageTypesToAdjustMap.keySet().iterator().forEachRemaining(key -> System.out.println(key + "=" + marriageTypesToAdjustMap.get(key)));
+        partnershipTypesToAdjustMap.keySet().iterator().forEachRemaining(key -> System.out.println(key + "=" + partnershipTypesToAdjustMap.get(key)));
 
         /*
          * Use matching method provided with JAS-mine:
@@ -1732,9 +1957,9 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
                 //Get number of people that should be matched for key, keyOther combination
                 int tmpTargetInt;
-                if(marriageTypesToAdjustMap.get(key, keyOther) != null) {
+                if(partnershipTypesToAdjustMap.get(key, keyOther) != null) {
 
-                    tmpTargetInt = (int) Math.round(((Number) marriageTypesToAdjustMap.getValue(key, keyOther)).doubleValue());
+                    tmpTargetInt = (int) Math.round(((Number) partnershipTypesToAdjustMap.getValue(key, keyOther)).doubleValue());
                 } else tmpTargetInt = 0;
 
                 //Check if for the combination of key, keyOther matches should be formed:
@@ -1753,7 +1978,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                     unmatchedQ2FullSet.addAll(personsToMatch2.get(keyOther)); //Add people to match with
                     Set<Person> unmatchedQ2Set = new LinkedHashSet<Person>();
 
-                    //Keep only the number of people in unmatchedQ2 that is equal to the adjusted number of matches to create from marriageTypesToAdjust:
+                    //Keep only the number of people in unmatchedQ2 that is equal to the adjusted number of matches to create from partnershipTypesToAdjust:
                     Iterator<Person> unmatchedQ2FullSetIterator = unmatchedQ2FullSet.iterator();
                     for(int n = 0; n < tmpTargetInt && unmatchedQ2FullSetIterator.hasNext(); n++) {
 
@@ -1871,7 +2096,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         evalMatches(unmatched, alignmentRun);
 
         if (!alignmentRun) {
-            if (commentsOn) log.debug("Marriage matched");
+            if (commentsOn) log.debug("Partnership matched");
         }
     }
 
@@ -2532,7 +2757,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
     /**
      * Note that this method makes minimal assumptions on the input database data.  It does NOT assume the data
-     * is from EUROMOD data files.  This makes the simulation very flexible with regards to input database data,
+     * is from UKMOD data files.  This makes the simulation very flexible with regards to input database data,
      * but it does mean that the method is not optimised for speed.
      *
      */
@@ -2549,17 +2774,14 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
         //TODO: Slight differences between otherwise identical simulations arise when loading "processed" vs "unprocessed" data (distinguished by the if statement below)
         Processed processed = PersistPopulation ? getProcessed() : null;
-        LifetimeIncomeImputation lifetimeIncomes = lifetimeIncomeImpute ? getLifetimeIncomes(startYear) : null;
         if (processed!=null) {
 
             List<Household> households = new ArrayList<>(processed.getHouseholds());
             if (households.isEmpty())
                 throw new RuntimeException("No households in processed set");
             System.out.println("Found processed dataset - preparing for simulation");
-
-            // check if need to add income histories
-            if (lifetimeIncomes!=null)
-                lifetimeIncomes.matchDonorProfiles(households);
+            inheritanceModule.restorePopulationLineage(processed.getInheritanceLineage(),
+                    processed.getPersons());
 
             // update counters and augment attributes
             long householdIdCounter = 1L, benefitUnitIdCounter = 1L, personIdCounter = 1L;
@@ -2569,6 +2791,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                 for (BenefitUnit benefitUnit : originalHousehold.getBenefitUnits()) {
                     if (benefitUnit.getId() > benefitUnitIdCounter)
                         benefitUnitIdCounter = benefitUnit.getId();
+                    wealthModule.prepareBenefitUnit(benefitUnit);
                     for (Person person : benefitUnit.getMembers()) {
                         if (person.getId() > personIdCounter)
                             personIdCounter = person.getId();
@@ -2592,18 +2815,16 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             System.out.println("Loading survey data for starting population");
             log.info("Loading survey data for starting population");
             List<Household> inputHouseholdList = loadStartingPopulation();
+            inheritanceModule.indexSourceFamilies(inputHouseholdList);
             System.out.println("completed loading survey data for starting population");
             log.info("completed loading survey data for starting population");
 
-            // check if need to add income histories
-            if (lifetimeIncomes!=null)
-                lifetimeIncomes.matchDonorProfiles(inputHouseholdList);
             if (!useWeights) {
                 // Expand population, sample, and remove weights
 
                 System.out.println("Will expand the initial population to " + popSize + " individuals, each of whom has an equal weight.");
 
-                // approach to resampling considered here is designed to allow for surveys that over-sample some population
+                // Approach to resampling considered here is designed to allow for surveys that over-sample some population
                 // subgroups. In this case you may have many similar observations in the sample all with low survey weights
                 // so that replicating by a factor adjustment on weight of each observation may result in none of the
                 // observations being included in the simulated sample (unless the simulated sample was very large).
@@ -2614,6 +2835,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                     double hhweight = household.getWeight();
                     boolean hasChild = false;
                     for (BenefitUnit benefitUnit : household.getBenefitUnits()) {
+                        wealthModule.prepareBenefitUnit(benefitUnit);
                         for (Person person : benefitUnit.getMembers()) {
                             person.setAdditionalFieldsInInitialPopulation();
                             if (person.getDemAge()<Parameters.AGE_TO_BECOME_RESPONSIBLE)
@@ -2705,15 +2927,31 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                 }
             }
 
-            // save to processed repository
-
-            if (PersistPopulation) {
-                System.out.println("Saving compiled input data for future reference");
-                persistProcessed();
-            }
-
             stopwatch.stop();
             System.out.println("Time elapsed " + stopwatch.getTime()/1000 + " seconds");
+        }
+
+        if (processed == null)
+            resolveUnambiguousCrossHouseholdParents();
+
+        if (lifetimeIncomeImpute) {
+
+            String outputPath = "./output/" + getEngine().getCurrentExperiment().runId;
+            ManagerLifetimeIncomes.imputeProfiles(log, persons, lifetimeIncomeTemplates, lifetimeIncomeWriteToCSV, outputPath);
+        }
+
+        if (Parameters.projectNonPensionWealth) {
+            // HW2c residual reconstruction uses the same common income ranks
+            // that are assigned immediately before housing projection later.
+            wealthModule.assignMortgageIncomeQuintiles(benefitUnits);
+        }
+        wealthModule.initializePopulation(benefitUnits);
+
+        // Save only newly compiled input data. The wealth module deliberately
+        // reconstructs its transient state whenever population data load.
+        if (processed == null && PersistPopulation) {
+            System.out.println("Saving compiled input data for future reference");
+            persistProcessed();
         }
 
         // finalise
@@ -2741,15 +2979,15 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         }
     }
 
-    //Requires Labour Market to be initialised and EUROMOD policy scenario for start year to be specified, hence it is called after creating the Labour Market object
+    //Requires Labour Market to be initialised and UKMOD policy scenario for start year to be specified, hence it is called after creating the Labour Market object
     private void initialisePotentialEarningsByWageEquationAndEmployerSocialInsurance() {
         for(Person person: persons) {
             person.initialisePotentialHourlyEarnings();    //XXX: We override the initialisation of persons' earnings using the estimated wage equation (this may be necessary to ensure the proportional change in unit labour cost is not ridiculously large ~10^100, due to discrepancy between the earnings data in the input database population and the estimated earnings from the wage equation of Bargain et al.  Only once the current discrepancy is fixed (hopefully using our own wage equation), can we start to re-initialise using values in the input data).
         }
     }
 
-    // initialise attributes used to manage marriage matching
-    private void createDataStructuresForMarriageMatching() {
+    // initialise attributes used to manage partnership matching
+    private void createDataStructuresForPartnershipMatching() {
 
         personsToMatch = new LinkedHashMap<>();
         for (Gender gender: Gender.values()) {
@@ -2762,7 +3000,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         for (Gender gender : Gender.values()) {
             for (Region region : Region.values()) {
                 for(Education education: Education.values()) {
-                    for(int ageGroup = 0; ageGroup <= 6; ageGroup++) { //Age groups with numerical values are created in Person class setAdditionalFieldsInInitialPopulation() method and must match Excel marriageTypes2.xlsx file.
+                    for(int ageGroup = 0; ageGroup <= 6; ageGroup++) { //Age groups with numerical values are created in Person class setAdditionalFieldsInInitialPopulation() method and must match Excel partnershipTypes2.xlsx file.
                         String tmpKey = gender + " " + region + " " + education + " " + ageGroup;
                         personsToMatch2.put(tmpKey, new LinkedHashSet<>());
                     }
@@ -2771,14 +3009,14 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         }
 
         // For SBAM matching, initial targets:
-        marriageTargetsByGenderAndRegion = MultiKeyMap.multiKeyMap(new LinkedMap<>());
+        partnershipTargetsByGenderAndRegion = MultiKeyMap.multiKeyMap(new LinkedMap<>());
         for (Gender gender : Gender.values()) {
             for (Region region : Parameters.getCountryRegions()) {
                 double tmpTarget = personsToMatch.get(gender).get(region).size();
-                marriageTargetsByGenderAndRegion.put(gender, region, tmpTarget);
+                partnershipTargetsByGenderAndRegion.put(gender, region, tmpTarget);
             }
         }
-        marriageTargetsByKey = new LinkedHashMap<>();
+        partnershipTargetsByKey = new LinkedHashMap<>();
     }
 
     // ---------------------------------------------------------------------
@@ -2947,30 +3185,6 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         disposableIncomeFromLabourInnov = innov;
     }
 
-    public Integer getsIndexTimeWindow() {
-        return sIndexTimeWindow;
-    }
-
-    public void setsIndexTimeWindow(Integer sIndexTimeWindow) {
-        this.sIndexTimeWindow = sIndexTimeWindow;
-    }
-
-    public Double getsIndexAlpha() {
-        return sIndexAlpha;
-    }
-
-    public void setsIndexAlpha(Double sIndexAlpha) {
-        this.sIndexAlpha = sIndexAlpha;
-    }
-
-    public Double getsIndexDelta() {
-        return sIndexDelta;
-    }
-
-    public void setsIndexDelta(Double sIndexDelta) {
-        this.sIndexDelta = sIndexDelta;
-    }
-
     public Double getSavingRate() {
         return savingRate;
     }
@@ -3127,6 +3341,10 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         this.useWeights = useWeights;
     }
 
+    public WealthModule getWealthModule() {
+        return wealthModule;
+    }
+
 
     public UnionMatchingMethod getUnionMatchingMethod() {
         return unionMatchingMethod;
@@ -3159,6 +3377,15 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
     public void setAlignPopulation(boolean flag) {
         alignPopulation = flag;
+    }
+
+    public void setBequestSyntheticRecipientCount(int count) {
+        bequestSyntheticRecipientCount = count;
+        inheritanceModule.setSyntheticRecipientCount(count);
+    }
+
+    public InheritanceModule getInheritanceModule() {
+        return inheritanceModule;
     }
 
     public void setAlignCohabitation(boolean flag) {
@@ -3335,7 +3562,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     This is then uprated in this method, before being used in BenefitUnit to decide if a ratio or imputation of disposable income should be used.
      */
     public Double getUpratedMedianIncomeForCurrentYear() {
-        String policyName = Parameters.getEUROMODpolicyForThisYear(year);
+        String policyName = Parameters.getUKMODpolicyForThisYear(year);
         Double value = policyNameIncomeMedianMap.get(policyName) * (double) Parameters.upratingFactorsMap.get(year, policyName);
         return value;
     }
@@ -3405,10 +3632,10 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                 for (int ii = 0; ii < donorPool.size(); ii++) {
 
                     DonorTaxUnit donor = donorPool.get(ii);
-                    for (int fromYear : Parameters.EUROMODpolicyScheduleSystemYearMap.keySet()) {
+                    for (int fromYear : Parameters.UKMODpolicyScheduleSystemYearMap.keySet()) {
 
                         // populate taxdbReferences
-                        int systemYear = Parameters.EUROMODpolicyScheduleSystemYearMap.get(fromYear).getValue();
+                        int systemYear = Parameters.UKMODpolicyScheduleSystemYearMap.get(fromYear).getValue();
                         DonorTaxUnitPolicy donorPolicy = donor.getPolicyBySystemYear(systemYear);
                         for (int jj = 0; jj < Parameters.TAXDB_REGIMES; jj++) {
 
@@ -3499,49 +3726,13 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         for (Gender gender : Gender.values()) {
             for (Region region : Region.values()) {
                 for (Education education: Education.values()) {
-                    for (int ageGroup = 0; ageGroup <= 6; ageGroup++) { //Age groups with numerical values are created in Person class setAdditionalFieldsInInitialPopulation() method and must match Excel marriageTypes2.xlsx file.
+                    for (int ageGroup = 0; ageGroup <= 6; ageGroup++) { //Age groups with numerical values are created in Person class setAdditionalFieldsInInitialPopulation() method and must match Excel partnershipTypes2.xlsx file.
                         String tmpKey = gender + " " + region + " " + education + " " + ageGroup;
                         personsToMatch2.get(tmpKey).clear();
                     }
                 }
             }
         }
-    }
-
-    private LifetimeIncomeImputation getLifetimeIncomes(int year) {
-
-        System.out.println("Loading simulated income histories");
-        LifetimeIncomeImputation lifetimeIncomes = null;
-        EntityTransaction txn = null;
-        try {
-
-            // query database
-            String fileName = Parameters.getInputDirectory() + "input";
-            var propertyMap = new HashMap<String, String>();
-            propertyMap.put("hibernate.connection.url", "jdbc:h2:file:" + fileName + ";TRACE_LEVEL_FILE=0;TRACE_LEVEL_SYSTEM_OUT=0;AUTO_SERVER=TRUE");
-            EntityManager em = Persistence.createEntityManagerFactory("lifetime-incomes", propertyMap).createEntityManager();
-            txn = em.getTransaction();
-            txn.begin();
-            String query = "SELECT DISTINCT cohort FROM BirthCohort cohort";
-//            String query = "SELECT DISTINCT cohort FROM BirthCohort cohort LEFT JOIN FETCH cohort.individuals individuals LEFT JOIN FETCH individuals.incomes incomes";
-            System.out.println("Submitting SQL query");
-            log.info("Submitting SQL query: " + query);
-            List<BirthCohort> cohorts = em.createQuery(query).getResultList();
-            lifetimeIncomes = new LifetimeIncomeImputation(year, cohorts);
-
-            // close database connection
-            log.info("Query complete");
-            System.out.println("Query complete");
-            em.close();
-        } catch (Exception e) {
-            if (txn != null) {
-                txn.rollback();
-            }
-            e.printStackTrace();
-            throw new RuntimeException("Problem sourcing data for starting population");
-        }
-
-        return lifetimeIncomes;
     }
 
     private Processed getProcessed() {
@@ -3569,6 +3760,16 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
             List<Processed> processedList = em.createQuery(query).getResultList();
             log.info("Query complete");
+            List<Processed> compatible = new ArrayList<>();
+            for (Processed candidate : processedList) {
+                if (candidate.hasCompatibleInheritanceLineage()) {
+                    compatible.add(candidate);
+                } else {
+                    log.info("Rebuilding processed population without compatible inheritance lineage: " + candidate.getId());
+                    em.remove(candidate);
+                }
+            }
+            processedList = compatible;
             if (!processedList.isEmpty()) {
 
                 if (processedList.size()>1)
@@ -3586,6 +3787,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             }
 
             // close database connection
+            txn.commit();
             em.close();
         } catch (Exception e) {
             if (txn != null) {
@@ -3658,6 +3860,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
             log.info("Initialising processed");
             Processed processed = new Processed(country, startYear, popSize, ignoreTargetsAtPopulationLoad);
+            processed.setInheritanceLineage(inheritanceModule.exportPopulationLineage(persons));
             log.info("Generating ID");
             em.persist(processed);  // generates processed id
             log.info("Assigning ID across households");

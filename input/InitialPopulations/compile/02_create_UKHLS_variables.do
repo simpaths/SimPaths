@@ -1205,7 +1205,7 @@ la var lesdf_c4 "Own and spousal activity status"
 
 /******************************Civil servant status***************************/
 gen lcs=0
-// R.K. (11.05.2017) (we can use SIC 2007 condensed version- this is what Paola does for FRS EUROMOD)
+// R.K. (11.05.2017) (we can use SIC 2007 condensed version- this is what Paola does for FRS UKMOD)
 replace lcs=1 if jbsic07_cc==84
 la var lcs "Civil Servant"
 lab val lcs dummy 

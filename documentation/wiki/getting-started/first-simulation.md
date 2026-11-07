@@ -56,7 +56,7 @@ mvn clean package
 java -jar singlerun.jar -Setup -c UK -s 2019 -g false --rewrite-policy-schedule
 ```
 
-If `input/EUROMODpolicySchedule.xlsx` already exists and matches your donor files, you can omit `--rewrite-policy-schedule`.
+If `input/UKMOD/UKMODpolicySchedule.xlsx` already exists and matches your donor files, you can omit `--rewrite-policy-schedule`.
 
 </div>
 <aside class="setup-guide__note" aria-label="What setup prepares" markdown="1">
@@ -108,7 +108,7 @@ The most useful `singlerun.jar` options are:
 | `-Setup` | perform setup only, then exit |
 | `-Run` | skip setup and run the simulation directly |
 | `-g true\|false` | enable or disable the GUI |
-| `--rewrite-policy-schedule` | rebuild `EUROMODpolicySchedule.xlsx` from detected donor policy files |
+| `--rewrite-policy-schedule` | rebuild `UKMODpolicySchedule.xlsx` from detected donor policy files |
 
 `-Setup` and `-Run` are mutually exclusive. If neither is provided, `SimPathsStart` does both.
 
@@ -150,8 +150,8 @@ If the run fails before the simulation starts, the problem is usually in setup r
 
 | Problem | What to check |
 | --- | --- |
-| `Policy Schedule file ... doesn't exist` | create `input/EUROMODpolicySchedule.xlsx` first, or rerun setup with `--rewrite-policy-schedule` |
-| donor or initial-population files are missing | check the contents of `input/InitialPopulations/` and `input/EUROMODoutput/` |
+| `Policy Schedule file ... doesn't exist` | create `input/UKMOD/UKMODpolicySchedule.xlsx` first, or rerun setup with `--rewrite-policy-schedule` |
+| donor or initial-population files are missing | check the contents of `input/InitialPopulations/` and `input/UKMOD/UKMODoutput/` |
 | wrong Java version | SimPaths targets Java 25 |
 | setup succeeds but the run uses unexpected inputs | rebuild the database after changing donor files or the policy schedule |
 

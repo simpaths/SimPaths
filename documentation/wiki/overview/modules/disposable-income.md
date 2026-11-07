@@ -10,7 +10,7 @@ title: Disposable income
 
 ## Tax-benefit donor data
 
-The reference database contains taxes and benefits alongside demographic characteristics and private incomes for a sample of benefit units. It may be populated from different sources. The method was originally developed for output from the UK version of EUROMOD, UKMOD, and later extended to support projections from any EUROMOD country.
+The reference database contains taxes and benefits alongside demographic characteristics and private incomes for a sample of benefit units. It may be populated from different sources. The method was originally developed for output from the UK version of UKMOD, UKMOD, and later extended to support projections from any UKMOD country.
 
 The approach follows [van de Ven et al. (2022)](https://www.iser.essex.ac.uk/wp-content/uploads/files/working-papers/cempa/cempa3-22.pdf).
 

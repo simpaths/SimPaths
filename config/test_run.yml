@@ -9,6 +9,9 @@ endYear: 2022
 popSize: 20000
 integrationTest: true
 
+parameter_args:
+    bootstrapAll: false
+
 collector_args:
     persistWealthIncomeStatistics: true
     persistDemographicStatistics: true

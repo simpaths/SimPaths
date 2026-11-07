@@ -36,7 +36,7 @@ public class RunSimPathsIntegrationTest {
     @Order(2)
     void testVerifySetupOutput() {
         assertFileExists("input/input.mv.db");
-        assertFileExists("input/EUROMODpolicySchedule.xlsx");
+        assertFileExists("input/UKMOD/UKMODpolicySchedule.xlsx");
         assertFileExists("input/DatabaseCountryYear.xlsx");
     }
 

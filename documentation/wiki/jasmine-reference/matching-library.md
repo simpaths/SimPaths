@@ -21,7 +21,7 @@ The score callback can use characteristics of both candidates. The matching call
 
 In `UnionMatching`, `localGetValue()` evaluates age and potential-earnings differences relative to the candidates' desired differences. It rejects pairs outside the configured bounds or relationship checks. `localMatch()` updates the unmatched sets and either marks a test partnership during alignment or forms the new benefit unit for an actual match.
 
-Do not replace that action with two generic `marry()` calls: SimPaths must maintain benefit-unit membership, region and other partnership state consistently.
+Do not replace that action with direct pair creation: SimPaths must maintain benefit-unit membership, region and other partnership state consistently.
 
 ## Current SimPaths example {#3-complete-method-example}
 
