@@ -3,7 +3,6 @@ package simpaths.data.statistics;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-
 import microsim.data.db.PanelEntityKey;
 
 /**

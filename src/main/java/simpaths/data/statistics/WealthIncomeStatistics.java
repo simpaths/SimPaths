@@ -34,25 +34,33 @@ public class WealthIncomeStatistics {
 	@Column(name = "Ydses_p80")
 	private double yHhQuintilesC5P80;
 
-	//Percentiles of gross labour income:
-	@Column(name = "Gross_Labour_Income_p20")
-	private double yLabP20;
+	//Percentiles of gross earnings of people in labour force:
+	@Column(name = "Gross_Labour_Force_Earnings_p20")
+	private double yLabFceEarningsP20;
 
-	@Column(name = "Gross_Labour_Income_p40")
-	private double yLabP40;
+	@Column(name = "Gross_Labour_Force_Earnings_p40")
+	private double yLabFceEarningsP40;
 
-	@Column(name = "Gross_Labour_Income_p60")
-	private double yLabP60;
+	@Column(name = "Gross_Labour_Force_Earnings_p60")
+	private double yLabFceEarningsP60;
 
-	@Column(name = "Gross_Labour_Income_p80")
-	private double yLabP80;
+	@Column(name = "Gross_Labour_Force_Earnings_p80")
+	private double yLabFceEarningsP80;
+
+	@Column(name = "Gross_Employed_Earnings_p20")
+	private double yEmployedEarningsP20;
+
+	@Column(name = "Gross_Employed_Earnings_p40")
+	private double yEmployedEarningsP40;
+
+	@Column(name = "Gross_Employed_Earnings_p60")
+	private double yEmployedEarningsP60;
+
+	@Column(name = "Gross_Employed_Earnings_p80")
+	private double yEmployedEarningsP80;
 
 	//Equivalised disposable income is reported as the income median yHhDispEquivP50;
 	//the legacy edi_p50 alias is intentionally removed to match the codebook naming rules.
-
-	//Percentiles of SIndex:
-	@Column(name = "statSIndexP50")
-	private double statSIndexP50;
 
 	//employment income, averaged over workers rather than over population, weekly and not equivalised
 	@Column(name = "labourIncome_perWorker_weekly_18_29")
@@ -166,44 +174,32 @@ public class WealthIncomeStatistics {
 		this.yHhQuintilesC5P80 = yHhQuintilesC5P80;
 	}
 
-	public double getStatSIndexP50() {
-		return statSIndexP50;
+	public double getLabFceEarningsP20() { return yLabFceEarningsP20; }
+
+	public void setLabFceEarningsP20(double val) { yLabFceEarningsP20 = val; }
+
+	public double getLabFceEarningsP40() {
+		return yLabFceEarningsP40;
 	}
 
-	public void setStatSIndexP50(double statSIndexP50) {
-		this.statSIndexP50 = statSIndexP50;
+	public void setLabFceEarningsP40(double val) {
+		yLabFceEarningsP40 = val;
 	}
 
-	public double getYLabP20() {
-		return yLabP20;
+	public double getLabFceEarningsP60() {
+		return yLabFceEarningsP60;
 	}
 
-	public void setYLabP20(double yLabP20) {
-		this.yLabP20 = yLabP20;
+	public void setLabFceEarningsP60(double val) {
+		yLabFceEarningsP60 = val;
 	}
 
-	public double getYLabP40() {
-		return yLabP40;
+	public double getLabFceEarningsP80() {
+		return yLabFceEarningsP80;
 	}
 
-	public void setYLabP40(double yLabP40) {
-		this.yLabP40 = yLabP40;
-	}
-
-	public double getYLabP60() {
-		return yLabP60;
-	}
-
-	public void setYLabP60(double yLabP60) {
-		this.yLabP60 = yLabP60;
-	}
-
-	public double getYLabP80() {
-		return yLabP80;
-	}
-
-	public void setYLabP80(double yLabP80) {
-		this.yLabP80 = yLabP80;
+	public void setLabFceEarningsP80(double val) {
+		yLabFceEarningsP80 = val;
 	}
 
 	public double getLabourIncomeWeeklyPerWorker18to29() {
@@ -348,6 +344,28 @@ public class WealthIncomeStatistics {
 
 	public void setWealth55to74(double wealth55to74Avg) {
 		this.wealth55to74Avg = wealth55to74Avg;
+	}
+
+	public double getEmployedEarningsP20() { return yEmployedEarningsP20; }
+
+	public void setEmployedEarningsP20(double yEmployedEarningsP20) { this.yEmployedEarningsP20 = yEmployedEarningsP20; }
+
+	public double getEmployedEarningsP40() { return yEmployedEarningsP40; }
+
+	public void setEmployedEarningsP40(double yEmployedEarningsP40) { this.yEmployedEarningsP40 = yEmployedEarningsP40; }
+
+	public double getEmployedEarningsP60() {
+		return yEmployedEarningsP60;
+	}
+
+	public void setEmployedEarningsP60(double yEmployedEarningsP60) {
+		this.yEmployedEarningsP60 = yEmployedEarningsP60;
+	}
+
+	public double getEmployedEarningsP80() { return yEmployedEarningsP80; }
+
+	public void setEmployedEarningsP80(double val) {
+		yEmployedEarningsP80 = val;
 	}
 
 	/**

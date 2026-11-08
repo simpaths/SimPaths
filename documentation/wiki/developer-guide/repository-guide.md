@@ -53,7 +53,7 @@ SimPaths/
 │   │   └── compile/                # Stata pipeline: builds populations, estimates regressions
 │   │       ├── do_emphist/         # Employment history reconstruction sub-pipeline
 │   │       └── RegressionEstimates/  # Regression coefficient estimation scripts
-│   ├── EUROMODoutput/              # Tax-benefit model outputs
+│   ├── UKMODoutput/              # Tax-benefit model outputs
 │   │   └── training/               # Training UKMOD outputs (included in repo)
 │   ├── DoFilesTarget/              # Stata scripts that generate alignment targets
 │   ├── align_*.xlsx                # Alignment files (population, employment, etc.)
@@ -61,7 +61,7 @@ SimPaths/
 │   ├── scenario_*.xlsx             # Scenario configuration files
 │   ├── projections_*.xlsx          # Mortality/fertility projections
 │   ├── DatabaseCountryYear.xlsx    # Database metadata
-│   ├── EUROMODpolicySchedule.xlsx  # Policy schedule
+│   ├── UKMODpolicySchedule.xlsx  # Policy schedule
 │   ├── social_care_parameters.xlsx # Social care parameters
 │   ├── validation_statistics.xlsx  # Validation targets
 │   └── input.mv.db                 # Initial-population and donor database
@@ -69,7 +69,7 @@ SimPaths/
 ├── output/                         # Simulation outputs
 │   ├── [timestamp]_[seed]_[run]/   # Timestamped output folders
 │   │   ├── csv/
-│   │   │   ├── WealthIncomeStatistics*.csv  # Income and wealth; Gini, S-Index
+│   │   │   ├── WealthIncomeStatistics*.csv  # Income and wealth; Gini and percentiles
 │   │   │   ├── DemographicStatistics*.csv   # Demographics by age band
 │   │   │   ├── AlignmentStatistics*.csv     # Alignment diagnostics
 │   │   │   ├── LabourStatistics*.csv        # Labour market transitions and participation
@@ -90,7 +90,7 @@ SimPaths/
 │   │   │   └── model/              # Core model implementation
 │   │   │       ├── decisions/      # Intertemporal optimisation grids
 │   │   │       ├── enums/          # Categorical variable definitions
-│   │   │       ├── taxes/          # EUROMOD donor matching
+│   │   │       ├── taxes/          # UKMOD donor matching
 │   │   │       └── lifetime_incomes/  # Synthetic income trajectory generation
 │   │   └── resources/              # Configuration resources
 │   └── test/                       # Test classes
@@ -150,7 +150,7 @@ SimPaths/
   - Regression coefficient maps
   - Policy parameters
   - Alignment targets
-  - EUROMOD variable definitions
+  - UKMOD variable definitions
 
 ---
 
@@ -163,7 +163,7 @@ SimPaths/
 
 - **Parameters.java**: Global parameter storage and Excel data loading
 - **ManagerRegressions.java**: Regression coefficient management
-- **CallEUROMOD.java** / **CallEMLight.java**: Interface with tax-benefit models
+- **CallUKMOD.java** / **CallEMLight.java**: Interface with tax-benefit models
 - **filters/**: Collection filters for querying simulated populations
 - **startingpop/**: Initial population data parsing
 - **statistics/**: Statistical utilities
@@ -201,13 +201,13 @@ SimPaths/
 | `scenario_*.xlsx` | Policy scenarios and projections |
 | `projections_*.xlsx` | Demographic projections (mortality, fertility) |
 | `DatabaseCountryYear.xlsx` | Tracks current database country/year |
-| `EUROMODpolicySchedule.xlsx` | Tax-benefit policy schedule |
+| `UKMODpolicySchedule.xlsx` | Tax-benefit policy schedule |
 | `social_care_parameters.xlsx` | Detailed social care parameters |
 
 **Subdirectories**:
 
 - `InitialPopulations/`: Starting population databases
-- `EUROMODoutput/`: Tax-benefit donor population data
+- `UKMODoutput/`: Tax-benefit donor population data
 - `DoFilesTarget/`: Stata-generated alignment targets
 
 ### `/config/`
@@ -242,16 +242,16 @@ When IO is enabled, computing optimal consumption–labour choices for every age
 | `Expectations` / `LocalExpectations` | Computes expected future values over stochastic transitions. |
 | `CESUtility` | CES utility function used in the optimisation. |
 
-### `model/taxes/` — EUROMOD donor matching
+### `model/taxes/` — UKMOD donor matching
 
-Imputes taxes and benefits onto simulated benefit units by matching them to pre-computed EUROMOD donor records.
+Imputes taxes and benefits onto simulated benefit units by matching them to pre-computed UKMOD donor records.
 
 | Class | Purpose |
 | --- | --- |
 | `DonorTaxImputation` | Main entry point. Implements the three-step matching process: coarse-exact matching on characteristics, income proximity filtering, and candidate selection/averaging. |
 | `KeyFunction` / `KeyFunction1`–`4` | Four progressively relaxed matching-key definitions. The system tries the tightest key first and falls back through wider keys if no donors are found. |
 | `DonorKeys` | Builds composite matching keys from benefit-unit characteristics. |
-| `DonorTaxUnit` / `DonorPerson` | Represent the pre-computed EUROMOD donor records loaded from the database. |
+| `DonorTaxUnit` / `DonorPerson` | Represent the pre-computed UKMOD donor records loaded from the database. |
 | `CandidateList` | Ranked list of donor matches for a given benefit unit, sorted by income proximity. |
 | `Match` / `Matches` | Store the final selected donor(s) and their imputed tax-benefit values. |
 
@@ -263,7 +263,7 @@ When IO is enabled, this package creates projected income paths for birth cohort
 
 | Class | Purpose |
 | --- | --- |
-| `ManagerProjectLifetimeIncomes` | Generates the synthetic income trajectory database for all birth cohorts in the simulation horizon. |
+| `ManagerLifetimeIncomes` | Generates the synthetic income trajectory database for all birth cohorts in the simulation horizon. |
 | `LifetimeIncomeImputation` | Matches each simulated person to a donor income trajectory via binary search on the income CDF. |
 | `AnnualIncome` | Implements the AR(2) income process with age-gender anchoring. |
 | `BirthCohort` | Groups individuals by birth year for cohort-level income projection. |
@@ -288,7 +288,7 @@ The pipeline has three main parts: initial populations, regression coefficients 
 | **UKHLS** (Understanding Society) | Main household panel survey; waves 1 to O (UKDA-6614-stata) | Requires EUL licence from UK Data Service |
 | **BHPS** (British Household Panel Survey) | Historical predecessor to UKHLS; used for pre-2009 employment history | Bundled with UKHLS EUL |
 | **WAS** (Wealth and Assets Survey) | Biennial survey of household wealth; waves 1 to 7 (UKDA-7215-stata) | Requires EUL licence from UK Data Service |
-| **EUROMOD / UKMOD** | Tax-benefit microsimulation system | See [Tax-Benefit Donors (UK)](../getting-started/data/tax-benefit-donors-uk.md) on the website |
+| **UKMOD** | Tax-benefit microsimulation system | See [Tax-Benefit Donors (UK)](../getting-started/data/tax-benefit-donors-uk.md) on the website |
 
 ### Part 1 — Initial populations (`input/InitialPopulations/compile/`)
 
@@ -376,7 +376,7 @@ The setup route matters: single-run startup can rebuild a policy schedule, where
 
 ### Training mode
 
-The repository includes de-identified training data under `input/InitialPopulations/training/` and `input/EUROMODoutput/training/`. If no initial-population CSV files are found in the main input location, SimPaths automatically switches to training mode. Training mode supports development and CI but is not intended for research interpretation.
+The repository includes de-identified training data under `input/InitialPopulations/training/` and `input/UKMOD/UKMODoutput/training/`. If no initial-population CSV files are found in the main input location, SimPaths automatically switches to training mode. Training mode supports development and CI but is not intended for research interpretation.
 
 ### Logging
 

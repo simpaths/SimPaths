@@ -38,7 +38,7 @@ sum deh_c3 dcpst
 tab deh_c3, gen(educ) //Generate education level dummies
 egen dagcat = cut(dag), at(0,20,30,40,50,60,70,80,120)
 tab dagcat, gen(dagcat) //Generate age group dummies
-tab dcpst, gen(dcpstcat) //Marital status categories
+tab dcpst, gen(dcpstcat) //Partnership status categories
 
 cap drop hh_size
 bys stm idhh: gen hh_size = _N
@@ -63,7 +63,7 @@ recode hh_size (1=1) (2=2) (3=3) (4=4) (5/max=5), gen(hhsize_cat)
 recode hh_size (1=1) (2=2) (3=3) (4/max=4) , gen(hhsize_cat2)
 
 /*Household-level probit. Model probabiltiy of being a complete household conditional on presence of people
- of certain education age gender combination, marital status and region.*/
+ of certain education age gender combination, partnership status and region.*/
 probit complete_hh _Ideh* dcpstcat* ib8.drgn1  i.stm , vce(robust) iterate(20) //i.hhsize_cat2, dropped as otherwise does not converge
 
 *Predict probability of being a complete household

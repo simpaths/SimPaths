@@ -79,7 +79,7 @@ public class DonorTaxUnitPolicy {
         this.systemYear = policyYear;
     }
     public double getDisposableIncomePerMonth() {
-        if (!Parameters.checkFinite(disposableIncomePerMonth))
+        if (!Parameters.isFinite(disposableIncomePerMonth))
             throw new RuntimeException("attempt to get disposable income before instantiated");
         return this.disposableIncomePerMonth;
     }
@@ -87,7 +87,7 @@ public class DonorTaxUnitPolicy {
         this.disposableIncomePerMonth = value;
     }
     public double getOriginalIncomePerMonth() {
-        if (!Parameters.checkFinite(originalIncomePerMonth))
+        if (!Parameters.isFinite(originalIncomePerMonth))
             throw new RuntimeException("attempt to get original income before instantiated");
         return originalIncomePerMonth;
     }
@@ -108,13 +108,13 @@ public class DonorTaxUnitPolicy {
         this.originalIncomePerMonth = value;
     }
     public double getBenMeansTestPerMonth() {
-        if (!Parameters.checkFinite(benMeansTestPerMonth))
+        if (!Parameters.isFinite(benMeansTestPerMonth))
             throw new RuntimeException("attempt to get benefit amount before instantiated");
         return benMeansTestPerMonth;
     }
     public void setBenMeansTestPerMonth(Double ils_benmt) { this.benMeansTestPerMonth = ils_benmt; }
     public double getBenNonMeansTestPerMonth() {
-        if (!Parameters.checkFinite(benNonMeansTestPerMonth))
+        if (!Parameters.isFinite(benNonMeansTestPerMonth))
             throw new RuntimeException("attempt to get benefit amount before instantiated");
         return benNonMeansTestPerMonth;
     }
@@ -141,7 +141,7 @@ public class DonorTaxUnitPolicy {
         secondIncomePerMonth = inc;
     }
     public double getSecondIncomePerMonth() {
-        if (!Parameters.checkFinite(secondIncomePerMonth))
+        if (!Parameters.isFinite(secondIncomePerMonth))
             throw new RuntimeException("attempt to get second income before instantiated");
         return secondIncomePerMonth;
     }
@@ -149,7 +149,7 @@ public class DonorTaxUnitPolicy {
         childcareCostPerMonth = cost;
     }
     public double getChildcareCostPerMonth() {
-        if (!Parameters.checkFinite(childcareCostPerMonth))
+        if (!Parameters.isFinite(childcareCostPerMonth))
             throw new RuntimeException("attempt to get childcare costs before instantiated");
         return childcareCostPerMonth;
     }
@@ -157,7 +157,7 @@ public class DonorTaxUnitPolicy {
         earningsPerMonth = earnings;
     }
     public double getEarningsPerMonth() {
-        if (!Parameters.checkFinite(earningsPerMonth))
+        if (!Parameters.isFinite(earningsPerMonth))
             throw new RuntimeException("attempt to get earnings before instantiated");
         return earningsPerMonth;
     }

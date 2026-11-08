@@ -55,7 +55,7 @@ public class FertilityAlignment implements IEvaluation {
                 .filter(Filters.fertile())
                 .mapToDouble(person -> {
                     double score = Parameters.getRegFertilityF1()
-                            .getScore(person, Person.DoublesVariables.class);
+                            .getScore(person, Person.Variables.class);
                     return Parameters.getRegFertilityF1()
                             .getProbability(score + args[0]);
                 })

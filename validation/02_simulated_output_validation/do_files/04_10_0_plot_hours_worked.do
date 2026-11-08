@@ -432,9 +432,15 @@ forval year = `min_year'/`max_year' {
 	gen max_value = max_d_valid_`year' if max_d_valid_`year' > max_d_sim 
 	replace max_value = max_d_sim if max_value == . 
 
-	sum max_value 
-	local max_y = 1.25*r(max)
-	local steps = `max_y'/2
+	quietly sum max_value, meanonly
+	if (r(N) == 0 | missing(r(max)) | r(max) <= 0) {
+		local max_y = 1
+		local steps = 0.5
+	}
+	else {
+		local max_y = 1.25*r(max)
+		local steps = `max_y'/2
+	}
 	
 	twoway (hist sim_labHrsWorkWeek if year == `year', width(1) ///
 		color(green%30) legend(label(1 "SimPaths"))) ///
@@ -531,9 +537,15 @@ forval year = `min_year'/`max_year' {
 	gen max_value = max_d_valid_`year' if max_d_valid_`year' > max_d_sim 
 	replace max_value = max_d_sim if max_value == . 
 
-	sum max_value 
-	local max_y = 1.25*r(max)
-	local steps = `max_y'/2
+	quietly sum max_value, meanonly
+	if (r(N) == 0 | missing(r(max)) | r(max) <= 0) {
+		local max_y = 1
+		local steps = 0.5
+	}
+	else {
+		local max_y = 1.25*r(max)
+		local steps = `max_y'/2
+	}
 	
 	twoway (hist sim_labHrsWorkWeek if year == `year', width(1) ///
 		color(green%30) legend(label(1 "SimPaths"))) ///
@@ -626,9 +638,15 @@ forval year = `min_year'/`max_year' {
 	gen max_value = max_d_valid_`year' if max_d_valid_`year' > max_d_sim 
 	replace max_value = max_d_sim if max_value == . 
 
-	sum max_value 
-	local max_y = 1.25*r(max)
-	local steps = `max_y'/2
+	quietly sum max_value, meanonly
+	if (r(N) == 0 | missing(r(max)) | r(max) <= 0) {
+		local max_y = 1
+		local steps = 0.5
+	}
+	else {
+		local max_y = 1.25*r(max)
+		local steps = `max_y'/2
+	}
 	
 	twoway (hist sim_labHrsWorkWeek if year == `year' , width(1) ///
 		color(green%30) legend(label(1 "SimPaths"))) ///
@@ -724,9 +742,15 @@ forval year = `min_year'/`max_year' {
 	gen max_value = max_d_valid_`year' if max_d_valid_`year' > max_d_sim 
 	replace max_value = max_d_sim if max_value == . 
 
-	sum max_value 
-	local max_y = 1.25*r(max)
-	local steps = `max_y'/2
+	quietly sum max_value, meanonly
+	if (r(N) == 0 | missing(r(max)) | r(max) <= 0) {
+		local max_y = 1
+		local steps = 0.5
+	}
+	else {
+		local max_y = 1.25*r(max)
+		local steps = `max_y'/2
+	}
 	
 	twoway (hist sim_labHrsWorkWeek if year == `year', width(1) ///
 		color(green%30) legend(label(1 "SimPaths"))) ///
@@ -1140,9 +1164,15 @@ forval year = `min_year'/`max_year' {
 	gen max_value = max_d_valid_`year' if max_d_valid_`year' > max_d_sim 
 	replace max_value = max_d_sim if max_value == . 
 
-	sum max_value 
-	local max_y = 1.25*r(max)
-	local steps = `max_y'/2
+	quietly sum max_value, meanonly
+	if (r(N) == 0 | missing(r(max)) | r(max) <= 0) {
+		local max_y = 1
+		local steps = 0.5
+	}
+	else {
+		local max_y = 1.25*r(max)
+		local steps = `max_y'/2
+	}
 	
 	twoway (hist sim_labHrsWorkWeek if year == `year' /*& labHrsWorkWeek <= 65*/, width(1) color(green%30) ///
 		legend(label(1 "SimPaths"))) ///
@@ -1244,9 +1274,15 @@ forval year = `min_year'/`max_year' {
 	gen max_value = max_d_valid_`year' if max_d_valid_`year' > max_d_sim 
 	replace max_value = max_d_sim if max_value == . 
 
-	sum max_value 
-	local max_y = 1.25*r(max)
-	local steps = `max_y'/2
+	quietly sum max_value, meanonly
+	if (r(N) == 0 | missing(r(max)) | r(max) <= 0) {
+		local max_y = 1
+		local steps = 0.5
+	}
+	else {
+		local max_y = 1.25*r(max)
+		local steps = `max_y'/2
+	}
 	
 	twoway (hist sim_labHrsWorkWeek if year == `year', width(1) ///
 		color(green%30) legend(label(1 "SimPaths"))) ///
@@ -1344,9 +1380,15 @@ forval year = `min_year'/`max_year' {
 	gen max_value = max_d_valid_`year' if max_d_valid_`year' > max_d_sim 
 	replace max_value = max_d_sim if max_value == . 
 
-	sum max_value 
-	local max_y = 1.25*r(max)
-	local steps = `max_y'/2
+	quietly sum max_value, meanonly
+	if (r(N) == 0 | missing(r(max)) | r(max) <= 0) {
+		local max_y = 1
+		local steps = 0.5
+	}
+	else {
+		local max_y = 1.25*r(max)
+		local steps = `max_y'/2
+	}
 	
 	twoway (hist sim_labHrsWorkWeek if year == `year' , width(1) ///
 		color(green%30) legend(label(1 "SimPaths"))) ///
@@ -1842,9 +1884,15 @@ forval year = `min_year'/`max_year' {
 	gen max_value = max_d_valid_`year' if max_d_valid_`year' > max_d_sim 
 	replace max_value = max_d_sim if max_value == . 
 
-	sum max_value 
-	local max_y = 1.25*r(max)
-	local steps = `max_y'/2
+	quietly sum max_value, meanonly
+	if (r(N) == 0 | missing(r(max)) | r(max) <= 0) {
+		local max_y = 1
+		local steps = 0.5
+	}
+	else {
+		local max_y = 1.25*r(max)
+		local steps = `max_y'/2
+	}
 	
 	twoway (hist sim_labHrsWorkWeek if year == `year', width(1) ///
 		color(green%30) legend(label(1 "SimPaths"))) ///
@@ -1948,9 +1996,15 @@ forval year = `min_year'/`max_year' {
 	gen max_value = max_d_valid_`year' if max_d_valid_`year' > max_d_sim 
 	replace max_value = max_d_sim if max_value == . 
 
-	sum max_value 
-	local max_y = 1.25*r(max)
-	local steps = `max_y'/2
+	quietly sum max_value, meanonly
+	if (r(N) == 0 | missing(r(max)) | r(max) <= 0) {
+		local max_y = 1
+		local steps = 0.5
+	}
+	else {
+		local max_y = 1.25*r(max)
+		local steps = `max_y'/2
+	}
 	
 	twoway (hist sim_labHrsWorkWeek if year == `year', width(1) ///
 		color(green%30) legend(label(1 "SimPaths"))) ///
@@ -2050,9 +2104,15 @@ forval year = `min_year'/`max_year' {
 	gen max_value = max_d_valid_`year' if max_d_valid_`year' > max_d_sim 
 	replace max_value = max_d_sim if max_value == . 
 
-	sum max_value 
-	local max_y = 1.25*r(max)
-	local steps = `max_y'/2
+	quietly sum max_value, meanonly
+	if (r(N) == 0 | missing(r(max)) | r(max) <= 0) {
+		local max_y = 1
+		local steps = 0.5
+	}
+	else {
+		local max_y = 1.25*r(max)
+		local steps = `max_y'/2
+	}
 	
 	twoway (hist sim_labHrsWorkWeek if year == `year' , width(1) ///
 		color(green%30) legend(label(1 "SimPaths"))) ///

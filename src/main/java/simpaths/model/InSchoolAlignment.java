@@ -61,7 +61,7 @@ public class InSchoolAlignment implements IEvaluation {
                         && !Les_c4.Student.equals(person.getLabC4L1())
                         && !Les_c4.Retired.equals(person.getLabC4L1()))
                 .mapToDouble(person -> {
-                    double score = Parameters.getRegEducationE1b().getScore(person, Person.DoublesVariables.class);
+                    double score = Parameters.getRegEducationE1b().getScore(person, Person.Variables.class);
                     return Parameters.getRegEducationE1b().getProbability(score);
                 })
                 .sum();
@@ -94,7 +94,7 @@ public class InSchoolAlignment implements IEvaluation {
                         && person.getDemAge() >= Parameters.MIN_AGE_TO_LEAVE_EDUCATION
                         && person.getDemAge() <= Parameters.MAX_AGE_TO_STAY_IN_CONTINUOUS_EDUCATION)
                 .mapToDouble(person -> {
-                    double score = Parameters.getRegEducationE1a().getScore(person, Person.DoublesVariables.class);
+                    double score = Parameters.getRegEducationE1a().getScore(person, Person.Variables.class);
                     return Parameters.getRegEducationE1a().getProbability(score + args[0]);
                 })
                 .sum();

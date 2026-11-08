@@ -1,5 +1,6 @@
 package simpaths.model;
 
+import microsim.engine.SimulationEngine;
 import microsim.statistics.regression.BinomialRegression;
 import microsim.statistics.regression.GeneralisedOrderedRegression;
 import org.junit.jupiter.api.*;
@@ -31,7 +32,7 @@ public class PersonTest {
      * This must run before creating new Person(...) instances in tests.
      */
     private void mockStaticDependenciesForConstructor() {
-        // Mock the multivariate distribution needed by Person constructor's setMarriageTargets()
+        // Mock the multivariate distribution needed by Person constructor's setPartnershipTargets()
         double[] mockWageAgeValues = new double[]{0.0, 0.0};
 
         // Using explicit lambda call for robust static stubbing
@@ -132,8 +133,10 @@ public class PersonTest {
             Mockito.when(mockModel.getYear()).thenReturn(2025);
             Mockito.when(mockModel.getCountry()).thenReturn(Country.UK);
             Mockito.when(mockModel.isAlignCohabitation()).thenReturn(false);
+            Mockito.when(mockModel.getId()).thenReturn(SimPathsModel.class.getCanonicalName());
             Mockito.when(mockBenefitUnit.getHousehold()).thenReturn(mockHousehold);
             Mockito.when(mockHousehold.getId()).thenReturn(1L);
+            SimulationEngine.getInstance().addSimulationManager(mockModel);
 
             // 4) Create real objects used by the behaviour under test
             testPerson = new Person(1L, 123L);
@@ -264,6 +267,7 @@ public class PersonTest {
         @Test
         @DisplayName("OUTCOME C: Over 29 and not partnered - estimate to be partnered")
         public void over29StudentToBePartnered() {
+            testPerson.setWealthNonPensValueL1(0.0);
             testPerson.setDemAge(30);
             testPerson.setDemMaleFlag(Gender.Female);
             testPerson.setBenefitUnit(testBenefitUnit);
@@ -349,6 +353,8 @@ public class PersonTest {
 
             testPerson.setBenefitUnit(testBenefitUnit);
             testPartner.setBenefitUnit(testBenefitUnit);
+            testPerson.setWealthNonPensValueL1(0.0);
+            testPartner.setWealthNonPensValueL1(0.0);
 
             testBenefitUnit.setRegion(Region.UKD);
 
@@ -603,6 +609,7 @@ public class PersonTest {
             @Test
             @DisplayName("OUTCOME C: Lagged Retired (Cannot Re-enter)")
             void cannotEnterIfLaggedRetired() {
+                testPerson.setDemAge(65);
                 testPerson.setLabC4L1(Les_c4.Retired);
 
                 assertFalse(testPerson.inSchool());
@@ -612,6 +619,7 @@ public class PersonTest {
             @Test
             @DisplayName("OUTCOME E: Lagged Not Student, Succeeds in E1b (Becomes Student)")
             void becomesStudentE1bSuccess() {
+                testPerson.setDemAge(20);
                 final double PROBABILITY_TO_BECOME_STUDENT = 0.8;
                 final double INNOVATION_TO_BECOME_STUDENT = 0.1;
 
@@ -631,6 +639,7 @@ public class PersonTest {
             @Test
             @DisplayName("OUTCOME D: Lagged Not Student, Fails in E1b (Remains Unchanged)")
             void remainsUnchangedE1bFailure() {
+                testPerson.setDemAge(20);
                 final double PROBABILITY_TO_BECOME_STUDENT = 0.2;
                 final double INNOVATION_REMAIN_UNCHANGED = 0.9;
 

@@ -21,6 +21,17 @@ def contrast_ratio(first, second):
     return (high + 0.05) / (low + 0.05)
 
 
+def resolve_colour(value, tokens):
+    seen = set()
+    while match := re.fullmatch(r"var\((--[\w-]+)\)", value):
+        token = match.group(1)
+        if token in seen:
+            raise ValueError(f"Circular colour reference: {token}")
+        seen.add(token)
+        value = tokens[token]
+    return value
+
+
 class SitePaletteTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -32,6 +43,15 @@ class SitePaletteTest(unittest.TestCase):
         found = blocks(self.styles[filename], selector)
         self.assertTrue(found, f"Missing selector: {selector}")
         return {key: value for rule in found for key, value in rule.items()}
+
+    def documentation_panels(self):
+        filename = "04-landing-components.css"
+        base = self.rule(filename, ".md-typeset .docs-hub--index")
+        dark = self.rule(filename, '[data-md-color-scheme="slate"] .md-typeset .docs-hub--index')
+        for theme, overrides in (("default", {}), ("slate", dark)):
+            for section in ("guides", "resources", "reference"):
+                panel = self.rule(filename, f".md-typeset .docs-index__section--{section}")
+                yield theme, section, {**base, **overrides, **panel}
 
     def test_pristine_light_palette_roles(self):
         expected = {
@@ -131,9 +151,10 @@ class SitePaletteTest(unittest.TestCase):
 
     def test_documentation_sections_have_solid_surfaces_without_individual_card_frames(self):
         filename = "04-landing-components.css"
-        for section, colour in {"guides": "#C8DDE8", "resources": "#E8BEAD", "reference": "#725B73"}.items():
-            selector = f".md-typeset .docs-index__section--{section}"
-            self.assertEqual(self.rule(filename, selector)["--docs-panel-background"], colour)
+        for theme, section, colours in self.documentation_panels():
+            with self.subTest(theme=theme, section=section):
+                surface = resolve_colour(colours["--docs-panel-background"], colours)
+                self.assertRegex(surface, r"^#[0-9A-Fa-f]{6}$")
         self.assertEqual(self.rule(filename, ".md-typeset .docs-index__section")["background"],
                          "var(--docs-panel-background)")
         self.assertEqual(self.rule(filename, ".md-typeset .docs-index__section")["border-radius"], "6px")
@@ -146,30 +167,14 @@ class SitePaletteTest(unittest.TestCase):
                          "2px solid var(--docs-panel-ink)")
 
     def test_documentation_panel_text_and_focus_have_contrast(self):
-        def rgb(value):
-            if len(value) == 4:
-                value = "#" + "".join(channel * 2 for channel in value[1:])
-            return tuple(int(value[i:i + 2], 16) / 255 for i in (1, 3, 5))
-
-        def luminance(colour):
-            linear = [c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4 for c in colour]
-            return sum(c * weight for c, weight in zip(linear, (0.2126, 0.7152, 0.0722)))
-
-        def contrast(first, second):
-            low, high = sorted((luminance(first), luminance(second)))
-            return (high + 0.05) / (low + 0.05)
-
-        tokens = self.rule("04-landing-components.css", ".md-typeset .docs-hub--index")
-        dark = self.rule("04-landing-components.css", '[data-md-color-scheme="slate"] .md-typeset .docs-hub--index')
-        for section in ("guides", "resources", "reference"):
-            panel = self.rule("04-landing-components.css", f".md-typeset .docs-index__section--{section}")
-            colours = {**tokens, **panel}
-            surface = rgb(panel["--docs-panel-background"])
-            with self.subTest(section=section):
+        for theme, section, colours in self.documentation_panels():
+            surface = resolve_colour(colours["--docs-panel-background"], colours)
+            with self.subTest(theme=theme, section=section):
                 for role in ("--docs-panel-ink", "--docs-panel-copy"):
-                    self.assertNotIn(role, dark)
-                    self.assertGreaterEqual(contrast(rgb(colours[role]), surface), 4.5)
-                self.assertGreaterEqual(contrast(rgb(colours["--docs-panel-ink"]), surface), 3)
+                    foreground = resolve_colour(colours[role], colours)
+                    self.assertGreaterEqual(contrast_ratio(foreground, surface), 4.5)
+                focus = resolve_colour(colours["--docs-panel-ink"], colours)
+                self.assertGreaterEqual(contrast_ratio(focus, surface), 3)
 
     def test_reading_tables_use_the_page_surface_instead_of_a_separate_palette(self):
         for selector in (".md-typeset table:not([class])", ".md-typeset table:not([class]) th"):

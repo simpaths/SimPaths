@@ -3,6 +3,7 @@ package simpaths.model.decisions;
 import java.security.InvalidParameterException;
 import java.util.Map;
 
+import org.apache.commons.math3.util.FastMath;
 import simpaths.data.ManagerRegressions;
 import simpaths.data.Parameters;
 import simpaths.data.RegressionName;
@@ -12,8 +13,6 @@ import simpaths.model.Person;
 import simpaths.model.TaxEvaluation;
 import simpaths.model.taxes.Match;
 import simpaths.model.taxes.Matches;
-
-import static simpaths.data.Parameters.asinh;
 
 
 /**
@@ -216,7 +215,7 @@ public class Expectations {
         if (cohabitation) {
             personProxyNextPeriod.setEduHighestPartnerC4L1(currentStates.getEducationCode());
             personProxyNextPeriod.setHealthPartnerSelfRatedL1(DecisionParams.DEFAULT_HEALTH);
-            personProxyNextPeriod.setDemPartnerNYearL1(DecisionParams.DEFAULT_YEARS_MARRIED);
+            personProxyNextPeriod.setDemPartnerNYearL1(DecisionParams.DEFAULT_YEARS_IN_PARTNERSHIP);
             personProxyNextPeriod.setDemAgePartnerDiffL1(DecisionParams.DEFAULT_AGE_DIFFERENCE);
         }
     }
@@ -287,9 +286,9 @@ public class Expectations {
                 retiring = true;
             }
             if (retiring) {
-                pensionIncomePerYear = wealthLiqValue * Parameters.SHARE_OF_WEALTH_TO_ANNUITISE_AT_RETIREMENT /
-                        Parameters.annuityRates.getAnnuityRate(currentStates.getOccupancyCode(), currentStates.getBirthYear(), currentStates.getYear());
-                wealthLiqValue *= (1.0 - Parameters.SHARE_OF_WEALTH_TO_ANNUITISE_AT_RETIREMENT);
+                pensionIncomePerYear = wealthLiqValue * Parameters.pensionLumpSumShare /
+                        Parameters.annuityRates.getAnnuityRateByOccupancyBirthYearAge(currentStates.getOccupancyCode(), currentStates.getBirthYear(), currentStates.getYear());
+                wealthLiqValue *= (1.0 - Parameters.pensionLumpSumShare);
             }
         }
         if (cohabitation) {
@@ -369,11 +368,11 @@ public class Expectations {
             personProxyNextPeriod.setLabC4L1(currentStates.getLesCode(emp1Pr));
             personProxyNextPeriod.setLabStatusPartnerAndOwnC4L1(currentStates.getLesC4Code(emp1Pr, emp2Pr));
             personProxyNextPeriod.setYNonBenPersGrossMonthL1(
-                    asinh(labourIncome1Weekly*Parameters.WEEKS_PER_MONTH + (investmentIncome1Annual + pensionIncome1Annual) / 12.0));
+                    FastMath.asinh(labourIncome1Weekly*Parameters.WEEKS_PER_MONTH + (investmentIncome1Annual + pensionIncome1Annual) / 12.0));
             if (cohabitation) {
                 personProxyNextPeriod.setYPersAndPartnerGrossDiffMonthL1(
-                        asinh(labourIncome1Weekly*Parameters.WEEKS_PER_MONTH + (investmentIncome1Annual + pensionIncome1Annual) / 12.0) -
-                                asinh(labourIncome2Weekly*Parameters.WEEKS_PER_MONTH + (investmentIncome2Annual + pensionIncome2Annual) / 12.0) );
+                        FastMath.asinh(labourIncome1Weekly*Parameters.WEEKS_PER_MONTH + (investmentIncome1Annual + pensionIncome1Annual) / 12.0) -
+                                FastMath.asinh(labourIncome2Weekly*Parameters.WEEKS_PER_MONTH + (investmentIncome2Annual + pensionIncome2Annual) / 12.0) );
             } else {
                 personProxyNextPeriod.setYPersAndPartnerGrossDiffMonthL1(0.0);
             }
@@ -467,8 +466,8 @@ public class Expectations {
         double childcareCostWeekly = 0.0;
         if (Parameters.flagFormalChildcare && !Parameters.flagSuppressChildcareCosts && currentStates.hasChildrenEligibleForCare()) {
 
-            double probFormalChildCare = Parameters.getRegChildcareC1a().getProbability(benefitUnitProxyThisPeriod, BenefitUnit.Regressors.class);
-            double logChildcareCostScore = Parameters.getRegChildcareC1b().getScore(benefitUnitProxyThisPeriod, BenefitUnit.Regressors.class);
+            double probFormalChildCare = Parameters.getRegChildcareC1a().getProbability(benefitUnitProxyThisPeriod, BenefitUnit.Variables.class);
+            double logChildcareCostScore = Parameters.getRegChildcareC1b().getScore(benefitUnitProxyThisPeriod, BenefitUnit.Variables.class);
             childcareCostWeekly = Math.exp(logChildcareCostScore) * probFormalChildCare;
         }
         return childcareCostWeekly;
@@ -482,7 +481,7 @@ public class Expectations {
             SocialCareReceiptState market = currentStates.getSocialCareReceiptStateCode();
             if (SocialCareReceiptState.Mixed.equals(market) || SocialCareReceiptState.Formal.equals(market)) {
 
-                double score = Parameters.getRegFormalCareHoursS2e().getScore(personProxyThisPeriod,Person.DoublesVariables.class);
+                double score = Parameters.getRegFormalCareHoursS2e().getScore(personProxyThisPeriod, Person.Variables.class);
                 double rmse = Parameters.getRMSEForRegression("S2e");
                 double hours = Math.min(Parameters.MAX_HOURS_WEEKLY_FORMAL_CARE, Math.exp(score + rmse*rmse/2.0));
                 socialCareCostWeekly = hours * Parameters.getTimeSeriesValue(currentStates.getYear(), TimeSeriesVariable.CarerWageRate);

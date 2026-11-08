@@ -20,7 +20,7 @@ SimPaths needs a starting population, tax-benefit donor data, and model paramete
 
 ## Training and research data
 
-The repository includes [initial-population training data](https://github.com/simpaths/SimPaths/tree/develop/input/InitialPopulations/training) and [donor training data](https://github.com/simpaths/SimPaths/tree/develop/input/EUROMODoutput/training). Use these with the [first-simulation guide](../first-simulation.md) to check the installation. Training results are not suitable for substantive analysis.
+The repository includes [initial-population training data](https://github.com/simpaths/SimPaths/tree/develop/input/InitialPopulations/training) and [donor training data](https://github.com/simpaths/SimPaths/tree/develop/input/UKMOD/UKMODoutput/training). Use these with the [first-simulation guide](../first-simulation.md) to check the installation. Training results are not suitable for substantive analysis.
 
 UK research populations are derived from Understanding Society (UKHLS), with additional sources including the Wealth and Assets Survey. Tax-benefit donors are produced with UKMOD using licensed survey inputs. Access conditions apply to the underlying data and derived records; do not upload restricted data or outputs to the public repository.
 

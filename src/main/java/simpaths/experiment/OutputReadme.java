@@ -163,7 +163,7 @@ public class OutputReadme {
 
         describe(out, collector.isPersistWealthIncomeStatistics(), "WealthIncomeStatistics.csv", "one row per year",
                 "Income and wealth. Gini coefficients for market and equivalised disposable income, "
-                        + "income percentiles, median equivalised disposable income and the S-Index, plus "
+                        + "income percentiles, median equivalised disposable income, plus "
                         + "labour, investment and pension income, investment losses, disposable income gross "
                         + "of losses, and wealth by age band.");
 
