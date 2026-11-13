@@ -564,6 +564,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         yBenUCReceivedFlag = originalPerson.yBenUCReceivedFlag;
         yBenUCReceivedFlagL1 = originalPerson.yBenUCReceivedFlagL1;
         yFinDstrssFlag = originalPerson.yFinDstrssFlag;
+        demPrptyFlagL1 = originalPerson.demPrptyFlagL1;
 
         if (originalPerson.labWageFullTimeHrly >= Parameters.MIN_HOURLY_WAGE_RATE) {
             labWageFullTimeHrly = Math.min(Parameters.MAX_HOURLY_WAGE_RATE, Math.max(Parameters.MIN_HOURLY_WAGE_RATE, originalPerson.labWageFullTimeHrly));
@@ -3933,7 +3934,8 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
             }
  // Evaluated at the level of a benefit unit. If required, can be changed to individual-level homeownership status.
             case Dhh_owned_L1 -> {
-                return demPrptyFlagL1 ? 1. : 0.;
+                // demPrptyFlagL1 has no personal history for newborns/immigrants (never captured by @Lag yet); default to non-owner rather than NPE on unboxing.
+                return Boolean.TRUE.equals(demPrptyFlagL1) ? 1. : 0.;
             } // Evaluated at the level of a benefit unit. If required, can be changed to individual-level homeownership status.
             case labWageHrlyLogL1 -> {
                 if (labWageFullTimeHrlyL1 == null) {
@@ -4427,7 +4429,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
                 return (labWageFullTimeHrlyL1 != null && labWageFullTimeHrlyL1 > 0) ? labWageFullTimeHrlyL1 : 0.;
             }
             case wealthPrptyFlagL1 -> {
-                return demPrptyFlagL1 ? 1. : 0.;
+                return Boolean.TRUE.equals(demPrptyFlagL1) ? 1. : 0.;
             }
             case yCapitalPersMonthL1 -> {
                 return yCapitalPersMonthL1 != null ? yCapitalPersMonthL1 : 0.;

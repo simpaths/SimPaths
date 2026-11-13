@@ -129,6 +129,10 @@ The default uprating series is `TimeSeriesVariable.Inflation`, sourced from the 
 
 Whether the education equations (E1a/E1b) should use parental rather than own-unit income is a separate, unresolved specification question (issue #543); it needs consistent re-estimation and Java changes.
 
+### Lagged home-ownership flag
+
+`Person.demPrptyFlagL1` is stored on the person (via `@Lag(getter="isHousingOwned")`), captured in `Person.updateAttributes()` before demographic events change benefit-unit membership — the same pattern as the income-quintile lag above. Unlike that lag, its only use site (`Dhh_owned_L1` / `wealthPrptyFlagL1` in `getDoubleValue`) did not null-check it, so a person with no personal history (newborns or immigrants) would NPE rather than default to non-owner. Both are fixed: the getter uses `Boolean.TRUE.equals(...)`, and the copy constructor copies `demPrptyFlagL1`.
+
 ### Equivalence scale
 
 `BenefitUnit.getEquivalisedWeight()` and `Household.getEquivalisedDisposableIncomeYearly()` must both use the OECD scale: 1.0 for the first adult, 0.5 for each further person aged 14+, 0.3 per child under 14 (issue #541).
