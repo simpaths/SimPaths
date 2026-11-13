@@ -111,6 +111,8 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
     @Lag(getter="getNumberChildrenAllForLag") @Transient private Integer numberChildrenAllL1;     //Lag(1) of number of children in benefit unit, kept on the person (0 below AGE_TO_BECOME_RESPONSIBLE)
     @Lag(getter="getNumberChildren02ForLag") @Transient private Integer numberChildren02L1;       //Lag(1) of number of children aged 0-2 in benefit unit, kept on the person (0 below AGE_TO_BECOME_RESPONSIBLE)
     @Lag(getter="getDemCompHhC4ForLag") @Transient private Dhhtp_c4 demCompHhC4L1;                //Lag(1) of household composition, kept on the person (SingleNoChildren below AGE_TO_BECOME_RESPONSIBLE)
+    @Lag(getter="getYPvrtyFlagForLag") @Transient private Integer yPvrtyFlagL1;                   //Lag(1) of benefit unit's at-risk-of-poverty flag, kept on the person
+    @Lag(getter="getYDispEquivYearForLag") @Transient private Double yDispEquivYearL1;            //Lag(1) of benefit unit's equivalised disposable income, kept on the person
 
     // partner lags
     @Lag(field="demPartnerStatusL1") @Transient private Dcpst demPartnerStatusL2;            // lag (2) partnership status
@@ -571,6 +573,8 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         numberChildrenAllL1 = originalPerson.numberChildrenAllL1;
         numberChildren02L1 = originalPerson.numberChildren02L1;
         demCompHhC4L1 = originalPerson.demCompHhC4L1;
+        yPvrtyFlagL1 = originalPerson.yPvrtyFlagL1;
+        yDispEquivYearL1 = originalPerson.yDispEquivYearL1;
 
         if (originalPerson.labWageFullTimeHrly >= Parameters.MIN_HOURLY_WAGE_RATE) {
             labWageFullTimeHrly = Math.min(Parameters.MAX_HOURLY_WAGE_RATE, Math.max(Parameters.MIN_HOURLY_WAGE_RATE, originalPerson.labWageFullTimeHrly));
@@ -3915,25 +3919,28 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
                 return (labC4.equals(Les_c4.NotEmployed) && labC4L1.equals(Les_c4.NotEmployed) && healthDsblLongtermFlag.equals(Indicator.False) && healthDsblLongtermFlagL1.equals(Indicator.False)) ? 1. : 0.;
             }
             case NonPovertyToPoverty -> {
-                if (benefitUnit.getYPvrtyFlagL1() != null) {
-                    return (benefitUnit.getYPvrtyFlagL1() == 0 && benefitUnit.getYPvrtyFlag() == 1) ? 1. : 0.;
+                Integer pvrtyFlagL1 = getYPvrtyFlagL1();
+                if (pvrtyFlagL1 != null) {
+                    return (pvrtyFlagL1 == 0 && benefitUnit.getYPvrtyFlag() == 1) ? 1. : 0.;
                 } else return 0.;
             }
             case PovertyToNonPoverty -> {
-                if (benefitUnit.getYPvrtyFlagL1() != null) {
-                    return (benefitUnit.getYPvrtyFlagL1() == 1 && benefitUnit.getYPvrtyFlag() == 0) ? 1. : 0.;
+                Integer pvrtyFlagL1 = getYPvrtyFlagL1();
+                if (pvrtyFlagL1 != null) {
+                    return (pvrtyFlagL1 == 1 && benefitUnit.getYPvrtyFlag() == 0) ? 1. : 0.;
                 } else return 0.;
             }
             case PersistentPoverty -> {
-                if (benefitUnit.getYPvrtyFlagL1() != null) {
-                    return (benefitUnit.getYPvrtyFlagL1() == 1 && benefitUnit.getYPvrtyFlag() == 1) ? 1. : 0.;
+                Integer pvrtyFlagL1 = getYPvrtyFlagL1();
+                if (pvrtyFlagL1 != null) {
+                    return (pvrtyFlagL1 == 1 && benefitUnit.getYPvrtyFlag() == 1) ? 1. : 0.;
                 } else return 0.;
             }
             case RealIncomeChange -> {
-                return (benefitUnit.getYearlyChangeInLogEDI());
+                return getYearlyChangeInLogEDI();
             }
             case RealIncomeDecrease_D -> {
-                return (benefitUnit.isDecreaseInYearlyEquivalisedDisposableIncome()) ? 1. : 0.;
+                return isDecreaseInYearlyEquivalisedDisposableIncome() ? 1. : 0.;
             }
             case D_Econ_benefits -> {
                 return isReceivesBenefitsFlag_L1() ? 1. : 0.;
@@ -5961,6 +5968,18 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         return benefitUnit.getDemCompHhC4();
     }
 
+    // Stata's variable_update.do estimates NonPovertyToPoverty/PovertyToNonPoverty/PersistentPoverty and
+    // RealIncomeChange/RealIncomeDecrease_D under xtset idperson swv, so L./D. there follow the person, not
+    // whichever benefit unit they are in now. No under-18 override is needed here (unlike children/household
+    // type): a minor's household poverty/income state in the data is the parents' real state.
+    private Integer getYPvrtyFlagForLag() {
+        return (benefitUnit != null) ? benefitUnit.getYPvrtyFlag() : null;
+    }
+
+    private Double getYDispEquivYearForLag() {
+        return (benefitUnit != null) ? benefitUnit.getEquivalisedDisposableIncomeYearly() : null;
+    }
+
     private Ydses_c5 getYHhQuintilesMonthC5Current() {
         if (model != null) {
             if (benefitUnit == null)
@@ -5996,6 +6015,39 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
 
     public void setI_demCompHhC4L1(Dhhtp_c4 demCompHhC4L1) {
         i_demCompHhC4L1 = demCompHhC4L1;
+    }
+
+    private Integer getYPvrtyFlagL1() {
+        if (yPvrtyFlagL1 != null) return yPvrtyFlagL1;
+        // No personal history yet (year 1, newborn, immigrant): fall back to the current unit's own lag
+        // (non-null if it is an established unit the person has just joined), otherwise no signal.
+        return (benefitUnit != null) ? benefitUnit.getYPvrtyFlagL1() : null;
+    }
+
+    private Double getYDispEquivYearL1() {
+        if (yDispEquivYearL1 != null) return yDispEquivYearL1;
+        return (benefitUnit != null) ? benefitUnit.getYDispEquivYearL1() : null;
+    }
+
+    // Mirrors BenefitUnit.calculateYearlyChangeInLogEquivalisedDisposableIncome, but compares the person's
+    // own lagged equivalised disposable income against the current unit's current value, rather than the
+    // current unit's own lag, which is blank for a unit formed partway through this year.
+    private double getYearlyChangeInLogEDI() {
+        if (benefitUnit == null) return 0.;
+        double current = benefitUnit.getEquivalisedDisposableIncomeYearly();
+        Double lagged = getYDispEquivYearL1();
+        if (lagged == null || current < 0. || lagged < 0.) return 0.;
+        // Note that income is uprated to the base price year, as specified in parameters class, as the estimated change uses real income change
+        // +1 added as log(0) is not defined
+        return Math.log(current / Parameters.getTimeSeriesValue(model.getYear(), TimeSeriesVariable.Inflation) + 1)
+                - Math.log(lagged / Parameters.getTimeSeriesValue(model.getYear()-1, TimeSeriesVariable.Inflation) + 1);
+    }
+
+    private boolean isDecreaseInYearlyEquivalisedDisposableIncome() {
+        if (benefitUnit == null) return false;
+        double current = benefitUnit.getEquivalisedDisposableIncomeYearly();
+        Double lagged = getYDispEquivYearL1();
+        return (lagged != null && current >= 0. && current < lagged);
     }
 
     private Integer getNumberChildrenAllL1() {

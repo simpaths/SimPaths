@@ -93,7 +93,6 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
     @NullInitialised private Integer yBenLegacyReceivedFlag;
     @NullInitialised private Double yDispEquivYear;
     @Lag(getter = "getEquivalisedDisposableIncomeYearly") @Transient private Double yDispEquivYearL1;
-    @NullInitialised @Transient private Double yDiffDispEquivPrevYear;
     private Integer yPvrtyFlag;        //1 if at risk of poverty, defined by an equivalisedDisposableIncomeYearly < 60% of median household's
     @Lag(getter = "getYPvrtyFlag") @Transient private Integer yPvrtyFlagL1;
     @Lag(getter = "getIndicatorChildren0to3") @Transient private Indicator dem0to3L1;
@@ -301,7 +300,6 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
         yBenAmountMonth = Objects.requireNonNullElse(originalBenefitUnit.getBenefitsReceivedPerMonth(),0.0);
         yPvrtyFlag = Objects.requireNonNullElse(originalBenefitUnit.yPvrtyFlag,0);
         yPvrtyFlagL1 = Objects.requireNonNullElse(originalBenefitUnit.yPvrtyFlagL1, yPvrtyFlag);
-        yDiffDispEquivPrevYear = Objects.requireNonNullElse(originalBenefitUnit.yDiffDispEquivPrevYear,0.0);
         wealthTotValue = Objects.requireNonNullElse(originalBenefitUnit.wealthTotValue,0.0);
         wealthPensValue = Objects.requireNonNullElse(originalBenefitUnit.wealthPensValue,0.0);
         wealthPrptyValue = Objects.requireNonNullElse(originalBenefitUnit.wealthPrptyValue,0.0);
@@ -398,7 +396,6 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
             }
             case CalculateChangeInEDI -> {
                 calculateEquivalisedDisposableIncomeYearly(); //Update BU's EDI
-                calculateYearlyChangeInLogEquivalisedDisposableIncome(); //Calculate change in EDI
             }
             case Homeownership -> {
                 homeownership();
@@ -4671,21 +4668,6 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
     }
 
 
-    private double calculateYearlyChangeInLogEquivalisedDisposableIncome() {
-        double yearlyChangeInLogEquivalisedDisposableIncome = 0.;
-        if (yDispEquivYear != null && yDispEquivYearL1 != null && yDispEquivYear >= 0. && yDispEquivYearL1 >= 0.) {
-            // Note that income is uprated to the base price year, as specified in parameters class, as the estimated change uses real income change
-            // +1 added as log(0) is not defined
-            yearlyChangeInLogEquivalisedDisposableIncome =
-                    Math.log(yDispEquivYear / Parameters.getTimeSeriesValue(model.getYear(), TimeSeriesVariable.Inflation) + 1)
-                            - Math.log(yDispEquivYearL1 / Parameters.getTimeSeriesValue(model.getYear()-1, TimeSeriesVariable.Inflation) + 1);
-        }
-        yDiffDispEquivPrevYear = yearlyChangeInLogEquivalisedDisposableIncome;
-        if (!Parameters.isFinite(yDiffDispEquivPrevYear))
-            throw new RuntimeException("problem evaluating yearly change in log edi");
-        return yearlyChangeInLogEquivalisedDisposableIncome;
-    }
-
     /**
      *
      * Returns a defensive copy of the field.
@@ -4968,6 +4950,10 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
         return yPvrtyFlagL1;
     }
 
+    public Double getYDispEquivYearL1() {
+        return yDispEquivYearL1;
+    }
+
     public void setYPvrtyFlag(Integer yPvrtyFlag) {
         this.yPvrtyFlag = yPvrtyFlag;
     }
@@ -5081,12 +5067,6 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
         return demCompHhC4L1;
     }
 
-    public double getYearlyChangeInLogEDI() {
-        if (yDiffDispEquivPrevYear ==null)
-            throw new RuntimeException("yearlyChangeInLogEDI requested before set");
-        return yDiffDispEquivPrevYear;
-    }
-
     public boolean isHousingOwned() {
         if (wealthPrptyFlag ==null) {
             wealthPrptyFlag = false;
@@ -5124,10 +5104,6 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
         if (Math.abs(cost) > 0.01)
             cost *= Parameters.WEEKS_PER_MONTH / Parameters.getTimeSeriesValue(model.getYear(), TimeSeriesVariable.Inflation);
         return cost;
-    }
-
-    public boolean isDecreaseInYearlyEquivalisedDisposableIncome() {
-        return (yDispEquivYear != null && yDispEquivYearL1 != null && yDispEquivYear < yDispEquivYearL1);
     }
 
     void setStates() {
