@@ -108,6 +108,9 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
     @Lag(field="careHrsProvidedWeek") @Transient private Double careHrsProvidedWeekL1;
     @Lag(field="careHrsInformalWeek") @Transient private Double careHrsInformalWeekL1;
     @Lag(getter="isHousingOwned") @Transient private Boolean demPrptyFlagL1;
+    @Lag(getter="getNumberChildrenAllForLag") @Transient private Integer numberChildrenAllL1;     //Lag(1) of number of children in benefit unit, kept on the person (0 below AGE_TO_BECOME_RESPONSIBLE)
+    @Lag(getter="getNumberChildren02ForLag") @Transient private Integer numberChildren02L1;       //Lag(1) of number of children aged 0-2 in benefit unit, kept on the person (0 below AGE_TO_BECOME_RESPONSIBLE)
+    @Lag(getter="getDemCompHhC4ForLag") @Transient private Dhhtp_c4 demCompHhC4L1;                //Lag(1) of household composition, kept on the person (SingleNoChildren below AGE_TO_BECOME_RESPONSIBLE)
 
     // partner lags
     @Lag(field="demPartnerStatusL1") @Transient private Dcpst demPartnerStatusL2;            // lag (2) partnership status
@@ -565,6 +568,9 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         yBenUCReceivedFlagL1 = originalPerson.yBenUCReceivedFlagL1;
         yFinDstrssFlag = originalPerson.yFinDstrssFlag;
         demPrptyFlagL1 = originalPerson.demPrptyFlagL1;
+        numberChildrenAllL1 = originalPerson.numberChildrenAllL1;
+        numberChildren02L1 = originalPerson.numberChildren02L1;
+        demCompHhC4L1 = originalPerson.demCompHhC4L1;
 
         if (originalPerson.labWageFullTimeHrly >= Parameters.MIN_HOURLY_WAGE_RATE) {
             labWageFullTimeHrly = Math.min(Parameters.MAX_HOURLY_WAGE_RATE, Math.max(Parameters.MIN_HOURLY_WAGE_RATE, originalPerson.labWageFullTimeHrly));
@@ -5936,6 +5942,25 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         return (benefitUnit != null) ? benefitUnit.getYHhQuintilesMonthC5() : null;
     }
 
+    // Below AGE_TO_BECOME_RESPONSIBLE the person is still counted within the parents' benefit unit, but the
+    // data defines these lags on an as-if-independent basis (0 children, single with no children) rather than
+    // the parents' actual household composition. From AGE_TO_BECOME_RESPONSIBLE, captures the current unit's
+    // value before ageing/union formation/dissolution can move the person to a new (blank) unit this year.
+    private Integer getNumberChildrenAllForLag() {
+        if (benefitUnit == null || demAge == null || demAge < Parameters.AGE_TO_BECOME_RESPONSIBLE) return 0;
+        return benefitUnit.getNumberChildrenAll();
+    }
+
+    private Integer getNumberChildren02ForLag() {
+        if (benefitUnit == null || demAge == null || demAge < Parameters.AGE_TO_BECOME_RESPONSIBLE) return 0;
+        return benefitUnit.getNumberChildren0to2();
+    }
+
+    private Dhhtp_c4 getDemCompHhC4ForLag() {
+        if (benefitUnit == null || demAge == null || demAge < Parameters.AGE_TO_BECOME_RESPONSIBLE) return Dhhtp_c4.SingleNoChildren;
+        return benefitUnit.getDemCompHhC4();
+    }
+
     private Ydses_c5 getYHhQuintilesMonthC5Current() {
         if (model != null) {
             if (benefitUnit == null)
@@ -5956,7 +5981,12 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         if (model!=null) {
             if (benefitUnit==null)
                 throw new RuntimeException("attempt to access unassigned benefit unit");
-            return benefitUnit.getDemCompHhC4L1();
+            if (demCompHhC4L1 != null) return demCompHhC4L1;
+            // No personal history yet (year 1, newborn, immigrant): under 18 is always single/no children;
+            // from 18, fall back to the unit's own lag (populated for year 1 by BenefitUnit.initializeFields), then the SingleNoChildren default.
+            if (demAge != null && demAge < Parameters.AGE_TO_BECOME_RESPONSIBLE) return Dhhtp_c4.SingleNoChildren;
+            Dhhtp_c4 unitLag = benefitUnit.getDemCompHhC4L1();
+            return (unitLag != null) ? unitLag : Dhhtp_c4.SingleNoChildren;
         } else {
             if (i_demCompHhC4L1 ==null)
                 throw new RuntimeException("attempt to access unassigned demCompHhC4L1Local");
@@ -5970,7 +6000,10 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
 
     private Integer getNumberChildrenAllL1() {
         if (benefitUnit != null) {
-            return (benefitUnit.getNumberChildrenAllL1() != null) ? benefitUnit.getNumberChildrenAllL1() : 0;
+            if (numberChildrenAllL1 != null) return numberChildrenAllL1;
+            if (demAge != null && demAge < Parameters.AGE_TO_BECOME_RESPONSIBLE) return 0;
+            Integer unitLag = benefitUnit.getNumberChildrenAllL1();
+            return (unitLag != null) ? unitLag : 0;
         } else {
             return (i_demNchildL1 ==null) ? 0 : i_demNchildL1;
         }
@@ -6004,7 +6037,10 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         if (model != null) {
             if (benefitUnit==null)
                 throw new RuntimeException("attempt to access unassigned benefit unit");
-            return (benefitUnit.getNumberChildren02L1() != null) ? benefitUnit.getNumberChildren02L1() : 0;
+            if (numberChildren02L1 != null) return numberChildren02L1;
+            if (demAge != null && demAge < Parameters.AGE_TO_BECOME_RESPONSIBLE) return 0;
+            Integer unitLag = benefitUnit.getNumberChildren02L1();
+            return (unitLag != null) ? unitLag : 0;
         } else {
             if (i_demNchild0to2L1 ==null)
                 throw new RuntimeException("attempt to access unassigned numberChildren02Local_lag1");
