@@ -133,6 +133,12 @@ Whether the education equations (E1a/E1b) should use parental rather than own-un
 
 `Person.demPrptyFlagL1` is stored on the person (via `@Lag(getter="isHousingOwned")`), captured in `Person.updateAttributes()` before demographic events change benefit-unit membership — the same pattern as the income-quintile lag above. Unlike that lag, its only use site (`Dhh_owned_L1` / `wealthPrptyFlagL1` in `getDoubleValue`) did not null-check it, so a person with no personal history (newborns or immigrants) would NPE rather than default to non-owner. Both are fixed: the getter uses `Boolean.TRUE.equals(...)`, and the copy constructor copies `demPrptyFlagL1`.
 
+### Lagged number of children and household composition
+
+`Person.numberChildrenAllL1`, `numberChildren02L1` and `demCompHhC4L1` are stored on the person (via `@Lag`), captured before demographic events change benefit-unit membership — same pattern as the two lags above. Unlike quintile/home-ownership, a person below `Parameters.AGE_TO_BECOME_RESPONSIBLE` (18) must *not* inherit the parents' actual household composition: the data defines these lags on an as-if-independent basis (0 children, single with no children) for minors, since they are counted within the parents' unit rather than having their own. The capture getters (`get*ForLag`) and the read-time fallback (used only when there is no personal history yet — year 1, newborns, immigrants) both apply this age threshold before falling back to the benefit unit's own lag, then to the single/no-children default. 
+Before this fix, `Person` read these straight from the current benefit unit, which was wrong for 16-17-year-olds (counted as a child in the parents' unit) and for anyone whose benefit unit changed that year (turning 18, or a partnership formed/dissolved) since a brand-new `BenefitUnit` has no history of its own.
+
+
 ### Equivalence scale
 
 `BenefitUnit.getEquivalisedWeight()` and `Household.getEquivalisedDisposableIncomeYearly()` must both use the OECD scale: 1.0 for the first adult, 0.5 for each further person aged 14+, 0.3 per child under 14 (issue #541).
