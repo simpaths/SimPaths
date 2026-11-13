@@ -108,6 +108,11 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
     @Lag(field="careHrsProvidedWeek") @Transient private Double careHrsProvidedWeekL1;
     @Lag(field="careHrsInformalWeek") @Transient private Double careHrsInformalWeekL1;
     @Lag(getter="isHousingOwned") @Transient private Boolean demPrptyFlagL1;
+    @Lag(getter="getNumberChildrenAllForLag") @Transient private Integer numberChildrenAllL1;     //Lag(1) of number of children in benefit unit, kept on the person (0 below AGE_TO_BECOME_RESPONSIBLE)
+    @Lag(getter="getNumberChildren02ForLag") @Transient private Integer numberChildren02L1;       //Lag(1) of number of children aged 0-2 in benefit unit, kept on the person (0 below AGE_TO_BECOME_RESPONSIBLE)
+    @Lag(getter="getDemCompHhC4ForLag") @Transient private Dhhtp_c4 demCompHhC4L1;                //Lag(1) of household composition, kept on the person (SingleNoChildren below AGE_TO_BECOME_RESPONSIBLE)
+    @Lag(getter="getYPvrtyFlagForLag") @Transient private Integer yPvrtyFlagL1;                   //Lag(1) of benefit unit's at-risk-of-poverty flag, kept on the person
+    @Lag(getter="getYDispEquivYearForLag") @Transient private Double yDispEquivYearL1;            //Lag(1) of benefit unit's equivalised disposable income, kept on the person
 
     // partner lags
     @Lag(field="demPartnerStatusL1") @Transient private Dcpst demPartnerStatusL2;            // lag (2) partnership status
@@ -564,6 +569,12 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         yBenUCReceivedFlag = originalPerson.yBenUCReceivedFlag;
         yBenUCReceivedFlagL1 = originalPerson.yBenUCReceivedFlagL1;
         yFinDstrssFlag = originalPerson.yFinDstrssFlag;
+        demPrptyFlagL1 = originalPerson.demPrptyFlagL1;
+        numberChildrenAllL1 = originalPerson.numberChildrenAllL1;
+        numberChildren02L1 = originalPerson.numberChildren02L1;
+        demCompHhC4L1 = originalPerson.demCompHhC4L1;
+        yPvrtyFlagL1 = originalPerson.yPvrtyFlagL1;
+        yDispEquivYearL1 = originalPerson.yDispEquivYearL1;
 
         if (originalPerson.labWageFullTimeHrly >= Parameters.MIN_HOURLY_WAGE_RATE) {
             labWageFullTimeHrly = Math.min(Parameters.MAX_HOURLY_WAGE_RATE, Math.max(Parameters.MIN_HOURLY_WAGE_RATE, originalPerson.labWageFullTimeHrly));
@@ -3908,32 +3919,36 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
                 return (labC4.equals(Les_c4.NotEmployed) && labC4L1.equals(Les_c4.NotEmployed) && healthDsblLongtermFlag.equals(Indicator.False) && healthDsblLongtermFlagL1.equals(Indicator.False)) ? 1. : 0.;
             }
             case NonPovertyToPoverty -> {
-                if (benefitUnit.getYPvrtyFlagL1() != null) {
-                    return (benefitUnit.getYPvrtyFlagL1() == 0 && benefitUnit.getYPvrtyFlag() == 1) ? 1. : 0.;
+                Integer pvrtyFlagL1 = getYPvrtyFlagL1();
+                if (pvrtyFlagL1 != null) {
+                    return (pvrtyFlagL1 == 0 && benefitUnit.getYPvrtyFlag() == 1) ? 1. : 0.;
                 } else return 0.;
             }
             case PovertyToNonPoverty -> {
-                if (benefitUnit.getYPvrtyFlagL1() != null) {
-                    return (benefitUnit.getYPvrtyFlagL1() == 1 && benefitUnit.getYPvrtyFlag() == 0) ? 1. : 0.;
+                Integer pvrtyFlagL1 = getYPvrtyFlagL1();
+                if (pvrtyFlagL1 != null) {
+                    return (pvrtyFlagL1 == 1 && benefitUnit.getYPvrtyFlag() == 0) ? 1. : 0.;
                 } else return 0.;
             }
             case PersistentPoverty -> {
-                if (benefitUnit.getYPvrtyFlagL1() != null) {
-                    return (benefitUnit.getYPvrtyFlagL1() == 1 && benefitUnit.getYPvrtyFlag() == 1) ? 1. : 0.;
+                Integer pvrtyFlagL1 = getYPvrtyFlagL1();
+                if (pvrtyFlagL1 != null) {
+                    return (pvrtyFlagL1 == 1 && benefitUnit.getYPvrtyFlag() == 1) ? 1. : 0.;
                 } else return 0.;
             }
             case RealIncomeChange -> {
-                return (benefitUnit.getYearlyChangeInLogEDI());
+                return getYearlyChangeInLogEDI();
             }
             case RealIncomeDecrease_D -> {
-                return (benefitUnit.isDecreaseInYearlyEquivalisedDisposableIncome()) ? 1. : 0.;
+                return isDecreaseInYearlyEquivalisedDisposableIncome() ? 1. : 0.;
             }
             case D_Econ_benefits -> {
                 return isReceivesBenefitsFlag_L1() ? 1. : 0.;
             }
  // Evaluated at the level of a benefit unit. If required, can be changed to individual-level homeownership status.
             case Dhh_owned_L1 -> {
-                return demPrptyFlagL1 ? 1. : 0.;
+                // demPrptyFlagL1 has no personal history for newborns/immigrants (never captured by @Lag yet); default to non-owner rather than NPE on unboxing.
+                return Boolean.TRUE.equals(demPrptyFlagL1) ? 1. : 0.;
             } // Evaluated at the level of a benefit unit. If required, can be changed to individual-level homeownership status.
             case labWageHrlyLogL1 -> {
                 if (labWageFullTimeHrlyL1 == null) {
@@ -4427,7 +4442,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
                 return (labWageFullTimeHrlyL1 != null && labWageFullTimeHrlyL1 > 0) ? labWageFullTimeHrlyL1 : 0.;
             }
             case wealthPrptyFlagL1 -> {
-                return demPrptyFlagL1 ? 1. : 0.;
+                return Boolean.TRUE.equals(demPrptyFlagL1) ? 1. : 0.;
             }
             case yCapitalPersMonthL1 -> {
                 return yCapitalPersMonthL1 != null ? yCapitalPersMonthL1 : 0.;
@@ -5934,6 +5949,37 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         return (benefitUnit != null) ? benefitUnit.getYHhQuintilesMonthC5() : null;
     }
 
+    // Below AGE_TO_BECOME_RESPONSIBLE the person is still counted within the parents' benefit unit, but the
+    // data defines these lags on an as-if-independent basis (0 children, single with no children) rather than
+    // the parents' actual household composition. From AGE_TO_BECOME_RESPONSIBLE, captures the current unit's
+    // value before ageing/union formation/dissolution can move the person to a new (blank) unit this year.
+    private Integer getNumberChildrenAllForLag() {
+        if (benefitUnit == null || demAge == null || demAge < Parameters.AGE_TO_BECOME_RESPONSIBLE) return 0;
+        return benefitUnit.getNumberChildrenAll();
+    }
+
+    private Integer getNumberChildren02ForLag() {
+        if (benefitUnit == null || demAge == null || demAge < Parameters.AGE_TO_BECOME_RESPONSIBLE) return 0;
+        return benefitUnit.getNumberChildren0to2();
+    }
+
+    private Dhhtp_c4 getDemCompHhC4ForLag() {
+        if (benefitUnit == null || demAge == null || demAge < Parameters.AGE_TO_BECOME_RESPONSIBLE) return Dhhtp_c4.SingleNoChildren;
+        return benefitUnit.getDemCompHhC4();
+    }
+
+    // Stata's variable_update.do estimates NonPovertyToPoverty/PovertyToNonPoverty/PersistentPoverty and
+    // RealIncomeChange/RealIncomeDecrease_D under xtset idperson swv, so L./D. there follow the person, not
+    // whichever benefit unit they are in now. No under-18 override is needed here (unlike children/household
+    // type): a minor's household poverty/income state in the data is the parents' real state.
+    private Integer getYPvrtyFlagForLag() {
+        return (benefitUnit != null) ? benefitUnit.getYPvrtyFlag() : null;
+    }
+
+    private Double getYDispEquivYearForLag() {
+        return (benefitUnit != null) ? benefitUnit.getEquivalisedDisposableIncomeYearly() : null;
+    }
+
     private Ydses_c5 getYHhQuintilesMonthC5Current() {
         if (model != null) {
             if (benefitUnit == null)
@@ -5954,7 +6000,12 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         if (model!=null) {
             if (benefitUnit==null)
                 throw new RuntimeException("attempt to access unassigned benefit unit");
-            return benefitUnit.getDemCompHhC4L1();
+            if (demCompHhC4L1 != null) return demCompHhC4L1;
+            // No personal history yet (year 1, newborn, immigrant): under 18 is always single/no children;
+            // from 18, fall back to the unit's own lag (populated for year 1 by BenefitUnit.initializeFields), then the SingleNoChildren default.
+            if (demAge != null && demAge < Parameters.AGE_TO_BECOME_RESPONSIBLE) return Dhhtp_c4.SingleNoChildren;
+            Dhhtp_c4 unitLag = benefitUnit.getDemCompHhC4L1();
+            return (unitLag != null) ? unitLag : Dhhtp_c4.SingleNoChildren;
         } else {
             if (i_demCompHhC4L1 ==null)
                 throw new RuntimeException("attempt to access unassigned demCompHhC4L1Local");
@@ -5966,9 +6017,45 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         i_demCompHhC4L1 = demCompHhC4L1;
     }
 
+    private Integer getYPvrtyFlagL1() {
+        if (yPvrtyFlagL1 != null) return yPvrtyFlagL1;
+        // No personal history yet (year 1, newborn, immigrant): fall back to the current unit's own lag
+        // (non-null if it is an established unit the person has just joined), otherwise no signal.
+        return (benefitUnit != null) ? benefitUnit.getYPvrtyFlagL1() : null;
+    }
+
+    private Double getYDispEquivYearL1() {
+        if (yDispEquivYearL1 != null) return yDispEquivYearL1;
+        return (benefitUnit != null) ? benefitUnit.getYDispEquivYearL1() : null;
+    }
+
+    // Mirrors BenefitUnit.calculateYearlyChangeInLogEquivalisedDisposableIncome, but compares the person's
+    // own lagged equivalised disposable income against the current unit's current value, rather than the
+    // current unit's own lag, which is blank for a unit formed partway through this year.
+    private double getYearlyChangeInLogEDI() {
+        if (benefitUnit == null) return 0.;
+        double current = benefitUnit.getEquivalisedDisposableIncomeYearly();
+        Double lagged = getYDispEquivYearL1();
+        if (lagged == null || current < 0. || lagged < 0.) return 0.;
+        // Note that income is uprated to the base price year, as specified in parameters class, as the estimated change uses real income change
+        // +1 added as log(0) is not defined
+        return Math.log(current / Parameters.getTimeSeriesValue(model.getYear(), TimeSeriesVariable.Inflation) + 1)
+                - Math.log(lagged / Parameters.getTimeSeriesValue(model.getYear()-1, TimeSeriesVariable.Inflation) + 1);
+    }
+
+    private boolean isDecreaseInYearlyEquivalisedDisposableIncome() {
+        if (benefitUnit == null) return false;
+        double current = benefitUnit.getEquivalisedDisposableIncomeYearly();
+        Double lagged = getYDispEquivYearL1();
+        return (lagged != null && current >= 0. && current < lagged);
+    }
+
     private Integer getNumberChildrenAllL1() {
         if (benefitUnit != null) {
-            return (benefitUnit.getNumberChildrenAllL1() != null) ? benefitUnit.getNumberChildrenAllL1() : 0;
+            if (numberChildrenAllL1 != null) return numberChildrenAllL1;
+            if (demAge != null && demAge < Parameters.AGE_TO_BECOME_RESPONSIBLE) return 0;
+            Integer unitLag = benefitUnit.getNumberChildrenAllL1();
+            return (unitLag != null) ? unitLag : 0;
         } else {
             return (i_demNchildL1 ==null) ? 0 : i_demNchildL1;
         }
@@ -6002,7 +6089,10 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         if (model != null) {
             if (benefitUnit==null)
                 throw new RuntimeException("attempt to access unassigned benefit unit");
-            return (benefitUnit.getNumberChildren02L1() != null) ? benefitUnit.getNumberChildren02L1() : 0;
+            if (numberChildren02L1 != null) return numberChildren02L1;
+            if (demAge != null && demAge < Parameters.AGE_TO_BECOME_RESPONSIBLE) return 0;
+            Integer unitLag = benefitUnit.getNumberChildren02L1();
+            return (unitLag != null) ? unitLag : 0;
         } else {
             if (i_demNchild0to2L1 ==null)
                 throw new RuntimeException("attempt to access unassigned numberChildren02Local_lag1");
