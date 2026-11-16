@@ -632,6 +632,8 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
         // equivalised disposable income
         yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.CalculateChangeInEDI);
+        // current-year poverty status, needed by FinancialDistress and the mental-health/wellbeing equations below
+        yearlySchedule.addEvent(this, Processes.CalculateAtRiskOfPoverty);
         if (lifetimeIncomeImpute)
             yearlySchedule.addCollectionEvent(persons, Person.Processes.ReviseLifetimeIncome);
 
@@ -867,6 +869,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         CheckForEmptyBenefitUnits,
         GarbageCollection,
         CheckForImperfectTaxDBMatches,
+        CalculateAtRiskOfPoverty,
         CleanUp,
     }
 
@@ -996,6 +999,14 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                 if (Parameters.saveImperfectTaxDBMatches) {
                     screenForImperfectTaxDbMatches();
                 }
+            }
+            case CalculateAtRiskOfPoverty -> {
+                // Classify this year's at-risk-of-poverty status (EDI below 60% of the median) for every benefit unit,
+                // including units formed this year. Otherwise the collector only does this after all model events, so
+                // the poverty-transition regressors would compare last year's flag with itself (or with a blank flag).
+                if (collector == null)
+                    throw new IllegalStateException("collector must be set to classify at-risk-of-poverty status");
+                collector.calculateAtRiskOfPoverty();
             }
             case CleanUp -> {
 
