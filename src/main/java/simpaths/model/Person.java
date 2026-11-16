@@ -575,6 +575,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         demCompHhC4L1 = originalPerson.demCompHhC4L1;
         yPvrtyFlagL1 = originalPerson.yPvrtyFlagL1;
         yDispEquivYearL1 = originalPerson.yDispEquivYearL1;
+        yHhQuintilesMonthC5L1 = originalPerson.yHhQuintilesMonthC5L1;
 
         if (originalPerson.labWageFullTimeHrly >= Parameters.MIN_HOURLY_WAGE_RATE) {
             labWageFullTimeHrly = Math.min(Parameters.MAX_HOURLY_WAGE_RATE, Math.max(Parameters.MIN_HOURLY_WAGE_RATE, originalPerson.labWageFullTimeHrly));

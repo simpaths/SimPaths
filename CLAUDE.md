@@ -60,7 +60,17 @@ All three are JPA `@Entity` classes persisted via Hibernate/H2. Each carries a `
 
 ### Simulation lifecycle
 
-`SimPathsModel` (extends `AbstractSimulationManager`) owns the main simulation loop. Each year it fires ordered events that update entities via `EventListener.onEvent()`. The sequence covers: mortality → union formation/dissolution → fertility → education → labour market → taxes/benefits → health → social care → statistics collection.
+`SimPathsModel` (extends `AbstractSimulationManager`) owns the main simulation loop. `SimPathsModel.buildSchedule()` defines the ordered events it fires each year, which update entities via `EventListener.onEvent()`. From the second simulated year, the sequence is:
+
+1. `BenefitUnit.Update`, then `Person.Update`: last year's values are stored as lags before anyone changes benefit unit.
+2. Ageing (at 18 a person gets their own benefit unit), retirement, education, leaving the parental home, home ownership, physical health.
+3. Partnership formation and dissolution, union matching, fertility.
+4. Social care (if enabled), unemployment, then labour supply and tax-benefit imputation (`LabourMarketUpdate`), followed by benefit receipt, wealth and consumption.
+5. `CalculateChangeInEDI`, then `CalculateAtRiskOfPoverty`: current-year income and poverty status.
+6. Financial distress, mental health (GHQ-12), SF-12 and life satisfaction.
+7. Mortality, population alignment, inheritance, EQ-5D, output variables.
+
+`SimPathsCollector` then collects statistics, ordered after the model's events. The first simulated year (`startYear`) runs a reduced schedule (`firstYearSched`) with only mortality, population alignment, inheritance and bookkeeping. The behavioural equations therefore first run in the second simulated year.
 
 ### Key classes to know
 
@@ -108,7 +118,7 @@ The four age-band outputs share one population traversal per year via `AgeBandAg
 
 ### Integration tests
 
-`RunSimPathsIntegrationTest` runs the full simulation end-to-end using the built JARs and compares CSV output against reference files in `src/test/java/simpaths/integrationtest/expected/`. If a substantive change shifts the output, update the expected files and commit them.
+`RunSimPathsIntegrationTest` runs the full simulation end-to-end using the built JARs and compares CSV output against reference files in `src/test/java/simpaths/integrationtest/expected/`. If a substantive change shifts the output, update the expected files and commit them. See `documentation/wiki/developer-guide/how-to/integration-tests.md` for how to run it (`mvn package` first; `mvn test` does not run it) and how to update the expected files.
 
 ## Domain Knowledge
 
@@ -123,21 +133,34 @@ Tax donor matching therefore requires a two-step price bridge:
 2. Deflate the imputed financial values from the matched donor record back to 2015 prices.
 
 The default uprating series is `TimeSeriesVariable.Inflation`, sourced from the `inflation` worksheet in `input/economic_time_series.xlsx`. An alternative option (added 2026-04) allows wage growth to be used instead of price growth for the initial matching step, controlled via a config flag.
-### Lagged benefit-unit income quintile
 
-`Person.yHhQuintilesMonthC5L1` is stored on the person, captured in `Person.Update` (before demographic events change benefit-unit membership). It therefore describes the unit the person belonged to in the previous period, not their current unit. When a person has no history (newborns, immigrants), the getter falls back to the current unit's lag, then to Q3 (the default for new units), rather than silently using the Q1 reference category.
+### Lagged regressors are kept on the person
+
+The equations were estimated with lags defined per person (`xtset idperson swv` in Stata), so a lagged regressor follows the person, not their current benefit unit. Each lag is an `@Lag` field on `Person`, filled by a private `get*ForLag()` getter in `Person.Update`, before ageing or partnership changes move anyone to a new unit. If a person has no history yet (first simulated year, newborns, immigrants), the read-time getter falls back as shown below. The copy constructor copies all of these lags.
+
+| Lag | `Person` field | Captured from the unit's | Under 18 | No personal history |
+|---|---|---|---|---|
+| Income quintile | `yHhQuintilesMonthC5L1` | `yHhQuintilesMonthC5` | parents' value | unit's lag → Q3 |
+| Home ownership | `demPrptyFlagL1` | stored lag `wealthPrptyFlagL1` | parents' value | not owned |
+| Number of children | `numberChildrenAllL1`, `numberChildren02L1` | current counts | 0 | unit's lag → 0 |
+| Household composition | `demCompHhC4L1` | `demCompHhC4` | `SingleNoChildren` | unit's lag → `SingleNoChildren` |
+| At-risk-of-poverty flag | `yPvrtyFlagL1` | `yPvrtyFlag` | parents' value | unit's lag → no transition |
+| Equivalised disposable income | `yDispEquivYearL1` | stored lag `yDispEquivYearL1` | parents' value | unit's lag → no change |
+
+- **Capture order.** `BenefitUnit.Update` runs before `Person.Update` and nulls the unit's `@NullInitialised` fields (e.g. `wealthPrptyFlag`, `yDispEquivYear`). For those, copy the unit's stored lag, not its current value. Check this when adding a new lag.
+- **Under 18.** Children and household composition use 0 children and `SingleNoChildren` below `Parameters.AGE_TO_BECOME_RESPONSIBLE`. The other lags use the parents' unit's value.
+- **Home ownership.** `demPrptyFlagL1` is a nullable `Boolean`; read it with `Boolean.TRUE.equals(...)`.
+- **Poverty and income change.** These regressors compare the person's lag with the current unit's current value (`getYPvrtyFlag()`, `getEquivalisedDisposableIncomeYearly()`).
+
+Unit tests: `src/test/java/simpaths/model/person/Lagged*Test`.
 
 Whether the education equations (E1a/E1b) should use parental rather than own-unit income is a separate, unresolved specification question (issue #543); it needs consistent re-estimation and Java changes.
 
-### Lagged home-ownership flag
+### Current-year poverty status is classified mid-year
 
-`Person.demPrptyFlagL1` is stored on the person (via `@Lag(getter="isHousingOwned")`), captured in `Person.updateAttributes()` before demographic events change benefit-unit membership — the same pattern as the income-quintile lag above. Unlike that lag, its only use site (`Dhh_owned_L1` / `wealthPrptyFlagL1` in `getDoubleValue`) did not null-check it, so a person with no personal history (newborns or immigrants) would NPE rather than default to non-owner. Both are fixed: the getter uses `Boolean.TRUE.equals(...)`, and the copy constructor copies `demPrptyFlagL1`.
+`BenefitUnit.yPvrtyFlag` is 1 when equivalised disposable income is below 60% of the weighted median. The flag used to be set only by the collector, after all of the year's events. So `FinancialDistress` and the mental-health and wellbeing equations (`HM1`/`HM2`, `MCS`/`PCS`, `DLS`) read last year's flag, or no flag for a unit formed that year. Entry into and exit from poverty therefore never switched on.
 
-### Lagged number of children and household composition
-
-`Person.numberChildrenAllL1`, `numberChildren02L1` and `demCompHhC4L1` are stored on the person (via `@Lag`), captured before demographic events change benefit-unit membership — same pattern as the two lags above. Unlike quintile/home-ownership, a person below `Parameters.AGE_TO_BECOME_RESPONSIBLE` (18) must *not* inherit the parents' actual household composition: the data defines these lags on an as-if-independent basis (0 children, single with no children) for minors, since they are counted within the parents' unit rather than having their own. The capture getters (`get*ForLag`) and the read-time fallback (used only when there is no personal history yet — year 1, newborns, immigrants) both apply this age threshold before falling back to the benefit unit's own lag, then to the single/no-children default. 
-Before this fix, `Person` read these straight from the current benefit unit, which was wrong for 16-17-year-olds (counted as a child in the parents' unit) and for anyone whose benefit unit changed that year (turning 18, or a partnership formed/dissolved) since a brand-new `BenefitUnit` has no history of its own.
-
+`SimPathsModel.Processes.CalculateAtRiskOfPoverty` now runs right after `CalculateChangeInEDI` and before `FinancialDistress`. It calls `collector.calculateAtRiskOfPoverty()` and throws if no collector is attached. Any new process that reads the current poverty flag must be scheduled after this event. Unit tests don't run the yearly schedule, so only the integration test checks this ordering.
 
 ### Equivalence scale
 
