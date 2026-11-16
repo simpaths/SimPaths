@@ -5976,8 +5976,11 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         return (benefitUnit != null) ? benefitUnit.getYPvrtyFlag() : null;
     }
 
+    // Each person keeps their own copy of last year's income. At this point they are still in last
+    // year's unit, but BenefitUnit.Update (which runs first) has already moved that unit's income
+    // into its lag field and cleared the current one, so copy it from the lag field.
     private Double getYDispEquivYearForLag() {
-        return (benefitUnit != null) ? benefitUnit.getEquivalisedDisposableIncomeYearly() : null;
+        return (benefitUnit != null) ? benefitUnit.getYDispEquivYearL1() : null;
     }
 
     private Ydses_c5 getYHhQuintilesMonthC5Current() {
