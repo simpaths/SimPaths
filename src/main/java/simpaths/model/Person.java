@@ -107,7 +107,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
     @Lag(field="careHrsFormalWeek") @Transient private Double careHrsFormalWeekL1;
     @Lag(field="careHrsProvidedWeek") @Transient private Double careHrsProvidedWeekL1;
     @Lag(field="careHrsInformalWeek") @Transient private Double careHrsInformalWeekL1;
-    @Lag(getter="isHousingOwned") @Transient private Boolean demPrptyFlagL1;
+    @Lag(getter="getDemPrptyFlagForLag") @Transient private Boolean demPrptyFlagL1;              //Lag(1) of benefit unit's home ownership, kept on the person
     @Lag(getter="getNumberChildrenAllForLag") @Transient private Integer numberChildrenAllL1;     //Lag(1) of number of children in benefit unit, kept on the person (0 below AGE_TO_BECOME_RESPONSIBLE)
     @Lag(getter="getNumberChildren02ForLag") @Transient private Integer numberChildren02L1;       //Lag(1) of number of children aged 0-2 in benefit unit, kept on the person (0 below AGE_TO_BECOME_RESPONSIBLE)
     @Lag(getter="getDemCompHhC4ForLag") @Transient private Dhhtp_c4 demCompHhC4L1;                //Lag(1) of household composition, kept on the person (SingleNoChildren below AGE_TO_BECOME_RESPONSIBLE)
@@ -5981,6 +5981,12 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
     // into its lag field and cleared the current one, so copy it from the lag field.
     private Double getYDispEquivYearForLag() {
         return (benefitUnit != null) ? benefitUnit.getYDispEquivYearL1() : null;
+    }
+
+    // Same reason as above: BenefitUnit.Update resets wealthPrptyFlag (@NullInitialised) before Person.Update, so
+    // isHousingOwned() would read "not owned" for everyone (and write false back to the unit). Copy the stored lag.
+    private Boolean getDemPrptyFlagForLag() {
+        return (benefitUnit != null) ? benefitUnit.getWealthPrptyFlagL1() : null;
     }
 
     private Ydses_c5 getYHhQuintilesMonthC5Current() {

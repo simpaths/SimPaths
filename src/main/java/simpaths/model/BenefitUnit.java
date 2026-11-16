@@ -85,6 +85,7 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
     @NullInitialised @Column(name="wealthUnsecuredDebtLowValue") private Double wealthUnsecuredDebtLowValue;      // value of low-cost unsecured debt
     @NullInitialised @Column(name="wealthUnsecuredDebtHighValue") private Double wealthUnsecuredDebtHighValue;    // value of high-cost unsecured debt
     @NullInitialised @Column(name="wealthPrptyFlag") private Boolean wealthPrptyFlag;                                    // identifies homeowners
+    @Lag(getter = "isHousingOwned") @Transient private Boolean wealthPrptyFlagL1;                                       // Lag(1) of wealthPrptyFlag, stored before the @NullInitialised reset so Person can copy it
 
     @NullInitialised private Double yDispMonth;
     @NullInitialised private Double yGrossMonth;
@@ -330,6 +331,7 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
         this.yHhQuintilesMonthC5L1 = originalBenefitUnit.yHhQuintilesMonthC5L1;
         this.demCompHhC4L1 = originalBenefitUnit.demCompHhC4L1;
         this.wealthPrptyFlag = originalBenefitUnit.wealthPrptyFlag;
+        this.wealthPrptyFlagL1 = originalBenefitUnit.wealthPrptyFlagL1;
         i_yNonBenHhGrossAsinh = Objects.requireNonNullElse(originalBenefitUnit.i_yNonBenHhGrossAsinh, 0.0);
         demDbMatchTax = originalBenefitUnit.getTaxDbMatch();
 
@@ -5072,6 +5074,10 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
             wealthPrptyFlag = false;
         }
         return wealthPrptyFlag;
+    }
+
+    public Boolean getWealthPrptyFlagL1() {
+        return wealthPrptyFlagL1;
     }
 
     public void setWealthPrptyFlag(boolean wealthPrptyFlag) {
