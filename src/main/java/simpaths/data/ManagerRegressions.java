@@ -298,19 +298,6 @@ public class ManagerRegressions {
         }
     }
 
-    public static boolean isDiscreteChoiceModel(RegressionName regression) {
-
-        switch (regression.getType()) {
-
-            case Logit, Probit, OrderedLogit, OrderedProbit, GenOrderedLogit, GenOrderedProbit, MultinomialLogit-> {
-                return true;
-            }
-            default -> {
-                return false;
-            }
-        }
-    }
-
     public static IDiscreteChoiceModel getDiscreteVariableRegression(RegressionName regression) {
 
         switch (regression.getType()) {
