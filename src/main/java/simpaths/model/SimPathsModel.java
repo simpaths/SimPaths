@@ -429,7 +429,6 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
         // run pre-simulation diagnostic tests
         //TestTaxRoutine.run();
-        //TestRegressions.run(RegressionName.EducationE2a);
 
         elapsedTime1 = System.currentTimeMillis();
         System.out.println("Time to load tax database references: " + (elapsedTime1 - elapsedTime0)/1000. + " seconds.");
