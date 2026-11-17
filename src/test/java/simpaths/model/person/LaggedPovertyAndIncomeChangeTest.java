@@ -19,12 +19,14 @@ import static org.mockito.Mockito.when;
 
 class LaggedPovertyAndIncomeChangeTest {
 
-    private static BenefitUnit unit(int pvrtyFlag, double equivYear, Integer pvrtyFlagLag, Double equivYearLag) {
+    // equivYear == null means this year's income has not been calculated (reset by BenefitUnit.Update)
+    private static BenefitUnit unit(int pvrtyFlag, Double equivYear, Integer pvrtyFlagLag, Double equivYearLag) {
         BenefitUnit unit = mock(BenefitUnit.class);
         when(unit.getHousehold()).thenReturn(mock(Household.class));
         when(unit.getMembers()).thenReturn(new HashSet<>());
         when(unit.getYPvrtyFlag()).thenReturn(pvrtyFlag);
-        when(unit.getEquivalisedDisposableIncomeYearly()).thenReturn(equivYear);
+        when(unit.getYDispEquivYear()).thenReturn(equivYear);
+        when(unit.getEquivalisedDisposableIncomeYearly()).thenReturn(equivYear != null ? equivYear : -9999.99);
         when(unit.getYPvrtyFlagL1()).thenReturn(pvrtyFlagLag);
         when(unit.getYDispEquivYearL1()).thenReturn(equivYearLag);
         return unit;
@@ -80,8 +82,8 @@ class LaggedPovertyAndIncomeChangeTest {
     @Test
     void incomeDecreaseFollowsPersonAcrossBenefitUnitChange() throws Exception {
         // captured while in a unit with high income last year; by Person.Update the unit's current value has
-        // already been reset (the -9999.99 placeholder), so only its stored lag holds last year's income
-        Person person = person(unit(0, -9999.99, null, 5000.0));
+        // already been reset, so only its stored lag holds last year's income
+        Person person = person(unit(0, null, null, 5000.0));
         captureLag(person);
 
         // moves to a new, poorer unit this year
@@ -132,8 +134,18 @@ class LaggedPovertyAndIncomeChangeTest {
     }
 
     @Test
-    void realIncomeChangeIsZeroWhenCurrentValueIsNegativeSentinel() throws Exception {
-        Person person = person(unit(0, -9999.99, null, 1000.0));
+    void missingCurrentIncomeGivesNoSignal() throws Exception {
+        Person person = person(unit(0, null, null, 1000.0));
+        assertEquals(0.0, person.getDoubleValue(Person.Variables.RealIncomeChange));
+        assertEquals(0.0, person.getDoubleValue(Person.Variables.RealIncomeDecrease_D));
+    }
+
+    @Test
+    void incomeFallBelowZeroCountsAsDecrease() throws Exception {
+        // a genuine negative income is not a missing value: a fall from 12,000 to -120 is a decrease
+        Person person = person(unit(0, -120.0, null, 12000.0));
+        assertEquals(1.0, person.getDoubleValue(Person.Variables.RealIncomeDecrease_D));
+        // the log change is still 0, because the log of a negative income is undefined
         assertEquals(0.0, person.getDoubleValue(Person.Variables.RealIncomeChange));
     }
 }
