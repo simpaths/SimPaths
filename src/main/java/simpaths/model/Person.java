@@ -6053,11 +6053,12 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
                 - Math.log(lagged / Parameters.getTimeSeriesValue(model.getYear()-1, TimeSeriesVariable.Inflation) + 1);
     }
 
+    // Exclude only missing values: a genuine fall below zero is a decrease, as in Stata (exp_incchange).
     private boolean isDecreaseInYearlyEquivalisedDisposableIncome() {
         if (benefitUnit == null) return false;
-        double current = benefitUnit.getEquivalisedDisposableIncomeYearly();
+        Double current = benefitUnit.getYDispEquivYear();
         Double lagged = getYDispEquivYearL1();
-        return (lagged != null && current >= 0. && current < lagged);
+        return (current != null && lagged != null && current < lagged);
     }
 
     private Integer getNumberChildrenAllL1() {

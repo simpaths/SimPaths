@@ -4944,6 +4944,11 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
         return Objects.requireNonNullElse(yDispEquivYear, -9999.99);
     }
 
+    /** This year's equivalised disposable income, or null if it has not been calculated yet (no -9999.99 placeholder). */
+    public Double getYDispEquivYear() {
+        return yDispEquivYear;
+    }
+
     public int getYPvrtyFlag() {
         return Objects.requireNonNullElse(yPvrtyFlag, 0);
     }
