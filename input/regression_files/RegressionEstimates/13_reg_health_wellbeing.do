@@ -107,7 +107,7 @@ restore
 reghdfe dhe_mcs ///
 	PersistentEmployed UnemployedToEmployed PersistentUnemployed ///
 	NoPoverty PovertyToNonPoverty PersistentPoverty ///
-	RealIncomeChange RealIncomeDecrease_D FinancialDistress ///
+	RealIncomeChange RealIncomeDecreaseFlag FinancialDistress ///
 	Y2020 Y2021 ///
 	Dhh_owned_L1 Dcpst_Single_L1 Dnc_L1 ///
 	L_Dhe_mcs L_Dhe_pcs ///
@@ -146,7 +146,7 @@ putexcel B5 = `enterPov'
 reghdfe dhe_mcs ///
 	PersistentEmployed UnemployedToEmployed PersistentUnemployed ///
 	NoPoverty PovertyToNonPoverty PersistentPoverty ///
-	RealIncomeChange RealIncomeDecrease_D FinancialDistress ///
+	RealIncomeChange RealIncomeDecreaseFlag FinancialDistress ///
 	Y2020 Y2021 ///
 	Dhh_owned_L1 Dcpst_Single_L1 Dnc_L1 ///
 	L_Dhe_mcs L_Dhe_pcs ///
@@ -214,7 +214,7 @@ restore
 reghdfe dhe_pcs ///
 	PersistentEmployed UnemployedToEmployed PersistentUnemployed ///
 	NoPoverty PovertyToNonPoverty PersistentPoverty ///
-	RealIncomeChange RealIncomeDecrease_D FinancialDistress ///
+	RealIncomeChange RealIncomeDecreaseFlag FinancialDistress ///
 	Y2020 Y2021 ///
 	Dhh_owned_L1 Dcpst_Single_L1 Dnc_L1 ///
 	L_Dhe_mcs L_Dhe_pcs ///
@@ -253,7 +253,7 @@ putexcel B5 = `enterPov'
 reghdfe dhe_pcs ///
 	PersistentEmployed UnemployedToEmployed PersistentUnemployed ///
 	NoPoverty PovertyToNonPoverty PersistentPoverty ///
-	RealIncomeChange RealIncomeDecrease_D FinancialDistress ///
+	RealIncomeChange RealIncomeDecreaseFlag FinancialDistress ///
 	Y2020 Y2021 ///
 	Dhh_owned_L1 Dcpst_Single_L1 Dnc_L1 ///
 	L_Dhe_mcs L_Dhe_pcs ///
@@ -321,7 +321,7 @@ restore
 reghdfe dls ///
 	PersistentEmployed UnemployedToEmployed PersistentUnemployed ///
 	NoPoverty PovertyToNonPoverty PersistentPoverty ///
-	RealIncomeChange RealIncomeDecrease_D FinancialDistress ///
+	RealIncomeChange RealIncomeDecreaseFlag FinancialDistress ///
 	Y2020 Y2021 ///
 	Dhh_owned_L1 Dcpst_Single_L1 Dnc_L1 ///
 	Dls_L1 L_Dhe_pcs ///
@@ -360,7 +360,7 @@ putexcel B5 = `enterPov'
 reghdfe dls ///
 	PersistentEmployed UnemployedToEmployed PersistentUnemployed ///
 	NoPoverty PovertyToNonPoverty PersistentPoverty ///
-	RealIncomeChange RealIncomeDecrease_D FinancialDistress ///
+	RealIncomeChange RealIncomeDecreaseFlag FinancialDistress ///
 	Y2020 Y2021 ///
 	Dhh_owned_L1 Dcpst_Single_L1 Dnc_L1 ///
 	Dls_L1 L_Dhe_pcs ///

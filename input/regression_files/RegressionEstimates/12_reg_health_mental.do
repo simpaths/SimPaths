@@ -102,7 +102,7 @@ restore
 reghdfe dhm ///
 	PersistentEmployed UnemployedToEmployed PersistentUnemployed ///
 	NoPoverty PovertyToNonPoverty PersistentPoverty ///
-	RealIncomeChange RealIncomeDecrease_D FinancialDistress ///
+	RealIncomeChange RealIncomeDecreaseFlag FinancialDistress ///
 	Y2020 Y2021 ///
 	Dhh_owned_L1 Dcpst_Single_L1 Dnc_L1 ///
 	Dhm_L1 L_Dhe_pcs ///
@@ -141,7 +141,7 @@ putexcel B5 = `enterPov'
 reghdfe dhm ///
 	PersistentEmployed UnemployedToEmployed PersistentUnemployed ///
 	NoPoverty PovertyToNonPoverty PersistentPoverty ///
-	RealIncomeChange RealIncomeDecrease_D FinancialDistress ///
+	RealIncomeChange RealIncomeDecreaseFlag FinancialDistress ///
 	Y2020 Y2021 ///
 	Dhh_owned_L1 Dcpst_Single_L1 Dnc_L1 ///
 	Dhm_L1 L_Dhe_pcs ///
@@ -200,7 +200,7 @@ process_ologit, domain("health_mental") process("HM1_C") sheet("HM1_C") ///
 reghdfe dhm_ghq ///
 	PersistentEmployed UnemployedToEmployed PersistentUnemployed ///
 	NoPoverty PovertyToNonPoverty PersistentPoverty ///
-	RealIncomeChange RealIncomeDecrease_D FinancialDistress ///
+	RealIncomeChange RealIncomeDecreaseFlag FinancialDistress ///
 	Y2020 Y2021 ///
 	Dhh_owned_L1 Dcpst_Single_L1 Dnc_L1 ///
 	Dhmghq_L1 L_Dhe_pcs ///
@@ -239,7 +239,7 @@ putexcel B5 = `enterPov'
 reghdfe dhm_ghq ///
 	PersistentEmployed UnemployedToEmployed PersistentUnemployed ///
 	NoPoverty PovertyToNonPoverty PersistentPoverty ///
-	RealIncomeChange RealIncomeDecrease_D FinancialDistress ///
+	RealIncomeChange RealIncomeDecreaseFlag FinancialDistress ///
 	Y2020 Y2021 ///
 	Dhh_owned_L1 Dcpst_Single_L1 Dnc_L1 ///
 	Dhmghq_L1 L_Dhe_pcs ///
