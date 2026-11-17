@@ -2872,7 +2872,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         Reached_Retirement_Age,						//Indicator whether individual is at or above retirement age
         Reached_Retirement_Age_Sp,					//Indicator whether spouse is at or above retirement age
         RealIncomeChange, //Note: the above return a 0 or 1 value, but income variables will return the change in income or 0
-        RealIncomeDecrease_D,
+        RealIncomeDecreaseFlag,
         ReceiveCare,
         UnemployedToEmployed,
         UnemploymentRate,
@@ -3925,7 +3925,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
             case RealIncomeChange -> {
                 return (benefitUnit.getYearlyChangeInLogEDI());
             }
-            case RealIncomeDecrease_D -> {
+            case RealIncomeDecreaseFlag -> {
                 return (benefitUnit.isDecreaseInYearlyEquivalisedDisposableIncome()) ? 1. : 0.;
             }
             case D_Econ_benefits -> {
