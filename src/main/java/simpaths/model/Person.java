@@ -5957,7 +5957,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
     }
 
     // Stata's variable_update.do estimates NonPovertyToPoverty/PovertyToNonPoverty/PersistentPoverty and
-    // RealIncomeChange/RealIncomeDecrease_D under xtset idperson swv, so L./D. there follow the person, not
+    // RealIncomeChange/RealIncomeDecreaseFlag under xtset idperson swv, so L./D. there follow the person, not
     // whichever benefit unit they are in now. No under-18 override is needed here (unlike children/household
     // type): a minor's household poverty/income state in the data is the parents' real state.
     private Integer getYPvrtyFlagForLag() {
