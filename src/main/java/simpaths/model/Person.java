@@ -2355,20 +2355,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         //Note that by not filtering out students, we must assign a low education level by default to persons at birth to prevent a null pointer exception when new born persons become old enough to form a partnership if they have not yet left school because
         //their education level has not yet been assigned.
 
-        // --- Step 2: Update counters based on regression result ---
-        if (newEducationLevel.equals(Education.Low)) {
-            model.lowEd++;
-        } else if (newEducationLevel.equals(Education.Medium)) {
-            model.medEd++;
-        } else if (newEducationLevel.equals(Education.High)) {
-            model.highEd++;
-        } else if (newEducationLevel.equals(Education.InEducation)) {
-            model.inEd++;
-        } else {
-            model.nothing++;
-        }
-
-        // --- Step 3: process E2 in the diagaram ---
+        // --- Step 2: process E2 in the diagram ---
         if (eduHighestC4 != null) {
             if (newEducationLevel.getRank() > eduHighestC4.getRank()) { // highest qualification cannot decrease
                 eduHighestC4 = newEducationLevel;

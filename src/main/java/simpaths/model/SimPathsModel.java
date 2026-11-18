@@ -176,8 +176,6 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     private int FERTILITY_ALIGNMENT_END_YEAR = 2040;
     private Double lastFertilityAdjustment = null;
 
-    private boolean alignEducation = false; //Set to true to align level of education
-
     private boolean alignInSchool = false; //Set to true to align share of students among 16-29 age group
     private static final int IN_SCHOOL_ALIGNMENT_END_YEAR = 2023;
     private Double lastInSchoolAdjustment = null;
@@ -244,12 +242,6 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     private LabourMarket labourMarket;
 
     public int tmpPeopleAssigned = 0;
-
-    public int lowEd = 0;
-    public int medEd = 0;
-    public int highEd = 0;
-    public int inEd = 0;
-    public int nothing = 0;
 
     Map<String, Double> policyNameIncomeMedianMap = new LinkedHashMap<>(); // Initialise a <String, Double> map to store names of policies and median incomes
 
@@ -328,7 +320,6 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     Random initialiseInnov1;
     Random initialiseInnov2;
     Random popAlignInnov;
-    Random educationInnov;
 
 //    private static String RunDatabasePath = RunDatabasePath;
     private static String RunDatabasePath;
@@ -382,7 +373,9 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         cohabitInnov = new Random(SimulationEngine.getRnd().nextLong());
         initialiseInnov1 = new Random(SimulationEngine.getRnd().nextLong());
         initialiseInnov2 = new Random(SimulationEngine.getRnd().nextLong());
-        educationInnov = new Random(SimulationEngine.getRnd().nextLong());
+        // Unused draw: it seeded the removed education-level alignment. Kept so that
+        // popAlignInnov and later streams keep their seeds, which leaves results unchanged.
+        SimulationEngine.getRnd().nextLong();
         popAlignInnov = new Random(SimulationEngine.getRnd().nextLong());
 
         // load model parameters
@@ -541,9 +534,6 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         // Check In School - check whether still in education, and if leaving school, reset Education Level
         yearlySchedule.addCollectionEvent(persons, Person.Processes.InSchool);
         yearlySchedule.addCollectionEvent(persons, Person.Processes.LeavingSchool);
-
-        // Align the level of education if required
-        addEventToAllYears(Processes.EducationLevelAlignment);
 
         // Check whether adult children leave the parental home - runs after education so that those in continuous education are excluded
         yearlySchedule.addCollectionEvent(persons, Person.Processes.ConsiderLeavingHome);
@@ -783,8 +773,6 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             pw.println(line);
             line = "alignFertility: " + alignFertility;
             pw.println(line);
-            line = "alignEducation: " + alignEducation;
-            pw.println(line);
             line = "alignInSchool: " + alignInSchool;
             pw.println(line);
             line = "alignCohabitation: " + alignCohabitation;
@@ -859,7 +847,6 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         CohabitationAlignment,
         // HealthAlignment,
         InSchoolAlignment,
-        EducationLevelAlignment,
 
         //Other processes
         Timer,
@@ -955,13 +942,6 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                 if (alignInSchool) {
                     inSchoolAlignment();
                     System.out.println("Proportion of students will be aligned.");
-                }
-            }
-            case EducationLevelAlignment -> {
-
-                if (alignEducation) {
-                    educationLevelAlignment();
-                    System.out.println("Education levels will be aligned.");
                 }
             }
             case LabourMarketUpdate -> {
@@ -2482,114 +2462,6 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
 
     /**
-     *
-     * PROCESS - EDUCATION LEVEL ALIGNMENT OF SIMULATED POPULATION
-     *
-     */
-
-    private void educationLevelAlignment() {
-
-        HashMap<Gender, ArrayList<Person>> personsLeavingEducation = new HashMap<Gender, ArrayList<Person>>();
-        for(Gender gender : Gender.values()) {
-            personsLeavingEducation.put(gender, new ArrayList<Person>());
-        }
-
-
-        for(Person person : persons) {
-            if(person.isToLeaveSchool()) {
-                personsLeavingEducation.get(person.getDemMaleFlag()).add(person);
-            }
-        }
-
-        for(Gender gender : Gender.values()) {
-
-            //Check pre-aligned population for education level statistics
-            int numPersonsOfThisGenderWithLowEduPreAlignment = 0, numPersonsOfThisGenderWithHighEduPreAlignment = 0, numPersonsOfThisGender = 0;
-            for(Person person : persons) {
-                if( person.getDemMaleFlag().equals(gender) && person.getDemAge() >= 16 && person.getDemAge() <= 45) {        //Alignment projections are based only on persons younger than 66 years old
-                    if (person.isToLeaveSchool()) { //Align only people leaving school?
-                        if(person.getEduHighestC4() != null) {
-                            if (person.getEduHighestC4().equals(Education.Low)) {
-                                numPersonsOfThisGenderWithLowEduPreAlignment++;
-                            } else if (person.getEduHighestC4().equals(Education.High)) {
-                                numPersonsOfThisGenderWithHighEduPreAlignment++;
-                            }
-                            numPersonsOfThisGender++;
-                        }
-                    }
-                }
-            }
-
-            //Calculate alignment targets
-            //High Education
-            double highEducationRateTarget = Parameters.getTimeSeriesValue(year, gender.toString(), TimeSeriesVariable.HighEducationRate);
-            int numPersonsWithHighEduAlignmentTarget = (int) (highEducationRateTarget * (double)numPersonsOfThisGender);
-            //Medium Education
-            double lowEducationRateTarget = Parameters.getTimeSeriesValue(year, gender.toString(), TimeSeriesVariable.LowEducationRate);
-//			int numPersonsWithLowEduAlignmentTarget = (int) (proportionInitialPopWithMediumEdu * numPersonsOfThisGender);		//Based on initial population - this ensures that proportion of medium educated people can never decrease below initial values
-            int numPersonsWithLowEduAlignmentTarget = (int) (lowEducationRateTarget * (double)numPersonsOfThisGender);
-            if(Parameters.systemOut) {
-                System.out.println("Gender " + gender + ", highEduRateTarget, " + highEducationRateTarget + ", lowEduRateTarget, " + lowEducationRateTarget);
-            }
-            //Sort the list of school leavers by age
-            Collections.shuffle(personsLeavingEducation.get(gender), educationInnov);        //To remove any source of bias in borderline cases because the first subset of school leavers of same age are assigned a higher education level.  (I.e. if education level is deemed to be associated with age, so that higher ages are assigned higher education levels, then if the boundary between high and medium education levels is e.g. at the people aged 27, the first few people aged 27 will be assigned a high education level and the rest will have medium (or low) education levels.  To avoid any sort of regularity in the iteration order of school leavers, we shuffle here.
-            Collections.sort(personsLeavingEducation.get(gender),
-                    (Comparator<Person>) (arg0, arg1) -> {
-                        return arg1.getDemAge() - arg0.getDemAge();    //Sort school leavers by descending order in age
-                    });
-
-            //Perform alignment
-            int countHigh = 0, countLow = 0;
-            for(Person schoolLeaver : personsLeavingEducation.get(gender)) {        //This tries to maintain the naturally generated number of school-leavers with medium education, so that an increase in the number of school-leavers with high education is achieved through a reduction in the number of school-leavers with low education.  However, in the event that the number of school-leavers with either high or medium education are more than the total number of school leavers (in this year), we end up having no school leavers with low education and we have to reduce the number of school leavers with medium education
-
-                if (schoolLeaver.getEduHighestC4().equals(Education.Medium)) {
-                    if(numPersonsOfThisGenderWithHighEduPreAlignment + countHigh < numPersonsWithHighEduAlignmentTarget) {                //Only align if number of people in population with high education is too low.
-                        schoolLeaver.setEducation(Education.High);            //As the personsLeavingEducation list is sorted by descending age, the oldest people leaving education are assigned to have high education levels
-                        countHigh++;
-                    } else if(numPersonsOfThisGenderWithLowEduPreAlignment + countLow< numPersonsWithLowEduAlignmentTarget) {
-                        schoolLeaver.setEducation(Education.Low);        //When the number of high education level people have been assigned, the next oldest people are assigned to have medium education levels
-                        countLow++;
-                    }
-                } else if (schoolLeaver.getEduHighestC4().equals(Education.High)) {
-                    if (numPersonsOfThisGenderWithHighEduPreAlignment + countHigh > numPersonsWithHighEduAlignmentTarget) { //If too many people with high education
-                        schoolLeaver.setEducation(Education.Medium);
-                        countHigh--;
-                    }
-                } else if (schoolLeaver.getEduHighestC4().equals(Education.Low)) {
-                    if (numPersonsOfThisGenderWithLowEduPreAlignment + countLow > numPersonsWithLowEduAlignmentTarget) {
-                        schoolLeaver.setEducation(Education.Medium);
-                        countLow--;
-                    }
-                }
-
-//				System.out.println(schoolLeaver.getAge() + ", " + schoolLeaver.getEducation().toString());		//Test
-            }
-            personsLeavingEducation.get(gender).clear();    //Clear for re-use in the next year
-
-            if(Parameters.systemOut) {
-                //Check result of alignment
-                int countHighEdPeople = 0, countMediumEdPeople = 0;
-                for(Person person : persons) {
-                    if( person.getDemMaleFlag().equals(gender) && (person.getDemAge() <= 65) ) {        //Alignment projections are based only on persons younger than 66 years old
-                        if (person.isToLeaveSchool()) {
-                            if(person.getEduHighestC4() != null) {
-                                if(person.getEduHighestC4().equals(Education.High)) {
-                                    countHighEdPeople++;
-                                } else if(person.getEduHighestC4().equals(Education.Medium)) {
-                                    countMediumEdPeople++;
-                                }
-                            }
-                        }
-                    }
-                }
-                System.out.println("Year is " + year);
-                System.out.println("Gender " + gender + ", Proportions of High Edu " + ((double)countHighEdPeople/(double)numPersonsOfThisGender) + ", Medium Edu " + ((double)countMediumEdPeople/(double)numPersonsOfThisGender));
-            }
-        }
-    }
-
-
-    /**
      * PROCESS - FERTILITY ALIGNMENT OF SIMULATED POPULATION
      *
      * Process aligns to period fertility rate. This ensures "sensible" numbers of children per simulated woman
@@ -3403,10 +3275,6 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         alignCohabitation = flag;
     }
 
-    public void setAlignEducation(boolean flag) {
-        alignEducation = flag;
-    }
-
     public void setAlignInSchool(boolean flag) {
         alignInSchool = flag;
     }
@@ -3414,8 +3282,6 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     public boolean isAlignInSchool() { return alignInSchool;    }
 
     public boolean isAlignPopulation() { return alignPopulation; }
-
-    public boolean isAlignEducation() { return alignEducation; }
 
     public boolean isEnableIntertemporalOptimisations() { return enableIntertemporalOptimisations; }
 
