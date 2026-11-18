@@ -194,7 +194,7 @@ SimPaths/
 
 | File Pattern | Purpose |
 |--------------|---------|
-| `align_*.xlsx` and `alignment_targets_*.xlsx` | Population, education, employment and partnership targets |
+| `align_*.xlsx` and `alignment_targets_*.xlsx` | Population, student share, employment and partnership targets |
 | `alignment_adjustment_series.xlsx` | Time-varying alignment adjustments |
 | `economic_time_series.xlsx` | Price and wage indices, returns, debt costs and care wages |
 | `reg_*.xlsx` | Regression parameters for behavioral processes |
