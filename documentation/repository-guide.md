@@ -45,7 +45,7 @@ SimPaths/
 ├── input/                              # Input data and parameters
 │   ├── alignment_files/                # Alignment targets and alignment scripts
 │   │   ├── DoFilesTarget/              # Stata scripts that generate alignment targets
-│   │   ├── align_*.xlsx                # Population and education alignment files
+│   │   ├── align_*.xlsx                # Population alignment files
 │   │   └── alignment_*.xlsx            # Employment, school, partnership and adjustment targets
 │   ├── DatabaseCountryYear.xlsx        # Year-specific macro parameters
 │   ├── economic_time_series.xlsx       # Economic time series
@@ -199,7 +199,7 @@ SimPaths/
 
 | File Pattern | Purpose |
 |--------------|---------|
-| `alignment_files/align_*.xlsx`, `alignment_files/alignment_*.xlsx` | Alignment targets (population, employment, education, etc.) |
+| `alignment_files/align_*.xlsx`, `alignment_files/alignment_*.xlsx` | Alignment targets (population, employment, student share, etc.) |
 | `regression_files/reg_*.xlsx` | Regression parameters for behavioral processes |
 | `scenario/scenario_*.xlsx` | Policy scenarios and projections |
 | `projections/projections_*.xlsx` | Demographic projections (mortality, fertility) |
