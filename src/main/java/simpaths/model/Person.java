@@ -2871,7 +2871,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         Reached_Retirement_Age,						//Indicator whether individual is at or above retirement age
         Reached_Retirement_Age_Sp,					//Indicator whether spouse is at or above retirement age
         RealIncomeChange, //Note: the above return a 0 or 1 value, but income variables will return the change in income or 0
-        RealIncomeDecrease_D,
+        RealIncomeDecreaseFlag,
         ReceiveCare,
         UnemployedToEmployed,
         UnemploymentRate,
@@ -3927,7 +3927,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
             case RealIncomeChange -> {
                 return getYearlyChangeInLogEDI();
             }
-            case RealIncomeDecrease_D -> {
+            case RealIncomeDecreaseFlag -> {
                 return isDecreaseInYearlyEquivalisedDisposableIncome() ? 1. : 0.;
             }
             case D_Econ_benefits -> {
@@ -5957,7 +5957,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
     }
 
     // Stata's variable_update.do estimates NonPovertyToPoverty/PovertyToNonPoverty/PersistentPoverty and
-    // RealIncomeChange/RealIncomeDecrease_D under xtset idperson swv, so L./D. there follow the person, not
+    // RealIncomeChange/RealIncomeDecreaseFlag under xtset idperson swv, so L./D. there follow the person, not
     // whichever benefit unit they are in now. No under-18 override is needed here (unlike children/household
     // type): a minor's household poverty/income state in the data is the parents' real state.
     private Integer getYPvrtyFlagForLag() {

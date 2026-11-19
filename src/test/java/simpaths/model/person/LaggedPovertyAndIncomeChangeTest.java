@@ -89,16 +89,16 @@ class LaggedPovertyAndIncomeChangeTest {
         // moves to a new, poorer unit this year
         person.setBenefitUnit(unit(0, 1000.0, null, null));
 
-        assertEquals(1.0, person.getDoubleValue(Person.Variables.RealIncomeDecrease_D));
+        assertEquals(1.0, person.getDoubleValue(Person.Variables.RealIncomeDecreaseFlag));
     }
 
     @Test
     void missingIncomeHistoryFallsBackToUnitLagThenNoSignal() throws Exception {
         Person withUnitLag = person(unit(0, 1000.0, null, 5000.0));
-        assertEquals(1.0, withUnitLag.getDoubleValue(Person.Variables.RealIncomeDecrease_D));
+        assertEquals(1.0, withUnitLag.getDoubleValue(Person.Variables.RealIncomeDecreaseFlag));
 
         Person withoutUnitLag = person(unit(0, 1000.0, null, null));
-        assertEquals(0.0, withoutUnitLag.getDoubleValue(Person.Variables.RealIncomeDecrease_D));
+        assertEquals(0.0, withoutUnitLag.getDoubleValue(Person.Variables.RealIncomeDecreaseFlag));
         assertEquals(0.0, withoutUnitLag.getDoubleValue(Person.Variables.RealIncomeChange));
     }
 
@@ -130,21 +130,21 @@ class LaggedPovertyAndIncomeChangeTest {
 
         // moves to a poorer unit this year: the decrease is detected
         bu.set(person, unit(0, 12000.0, null, null));
-        assertEquals(1.0, person.getDoubleValue(Person.Variables.RealIncomeDecrease_D));
+        assertEquals(1.0, person.getDoubleValue(Person.Variables.RealIncomeDecreaseFlag));
     }
 
     @Test
     void missingCurrentIncomeGivesNoSignal() throws Exception {
         Person person = person(unit(0, null, null, 1000.0));
         assertEquals(0.0, person.getDoubleValue(Person.Variables.RealIncomeChange));
-        assertEquals(0.0, person.getDoubleValue(Person.Variables.RealIncomeDecrease_D));
+        assertEquals(0.0, person.getDoubleValue(Person.Variables.RealIncomeDecreaseFlag));
     }
 
     @Test
     void incomeFallBelowZeroCountsAsDecrease() throws Exception {
         // a genuine negative income is not a missing value: a fall from 12,000 to -120 is a decrease
         Person person = person(unit(0, -120.0, null, 12000.0));
-        assertEquals(1.0, person.getDoubleValue(Person.Variables.RealIncomeDecrease_D));
+        assertEquals(1.0, person.getDoubleValue(Person.Variables.RealIncomeDecreaseFlag));
         // the log change is still 0, because the log of a negative income is undefined
         assertEquals(0.0, person.getDoubleValue(Person.Variables.RealIncomeChange));
     }
