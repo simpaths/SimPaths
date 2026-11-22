@@ -49,11 +49,7 @@ jobs:
         working-directory: documentation/visual-tests
         run: |
           npm ci
-          npx playwright install --with-deps chromium
-          python3 -m http.server 8316 --bind 127.0.0.1 --directory "$RUNNER_TEMP/published" &
-          server_pid=$!
-          trap 'kill "$server_pid"' EXIT
-          npx playwright test --config publication.config.mjs
+          bash ../scripts/check-browser-ci.sh "$RUNNER_TEMP/published" publication.config.mjs
       - uses: actions/upload-pages-artifact@v4
         if: steps.changes.outputs.changed == 'true'
         with:

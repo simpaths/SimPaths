@@ -47,5 +47,4 @@ jobs:
         working-directory: documentation/visual-tests
         run: |
           npm ci
-          npx playwright install --with-deps chromium
-          npm test
+          bash ../scripts/check-browser-ci.sh "$RUNNER_TEMP/site" playwright.config.mjs

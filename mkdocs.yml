@@ -177,6 +177,7 @@ nav:
               - Introduce a New Variable: developer-guide/how-to/new-variable.md
               - Add Parameters to the GUI: developer-guide/how-to/add-gui-parameters.md
               - Perform MultiRun Simulations: developer-guide/how-to/multirun-simulations.md
+              - Run and Update Integration Tests: developer-guide/how-to/integration-tests.md
           - JAS-mine Reference:
               - jasmine-reference/index.md
               - Statistical Package: jasmine-reference/statistical-package.md

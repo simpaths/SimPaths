@@ -1359,7 +1359,7 @@ gen Dhm = dhm
 gen Dhm_L1 = L1.Dhm if !missing(L1.Dhm)
 
 gen Dhmghq = dhm_ghq
-gen Dhmghq_L1 = L1.Dhmghq if !missing(L1.Dhmghq)
+gen Dhmghq_L1 = L1.Dhmghq if !missing(L1.Dhmghq)
 
 gen Dls = dls
 gen Dls_L1 = L1.Dls if !missing(L1.Dls)
@@ -1393,8 +1393,8 @@ replace NonPovertyToPoverty = . if missing(exp_poverty)
 replace NoPoverty = . if missing(exp_poverty)
 replace PersistentPoverty = . if missing(exp_poverty)
 
-gen RealIncomeChange = exp_incchange == 1
-gen RealIncomeDecrease_D = D.log_income
+gen RealIncomeChange = D.log_income
+gen RealIncomeDecreaseFlag = exp_incchange == 1
 
 gen FinancialDistress = financial_distress == 1
 gen L_FinancialDistress = L.financial_distress == 1 if !missing(L.financial_distress)

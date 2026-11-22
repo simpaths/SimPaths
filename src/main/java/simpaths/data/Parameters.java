@@ -442,10 +442,6 @@ public class Parameters {
     public static Map<Integer, Double> partnershipAlignAdjustment, fertilityAlignAdjustment;
     public static MultiKeyMap<Object, Double> upratingFactorsMap = new MultiKeyMap<>();
 
-    //Education level projections
-    private static MultiKeyCoefficientMap projectionsHighEdu;			//Alignment projections for High Education
-    private static MultiKeyCoefficientMap projectionsLowEdu;			//Alignment projections for Medium Education
-
     //For partnership types:
     private static MultiKeyCoefficientMap partnershipTypesFrequency;
     private static Map<Gender, MultiKeyMap<Region, Double>> partnershipTypesFrequencyByGenderAndRegion;
@@ -1032,10 +1028,6 @@ public class Parameters {
         // alignment parameters
         populationProjections = ExcelAssistant.loadCoefficientMap(ALIGNMENT_DIRECTORY + populationProjectionFilename, countryString, 3);
         setMapBounds(MapBounds.Population, countryString);
-
-        //Alignment of education levels
-        projectionsHighEdu = ExcelAssistant.loadCoefficientMap(ALIGNMENT_DIRECTORY + "align_educLevel.xlsx", "High", 1);
-        projectionsLowEdu = ExcelAssistant.loadCoefficientMap(ALIGNMENT_DIRECTORY + "align_educLevel.xlsx", "Low", 1);
 
         //Partnership type frequencies
         partnershipTypesFrequency = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "partnershipTypes2.xlsx", countryString, 2);
@@ -2959,12 +2951,6 @@ public class Parameters {
             }
             case RetirementAdjustment -> {
                 map = retirementTimeAdjustment;
-            }
-            case HighEducationRate -> {
-                map = projectionsHighEdu;
-            }
-            case LowEducationRate -> {
-                map = projectionsLowEdu;
             }
             case FixedRetirementAge -> {
                 map = fixedRetireAge;

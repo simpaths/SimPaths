@@ -6,13 +6,11 @@ title: Labour income
 
 # Labour income
 
-<p class="module-detail__lead">The labour income module projects potential hourly wages for each simulated adult, paid-employment choices and gross labour income. Hours of work are generated for the adult members of a benefit unit, and gross labour income is calculated from hours worked and the corresponding wage rate.</p>
+<p class="module-detail__lead">The labour income module projects potential hourly wage rates for each simulated adult in each year and their associated labour activity. Given potential wage rates, hours of paid employment by all adult members of a benefit unit are generated. Gross labour income is then determined by multiplying hours worked by the wage rate.</p>
 
 ## Wage rates
 
-Hourly wage rates are simulated using Heckman-corrected regressions stratified by gender and lagged employment status, distinguishing people who were and were not employed in the previous year. The explanatory variables include part-time employment, age, education, student status, parental education, relationship status, children, health and region. For people employed in the preceding year, lagged log hourly wages are also included.
-
-Predicted wages are used for all individuals, rather than only for people who are not employed, because this approach performed better in model development. They provide the wage rate used to calculate employment income under each labour-supply alternative.
+Hourly wage rates are simulated for each adult in the model based on Heckman-corrected regressions stratified by gender and lagged employment status, distinguishing between employed and non-employed individuals. The explanatory variables include part-time employment identifiers, age, education, student status, parental education, relationship status, presence of children, health and region. For individuals observed in employment in the previous year, lagged log hourly wage rates are also included as an explanatory variable.
 
 ### Potential-earnings diagram
 
@@ -31,19 +29,19 @@ This diagram records the implementation of the potential hourly-earnings update.
 
 ## Employment decisions
 
-SimPaths provides two approaches to employment decisions. Both represent the influence of financial incentives, but they differ in whether expectations are treated as implicit or explicitly forward-looking.
+Two alternative methods for projecting employment decisions can be considered by the model. These alternatives are both designed to reflect the influence of financial incentives on behaviour and are distinguished by whether they reflect forward-looking expectations.
 
 ### Default within-period model
 
-The default specification uses a non-forward-looking random utility model. Employment decisions are projected as though a benefit unit chooses from a discrete set of labour and income alternatives to maximise within-period utility. Utility is quadratic in benefit-unit disposable income and the hours worked by adult members.
+The default specification of SimPaths projects labour supply using a non-forward-looking random utility model. The method projects labour supply as though employment decisions are made to maximise within-period benefit-unit utility over a discrete set of labour/income alternatives. Given any labour alternative, labour income is computed by combining hours of work with the respective hourly wage rate. The utility of the benefit unit is calculated using a quadratic utility function of disposable income and the leisure of its adult members.
 
-The UK labour-supply model is estimated using UKMOD together with UKHLS data for 2019/20. Estimation uses an alternative-specific conditional logit model (`asclogit` in Stata).
+The UK labour-supply model is estimated using UKMOD in combination with UKHLS data for 2019/20. The estimation employs an alternative-specific conditional logit approach (Stata command `asclogit`).
 
-### Eligible decision units and alternatives
+#### Eligible decision units and alternatives
 
-In the current implementation, labour-supply-flexible adults are aged 16 to 75 and are not students, retired or disabled. The lower bound is set by `MIN_AGE_FLEXIBLE_LABOUR_SUPPLY`. A flexible adult without a partner, or with a partner who is not flexible, is evaluated individually. Where both partners are flexible, their choices are evaluated jointly.
+The default simulation considers labour-supply choices for adults aged 16–75 who are neither students nor retired. A labour-supply-flexible adult without a partner, or with a non-flexible partner, is evaluated individually. Couples in which both partners satisfy the flexible-worker conditions are evaluated jointly.
 
-Each flexible adult chooses among seven mutually exclusive alternatives:
+Each labour-supply-flexible individual chooses among seven mutually exclusive alternatives: non-employment and six weekly hours categories.
 
 | Alternative | Representative weekly hours | Observed hours category |
 | --- | ---: | --- |
@@ -55,46 +53,57 @@ Each flexible adult chooses among seven mutually exclusive alternatives:
 | 5 | 45 | 41-49 hours |
 | 6 | 55 | 50 hours or more |
 
-For couples, the choice set contains every combination of the two partners' alternatives. The observed choice, simulated disposable income and calculated leisure identify the utility parameters.
+For couples, the choice set expands into all combinations of the two partners' options.
 
-### Income and leisure under each alternative
+The observed choice, together with simulated incomes and computed leisure, identifies the utility parameters.
 
-Leisure is total weekly time minus the representative paid-work hours and hours spent providing care. Informal caregiving therefore enters the utility function as a time cost.
+#### Income and leisure under each alternative
 
-For each hours alternative, the predicted hourly wage is used to calculate employment income and UKMOD calculates disposable income. The counterfactual calculations follow four conventions:
+Leisure is computed as total weekly hours minus hours worked and hours spent providing care. Caregiving is therefore treated as a time cost that reduces leisure in the utility function.
 
-1. Taxes and benefits that UKMOD can simulate, including Universal Credit and tax credits, are recalculated for every alternative.
-2. Benefits that UKMOD cannot simulate and that depend on employment income are set to zero in counterfactual alternatives. Otherwise, they would appear only in the observed alternative and distort utility estimation.
-3. Benefits that UKMOD cannot simulate, do not depend on employment income and are compatible with work retain their observed amount in every alternative.
-4. If a benefit received in the observed state is incompatible with work and makes some alternatives infeasible, the person is excluded from the estimation sample where required.
+For estimation, disposable income for each alternative is simulated using UKMOD as follows. Hourly wages are predicted using a Heckman two-step selection model based on UKHLS-UKMOD panel data. The model is estimated separately for individuals with and without previous employment, and within each group separately for men and women. Predicted wages are used for all individuals, as this approach performs better than using predicted wages for non-workers only. The predicted hourly wage is then used to compute employment income for each hours alternative.
 
-### Estimation groups and utility specification
+To simulate disposable income for each hours scenario, the following conventions are used:
 
-The estimation sample distinguishes:
+1. Benefits that UKMOD can simulate, such as Universal Credit and tax credits, are calculated by UKMOD for every hours alternative.
+2. Benefits that UKMOD cannot simulate and that depend on employment income are set to zero for all counterfactual alternatives. Otherwise, they would appear only in the observed alternative and distort utility estimation.
+3. Benefits that UKMOD cannot simulate, do not depend on employment income and are compatible with work retain their observed amount in all alternatives.
+4. Individuals receiving benefits incompatible with work in the observed state are dropped from the estimation sample. This applies, for example, to some disability benefits, whose receipt implies that some choices are not feasible.
+
+UKMOD calculates disposable income for each scenario, and the individual's observed choice identifies which of the seven alternatives they actually selected.
+
+#### Estimation groups and utility specification
+
+The estimation sample is split into subsamples, and `asclogit` is used to estimate the marginal utilities of income and leisure and the preference shifters for each of these subsamples:
 
 - single women;
 - single men;
 - couples in which both partners are flexible;
 - women with a non-flexible partner;
 - men with a non-flexible partner;
-- adult daughters; and
-- adult sons.
+- adult children, female; and
+- adult children, male.
 
-Limited sample sizes require the sexes to be pooled for adults with one flexible partner and for adult children.
+In practice, limited sample sizes required the sexes to be pooled for couples in which only one partner is flexible and for adult children.
 
-Utility is quadratic in disposable income and leisure. The single-woman and single-man specifications include a full-time-work indicator and years spent in employment. The couple specification includes full-time-work indicators and previous labour-market experience for both partners. For adults with a non-flexible partner, men and women are estimated jointly and the full-time-work indicator is interacted with sex. Adult children are also pooled with a sex-by-full-time interaction, but previous labour-market experience is omitted because it was not statistically significant.
+Utility is modelled as a quadratic function of disposable income and leisure. The specifications differ across groups:
+
+- In the models for single women and single men, a dummy for full-time work is included to capture any fixed utility shift associated with full-time employment. The specification also conditions on years spent in employment to account for accumulated labour-market experience.
+- In the couples' model, full-time-work dummies and previous labour-market experience variables are included for both partners.
+- In the model for adults with a non-flexible partner, men and women are estimated jointly, and differences by sex are accounted for by interacting the full-time-work dummy with a sex dummy.
+- In the model for adult children, the sample is also pooled, with an interaction between sex and full-time work. Previous labour-market experience is not included, as it was not statistically significant.
 
 ### Forward-looking specification
 
-The model can instead project labour supply and discretionary consumption using explicit forward-looking expectations. The unit of analysis remains the benefit unit, and incentives are translated into behaviour through an intertemporal utility function. By default, this is a nested constant-elasticity-of-substitution utility function.
+The model can also be directed to project labour supply and discretionary consumption to reflect forward-looking expectations for behavioural incentives. As in the default specification, the unit of analysis is the benefit unit. Incentives are translated into behaviour via an assumed intertemporal utility function. By default, the model adopts a nested constant elasticity of substitution (CES) utility function.
 
-Each adult has three labour-supply alternatives: full-time work, part-time work and non-employment. Labour supply and discretionary consumption are projected as though they maximise utility subject to a hard constraint on net wealth and the agent's expectations. Expectations are substantively rational: uncertainty is represented by the random processes driving the dynamically projected characteristics.
+Each adult is considered to have three alternative labour-supply options, corresponding to full-time work, part-time work and non-employment. Labour supply and discretionary consumption are projected as though they maximise the assumed utility function, subject to a hard constraint on net wealth and assumed agent expectations. Expectations are “substantively rational” in the sense that uncertainty is characterised by the random draws that underlie dynamic projection of modelled characteristics. As no analytical solution to this problem exists, numerical solution methods are employed.
 
-Because the lifetime problem has no analytical solution, it is solved numerically in two stages. First, the model solves the lifetime decision problem for possible combinations of relevant agent characteristics and stores the solutions in a look-up table. During the simulation, the appropriate stored solution is used to project labour supply and discretionary consumption.
+The model proceeds in two discrete steps. The first step involves solution of the lifetime decision problem for potential combinations of agent-specific characteristics, with solutions stored in a look-up table. The second step uses the look-up table as the basis for projecting labour supply and discretionary consumption.
 
 ## Alignment
 
-Under the default labour-supply specification, the estimated utility of single men, single women and couples is adjusted so that aggregate employment rates follow observed rates during the validation period. The final adjustment is retained in later periods for which no observations are available. This procedure partly accounts for unemployment and labour-demand constraints that are absent from the unconstrained random utility model.
+When the default specification of SimPaths for projecting labour supply is used, the estimated utility of single men, single women and couples is adjusted to align the aggregate employment rate to the employment rate observed in the data in the validation period. The final adjustment value is used in subsequent periods for which no data are available. This procedure accounts for the existence of unemployment in the real economy and the fact that labour-supply decisions simulated using the random utility model assume no constraints on labour demand in the economy.
 
 ## Technical implementation
 

@@ -60,10 +60,9 @@ model_args:
 #    projectMortality: true   # if false, disables stochastic mortality (population does not die)
 
   # --- Alignment flags ---
-  # See model-concepts.md for a full explanation of what alignment does.
+  # Each alignment is described on its module page in documentation/wiki/overview/modules/.
 #    alignPopulation: true        # align age-sex-region totals to official population projections
 #    alignFertility: false        # scale birth probabilities to match projected fertility rates
-#    alignEducation: false        # align completed education distribution to targets
 #    alignInSchool: false         # align school participation rate (age 16–29) to targets
 #    alignCohabitation: true      # align share of cohabiting individuals to targets
 #    alignRetirement: false       # align share of retired persons aged 50+ (MIN_AGE_TO_RETIRE) to targets.

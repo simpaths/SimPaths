@@ -68,6 +68,12 @@ forvalues n = 1/`n_runs' {
     if `pensions' {
         import delimited using `"`directory`n''/Person.csv"', ///
             varnames(1) case(preserve) asdouble clear
+        * Current SimPaths output names these columns wealthPensOpEeContRate/
+        * wealthPensOpErContRate/wealthPensPpContRate; restore the old short
+        * names so the rest of this file and 04_21_plot_pensions.do are unaffected.
+        rename wealthPensOpEeContRate contRateOPEe
+        rename wealthPensOpErContRate contRateOPEr
+        rename wealthPensPpContRate contRatePP
         keep time id_Person idBu labC4 contRateOPEe contRateOPEr contRatePP wealthPensValue
         rename (time id_Person) (year idPers)
         gen double run = `label'
