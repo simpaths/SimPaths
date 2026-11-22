@@ -358,6 +358,7 @@ The [Model Parameterisation page](../overview/parameterisation.md) links the can
 | `02_inSchool_targets_initpopdata.do` | `alignment_targets_inSchool.xlsx` |
 | `03a_calculate_partneredShare_initialPop_BUlogic.do` | Initial-population partnership diagnostics and `alignment_targets_partnered_share.xlsx` |
 | `03b_calculate_partnership_target.do` | Partnership targets in `alignment_targets_partnered_share.xlsx` |
+| `05_retirement_targets_initpopdata.do` | `alignment_targets_retirement.xlsx`: share of retired persons among those aged 50+ (`MIN_AGE_TO_RETIRE`) |
 | `90_person_risk_employment_stats.do` | Person-level employment-risk diagnostics |
 
 Each script has its own configured input/output paths. Check the resulting workbook names and worksheets against the Java loader before use. Demographic projection workbooks are separate inputs; these scripts do not regenerate the entire set of population, fertility and mortality projections.

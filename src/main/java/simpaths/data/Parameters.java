@@ -228,6 +228,7 @@ public class Parameters {
 
     //Alignment parameters
     public static final int EMPLOYMENT_ALIGNMENT_END_YEAR = 2023;
+    public static final double RETIREMENT_ALIGNMENT_BOUND = 3.0; // the retirement root search looks this far either side of its starting adjustment
 
     // parameters to manage simulation of optimised decisions
     public static boolean projectPensionWealth = true;
@@ -431,13 +432,13 @@ public class Parameters {
     private static boolean flagDefaultToTimeSeriesAverages;
     private static Double averageSavingReturns, averageDebtCostLow, averageDebtCostHigh;
     private static MultiKeyCoefficientMap upratingIndexMapRealGDP, mapRealGDPperCapita, upratingIndexMapInflation, socialCareProvisionTimeAdjustment,
-            partnershipTimeAdjustment, studentsTimeAdjustment, fertilityTimeAdjustment,
+            partnershipTimeAdjustment, studentsTimeAdjustment, fertilityTimeAdjustment, retirementTimeAdjustment,
             utilityTimeAdjustmentSingleMales, utilityTimeAdjustmentACMales, utilityTimeAdjustmentSingleFemales, utilityTimeAdjustmentACFemales,
             utilityTimeAdjustmentCouples, utilityTimeAdjustmentSingleDepMen, utilityTimeAdjustmentSingleDepWomen,
             upratingIndexMapRealWageGrowth, priceMapRealSavingReturns, priceMapRealPensionReturns, priceMapRealDebtCostLow, priceMapRealDebtCostHigh,
             wageRateFormalSocialCare, socialCarePolicy, partneredShare, priceMapRealHousingReturns, priceMapRealMortgageRates,
             employedShareACMales, employedShareACFemales, employedShareSingleDepMales, employedShareSingleDepFemales,
-            employedShareSingleMales, employedShareSingleFemales, employedShareCouples, studentShare;
+            employedShareSingleMales, employedShareSingleFemales, employedShareCouples, studentShare, retiredShare;
     public static Map<Integer, Double> partnershipAlignAdjustment, fertilityAlignAdjustment;
     public static MultiKeyMap<Object, Double> upratingFactorsMap = new MultiKeyMap<>();
 
@@ -2807,6 +2808,9 @@ public class Parameters {
         partnershipTimeAdjustment = ExcelAssistant.loadCoefficientMap(ALIGNMENT_DIRECTORY + "alignment_adjustment_series.xlsx", "cohabitation_adjustment", 1, 1);
         studentsTimeAdjustment = ExcelAssistant.loadCoefficientMap(ALIGNMENT_DIRECTORY + "alignment_adjustment_series.xlsx", "students_adjustment", 1, 1);
         fertilityTimeAdjustment = ExcelAssistant.loadCoefficientMap(ALIGNMENT_DIRECTORY + "alignment_adjustment_series.xlsx", "fertility_adjustment", 1, 1);
+        // direct probit shift on R1a/R1b (Person.updateRetirementStatus), like students_adjustment on E1a; not
+        // appended to the regression coefficients, so the workbook value is not counted twice
+        retirementTimeAdjustment = ExcelAssistant.loadCoefficientMap(ALIGNMENT_DIRECTORY + "alignment_adjustment_series.xlsx", "retirement_adjustment", 1, 1);
         utilityTimeAdjustmentSingleMales = ExcelAssistant.loadCoefficientMap(ALIGNMENT_DIRECTORY + "alignment_adjustment_series.xlsx", "utility_adj_smales", 1, 1);
         utilityTimeAdjustmentSingleFemales = ExcelAssistant.loadCoefficientMap(ALIGNMENT_DIRECTORY + "alignment_adjustment_series.xlsx", "utility_adj_sfemales", 1, 1);
         utilityTimeAdjustmentACMales = ExcelAssistant.loadCoefficientMap(ALIGNMENT_DIRECTORY + "alignment_adjustment_series.xlsx", "utility_adj_acmales", 1, 1);
@@ -2824,6 +2828,9 @@ public class Parameters {
 
         //studentShare = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "social_care_parameters.xlsx", "students", 1,1);
         studentShare = ExcelAssistant.loadCoefficientMap(ALIGNMENT_DIRECTORY + "alignment_targets_inSchool.xlsx", "students", 1,1);
+
+        // share of retired persons among those aged MIN_AGE_TO_RETIRE or older (RetirementAlignment.inTargetPopulation)
+        retiredShare = ExcelAssistant.loadCoefficientMap(ALIGNMENT_DIRECTORY + "alignment_targets_retirement.xlsx", "retirement", 1,1);
 
         // load year-specific social care policy parameters
         socialCarePolicy = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + "social_care_parameters.xlsx", "social care", 1, 8);
@@ -2950,6 +2957,9 @@ public class Parameters {
             case InSchoolAdjustment -> {
                 map = studentsTimeAdjustment;
             }
+            case RetirementAdjustment -> {
+                map = retirementTimeAdjustment;
+            }
             case HighEducationRate -> {
                 map = projectionsHighEdu;
             }
@@ -2969,6 +2979,9 @@ public class Parameters {
         switch (targetShareType) {
             case Partnership -> {
                 map = partneredShare;
+            }
+            case Retirement -> {
+                map = retiredShare;
             }
             case Students -> {
                 map = studentShare;

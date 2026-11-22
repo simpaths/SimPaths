@@ -8,6 +8,7 @@ import simpaths.data.Parameters;
 import simpaths.data.filters.Filters;
 import simpaths.model.BenefitUnit;
 import simpaths.model.Person;
+import simpaths.model.RetirementAlignment;
 import simpaths.model.SimPathsModel;
 import simpaths.model.enums.*;
 
@@ -15,8 +16,8 @@ import simpaths.model.enums.*;
  *
  * CLASS TO REPORT ALIGNMENT ADJUSTMENT FACTORS AND SIMULATED VS TARGET SHARES
  *
- * Covers: partnership, fertility, in-school, utility adjustment factors, and
- * employment shares by occupancy type. Disability and retirement are excluded.
+ * Covers: partnership, fertility, in-school, retirement, utility adjustment factors, and
+ * employment shares by occupancy type. Disability is excluded.
  *
  */
 @Entity
@@ -60,6 +61,18 @@ public class AlignmentStatistics {
 
     @Column(name = "align_in_school_tgt_share")
     private double alignInSchoolTgtShare;
+
+    // ------------------------------------------------------------------
+    // Retirement (shares among persons aged MIN_AGE_TO_RETIRE or older)
+    // ------------------------------------------------------------------
+    @Column(name = "align_rtrd_adj")
+    private double alignRtrdAdj;
+
+    @Column(name = "align_rtrd_sim_share")
+    private double alignRtrdSimShare;
+
+    @Column(name = "align_rtrd_tgt_share")
+    private double alignRtrdTgtShare;
 
     // ------------------------------------------------------------------
     // Utility adjustment factors (one per occupancy type)
@@ -164,6 +177,15 @@ public class AlignmentStatistics {
 
     public double getAlignInSchoolTgtShare() { return alignInSchoolTgtShare; }
     public void setAlignInSchoolTgtShare(double v) { alignInSchoolTgtShare = v; }
+
+    public double getAlignRtrdAdj() { return alignRtrdAdj; }
+    public void setAlignRtrdAdj(double v) { alignRtrdAdj = v; }
+
+    public double getAlignRtrdSimShare() { return alignRtrdSimShare; }
+    public void setAlignRtrdSimShare(double v) { alignRtrdSimShare = v; }
+
+    public double getAlignRtrdTgtShare() { return alignRtrdTgtShare; }
+    public void setAlignRtrdTgtShare(double v) { alignRtrdTgtShare = v; }
 
     public double getAlignUtilAdjSingleM() { return alignUtilAdjSingleM; }
     public void setAlignUtilAdjSingleM(double v) { alignUtilAdjSingleM = v; }
@@ -279,6 +301,18 @@ public class AlignmentStatistics {
                 .count();
         setAlignInSchoolSimShare(numInSchoolAge > 0 ? (double) numStudents / numInSchoolAge : 0.0);
         setAlignInSchoolTgtShare(Parameters.getTargetShare(year, TargetShares.Students));
+
+        // --- Retirement: share retired among persons aged MIN_AGE_TO_RETIRE or older, the population of the target ---
+        setAlignRtrdAdj(model.getRetirementAdjustment(year));
+        long numRetirementTargetPopulation = model.getPersons().stream()
+                .filter(RetirementAlignment::inTargetPopulation)
+                .count();
+        long numRetired = model.getPersons().stream()
+                .filter(p -> RetirementAlignment.inTargetPopulation(p) && Les_c4.Retired.equals(p.getLabC4()))
+                .count();
+        setAlignRtrdSimShare(numRetirementTargetPopulation > 0
+                ? (double) numRetired / numRetirementTargetPopulation : 0.0);
+        setAlignRtrdTgtShare(Parameters.getTargetShare(year, TargetShares.Retirement));
 
         // --- Utility adjustment factors ---
         setAlignUtilAdjSingleM(Parameters.getTimeSeriesValue(year, TimeSeriesVariable.UtilityAdjustmentSingleMales));
