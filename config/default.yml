@@ -65,6 +65,10 @@ model_args:
 #    alignFertility: false        # scale birth probabilities to match projected fertility rates
 #    alignInSchool: false         # align school participation rate (age 16–29) to targets
 #    alignCohabitation: true      # align share of cohabiting individuals to targets
+#    alignRetirement: false       # align share of retired persons aged 50+ (MIN_AGE_TO_RETIRE) to targets.
+                                  # The search runs up to RETIREMENT_ALIGNMENT_END_YEAR (2023) and later years
+                                  # keep its last adjustment; in a run starting in 2023 that adjustment is the
+                                  # one-year catch-up to the 2023 target, so leave it off for long projections
 #    alignEmployment: false       # align employment share to targets
 
   # --- Labour market modules ---

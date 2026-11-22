@@ -16,6 +16,10 @@ With implicit expectations, entry to retirement is described by a probit model c
 
 With explicit forward-looking expectations, retirement is treated as a control variable. Retired people may receive pension income under either specification.
 
+### Retirement alignment
+
+When retirement alignment is enabled (`alignRetirement`, off by default), the intercept of the retirement probit models is shifted so that the share of retired people among those aged 50 and over follows targets computed from the initial populations (`alignment_targets_retirement.xlsx`). The adjustment is searched for each year up to 2023; after the final alignment year, the last estimated adjustment is retained. With explicit forward-looking expectations and retirement as a control variable, the adjustment has no effect.
+
 ## Private pension income
 
 When wealth is not projected explicitly, private pension income for people continuing in retirement is described by a linear regression conditional on age, education, lagged household composition, lagged health, lagged pension income, region and year.

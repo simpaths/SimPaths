@@ -147,6 +147,7 @@ public class OutputReadme {
         out.println("| Alignment: fertility | " + onOff(model.isAlignFertility()) + " |");
         out.println("| Alignment: cohabitation | " + onOff(model.isAlignCohabitation()) + " |");
         out.println("| Alignment: in school | " + onOff(model.isAlignInSchool()) + " |");
+        out.println("| Alignment: retirement | " + onOff(model.isAlignRetirement()) + " |");
         out.println("| Alignment: employment | " + onOff(model.isAlignEmployment()) + " |");
         out.println();
         out.println("Diagnostics for the alignment routines that ran are in `AlignmentStatistics.csv`,");

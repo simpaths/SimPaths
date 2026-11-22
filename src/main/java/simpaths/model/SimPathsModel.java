@@ -184,6 +184,13 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     private int PARTNERSHIP_ALIGNMENT_END_YEAR = 2023;
     private Double lastPartnershipAdjustment = null;
 
+    // Set to true to align the share of retired persons among those aged Parameters.MIN_AGE_TO_RETIRE or older.
+    // The search runs up to RETIREMENT_ALIGNMENT_END_YEAR and later years keep the adjustment of its last search: in a
+    // run starting in that year, this is the one-year catch-up from the starting population to that year's target.
+    private boolean alignRetirement = false;
+    private int RETIREMENT_ALIGNMENT_END_YEAR = 2023;
+    private Double lastRetirementAdjustment = null;
+
     private boolean alignEmployment = false; //Set to true to align employment share
 
     public boolean addRegressionStochasticComponent = true; //If set to true, and regression contains ResStanDev variable, will evaluate the regression score including stochastic part, and omits the stochastic component otherwise.
@@ -524,6 +531,9 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         //yearlySchedule.addEvent(this, Processes.HealthAlignment);
         //yearlySchedule.addEvent(this, Processes.CheckForEmptyHouseholds);
 
+        // Retirement alignment - runs before the Retirement process so the solved adjustment applies in the same year
+        yearlySchedule.addEvent(this, Processes.RetirementAlignment);
+
         // Check whether persons have reached retirement Age
         yearlySchedule.addCollectionEvent(persons, Person.Processes.Retirement, false);
 
@@ -777,6 +787,8 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             pw.println(line);
             line = "alignCohabitation: " + alignCohabitation;
             pw.println(line);
+            line = "alignRetirement: " + alignRetirement;
+            pw.println(line);
             line = "alignEmployment: " + alignEmployment;
             pw.println(line);
             line = "saveImperfectTaxDBMatches: " + saveImperfectTaxDBMatches;
@@ -845,6 +857,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         PopulationAlignment,
         SettleInheritance,
         CohabitationAlignment,
+        RetirementAlignment,
         // HealthAlignment,
         InSchoolAlignment,
 
@@ -913,6 +926,13 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                     if (commentsOn) log.info("Cohabitation alignment complete.");
                 }
                 clearPersonsToMatch();
+            }
+            case RetirementAlignment -> {
+
+                if (alignRetirement) {
+                    retirementAlignment();
+                    if (commentsOn) log.info("Retirement alignment complete.");
+                }
             }
 //			case HealthAlignment -> {
 //				healthAlignment();
@@ -2462,6 +2482,49 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
 
     /**
+     *
+     * PROCESS - ALIGN THE SHARE OF RETIRED PERSONS AGED MIN_AGE_TO_RETIRE OR OLDER IN THE SIMULATED POPULATION
+     *
+     * Searches for the shift to the R1a/R1b probit index at which the expected retired share (RetirementAlignment)
+     * meets the target in alignment_targets_retirement.xlsx, and stores it in the RetirementAdjustment time series,
+     * which the Retirement process reads next in the schedule.
+     *
+     */
+    private void retirementAlignment() {
+        if (getYear() > RETIREMENT_ALIGNMENT_END_YEAR) {
+            lastRetirementAdjustment = getFrozenRetirementAdjustment();
+            System.out.println("Retirement alignment skipped after " + RETIREMENT_ALIGNMENT_END_YEAR
+                    + "; holding adjustment at " + lastRetirementAdjustment);
+            return;
+        }
+
+        RetirementAlignment retirementAlignment = new RetirementAlignment(persons);
+
+        // Warm-start from the previously solved year to stabilise/accelerate yearly root search.
+        double retirementAdjustment;
+        if (getYear() > startYear) {
+            retirementAdjustment = Parameters.getTimeSeriesValue(getYear() - 1, TimeSeriesVariable.RetirementAdjustment);
+        } else {
+            retirementAdjustment = Parameters.getTimeSeriesValue(getYear(), TimeSeriesVariable.RetirementAdjustment);
+        }
+        RootSearch search = getRootSearch(retirementAdjustment, retirementAlignment, 1.0E-6, 1.0E-6, Parameters.RETIREMENT_ALIGNMENT_BOUND);
+        if (search.isTargetAltered() && !search.isBracketed()) {
+            System.out.println("WARNING: retirement alignment target " + retirementAlignment.getTargetRetiredShare()
+                    + " not reached within +/-" + Parameters.RETIREMENT_ALIGNMENT_BOUND + " of " + retirementAdjustment
+                    + " (target minus expected share " + search.getLowerEvalFx() + " at " + search.getLowerEvalX()
+                    + ", " + search.getUpperEvalFx() + " at " + search.getUpperEvalX() + "); using the closer bound");
+        }
+
+        // update and exit: always persist the solved value for the current year, as the Retirement process (which runs
+        // next in the schedule and reads timeseries[year] via getRetirementAdjustment) applies exactly this adjustment
+        lastRetirementAdjustment = search.getTarget()[0];
+        Parameters.putTimeSeriesValue(getYear(), search.getTarget()[0], TimeSeriesVariable.RetirementAdjustment);
+        System.out.println("Retirement adjustment value was " + search.getTarget()[0]
+                + " (target retired share " + retirementAlignment.getTargetRetiredShare() + ")");
+    }
+
+
+    /**
      * PROCESS - FERTILITY ALIGNMENT OF SIMULATED POPULATION
      *
      * Process aligns to period fertility rate. This ensures "sensible" numbers of children per simulated woman
@@ -3281,6 +3344,12 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
     public boolean isAlignInSchool() { return alignInSchool;    }
 
+    public void setAlignRetirement(boolean flag) {
+        alignRetirement = flag;
+    }
+
+    public boolean isAlignRetirement() { return alignRetirement; }
+
     public boolean isAlignPopulation() { return alignPopulation; }
 
     public boolean isEnableIntertemporalOptimisations() { return enableIntertemporalOptimisations; }
@@ -3300,6 +3369,31 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             lastInSchoolAdjustment = Parameters.getTimeSeriesValue(IN_SCHOOL_ALIGNMENT_END_YEAR, TimeSeriesVariable.InSchoolAdjustment);
         }
         return lastInSchoolAdjustment;
+    }
+
+    public double getRetirementAdjustment() {
+        return getRetirementAdjustment(year);
+    }
+
+    /**
+     * Shift to the R1a/R1b probit index applied by the Retirement process: 0 unless retirement alignment is on; the
+     * value solved for the year up to RETIREMENT_ALIGNMENT_END_YEAR; and the value of that last year afterwards.
+     */
+    public double getRetirementAdjustment(int year) {
+        if (!alignRetirement) {
+            return 0.0;
+        }
+        if (year > RETIREMENT_ALIGNMENT_END_YEAR) {
+            return getFrozenRetirementAdjustment();
+        }
+        return Parameters.getTimeSeriesValue(year, TimeSeriesVariable.RetirementAdjustment);
+    }
+
+    private double getFrozenRetirementAdjustment() {
+        if (lastRetirementAdjustment == null) {
+            lastRetirementAdjustment = Parameters.getTimeSeriesValue(RETIREMENT_ALIGNMENT_END_YEAR, TimeSeriesVariable.RetirementAdjustment);
+        }
+        return lastRetirementAdjustment;
     }
 
     public double getPartnershipAdjustment() {

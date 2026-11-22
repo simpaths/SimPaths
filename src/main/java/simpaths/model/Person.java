@@ -1191,6 +1191,17 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
      * @return true if to retire
      *******************************************/
     public boolean updateRetirementStatus() {
+        return updateRetirementStatus(model.getRetirementAdjustment());
+    }
+
+    /**
+     * Considers retirement status, shifting the R1a/R1b probit index by the retirement alignment adjustment
+     * (0 unless retirement alignment is on). RetirementAlignment evaluates the same probabilities when it searches
+     * for the adjustment, so keep the two in step.
+     * @param probitAdjustment shift added to the R1a/R1b score
+     * @return true if to retire
+     */
+    public boolean updateRetirementStatus(double probitAdjustment) {
         boolean toRetire = false;
         if (demAge >= MIN_AGE_TO_RETIRE && !Les_c4.Retired.equals(labC4L1)) {
 
@@ -1205,9 +1216,11 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
 
                     double prob;
                     if (getPartner() != null) {
-                        prob = Parameters.getRegRetirementR1b().getProbability(this, Variables.class);
+                        double score = Parameters.getRegRetirementR1b().getScore(this, Variables.class);
+                        prob = Parameters.getRegRetirementR1b().getProbability(score + probitAdjustment);
                     } else {
-                        prob = Parameters.getRegRetirementR1a().getProbability(this, Variables.class);
+                        double score = Parameters.getRegRetirementR1a().getScore(this, Variables.class);
+                        prob = Parameters.getRegRetirementR1a().getProbability(score + probitAdjustment);
                     }
                     toRetire = (statInnovations.getDoubleDraw(23) < prob);
                 } else {
@@ -5133,6 +5146,14 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         if (labHrsWorkEnumWeek ==null)
             throw new RuntimeException("request for labourSupplyWeekly before it has been initialised");
         return labHrsWorkEnumWeek;
+    }
+
+    /**
+     * Previous year's weekly labour supply, or null before it has been initialised (unlike
+     * {@link #getL1LabourSupplyHoursWeekly()}, which throws).
+     */
+    public Labour getLabHrsWorkEnumWeekL1() {
+        return labHrsWorkEnumWeekL1;
     }
 
     public int getL1LabourSupplyHoursWeekly() {
