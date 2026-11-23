@@ -6047,18 +6047,16 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         return (benefitUnit != null) ? benefitUnit.getYDispEquivYearL1() : null;
     }
 
-    // Mirrors BenefitUnit.calculateYearlyChangeInLogEquivalisedDisposableIncome, but compares the person's
-    // own lagged equivalised disposable income against the current unit's current value, rather than the
+    // Compare the person's own lagged income against the current unit's current value, rather than the
     // current unit's own lag, which is blank for a unit formed partway through this year.
     private double getYearlyChangeInLogEDI() {
         if (benefitUnit == null) return 0.;
         double current = benefitUnit.getEquivalisedDisposableIncomeYearly();
         Double lagged = getYDispEquivYearL1();
         if (lagged == null || current < 0. || lagged < 0.) return 0.;
-        // Note that income is uprated to the base price year, as specified in parameters class, as the estimated change uses real income change
+        // Income is already in BASE_PRICE_YEAR prices, so this is a real change.
         // +1 added as log(0) is not defined
-        return Math.log(current / Parameters.getTimeSeriesValue(model.getYear(), TimeSeriesVariable.Inflation) + 1)
-                - Math.log(lagged / Parameters.getTimeSeriesValue(model.getYear()-1, TimeSeriesVariable.Inflation) + 1);
+        return Math.log(current + 1) - Math.log(lagged + 1);
     }
 
     // Exclude only missing values: a genuine fall below zero is a decrease, as in Stata (exp_incchange).

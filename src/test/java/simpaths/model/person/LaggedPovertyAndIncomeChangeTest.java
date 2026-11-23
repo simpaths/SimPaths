@@ -103,6 +103,19 @@ class LaggedPovertyAndIncomeChangeTest {
     }
 
     @Test
+    void unchangedRealIncomeHasZeroLogChange() throws Exception {
+        Person person = person(unit(0, 20000.0, null, 20000.0));
+        assertEquals(0.0, person.getDoubleValue(Person.Variables.RealIncomeChange), 1e-12);
+    }
+
+    @Test
+    void realIncomeIncreaseUsesBasePriceValues() throws Exception {
+        Person person = person(unit(0, 22000.0, null, 20000.0));
+        assertEquals(Math.log(22001.0 / 20001.0),
+                person.getDoubleValue(Person.Variables.RealIncomeChange), 1e-12);
+    }
+
+    @Test
     void capturedIncomeLagSurvivesBenefitUnitResetInRealUpdateOrder() throws Exception {
         // Real objects, real annotation processing: BenefitUnit.Update runs before Person.Update and resets
         // yDispEquivYear, so the person must capture last year's income from the unit's stored lag.
