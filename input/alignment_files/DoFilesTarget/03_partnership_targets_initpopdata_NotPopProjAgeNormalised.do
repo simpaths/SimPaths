@@ -1,3 +1,7 @@
+* SUPERSEDED (24/11/2026). Kept for reference: these targets are not reweighted to the
+* official population by gender x region x age (align_popProjections.xlsx). This file
+* writes alignment_targets_*_NotPopProjAgeNormalised.xlsx. Current version: 03_partnership_targets_initpopdata.do
+
 version 17.0
 clear all
 set more off
@@ -136,17 +140,16 @@ order year n_eligible n_partnered partnered_share
 preserve
     keep year partnered_share
     format partnered_share %12.7f
-    export excel using "`work_dir'/alignment_targets_partnered_share.xlsx", ///
+    export excel using "`work_dir'/alignment_targets_partnered_share_NotPopProjAgeNormalised.xlsx", ///
         firstrow(variables) replace
 restore
 
 * Add metadata sheet so workbook provenance survives regeneration
-putexcel set "`work_dir'/alignment_targets_partnered_share.xlsx", sheet("Info") modify
+putexcel set "`work_dir'/alignment_targets_partnered_share_NotPopProjAgeNormalised.xlsx", sheet("Info") modify
 putexcel A1=("Field") B1=("Value")
-putexcel A2=("Workbook") B2=("alignment_targets_partnered_share.xlsx")
+putexcel A2=("Workbook") B2=("alignment_targets_partnered_share_NotPopProjAgeNormalised.xlsx")
 putexcel A3=("Data sheet") B3=("partnered_share")
-putexcel A4=("Relevant do file") B4=("input/alignment_files/DoFilesTarget/03b_calculate_partnership_target.do")
-putexcel A5=("Related do file") B5=("input/alignment_files/DoFilesTarget/03a_calculate_partneredShare_initialPop_BUlogic.do")
+putexcel A4=("Relevant do file") B4=("input/alignment_files/DoFilesTarget/03_partnership_targets_initpopdata_NotPopProjAgeNormalised.do")
 putexcel A6=("Source data") B6=("Initial population CSV files for 2011-2023")
 putexcel A7=("Years covered") B7=("2011-2023")
 putexcel A8=("Unit of analysis") B8=("Adult person-year")
