@@ -18,7 +18,7 @@
 *                  - Exports the results to input/alignment_files
 *
 *                The previous version, weighted by wgthhcross only, is
-*                03b_calculate_partnership_target_NotPopProjAgeNormalised.do and
+*                03_partnership_targets_initpopdata_NotPopProjAgeNormalised.do and
 *                wrote alignment_targets_partnered_share_NotPopProjAgeNormalised.xlsx.
 *
 * SET-UP:         Set global dir_w to the root of this SimPaths project
@@ -170,7 +170,7 @@ putexcel set "${dir_output}/alignment_targets_partnered_share.xlsx", sheet("Info
 putexcel A1=("Field") B1=("Value")
 putexcel A2=("Workbook") B2=("alignment_targets_partnered_share.xlsx")
 putexcel A3=("Data sheet") B3=("partnered_share")
-putexcel A4=("Relevant do file") B4=("input/alignment_files/DoFilesTarget/03b_calculate_partnership_target.do")
+putexcel A4=("Relevant do file") B4=("input/alignment_files/DoFilesTarget/03_partnership_targets_initpopdata.do")
 putexcel A5=("Helper do file") B5=("input/alignment_files/DoFilesTarget/00_popproj_weights.do")
 putexcel A6=("Source data") B6=("input/InitialPopulations/population_initial_${country}_${min_year}.csv to population_initial_${country}_${max_year}.csv; input/alignment_files/align_popProjections.xlsx (sheet ${country})")
 putexcel A7=("Years covered") B7=("${min_year}-${max_year}")

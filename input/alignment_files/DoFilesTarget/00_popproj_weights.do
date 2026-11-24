@@ -8,7 +8,7 @@
 *
 * DATA:           Official population (input/alignment_files/align_popProjections.xlsx)
 *
-* DESCRIPTION:    Helper for the alignment-target do-files 01, 02, 03b and 05.
+* DESCRIPTION:    Helper for the alignment-target do-files 01, 02, 03 and 05.
 *                 The weighted initial populations have a different age mix
 *                 from the official population, while the simulated population
 *                 follows the official population by gender x region x single

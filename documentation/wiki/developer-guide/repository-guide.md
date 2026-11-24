@@ -350,18 +350,18 @@ Results are written to the configured `dir_results` and `dir_raw_results` locati
 
 The [Model Parameterisation page](../overview/parameterisation.md) links the canonical workbook inventory and loader. Estimation scripts and input workbooks are different inventories; a single script may update multiple files.
 
-### Part 3: Alignment targets (`input/DoFilesTarget/`)
+### Part 3: Alignment targets (`input/alignment_files/DoFilesTarget/`)
 
 | Script | Main output |
 | --- | --- |
-| `01_employment_shares_initpopdata.do` | `alignment_targets_employment.xlsx` |
+| `00_popproj_weights.do` | Helper run by `01`, `02`, `03` and `05`: reweights the initial populations to the official population (`align_popProjections.xlsx`) by gender × region × single year of age |
+| `01_employment_targets_initpopdata.do` | `alignment_targets_employment.xlsx` |
 | `02_inSchool_targets_initpopdata.do` | `alignment_targets_inSchool.xlsx` |
-| `03a_calculate_partneredShare_initialPop_BUlogic.do` | Initial-population partnership diagnostics and `alignment_targets_partnered_share.xlsx` |
-| `03b_calculate_partnership_target.do` | Partnership targets in `alignment_targets_partnered_share.xlsx` |
+| `03_partnership_targets_initpopdata.do` | `alignment_targets_partnered_share.xlsx` |
 | `05_retirement_targets_initpopdata.do` | `alignment_targets_retirement.xlsx`: share of retired persons among those aged 50+ (`MIN_AGE_TO_RETIRE`) |
 | `90_person_risk_employment_stats.do` | Person-level employment-risk diagnostics |
 
-Each script has its own configured input/output paths. Check the resulting workbook names and worksheets against the Java loader before use. Demographic projection workbooks are separate inputs; these scripts do not regenerate the entire set of population, fertility and mortality projections.
+The previous versions of `01`, `02`, `03` and `05`, weighted by `wgthhcross` only, are kept as `*_NotPopProjAgeNormalised.do`; the model does not read their workbooks. Scripts `01`, `02`, `03` and `05` read and write within the project root set in `global dir_w`; the others have their own configured input/output paths. Check the resulting workbook names and worksheets against the Java loader before use. Demographic projection workbooks are separate inputs; these scripts do not regenerate the entire set of population, fertility and mortality projections.
 
 ### When to rebuild inputs
 
