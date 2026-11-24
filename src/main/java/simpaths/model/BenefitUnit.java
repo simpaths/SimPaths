@@ -5097,13 +5097,16 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
         return covid19MonthlyStateAndGrossIncomeAndWorkHoursTripleMale;
     }
 
-    // Uprate disposable income from level of prices in any given year to 2017, as utility function was estimated on 2017 data
+    // Convert disposable income from BASE_PRICE_YEAR prices to the price year used for the labour-supply utility estimates.
     public double getDisposableIncomeMonthlyUpratedToBasePriceYear() {
-        return yDispMonth / Parameters.getTimeSeriesValue(model.getYear(), TimeSeriesVariable.Inflation);
+        double utilityPriceAdjustment = Parameters.getTimeSeriesValue(
+                Parameters.LABOUR_SUPPLY_UTILITY_PRICE_YEAR, TimeSeriesVariable.Inflation)
+                / Parameters.getTimeSeriesValue(Parameters.BASE_PRICE_YEAR, TimeSeriesVariable.Inflation);
+        return yDispMonth * utilityPriceAdjustment;
     }
 
     public double getAdjustedDisposableIncomeMonthlyUpratedToBasePriceYear() {
-        return yDispMonth / Parameters.getTimeSeriesValue(model.getYear(), TimeSeriesVariable.Inflation);
+        return getDisposableIncomeMonthlyUpratedToBasePriceYear();
     }
 
     public double getNonDiscretionaryExpenditureMonthlyUpratedToBasePriceYear() {
