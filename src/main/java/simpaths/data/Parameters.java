@@ -2468,6 +2468,20 @@ public class Parameters {
 
     public static int getPopulationProjectionsMaxYear() { return populationProjectionsMaxYear; }
 
+    // Estimation's dukfr series (births per 1,000 women aged 15–44), from
+    // input/InitialPopulations/compile/02_create_UKHLS_variables.do.
+    private static final double[] FERTILITY_F1_RATES = {
+            62.5, 64.0, 64.0, 64.6, 61.7, 61.4, 61.5, 61.2,
+            59.7, 57.6, 55.8, 53.4, 54.1, 51.8, 49.8, 48.9
+    };
+
+    public static double getFertilityF1Rate(int year) {
+        if (year < 2009)
+            throw new IllegalArgumentException("F1 fertility rate is unavailable before 2009: " + year);
+        // Hold the 2024 value constant in subsequent years, rather than extrapolating.
+        return FERTILITY_F1_RATES[Math.min(year, 2024) - 2009];
+    }
+
     public static MultiKeyCoefficientMap getFertilityProjectionsByYear() { return fertilityProjectionsByYear; }
     public static double getFertilityProjectionsByYear(int year) {
         int yearHere = Math.min(fertilityProjectionsMaxYear, Math.max(fertilityProjectionsMinYear, year));

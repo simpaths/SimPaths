@@ -3734,10 +3734,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
             //    return dot01.equals(Ethnicity.Missing) ? 1. : 0.;
             // }
             case FertilityRate -> {
-                if (demIoFlag)
-                    return Parameters.getFertilityProjectionsByYear(getYear());
-                else
-                    return Parameters.getFertilityRateByRegionYear(getRegion(), getYear());
+                return Parameters.getFertilityF1Rate(getYear());
             }
             case Female -> {
                 return demMaleFlag.equals(Gender.Female) ? 1. : 0.;
