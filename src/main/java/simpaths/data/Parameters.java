@@ -338,6 +338,7 @@ public class Parameters {
     public static ArrayList<Integer> includeYears;
 
     public static int BASE_PRICE_YEAR = 2015; 			// Base price year of model parameters
+    public static final int LABOUR_SUPPLY_UTILITY_PRICE_YEAR = 2019; // Price year of labour-supply utility coefficient estimates
 
     public static double PROB_NEWBORN_IS_MALE = 0.5;            // Must be strictly greater than 0.0 and less than 1.0
 
