@@ -38,11 +38,15 @@ class BenefitReceiptInitialisationTest {
             person.setReceivesBenefitsFlag(initial);
             UpdateManager.applyAnnotations(person);
             assertEquals(initial, person.isReceivesBenefitsFlag_L1());
+            assertEquals(initial ? 1.0 : 0.0,
+                    person.getDoubleValue(Person.Variables.D_Econ_benefits));
             field.setAccessible(true);
             assertNull(field.get(person));
             person.setReceivesBenefitsFlag(!initial);
             UpdateManager.applyAnnotations(person);
             assertEquals(!initial, person.isReceivesBenefitsFlag_L1());
+            assertEquals(!initial ? 1.0 : 0.0,
+                    person.getDoubleValue(Person.Variables.D_Econ_benefits));
         }
     }
 

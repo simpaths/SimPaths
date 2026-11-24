@@ -3963,8 +3963,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
                 return isDecreaseInYearlyEquivalisedDisposableIncome() ? 1. : 0.;
             }
             case D_Econ_benefits -> {
-                Double benefits = benefitUnit == null ? null : benefitUnit.getBenefitsReceivedPerMonth();
-                return benefits != null && benefits > 0. ? 1. : 0.;
+                return isReceivesBenefitsFlag_L1() ? 1. : 0.;
             }
  // Evaluated at the level of a benefit unit. If required, can be changed to individual-level homeownership status.
             case Dhh_owned_L1 -> {

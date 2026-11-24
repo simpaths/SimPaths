@@ -112,13 +112,11 @@ class FinancialDistressTest {
     }
 
     @Test
-    void youthUsesCurrentUnitBenefitsAndSafePersonalIncome() throws Exception {
+    void benefitRegressorUsesPreviousYearFlagAndPersonalIncomeIsSafe() throws Exception {
         Person person = person(16, false, mock(Innovations.class));
-        BenefitUnit unit = mock(BenefitUnit.class);
-        setField(person, "benefitUnit", unit);
-        when(unit.getBenefitsReceivedPerMonth()).thenReturn(100.0, 0.0, null);
+        setField(person, "yBenReceivedFlagL1", true);
         assertEquals(1.0, person.getDoubleValue(Person.Variables.D_Econ_benefits));
-        assertEquals(0.0, person.getDoubleValue(Person.Variables.D_Econ_benefits));
+        setField(person, "yBenReceivedFlagL1", false);
         assertEquals(0.0, person.getDoubleValue(Person.Variables.D_Econ_benefits));
         assertEquals(0.0, person.getDoubleValue(Person.Variables.L_Ypncp));
         assertEquals(0.0, person.getDoubleValue(Person.Variables.L_Ypnoab));

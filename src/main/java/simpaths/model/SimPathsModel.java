@@ -374,9 +374,6 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
      */
     @Override
     public void buildObjects() {
-        if (useWeights)
-            throw new IllegalStateException("useWeights is unsupported: weighted initialization and population alignment are not reliable. Set useWeights to false.");
-
         // time check
         String outputPath = "./output/" + getEngine().getCurrentExperiment().runId;
         elapsedTime0 = System.currentTimeMillis();
@@ -1575,7 +1572,12 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             cloneBenefitUnit(originalBenefitUnit, newHousehold, sampleEntry, clonedHouseholdPersons, parentLinks);
         }
         remapClonedParentLinks(clonedHouseholdPersons, parentLinks);
-        newHousehold.resetWeights(1.0d);
+        resetCloneWeights(newHousehold, useWeights);
+    }
+
+    static void resetCloneWeights(Household household, boolean useWeights) {
+        if (!useWeights)
+            household.resetWeights(1.0d);
     }
 
 
@@ -2801,15 +2803,11 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                 for (Household household : inputHouseholdList) {
                     double hhweight = household.getWeight();
                     boolean hasChild = false;
-                    for (BenefitUnit benefitUnit : household.getBenefitUnits()) {
-                        wealthModule.prepareBenefitUnit(benefitUnit);
-                        for (Person person : benefitUnit.getMembers()) {
-                            person.setAdditionalFieldsInInitialPopulation();
+                    initialiseLoadedHousehold(household);
+                    for (BenefitUnit benefitUnit : household.getBenefitUnits())
+                        for (Person person : benefitUnit.getMembers())
                             if (person.getDemAge()<Parameters.AGE_TO_BECOME_RESPONSIBLE)
                                 hasChild = true;
-                        }
-                        benefitUnit.initializeFields();
-                    }
                     if (ignoreTargetsAtPopulationLoad || hasChild)
                         householdList1.add(household);
                     else
@@ -2883,14 +2881,12 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                 }
                 //filter.getRemainingVacancies();
             } else {
-                // use population weights
-
-                households.addAll(inputHouseholdList);
+                // Use population weights, but still run the same initialization and
+                // copy constructors as the unweighted branch. The copy constructors
+                // provide fallbacks for transient lags while retaining survey weights.
                 for (Household household : inputHouseholdList) {
-                    benefitUnits.addAll(household.getBenefitUnits());
-                    for (BenefitUnit benefitUnit : household.getBenefitUnits()) {
-                        persons.addAll(benefitUnit.getMembers());
-                    }
+                    initialiseLoadedHousehold(household);
+                    cloneHousehold(household, SampleEntry.InputData);
                 }
             }
 
@@ -2925,6 +2921,15 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         System.out.println("Number of simulated individuals (persons.size()) is " + persons.size() + " living in " + benefitUnits.size() + " simulated benefitUnits.");
         initialHoursWorkedWeekly = null;
         System.gc();
+    }
+
+    private void initialiseLoadedHousehold(Household household) {
+        for (BenefitUnit benefitUnit : household.getBenefitUnits()) {
+            wealthModule.prepareBenefitUnit(benefitUnit);
+            for (Person person : benefitUnit.getMembers())
+                person.setAdditionalFieldsInInitialPopulation();
+            benefitUnit.initializeFields();
+        }
     }
 
     private void searchForClones(List<Household> householdList, boolean flagConsiderRegion, InitialPopulationFilter filter) {
