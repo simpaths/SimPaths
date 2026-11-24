@@ -88,7 +88,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
     @Enumerated(EnumType.STRING) private Les_c7_covid labC7Covid; //Activity (employment) status used in the Covid-19 models
     @Lag(field="labC4") @Transient private Les_c4 labC4L1;		//Lag(1) of activity_status
     @Lag(field="labC7Covid") @Transient private Les_c7_covid labC7CovidL1;     //Lag(1) of 7-category activity status
-    @Column(name="labWorkHist") private Integer labEmpNyear;                  //Work history in months (number of months in employment) (Note: this is monthly in EM, but simulation updates annually so increment by 12 months).
+    @Column(name="labEmpNyear") private Integer labEmpNyear;                  //Years in employment
     @Enumerated(EnumType.STRING) private Indicator healthDsblLongtermFlag;	//Long-term sick or disabled if = 1
     @Lag(field="healthDsblLongtermFlag") @Transient private Indicator healthDsblLongtermFlagL1; //Lag(1) of long-term sick or disabled
     @Enumerated(EnumType.STRING) @Column(name="careNeedFlag") private Indicator careNeedFlag;
@@ -119,7 +119,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
     @Lag(getter="getDemPartnerStatus") @Transient private Dcpst demPartnerStatusL1;            // lag partnership status
     @Lag(getter="getEduHighestPartner") @Transient private Education eduHighestPartnerC4L1;     //Lag(1) of partner's education
     @Lag(getter="getHealthPartner") @Transient private Dhe healthPartnerSelfRatedL1;
-    @Lag(getter="getLabStatusPartnerAndOwnC4") @Transient private Lesdf_c4 labStatusPartnerAndOwnC4L1;      //Lag(1) of own and partner's activity status
+    @Transient private Lesdf_c4 labStatusPartnerAndOwnC4L1;      //Lag(1) of own and partner's activity status
     @Lag(getter="getIdPartner") @Transient private Long idPartnerL1;
     @Lag(getter="getHouseholdStatus") @Transient private HouseholdStatus demStatusHhL1;		//Lag(1) of household_status
     @Lag(getter="getAgeDifferencePartner") @Transient private Integer demAgePartnerDiffL1;        //Lag(1) of difference between ages of partners in union
@@ -175,7 +175,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
     @NullInitialised private Double xEquivYear;
     @Lag(field="xEquivYear") @Transient private Double xEquivYearL1;
     private Integer demPartnerNYear; //Number of years in partnership
-    @Transient private Integer demPartnerNYearL1; //Lag(1) of number of years in partnership
+    @Lag(field="demPartnerNYear") @Transient private Integer demPartnerNYearL1; //Lag(1) of number of years in partnership
 
     // capital and pension income
     private Double yNonBenPersGrossMonth; // asinh of personal non-benefit income per month
@@ -461,7 +461,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         if (originalPerson.privatePensionL1 != null)
             privatePensionL1 = new PrivatePension(originalPerson.privatePensionL1);
 
-        labEmpNyear = Objects.requireNonNullElseGet(originalPerson.labEmpNyear, () -> ((Les_c4.EmployedOrSelfEmployed.equals(labC4)) ? 12 : 0));
+        labEmpNyear = Objects.requireNonNullElseGet(originalPerson.labEmpNyear, () -> ((Les_c4.EmployedOrSelfEmployed.equals(labC4)) ? 1 : 0));
         healthDsblLongtermFlag = originalPerson.healthDsblLongtermFlag;
         healthDsblLongtermFlagL1 = originalPerson.healthDsblLongtermFlagL1;
         careNeedFlag = Objects.requireNonNullElse(originalPerson.careNeedFlag, Indicator.False);
@@ -833,6 +833,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         UpdatePensionContributionStatus,
         UpdatePensionWealth,
         Unemployment,
+        SnapshotPartnerEmployment,
         Update,
         UpdateOutputVariables,
         UpdatePotentialHourlyEarnings,      //Needed to union matching and labour supply
@@ -843,6 +844,9 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         switch ((Processes) type) {
             case Aging -> {
                 aging();
+            }
+            case SnapshotPartnerEmployment -> {
+                labStatusPartnerAndOwnC4L1 = getLabStatusPartnerAndOwnC4();
             }
             case Update -> {
                 updateAttributes();
@@ -1114,13 +1118,13 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
                     throw new RuntimeException("problem identifying dcpyy");
                 demPartnerNYear++;
             } else
-                demPartnerNYear = 0;
+                demPartnerNYear = 1;
         } else
             demPartnerNYear = 0;
 
         // iterate employment history
-        if (Les_c4.EmployedOrSelfEmployed.equals(labC4)) {
-            labEmpNyear = labEmpNyear +12;
+        if (Les_c4.EmployedOrSelfEmployed.equals(labC4L1)) {
+            labEmpNyear++;
         }
 
         // iterate age and update for maturity
@@ -5642,13 +5646,15 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
 
     public Lesdf_c4 getLabStatusPartnerAndOwnC4() {
         if (benefitUnit.getCoupleBoolean() && demAge >=Parameters.AGE_TO_BECOME_RESPONSIBLE) {
-            if (getPartner()==null)
+            Person partner = getPartner();
+            if (partner==null)
                 throw new RuntimeException("inconsistency between couple and partner identifiers");
-            if (Les_c4.EmployedOrSelfEmployed.equals(labC4) && Les_c4.EmployedOrSelfEmployed.equals(getPartner().labC4))
+            Les_c4 partnerStatus = partner.labC4;
+            if (Les_c4.EmployedOrSelfEmployed.equals(labC4) && Les_c4.EmployedOrSelfEmployed.equals(partnerStatus))
                 return Lesdf_c4.BothEmployed;
             else if (Les_c4.EmployedOrSelfEmployed.equals(labC4))
                 return Lesdf_c4.EmployedSpouseNotEmployed;
-            else if (Les_c4.EmployedOrSelfEmployed.equals(getPartner().labC4))
+            else if (Les_c4.EmployedOrSelfEmployed.equals(partnerStatus))
                 return Lesdf_c4.NotEmployedSpouseEmployed;
             else
                 return Lesdf_c4.BothNotEmployed;

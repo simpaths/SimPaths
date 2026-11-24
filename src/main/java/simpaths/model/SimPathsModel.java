@@ -519,6 +519,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         if (enableIntertemporalOptimisations)
             yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.UpdateWealth);
         yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.Update);
+        yearlySchedule.addCollectionEvent(persons, Person.Processes.SnapshotPartnerEmployment);
         yearlySchedule.addCollectionEvent(persons, Person.Processes.Update);
 
         yearlySchedule.addCollectionEvent(persons, Person.Processes.Aging);
@@ -2024,8 +2025,8 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                                         // throw new RuntimeException("Error - both parties to match have the same gender!");
                                     } else {
 
-                                        p1.setDemPartnerNYear(0); //Set years in partnership to 0
-                                        p2.setDemPartnerNYear(0);
+                                        p1.setDemPartnerNYear(1); //First year in partnership
+                                        p2.setDemPartnerNYear(1);
 
                                         // update benefit unit and household
                                         p1.setupNewBenefitUnit(p2, true);

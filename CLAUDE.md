@@ -150,6 +150,7 @@ The equations were estimated with lags defined per person (`xtset idperson swv` 
 | Equivalised disposable income | `yDispEquivYearL1` | stored lag `yDispEquivYearL1` | parents' value | unit's lag → no change |
 
 - **Capture order.** `BenefitUnit.Update` runs before `Person.Update` and nulls the unit's `@NullInitialised` fields (e.g. `wealthPrptyFlag`, `yDispEquivYear`). For those, copy the unit's stored lag, not its current value. Check this when adding a new lag.
+- **Partner employment.** `Person.SnapshotPartnerEmployment` captures the combined employment lag for all people before `Person.Update` resets `labC4`. As in the current-year getter, a missing individual status is classified as not employed.
 - **Under 18.** Children and household composition use 0 children and `SingleNoChildren` below `Parameters.AGE_TO_BECOME_RESPONSIBLE`. The other lags use the parents' unit's value.
 - **Home ownership.** `demPrptyFlagL1` is a nullable `Boolean`; read it with `Boolean.TRUE.equals(...)`.
 - **Poverty and income change.** These regressors compare the person's lag with the current unit's current value (`getYPvrtyFlag()`, `getEquivalisedDisposableIncomeYearly()`).

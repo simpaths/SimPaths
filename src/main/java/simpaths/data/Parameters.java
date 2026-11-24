@@ -195,7 +195,7 @@ public class Parameters {
         "contRateOPEe",                 //initialisation value of employee contribution rate to occupational pension
         "contRateOPEr",                 //initialisation value of employer contribution rate to occupational pension
         "contRatePP",                   //initialisation value of contribution rate to occupational pension
-        // "labWorkHist",               //Total years in employment since Jan 2007
+        "labEmpNyear",                  //Total years in employment since Jan 2007
 		//"yem", 					    //employment income
 		//"yse", 					    //self-employment income
 
