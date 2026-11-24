@@ -1240,9 +1240,11 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
     }
 
 
+    private static final int MIN_AGE_FINANCIAL_DISTRESS = 16;
+
     private void updateFinancialDistress() {
 
-        if (demAge >= Parameters.AGE_TO_BECOME_RESPONSIBLE) {
+        if (demAge >= MIN_AGE_FINANCIAL_DISTRESS) {
 
             double prob = Parameters.getRegFinancialDistress().getProbability(this, Variables.class);
             yFinDstrssFlag = statInnovations.getDoubleDraw(32) < prob;
@@ -2098,6 +2100,9 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
             } else {
                 logFullTimeHourlyEarnings = Parameters.getRegWagesFemalesNE().getScore(this, Variables.class) + labWageRegressRandomCompoponentNotEmp;
             }
+        }
+        if (isPartTimeHours(getLabourSupplyHoursWeekly())) {
+            logFullTimeHourlyEarnings -= getPartTimeWageCoefficient();
         }
         if (!Parameters.isFinite(logFullTimeHourlyEarnings))
             throw new ArithmeticException("Failure to project full-time earnings estimate");
@@ -3873,13 +3878,13 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
                 return (Ydses_c5.Q5.equals(getYHhQuintilesMonthC5L1())) ? 1.0 : 0.0;
             }
             case Ypncp_L1, L_Ypncp -> {
-                return yCapitalPersMonthL1;
+                return Objects.requireNonNullElse(yCapitalPersMonthL1, 0.0);
             }
             case Ypncp_L2 -> {
                 return yCapitalPersMonthL2;
             }
             case L_Ypnoab -> {
-                return yPensPersGrossMonthL1;
+                return Objects.requireNonNullElse(yPensPersGrossMonthL1, 0.0);
             }
             case Yplgrs_dv_L1 -> {
                 return yEmpPersGrossMonthL1;
@@ -3912,13 +3917,13 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
             }
             //New enums for the mental health Step 1 and 2:
             case EmployedToUnemployed -> {
-                return (labC4L1.equals(Les_c4.EmployedOrSelfEmployed) && labC4.equals(Les_c4.NotEmployed) && healthDsblLongtermFlag.equals(Indicator.False)) ? 1. : 0.;
+                return (Les_c4.EmployedOrSelfEmployed.equals(labC4L1) && Les_c4.NotEmployed.equals(labC4) && Indicator.False.equals(healthDsblLongtermFlag)) ? 1. : 0.;
             }
             case UnemployedToEmployed -> {
-                return (labC4L1.equals(Les_c4.NotEmployed) && healthDsblLongtermFlagL1.equals(Indicator.False) && labC4.equals(Les_c4.EmployedOrSelfEmployed)) ? 1. : 0.;
+                return (Les_c4.NotEmployed.equals(labC4L1) && Indicator.False.equals(healthDsblLongtermFlagL1) && Les_c4.EmployedOrSelfEmployed.equals(labC4)) ? 1. : 0.;
             }
             case PersistentUnemployed -> {
-                return (labC4.equals(Les_c4.NotEmployed) && labC4L1.equals(Les_c4.NotEmployed) && healthDsblLongtermFlag.equals(Indicator.False) && healthDsblLongtermFlagL1.equals(Indicator.False)) ? 1. : 0.;
+                return (Les_c4.NotEmployed.equals(labC4) && Les_c4.NotEmployed.equals(labC4L1) && Indicator.False.equals(healthDsblLongtermFlag) && Indicator.False.equals(healthDsblLongtermFlagL1)) ? 1. : 0.;
             }
             case NonPovertyToPoverty -> {
                 Integer pvrtyFlagL1 = getYPvrtyFlagL1();
@@ -3945,7 +3950,8 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
                 return isDecreaseInYearlyEquivalisedDisposableIncome() ? 1. : 0.;
             }
             case D_Econ_benefits -> {
-                return isReceivesBenefitsFlag_L1() ? 1. : 0.;
+                Double benefits = benefitUnit == null ? null : benefitUnit.getBenefitsReceivedPerMonth();
+                return benefits != null && benefits > 0. ? 1. : 0.;
             }
  // Evaluated at the level of a benefit unit. If required, can be changed to individual-level homeownership status.
             case Dhh_owned_L1 -> {
@@ -4022,16 +4028,16 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
                 } else return 0.;
             }
             case Lhw_10 -> {
-                return getLabourSupplyWeekly().equals(Labour.TEN) ? 1. : 0.;
+                return Labour.TEN.equals(labHrsWorkEnumWeek) ? 1. : 0.;
             }
             case Lhw_20 -> {
-                return getLabourSupplyWeekly().equals(Labour.TWENTY) ? 1. : 0.;
+                return Labour.TWENTY.equals(labHrsWorkEnumWeek) ? 1. : 0.;
             }
             case Lhw_30 -> {
-                return getLabourSupplyWeekly().equals(Labour.THIRTY) ? 1. : 0.;
+                return Labour.THIRTY.equals(labHrsWorkEnumWeek) ? 1. : 0.;
             }
             case Lhw_40 -> {
-                return getLabourSupplyWeekly().equals(Labour.THIRTY_EIGHT) ? 1. : 0.;
+                return Labour.THIRTY_EIGHT.equals(labHrsWorkEnumWeek) ? 1. : 0.;
             }
             case Covid19GrossPayMonthly_L1 -> {
                 return getCovidYLabGrossL1();
@@ -4732,7 +4738,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
                 return (healthPhysicalPcsL1 != null && healthPhysicalPcsL1 >= 0.) ? healthPhysicalPcsL1 : 0.;
             }
             case labPt -> {
-                return (getLabourSupplyHoursWeekly() > 0 && getLabourSupplyHoursWeekly() < Parameters.MIN_HOURS_FULL_TIME_EMPLOYED) ? 1. : 0.;
+                return isPartTimeHours(getLabourSupplyHoursWeekly()) ? 1. : 0.;
             }
             case labStatusC3NotEmployedL1 -> {
                 return (Les_c4.NotEmployed.equals(labC4L1) || Les_c4.Retired.equals(labC4L1)) ? 1. : 0.;
@@ -6194,25 +6200,26 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         int weeklyHours = (int) Math.round(labourHoursWeekly);
         return getHourlyWageRate(weeklyHours);
     }
+    public static boolean isPartTimeHours(int labourHoursWeekly) {
+        return labourHoursWeekly > 0 && labourHoursWeekly <= Parameters.MIN_HOURS_FULL_TIME_EMPLOYED;
+    }
+
+    private double getPartTimeWageCoefficient() {
+        RegressionName regression;
+        if (Les_c4.EmployedOrSelfEmployed.equals(labC4L1)) {
+            regression = Gender.Male.equals(demMaleFlag) ? RegressionName.WagesMalesE : RegressionName.WagesFemalesE;
+        } else {
+            regression = Gender.Male.equals(demMaleFlag) ? RegressionName.WagesMalesNE : RegressionName.WagesFemalesNE;
+        }
+        return ManagerRegressions.getRegressionCoeff(regression, "labPt");
+    }
+
     public double getHourlyWageRate(int labourHoursWeekly) {
 
-        if (labourHoursWeekly >= Parameters.MIN_HOURS_FULL_TIME_EMPLOYED) {
+        if (!isPartTimeHours(labourHoursWeekly)) {
             return labWageFullTimeHrly;
         } else {
-            double ptPremium;
-            if (labC4L1.equals(Les_c4.EmployedOrSelfEmployed)) {
-                if (Gender.Male.equals(demMaleFlag)) {
-                    ptPremium = ManagerRegressions.getRegressionCoeff(RegressionName.WagesMalesE, "labPt");
-                } else {
-                    ptPremium = ManagerRegressions.getRegressionCoeff(RegressionName.WagesFemalesE, "labPt");
-                }
-            } else {
-                if (Gender.Male.equals(demMaleFlag)) {
-                    ptPremium = ManagerRegressions.getRegressionCoeff(RegressionName.WagesMalesNE, "labPt");
-                } else {
-                    ptPremium = ManagerRegressions.getRegressionCoeff(RegressionName.WagesFemalesNE, "labPt");
-                }
-            }
+            double ptPremium = getPartTimeWageCoefficient();
             return Math.exp( Math.log(labWageFullTimeHrly) + ptPremium);
         }
     }

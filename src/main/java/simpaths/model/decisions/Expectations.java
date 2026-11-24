@@ -578,7 +578,7 @@ public class Expectations {
 
     private double getHourlyWageRate(int labourHoursWeekly) {
 
-        if (labourHoursWeekly >= Parameters.MIN_HOURS_FULL_TIME_EMPLOYED) {
+        if (!Person.isPartTimeHours(labourHoursWeekly)) {
             return labWageFullTimeHrly;
         } else {
             double ptPremium;
