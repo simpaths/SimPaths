@@ -179,10 +179,8 @@ public class Parameters {
 		"demMaleFlag", 					//demSex
 		"labC4", 				        //labour employment status
 		"labHrsWorkWeek", 				//hours worked per week
-        "labHrsWorkWeekL1",             //hours worked per week in the previous year
 		"demAdultChildFlag",		    //flag indicating adult child living at home in the data
 		"labWageHrly",                  //initial value of hourly earnings from the data
-		"labWageHrlyL1",                //lag(1) of initial value of hourly earnings from the data
         "careNeedFlag",                 //indicator that the individual needs social care
         "careHrsFormal",                //number of hours of formal care received
         "careFormalX",                  //cost of formal care received
@@ -2374,14 +2372,14 @@ public class Parameters {
     public static void validateStartYear(int year) {
         int min = getMinStartYear();
         int max = getMaxStartYear();
-        if (year < min || year > max) {
+        if (year < min || ((TESTING_FLAG || trainingFlag) && year > max)) {
             String mode;
             if (TESTING_FLAG) mode = "testing data";
             else if (trainingFlag) mode = "training data";
             else mode = "real data";
             throw new IllegalArgumentException(
-                    "Start year " + year + " is outside the allowed range [" + min + ", " + max + "] for " + mode + ". " +
-                            "Choose a value within the supported initial-population years.");
+                    "Start year " + year + " is outside the allowed range [" + min + ", " +
+                            ((TESTING_FLAG || trainingFlag) ? max : "no fixed maximum") + "] for " + mode + ".");
         }
     }
 

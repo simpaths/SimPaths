@@ -149,7 +149,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
     @Column(name="demLifeSatEQ5D") private Double demLifeSatEQ5D;
     @Column(name="yFinDstrssFlag") private Boolean yFinDstrssFlag;
     @Lag(field="yBenReceivedFlag") @Transient private Boolean yBenReceivedFlagL1; // Lag(1) of whether person receives benefits
-    @NullInitialised @Transient private Boolean yBenReceivedFlag; // Does person receive benefits
+    @NullInitialised @Column(name="yBenReceivedFlag") private Boolean yBenReceivedFlag; // Does person receive benefits
     @Column(name="yBenUCReceivedFlag") private Boolean yBenUCReceivedFlag; // Person receives UC
     @Lag(field="yBenUCReceivedFlag") @Transient private Boolean yBenUCReceivedFlagL1;
     @Column(name="yBenNonUCReceivedFlag") private Boolean yBenNonUCReceivedFlag;  // Person receives a benefit which is not UC
@@ -315,8 +315,9 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         healthSelfRated = Dhe.VeryGood;
         healthWbScore0to36 = 10.;			//Set to median for under 18's as a placeholder
         healthPsyDstrss0to12 = 0.;
-        healthMentalMcs = 48.;
-        healthPhysicalPcs = 56.;
+        NewbornHealthDonors.Scores health = model.getNewbornHealthDonors().sample(gender, SimulationEngine.getRnd());
+        healthMentalMcs = health.mcs();
+        healthPhysicalPcs = health.pcs();
         demLifeSatScore0to10 = 6.;
         eduHighestC4 = Education.InEducation;
         demEthnC6 = mother.getDemEthnC6();
@@ -336,6 +337,18 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         yBenNonUCReceivedFlag = false;
         yBenUCReceivedFlag = false;
         yFinDstrssFlag = mother.getYFinDstrssFlag();
+    }
+
+    NewbornHealthDonors.Scores newbornHealthDonorScores() {
+        if (demAge == null || demAge < 0 || demAge >= 16 || demMaleFlag == null
+                || !validNewbornHealthScore(healthMentalMcs) || !validNewbornHealthScore(healthPhysicalPcs)) {
+            return null;
+        }
+        return new NewbornHealthDonors.Scores(healthMentalMcs, healthPhysicalPcs);
+    }
+
+    private static boolean validNewbornHealthScore(Double score) {
+        return score != null && Double.isFinite(score) && score >= 0.0 && score <= 100.0;
     }
 
     // a "copy constructor" for persons: used by the cloneBenefitUnit method of the SimPathsModel object
@@ -381,7 +394,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
 
         eduHighestFatherC4 = originalPerson.eduHighestFatherC4;
         eduHighestMotherC4 = originalPerson.eduHighestMotherC4;
-        eduHighestPartnerC4L1 = originalPerson.eduHighestC4L1;
+        eduHighestPartnerC4L1 = originalPerson.eduHighestPartnerC4L1;
 
         // set eduSpellFlag
         if (originalPerson.demAge < Parameters.MIN_AGE_TO_LEAVE_EDUCATION) { //If under age to leave education, set flag for being in education to true
@@ -532,7 +545,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
             demLifeSatScore0to10L1 = originalPerson.demLifeSatScore0to10;
         }
 
-        if (originalPerson.healthWbScore0to36L1 != null) {
+        if (originalPerson.healthMentalMcsL1 != null) {
             healthMentalMcsL1 = originalPerson.healthMentalMcsL1;
         } else {
             healthMentalMcsL1 = originalPerson.healthMentalMcs;
@@ -717,7 +730,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         yMiscPersGrossMonthL2 = getYMiscPersGrossMonth();
         yCapitalPersMonthL1 = getYCapitalPersMonth();
         yPensPersGrossMonthL1 = getYPensPersGrossMonth();
-        demPartnerStatusL1 = demPartnerStatus;
+        demPartnerStatusL1 = demPartnerNYear != null && demPartnerNYear >= 2 ? Dcpst.Partnered : Dcpst.Single;
 
         // instantiate privatePension
         wealthPensValue = 0.0;
