@@ -3,18 +3,20 @@
 * SECTION:        ALIGNMENT PROCEDURES
 *
 * AUTHORS:        Mariia Vartuzova (MV)
-* LAST UPDATE:    19/11/2026 (MV)
+* LAST UPDATE:    24/11/2026 (MV)
 * COUNTRY:        UK
 *
-* DATA:           Initial populations
+* DATA:           Initial populations, official population (align_popProjections.xlsx)
 *
 * DESCRIPTION:    This do-file constructs retirement targets using initial
 *                population data. It:
 *                  - Imports initial population CSV files by year
+*                  - Reweights them to the official population by gender x
+*                    region x single year of age (00_popproj_weights.do)
 *                  - Computes the share of retired persons (labc4 == 4)
 *                    among those aged min_age_to_retire (50) or older with
 *                    non-missing labour status
-*                  - Exports the results to Excel
+*                  - Exports the results to input/alignment_files
 *
 *                The age limit is MIN_AGE_TO_RETIRE in Parameters.java, the
 *                age from which SimPaths considers retirement. The simulation
@@ -26,11 +28,13 @@
 *                in the simulation. The initial populations already code all of
 *                them as retired (labc4 == 4), so no recode is needed here.
 *
-* SET-UP:         1. Set global dir_w to the root of this SimPaths project
-*                 2. The initial populations are read from
-*                    input/InitialPopulations of that project. The workbook is
-*                    written to input/alignment_files/DoFilesTarget; copy it to
-*                    input/alignment_files/ for SimPaths to use it
+*                The previous version, weighted by wgthhcross only, is
+*                05_retirement_targets_initpopdata_NotPopProjAgeNormalised.do and
+*                wrote alignment_targets_retirement_NotPopProjAgeNormalised.xlsx.
+*
+* SET-UP:         Set global dir_w to the root of this SimPaths project. The
+*                 initial populations are read from input/InitialPopulations
+*                 and the workbook is written to input/alignment_files
 *
 *******************************************************************************/
 
@@ -54,17 +58,21 @@ global min_age_to_retire 50
 
 * Directory structure
 global dir_input_data   "$dir_w/input/InitialPopulations"
-global dir_working_data "$dir_w/input/alignment_files/DoFilesTarget/working_data"
-global dir_output       "$dir_w/input/alignment_files/DoFilesTarget"
+global dir_do_files     "$dir_w/input/alignment_files/DoFilesTarget"
+global dir_working_data "$dir_do_files/working_data"
+global dir_output       "$dir_w/input/alignment_files"
 
 * Create the working folder if it does not exist yet
 capture mkdir "${dir_working_data}"
+
+* Official population and the program popproj_weight
+do "${dir_do_files}/00_popproj_weights.do"
 
 
 * Initialise file that will store retirement shares for all years. Start from
 * an empty file, so that shares saved by an earlier run are not exported again.
 clear
-save "${dir_working_data}/retirement_shares_${country}_initpopdata.dta", emptyok replace
+save "${dir_working_data}/retirement_shares_${country}_popproj.dta", emptyok replace
 
 * ========================================================================== *
 
@@ -77,18 +85,20 @@ foreach y of numlist $min_year/$max_year {
 
 	bys idpers: keep if _n == 1 // keep one obs per idpers
 
+	* Weight reweighted to the official population, on the whole file
+	popproj_weight, year(`y')
+
 	// Alignment target: share of retired persons among those aged
 	// min_age_to_retire or older with non-missing labc4, defined in RetirementAlignment.java
-	gen byte isRetired = (labc4 == 4)
+	gen double isRetired = (labc4 == 4)
 	collapse (mean) retired_share = isRetired ///
-		if (labc4 != . & demage != . & demage >= ${min_age_to_retire}) [pw = wgthhcross]
+		if (labc4 != . & demage != . & demage >= ${min_age_to_retire}) [pw = wgt_popproj]
 
 	gen year = `y'
 
 	* Append to cumulative file for all years
-	append using "${dir_working_data}/retirement_shares_${country}_initpopdata.dta"
-	duplicates drop
-	save "${dir_working_data}/retirement_shares_${country}_initpopdata.dta", replace
+	append using "${dir_working_data}/retirement_shares_${country}_popproj.dta"
+	save "${dir_working_data}/retirement_shares_${country}_popproj.dta", replace
 
 }
 
@@ -97,7 +107,7 @@ foreach y of numlist $min_year/$max_year {
 * -------------------------------------------------------------------------- *
 
 
-use "${dir_working_data}/retirement_shares_${country}_initpopdata.dta", clear
+use "${dir_working_data}/retirement_shares_${country}_popproj.dta", clear
 
 * Sort by year for neat export
 sort year
@@ -114,18 +124,20 @@ putexcel A1=("Field") B1=("Value")
 putexcel A2=("Workbook") B2=("alignment_targets_retirement.xlsx")
 putexcel A3=("Data sheet") B3=("retirement")
 putexcel A4=("Relevant do file") B4=("input/alignment_files/DoFilesTarget/05_retirement_targets_initpopdata.do")
-putexcel A5=("Source data") B5=("input/InitialPopulations/population_initial_${country}_${min_year}.csv to population_initial_${country}_${max_year}.csv")
-putexcel A6=("Years covered") B6=("${min_year}-${max_year}")
-putexcel A7=("Unit of analysis") B7=("Person-year")
-putexcel A8=("Population age") B8=("${min_age_to_retire}+")
-putexcel A9=("Eligible population") B9=("People aged ${min_age_to_retire} and over with nonmissing labc4; one record is kept per idpers in each annual file")
-putexcel A10=("Retired definition") B10=("isRetired = 1 when labc4 == 4 (Retired)")
-putexcel A11=("Weighting") B11=("Weighted mean using wgthhcross")
-putexcel A12=("How target is computed") B12=("For each year: collapse (mean) retired_share = isRetired if labc4 != . and demage >= ${min_age_to_retire} [pw = wgthhcross]")
-putexcel A13=("Output meaning") B13=("Annual share of retired persons among people aged ${min_age_to_retire} and over")
-putexcel A14=("Model use") B14=("Parameters.getTargetShare(year, TargetShares.Retirement); RetirementAlignment and AlignmentStatistics measure the simulated share on the same population (age >= MIN_AGE_TO_RETIRE, nonmissing labour status)")
-putexcel A15=("Age limit") B15=("${min_age_to_retire} = MIN_AGE_TO_RETIRE in Parameters.java; change both together")
-putexcel A16=("Produced") B16=("`today'")
+putexcel A5=("Helper do file") B5=("input/alignment_files/DoFilesTarget/00_popproj_weights.do")
+putexcel A6=("Source data") B6=("input/InitialPopulations/population_initial_${country}_${min_year}.csv to population_initial_${country}_${max_year}.csv; input/alignment_files/align_popProjections.xlsx (sheet ${country})")
+putexcel A7=("Years covered") B7=("${min_year}-${max_year}")
+putexcel A8=("Unit of analysis") B8=("Person-year")
+putexcel A9=("Population age") B9=("${min_age_to_retire}+")
+putexcel A10=("Eligible population") B10=("People aged ${min_age_to_retire} and over with nonmissing labc4; one record is kept per idpers in each annual file")
+putexcel A11=("Retired definition") B11=("isRetired = 1 when labc4 == 4 (Retired)")
+putexcel A12=("Weighting") B12=("${popproj_weight_info}")
+putexcel A13=("How target is computed") B13=("For each year: collapse (mean) retired_share = isRetired if labc4 != . and demage >= ${min_age_to_retire} [pw = wgt_popproj]")
+putexcel A14=("Output meaning") B14=("Annual share of retired persons among people aged ${min_age_to_retire} and over, on the official gender x region x age mix")
+putexcel A15=("Model use") B15=("Parameters.getTargetShare(year, TargetShares.Retirement); RetirementAlignment and AlignmentStatistics measure the simulated share on the same population (age >= MIN_AGE_TO_RETIRE, nonmissing labour status)")
+putexcel A16=("Age limit") B16=("${min_age_to_retire} = MIN_AGE_TO_RETIRE in Parameters.java; change both together")
+putexcel A17=("Previous version") B17=("alignment_targets_retirement_NotPopProjAgeNormalised.xlsx: weighted by wgthhcross only")
+putexcel A18=("Produced") B18=("`today'")
 
 * Data sheet
 putexcel set "${dir_output}/alignment_targets_retirement.xlsx", sheet("retirement") modify

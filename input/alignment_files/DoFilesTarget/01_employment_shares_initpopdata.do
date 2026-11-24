@@ -2,24 +2,31 @@
 * PROJECT:        SimPaths
 * SECTION:        ALIGNMENT PROCEDURES
 *
-* AUTHORS:        Liang Shi (LS)
-* LAST UPDATE:    05/02/2026 (LS)
-* COUNTRY:        UK 
+* AUTHORS:        Liang Shi (LS), Mariia Vartuzova (MV)
+* LAST UPDATE:    24/11/2026 (MV)
+* COUNTRY:        UK
 *
-* DATA:           Initial populations			
+* DATA:           Initial populations, official population (align_popProjections.xlsx)
 *
 * DESCRIPTION:    This do-file constructs employment targets for different
 *                groups of the population using initial population data.
 *                It:
 *                  - Imports initial population CSV files by year
+*                  - Reweights them to the official population by gender x
+*                    region x single year of age (00_popproj_weights.do)
 *                  - Defines benefit-unit (BU) level groups (household types)
 *                  - Computes fractional BU-level employment
-*                  - Aggregates to employment shares by group and year
-*                  - Exports the results to Excel (one sheet per group)
+*                  - Aggregates to employment shares by group and year, with
+*                    the BU weight equal to the sum of its members' reweighted
+*                    person weights
+*                  - Exports the results to input/alignment_files (one sheet
+*                    per group)
 *
-* SET-UP:         1. Update the working directory path (global dir_w)
-*                 2. Copy the relevant input data into the /input_data folder
-*                    under the country-specific subdirectory
+*                The previous version, weighted by wgthhcross only, is
+*                01_employment_shares_initpopdata_NotPopProjAgeNormalised.do and
+*                wrote alignment_targets_employment_NotPopProjAgeNormalised.xlsx.
+*
+* SET-UP:         Set global dir_w to the root of this SimPaths project
 *
 *******************************************************************************/
 
@@ -29,7 +36,7 @@ clear all
 * --- DEFINE GLOBALS -------------------------------------------------------- *
 
 * Working directory (project root)
-global dir_w "D:\BaiduSyncdisk\Job CeMPA\employment alignment UK"
+global dir_w "/Users/pineapple/IdeaProjects/SimPathsUK_NOV"
 
 
 * Country code and time span for which targets are produced
@@ -38,25 +45,35 @@ global min_year 2011
 global max_year 2023
 
 * Directory structure
-global dir_input_data   "D:\BaiduSyncdisk\Job CeMPA\employment alignment UK\UK\initial population"
-global dir_working_data "$dir_w/${country}/working_data"
-global dir_output       "$dir_w/${country}"
+global dir_input_data   "$dir_w/input/InitialPopulations"
+global dir_do_files     "$dir_w/input/alignment_files/DoFilesTarget"
+global dir_working_data "$dir_do_files/working_data"
+global dir_output       "$dir_w/input/alignment_files"
+
+* Create the working folder if it does not exist yet
+capture mkdir "${dir_working_data}"
+
+* Official population and the program popproj_weight
+do "${dir_do_files}/00_popproj_weights.do"
 
 
 * Initialise file that will store BU-level employment shares for all years
 clear
-save "${dir_working_data}/bu_empl_shares_${country}_allsubgroups_initpopdata.dta", emptyok replace                
+save "${dir_working_data}/bu_empl_shares_${country}_allsubgroups_popproj.dta", emptyok replace
 
 
 * ========================================================================== *
 
 // Loop over all years in the requested range
 foreach y of numlist $min_year/$max_year {
-	
+
 	* Build file name for the given year and import initial population data
 	local file = subinstr("population_initial_${country}_YYYY.csv","YYYY","`y'",.)
 	import delimited using "${dir_input_data}/`file'", clear
-	
+
+	* Weight reweighted to the official population, on the whole file
+	popproj_weight, year(`y')
+
 	* Identify responsible males/females (18+)
 	gen byte is_resp_male   = (demage >= 18 & demmaleflag == 1)
     gen byte is_resp_female = (demage >= 18 & demmaleflag == 0)
@@ -144,8 +161,8 @@ foreach y of numlist $min_year/$max_year {
 //     replace bu_target_emp = bu_male_emp if group_code == "SingleDep_Males"
 // 	replace bu_target_emp = bu_female_emp if group_code == "SingleDep_Females"
 	
-	* BU-level weight: sum of person-level weights within each BU
-	bys idbu: egen double bu_w = total(wgthhcross)
+	* BU-level weight: sum of the reweighted person weights within each BU
+	bys idbu: egen double bu_w = total(wgt_popproj)
 	
 	* Keep one record per BU (so employment shares are BU-level, not person-level)
 	bys idbu: gen byte bu_tag = _n == 1
@@ -156,9 +173,8 @@ foreach y of numlist $min_year/$max_year {
 	gen year = `y'
 
 	* Append to cumulative file for all years
-	append using "${dir_working_data}/bu_empl_shares_${country}_allsubgroups_initpopdata.dta"
-	duplicates drop
-	save "${dir_working_data}/bu_empl_shares_${country}_allsubgroups_initpopdata.dta", replace
+	append using "${dir_working_data}/bu_empl_shares_${country}_allsubgroups_popproj.dta"
+	save "${dir_working_data}/bu_empl_shares_${country}_allsubgroups_popproj.dta", replace
 
 }
 
@@ -167,13 +183,39 @@ foreach y of numlist $min_year/$max_year {
 * -------------------------------------------------------------------------- *
 
 * Load aggregated BU-level employment shares for all years
-use "${dir_working_data}/bu_empl_shares_${country}_allsubgroups_initpopdata.dta", clear
+use "${dir_working_data}/bu_empl_shares_${country}_allsubgroups_popproj.dta", clear
 
 * Sort by year for neat export
 sort year
 
-* Create/overwrite Excel file that will hold all sheets
-putexcel set "${dir_output}/alignment_targets_employment.xlsx", replace
+* Create/overwrite the workbook, starting with the metadata sheet so that
+* workbook provenance survives regeneration
+local today "`c(current_date)'"
+putexcel set "${dir_output}/alignment_targets_employment.xlsx", sheet("Info") replace
+putexcel A1=("Field") B1=("Value")
+putexcel A2=("Workbook") B2=("alignment_targets_employment.xlsx")
+putexcel A3=("Data sheets") B3=("Couples, SingleDep_Males, SingleDep_Females, Single_male, SingleAC_Males, Single_female, SingleAC_Females")
+putexcel A4=("Relevant do file") B4=("input/alignment_files/DoFilesTarget/01_employment_shares_initpopdata.do")
+putexcel A5=("Helper do file") B5=("input/alignment_files/DoFilesTarget/00_popproj_weights.do")
+putexcel A6=("Source data") B6=("input/InitialPopulations/population_initial_${country}_${min_year}.csv to population_initial_${country}_${max_year}.csv; input/alignment_files/align_popProjections.xlsx (sheet ${country})")
+putexcel A7=("Years covered") B7=("${min_year}-${max_year}")
+putexcel A8=("Unit of analysis") B8=("Benefit unit (BU)")
+putexcel A9=("Responsible adults") B9=("Responsible male and female adults are identified from adults aged 18+ within each BU")
+putexcel A10=("At-risk definition") B10=("Sex-specific at-risk flag requires age 16-75 inclusive and labc4 not equal to 2 or 4")
+putexcel A11=("Weighting") B11=("BU weight bu_w equals the sum of wgt_popproj across people in the BU. wgt_popproj: ${popproj_weight_info}")
+putexcel A12=("How target is computed") B12=("For each BU: bu_fracemployed = (bu_male_emp + bu_female_emp) / bu_nresp after non-at-risk responsible adults are set to non-employed; then collapse (mean) empl_share = bu_target_emp [pw = bu_w] by year and group_code")
+putexcel A13=("AC meaning") B13=("AC denotes adult child status from demadultchildflag")
+putexcel A14=("SingleDep note") B14=("SingleDep_Males and SingleDep_Females cannot exceed 0.5 by construction")
+putexcel A15=("Previous version") B15=("alignment_targets_employment_NotPopProjAgeNormalised.xlsx: BU weight from wgthhcross only")
+putexcel A16=("Produced") B16=("`today'")
+putexcel A18=("Group") B18=("Definition")
+putexcel A19=("Couples") B19=("Couple BU with at least one at-risk male and at least one at-risk female")
+putexcel A20=("SingleDep_Males") B20=("Couple BU where only the male side is at risk")
+putexcel A21=("SingleDep_Females") B21=("Couple BU where only the female side is at risk")
+putexcel A22=("Single_male") B22=("Single-male BU with demadultchildflag = 0")
+putexcel A23=("SingleAC_Males") B23=("Single-male BU with demadultchildflag = 1")
+putexcel A24=("Single_female") B24=("Single-female BU with demadultchildflag = 0")
+putexcel A25=("SingleAC_Females") B25=("Single-female BU with demadultchildflag = 1")
 
 * Identify all BU group codes
 levelsof group_code, local(groups)
@@ -184,8 +226,9 @@ foreach g of local groups {
 	keep if group_code == "`g'"
 	sort year
 	
-	* Build a matrix of all rows for the two variables (year, empl_share)
-	mkmat year empl_share, matrix(M)
+	* Build separate matrices for year and share (written with explicit Excel formats)
+	mkmat year,       matrix(Yr)
+	mkmat empl_share, matrix(Sh)
 	
 	* Point putexcel at the output file and the group-specific sheet
 	putexcel set "${dir_output}/alignment_targets_employment.xlsx", sheet("`g'") modify
@@ -193,32 +236,9 @@ foreach g of local groups {
 	* Write headers
 	putexcel A1=("year") B1=("empl_share")
 
-	* Write data from matrix M (Stata 15+ supports varlists here)
-	putexcel A2=matrix(M)
+	* Write data: years as integers, shares with 6 decimal places
+	putexcel A2=matrix(Yr), nformat("0")
+	putexcel B2=matrix(Sh), nformat("0.000000")
 
 	restore
 }
-
-* Add metadata sheet so workbook provenance survives regeneration
-putexcel set "${dir_output}/alignment_targets_employment.xlsx", sheet("Info") modify
-putexcel A1=("Field") B1=("Value")
-putexcel A2=("Workbook") B2=("alignment_targets_employment.xlsx")
-putexcel A3=("Data sheets") B3=("Couples, SingleDep_Males, SingleDep_Females, Single_male, SingleAC_Males, Single_female, SingleAC_Females")
-putexcel A4=("Relevant do file") B4=("input/alignment_files/DoFilesTarget/01_employment_shares_initpopdata.do")
-putexcel A5=("Source data") B5=("input/InitialPopulations/population_initial_UK_2011.csv to population_initial_UK_2023.csv")
-putexcel A6=("Years covered") B6=("2011-2023")
-putexcel A7=("Unit of analysis") B7=("Benefit unit (BU)")
-putexcel A8=("Responsible adults") B8=("Responsible male and female adults are identified from adults aged 18+ within each BU")
-putexcel A9=("At-risk definition") B9=("Sex-specific at-risk flag requires age 16-75 inclusive and labc4 not equal to 2 or 4")
-putexcel A10=("Weighting") B10=("BU weight equals the sum of wgthhcross across people in the BU")
-putexcel A11=("How target is computed") B11=("For each BU: bu_fracemployed = (bu_male_emp + bu_female_emp) / bu_nresp after non-at-risk responsible adults are set to non-employed; then collapse (mean) empl_share = bu_target_emp [pw = bu_w] by year and group_code")
-putexcel A12=("AC meaning") B12=("AC denotes adult child status from demadultchildflag")
-putexcel A13=("SingleDep note") B13=("SingleDep_Males and SingleDep_Females cannot exceed 0.5 by construction")
-putexcel A15=("Group") B15=("Definition")
-putexcel A16=("Couples") B16=("Couple BU with at least one at-risk male and at least one at-risk female")
-putexcel A17=("SingleDep_Males") B17=("Couple BU where only the male side is at risk")
-putexcel A18=("SingleDep_Females") B18=("Couple BU where only the female side is at risk")
-putexcel A19=("Single_male") B19=("Single-male BU with demadultchildflag = 0")
-putexcel A20=("SingleAC_Males") B20=("Single-male BU with demadultchildflag = 1")
-putexcel A21=("Single_female") B21=("Single-female BU with demadultchildflag = 0")
-putexcel A22=("SingleAC_Females") B22=("Single-female BU with demadultchildflag = 1")
