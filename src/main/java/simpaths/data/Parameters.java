@@ -22,6 +22,11 @@ import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.util.Pair;
 import org.apache.poi.openxml4j.util.ZipSecureFile;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import simpaths.model.decisions.Grids;
 import simpaths.model.taxes.DonorTaxUnit;
 import simpaths.model.taxes.MatchFeature;
@@ -29,6 +34,7 @@ import simpaths.model.taxes.database.TaxDonorDataParser;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
@@ -415,6 +421,7 @@ public class Parameters {
     public static double pensionLumpSumShare = 0.25;
     public static double pensionLumpSumCap = 250000;
     private static Map<Integer, Double> fertilityRateByYear;
+    private static volatile NavigableMap<Integer, Double> fertilityF1Rates;
     private static MultiKeyCoefficientMap populationProjections;
     private static String populationProjectionFilename = "align_popProjections.xlsx";
     public static final int ALIGN_MIN_AGE_ASSUME_DEATH = 65;
@@ -2466,18 +2473,65 @@ public class Parameters {
 
     public static int getPopulationProjectionsMaxYear() { return populationProjectionsMaxYear; }
 
-    // Estimation's dukfr series (births per 1,000 women aged 15–44), from
-    // input/InitialPopulations/compile/02_create_UKHLS_variables.do.
-    private static final double[] FERTILITY_F1_RATES = {
-            62.5, 64.0, 64.0, 64.6, 61.7, 61.4, 61.5, 61.2,
-            59.7, 57.6, 55.8, 53.4, 54.1, 51.8, 49.8, 48.9
-    };
-
     public static double getFertilityF1Rate(int year) {
-        if (year < 2009)
-            throw new IllegalArgumentException("F1 fertility rate is unavailable before 2009: " + year);
-        // Hold the 2024 value constant in subsequent years, rather than extrapolating.
-        return FERTILITY_F1_RATES[Math.min(year, 2024) - 2009];
+        NavigableMap<Integer, Double> rates = getFertilityF1Rates();
+        if (year < rates.firstKey())
+            throw new IllegalArgumentException("F1 fertility rate is unavailable before " + rates.firstKey() + ": " + year);
+        return rates.get(rates.floorKey(Math.min(year, rates.lastKey())));
+    }
+
+    private static NavigableMap<Integer, Double> getFertilityF1Rates() {
+        NavigableMap<Integer, Double> rates = fertilityF1Rates;
+        if (rates == null) {
+            synchronized (Parameters.class) {
+                rates = fertilityF1Rates;
+                if (rates == null) {
+                    rates = loadFertilityF1Rates();
+                    fertilityF1Rates = rates;
+                }
+            }
+        }
+        return rates;
+    }
+
+    private static NavigableMap<Integer, Double> loadFertilityF1Rates() {
+        File inputFile = new File(PROJECTIONS_DIRECTORY, "fertility_f1_rates.xlsx");
+        NavigableMap<Integer, Double> rates = new TreeMap<>();
+        try (InputStream input = Files.newInputStream(inputFile.toPath());
+             Workbook workbook = WorkbookFactory.create(input)) {
+            if (workbook.getNumberOfSheets() != 1)
+                throw new IllegalArgumentException("Expected exactly one sheet in " + inputFile);
+            Sheet sheet = workbook.getSheetAt(0);
+            DataFormatter formatter = new DataFormatter(Locale.ROOT);
+            Row header = sheet.getRow(sheet.getFirstRowNum());
+            if (header == null || header.getFirstCellNum() != 0 || header.getLastCellNum() != 2
+                    || !formatter.formatCellValue(header.getCell(0)).trim().equals("year")
+                    || !formatter.formatCellValue(header.getCell(1)).trim().equals("rate"))
+                throw new IllegalArgumentException("Expected columns year,rate in " + inputFile);
+            for (int rowIndex = sheet.getFirstRowNum() + 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+                Row row = sheet.getRow(rowIndex);
+                if (row == null || row.getLastCellNum() < 0)
+                    continue;
+                if (row.getFirstCellNum() != 0 || row.getLastCellNum() != 2
+                        || row.getCell(0) == null || row.getCell(1) == null)
+                    throw new IllegalArgumentException("Expected year and rate in " + inputFile + " at row " + (rowIndex + 1));
+                int year = Integer.parseInt(formatter.formatCellValue(row.getCell(0)).trim());
+                double rate = Double.parseDouble(formatter.formatCellValue(row.getCell(1)).trim());
+                if (!Double.isFinite(rate) || rate < 0.0)
+                    throw new IllegalArgumentException("Invalid F1 fertility rate for year " + year + ": " + rate);
+                if (rates.put(year, rate) != null)
+                    throw new IllegalArgumentException("Duplicate F1 fertility rate for year " + year);
+            }
+        } catch (IOException | NumberFormatException e) {
+            throw new IllegalStateException("Unable to load F1 fertility rates from " + inputFile, e);
+        }
+        if (rates.isEmpty())
+            throw new IllegalStateException("No F1 fertility rates found in " + inputFile);
+        for (int year = rates.firstKey(); year <= rates.lastKey(); year++) {
+            if (!rates.containsKey(year))
+                throw new IllegalStateException("Missing F1 fertility rate for year " + year + " in " + inputFile);
+        }
+        return Collections.unmodifiableNavigableMap(rates);
     }
 
     public static MultiKeyCoefficientMap getFertilityProjectionsByYear() { return fertilityProjectionsByYear; }
@@ -3698,6 +3752,7 @@ public class Parameters {
         REGRESSION_DIRECTORY = INPUT_DIRECTORY + "regression_files" + File.separator;
         SCENARIO_DIRECTORY = INPUT_DIRECTORY + "scenario" + File.separator;
         UKMOD_TRAINING_DIRECTORY = UKMOD_OUTPUT_DIRECTORY + "training" + File.separator;
+        fertilityF1Rates = null;
     }
 
     public static void setWorkingDirectory(String workingDirectory) {
