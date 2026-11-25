@@ -6216,6 +6216,10 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         return labourHoursWeekly > 0 && labourHoursWeekly <= Parameters.MIN_HOURS_FULL_TIME_EMPLOYED;
     }
 
+    public static boolean isFullTimeHours(int labourHoursWeekly) {
+        return labourHoursWeekly > Parameters.MIN_HOURS_FULL_TIME_EMPLOYED;
+    }
+
     private double getPartTimeWageCoefficient() {
         RegressionName regression;
         if (Les_c4.EmployedOrSelfEmployed.equals(labC4L1)) {

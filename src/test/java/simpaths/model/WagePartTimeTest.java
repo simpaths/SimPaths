@@ -35,6 +35,8 @@ class WagePartTimeTest {
                 doReturn(hours).when(person).getLabourSupplyHoursWeekly();
                 boolean partTime = hours > 0 && hours <= 25;
                 assertEquals(partTime ? 1.0 : 0.0, person.getDoubleValue(Person.Variables.labPt));
+                assertEquals(partTime, Person.isPartTimeHours(hours));
+                assertEquals(hours > 25, Person.isFullTimeHours(hours));
                 assertEquals(partTime ? 16.0 : 20.0, person.getHourlyWageRate(hours), 1e-10);
             }
             assertEquals(16.0, person.getHourlyWageRate(25.49), 1e-10);

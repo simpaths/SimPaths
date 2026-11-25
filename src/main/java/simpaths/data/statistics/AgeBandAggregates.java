@@ -77,9 +77,9 @@ public class AgeBandAggregates {
                 health[ii] += person.getHealthSelfRatedValue();
                 prDisa[ii] += (Indicator.True.equals(person.getHealthDsblLongtermFlag()))? 1.0: 0.0;
                 labInc[ii] += person.getEarningsWeekly();
-                if ((double)person.getLabourSupplyHoursWeekly() > Parameters.MIN_HOURS_FULL_TIME_EMPLOYED)
+                if (Person.isFullTimeHours(person.getLabourSupplyHoursWeekly()))
                     workFT[ii] += 1.0;
-                else if ((double)person.getLabourSupplyHoursWeekly() > 1.0)
+                else if (Person.isPartTimeHours(person.getLabourSupplyHoursWeekly()))
                     workPT[ii] += 1.0;
 
                 invInc[ii] += person.getBenefitUnit().getInvestmentIncomeAnnual() / 12.0 / es;
