@@ -52,7 +52,7 @@ extra_css:
   - assets/css/03-content.css?v=20261125-build-cleanup-1
   - assets/css/04-landing-components.css?v=20261125-green-restored-2
   - assets/css/05-site-chrome.css?v=20261125-green-restored-2
-  - assets/css/06-page-sections.css?v=20261125-green-restored-2
+  - assets/css/06-page-sections.css?v=20261125-funding-link-inheritance-1
   - assets/css/07-roadmap.css?v=20261125-green-restored-2
   - assets/css/08-home.css?v=20261125-green-restored-2
   - assets/css/09-model-explorer.css?v=20261125-build-cleanup-1

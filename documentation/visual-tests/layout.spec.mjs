@@ -240,7 +240,8 @@ test("interior pages keep a contained reading measure and consistent alignment",
       await page.evaluate(() => document.fonts.ready);
       const measurement = await page.evaluate(() => {
         const title = document.querySelector(".docs-index__heading, h1").getBoundingClientRect();
-        const article = document.querySelector(".md-content__inner").getBoundingClientRect();
+        // Validation has a full-width masthead around an inset reading area.
+        const article = (document.querySelector(".validation-scope") || document.querySelector(".md-content__inner")).getBoundingClientRect();
         const frame = document.querySelector(".md-main__inner").getBoundingClientRect();
         return { titleX: title.x, articleX: article.x, articleRight: article.right, width: article.width,
           frameX: frame.x, noSectionNav: document.documentElement.classList.contains("sp-no-section-nav"),
@@ -1432,7 +1433,7 @@ test("funding interactions use funder colours with readable, stable hover and ke
       await page.evaluate(() => document.activeElement.blur());
       const resting = await state(row);
       expect(resting.brand).toBe(brands[ids[index]]);
-      expect(resting.color).toEqual(scheme === "default" ? [36, 42, 49, 1] : [226, 229, 233, 1]);
+      expect(resting.color).toEqual(scheme === "default" ? [53, 59, 56, 1] : [227, 232, 229, 1]);
       expect(resting.background[3]).toBe(0);
       await row.hover();
       const hovered = await state(row);
