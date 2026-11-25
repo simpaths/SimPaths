@@ -10,11 +10,11 @@ title: Labour income
 
 ## Wage rates
 
-Hourly wage rates are simulated for each adult in the model based on Heckman-corrected regressions stratified by gender and lagged employment status, distinguishing between employed and non-employed individuals. The explanatory variables include part-time employment identifiers, age, education, student status, parental education, relationship status, presence of children, health and region. For individuals observed in employment in the previous year, lagged log hourly wage rates are also included as an explanatory variable.
+Hourly wage rates are simulated for each adult in the model based on Heckman-corrected regressions stratified by gender and lagged employment status, distinguishing between employed and non-employed individuals. Explanatory variables include part-time employment identifiers, age, education, student status, relationship status, presence of children, health and region, and parental education where available. The precise specification depends on the country model and estimation data. For individuals observed in employment in the previous year, lagged log hourly wage rates are also included as an explanatory variable.
 
 ### Potential-earnings diagram
 
-This diagram records the implementation of the potential hourly-earnings update. It does not represent the complete labour-supply model.
+This diagram illustrates the UK potential hourly-earnings update. Employment decisions are described below.
 
 <details class="module-process-diagram">
   <summary>View the potential-earnings diagram</summary>
@@ -35,11 +35,11 @@ Two alternative methods for projecting employment decisions can be considered by
 
 The default specification of SimPaths projects labour supply using a non-forward-looking random utility model. The method projects labour supply as though employment decisions are made to maximise within-period benefit-unit utility over a discrete set of labour/income alternatives. Given any labour alternative, labour income is computed by combining hours of work with the respective hourly wage rate. The utility of the benefit unit is calculated using a quadratic utility function of disposable income and the leisure of its adult members.
 
-The UK labour-supply model is estimated using UKMOD in combination with UKHLS data for 2019/20. The estimation employs an alternative-specific conditional logit approach (Stata command `asclogit`).
+The following estimation details and hours alternatives describe the UK labour-supply model, estimated using UKMOD in combination with UKHLS data for 2019/20. The estimation employs an alternative-specific conditional logit approach (Stata command `asclogit`).
 
 #### Eligible decision units and alternatives
 
-The default simulation considers labour-supply choices for adults aged 16–75 who are neither students nor retired. A labour-supply-flexible adult without a partner, or with a non-flexible partner, is evaluated individually. Couples in which both partners satisfy the flexible-worker conditions are evaluated jointly.
+The simulation considers labour-supply choices for adults within the model's working-age limits who are neither students nor retired. A labour-supply-flexible adult without a partner, or with a non-flexible partner, is evaluated individually. Couples in which both partners satisfy the flexible-worker conditions are evaluated jointly.
 
 Each labour-supply-flexible individual chooses among seven mutually exclusive alternatives: non-employment and six weekly hours categories.
 
@@ -95,7 +95,7 @@ Utility is modelled as a quadratic function of disposable income and leisure. Th
 
 ### Forward-looking specification
 
-The model can also be directed to project labour supply and discretionary consumption to reflect forward-looking expectations for behavioural incentives. As in the default specification, the unit of analysis is the benefit unit. Incentives are translated into behaviour via an assumed intertemporal utility function. By default, the model adopts a nested constant elasticity of substitution (CES) utility function.
+The UK model also provides a specification that projects labour supply and discretionary consumption to reflect forward-looking expectations for behavioural incentives. As in the within-period specification, the unit of analysis is the benefit unit. Incentives are translated into behaviour via an assumed intertemporal utility function. The default for this specification is a nested constant elasticity of substitution (CES) utility function.
 
 Each adult is considered to have three alternative labour-supply options, corresponding to full-time work, part-time work and non-employment. Labour supply and discretionary consumption are projected as though they maximise the assumed utility function, subject to a hard constraint on net wealth and assumed agent expectations. Expectations are “substantively rational” in the sense that uncertainty is characterised by the random draws that underlie dynamic projection of modelled characteristics. As no analytical solution to this problem exists, numerical solution methods are employed.
 

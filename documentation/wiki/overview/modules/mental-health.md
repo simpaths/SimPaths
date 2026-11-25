@@ -6,11 +6,11 @@ title: Mental health
 
 # Mental health
 
-<p class="module-detail__lead">Mental health is represented through the 12-item General Health Questionnaire, with baseline measures of psychological distress subsequently adjusted for economic transitions and non-economic exposure to the Covid-19 pandemic.</p>
+<p class="module-detail__lead">The UK mental-health module represents psychological distress through the 12-item General Health Questionnaire, with baseline measures subsequently adjusted for economic transitions and non-economic exposure to the Covid-19 pandemic.</p>
 
 ## Baseline psychological distress
 
-For people aged 16 and over, each simulation cycle produces two GHQ-12 measures. A Likert score from 0 to 36 is estimated with a linear regression. A binary indicator of potentially clinically significant common mental disorder is estimated with a logistic regression.
+For people who have reached the minimum age for the mental-health process, each simulation cycle produces two GHQ-12 measures. A Likert score from 0 to 36 is estimated with a linear regression. A binary indicator of potentially clinically significant common mental disorder is estimated with a logistic regression.
 
 Both specifications condition on the lagged number of dependent children, lagged physical and mental health, gender, age, education, household composition, region and year.
 

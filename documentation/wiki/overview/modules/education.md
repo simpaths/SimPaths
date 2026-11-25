@@ -16,9 +16,9 @@ People who were neither students nor retired in the preceding period may re-ente
 
 ## Education level
 
-When a person ceases to be a student, education level is assigned using a generalised ordered logit model (E2), conditional on gender, age, lagged parental education, region, ethnicity and time effects. For people leaving education after returning to study, education may remain unchanged or increase, but cannot decrease.
+When a person ceases to be a student, education level is assigned using a generalised ordered logit model (E2). In the UK specification, it is conditional on gender, age, lagged parental education, region, ethnicity and time effects. For people leaving education after returning to study, education may remain unchanged or increase, but cannot decrease.
 
-These specifications follow the [UK education estimation script](https://github.com/simpaths/SimPaths/blob/b223738b9cdf1d814cc3c6f09b04bc4930d3c667/input/InitialPopulations/compile/RegressionEstimates/01_reg_education.do) and [Java implementation](https://github.com/simpaths/SimPaths/blob/b223738b9cdf1d814cc3c6f09b04bc4930d3c667/src/main/java/simpaths/model/Person.java). Record the code revision and parameter files when reporting a simulation; historical releases and diagrams may use earlier specifications.
+The [UK education estimation script](https://github.com/simpaths/SimPaths/blob/develop/input/regression_files/RegressionEstimates/01_reg_education.do) and [Java implementation](https://github.com/simpaths/SimPaths/blob/develop/src/main/java/simpaths/model/Person.java) provide the UK specification and transition rules.
 
 ## Process diagram
 

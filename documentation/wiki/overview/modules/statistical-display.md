@@ -12,7 +12,7 @@ title: Statistical display
 
 [`SimPathsCollector`](https://github.com/simpaths/SimPaths/blob/develop/src/main/java/simpaths/experiment/SimPathsCollector.java) collects and persists simulation outputs. When the graphical interface is enabled, [`SimPathsObserver`](https://github.com/simpaths/SimPaths/blob/develop/src/main/java/simpaths/experiment/SimPathsObserver.java) updates the live charts and monitoring views.
 
-The collector has separate switches for person, benefit-unit and household records, and for summary statistics covering income and wealth, demographics, alignment, labour, health and wellbeing. A displayed chart is not a substitute for saving the data needed for analysis.
+The UK collector has separate switches for person, benefit-unit and household records, and for summary statistics covering income and wealth, demographics, alignment, labour, health and wellbeing. These determine which outputs are saved for subsequent analysis.
 
 ## Choosing outputs
 

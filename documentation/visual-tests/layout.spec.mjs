@@ -200,7 +200,8 @@ test("audited guides expose the checked specifications and usable examples", asy
 
   await page.goto("/overview/modules/health/");
   await expect(page.locator("article")).toContainText("generalised ordered logit");
-  await expect(page.locator("article")).toContainText("distinct from the continuous SF-12");
+  await expect(page.locator("article")).toContainText("Self-rated health is projected on a five-point scale");
+  await expect(page.locator("article")).toContainText("continuous SF-12 physical and mental component scores");
 
   await page.goto("/overview/modules/education/");
   await expect(page.locator("article")).toContainText("generalised ordered logit model (E2)");

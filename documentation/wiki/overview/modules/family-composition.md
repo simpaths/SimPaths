@@ -10,11 +10,11 @@ title: Family composition
 
 When a relationship forms, partners are selected through a matching process designed to reflect correlations between partners' characteristics observed in survey data. The proportion of the population in a cohabiting relationship can be aligned to observed population aggregates, accounting for changes in household structure introduced by population alignment.
 
-Women in couples can give birth to one child in each simulated year. Fertility depends on individual and household characteristics, and simulated births can be aligned to official projections for newborn children by gender, region and year.
+Eligible women can give birth to one child in each simulated year. Fertility depends on individual and household characteristics, and fertility rates can be aligned to targets derived from official population projections.
 
 ## Implementation diagram
 
-The diagram traces the module's annual implementation sequence and branching choices. It is provided here as an orientation to the processes described in the sections below.
+The diagram shows the UK module's annual sequence and branching choices.
 
 <details class="module-process-diagram">
   <summary>View the family composition diagram</summary>
@@ -29,7 +29,7 @@ The diagram traces the module's annual implementation sequence and branching cho
 
 ## Partnerships and cohabitation
 
-Individuals aged 18 and over who do not have a partner may enter a partnership according to a probit model. For students, the model conditions on gender, age, lagged household-income quintile, the lagged number of dependent children, the lagged number of children aged 0-2, lagged self-rated health, region and year. For non-students, the same variables are used together with education and lagged employment status.
+Individuals who have reached the minimum partnership age and do not have a partner may enter a partnership according to a probit model. Explanatory variables describe demographic characteristics, education, employment, household income, children and health. The estimated specification varies across country models.
 
 Individuals selected to enter a partnership are matched using either a parametric or non-parametric process. The current processes focus on opposite-sex relationships.
 
@@ -43,23 +43,23 @@ The matching process does not necessarily identify a partner for every person se
 
 ## Partnership dissolution
 
-Partnership dissolution is modelled at benefit-unit level using a probit model. It conditions on the female partner's age, education, lagged gross non-benefit income, the lagged number of dependent children, the lagged number of children aged 0-2, lagged self-rated health, the spouse's lagged education and health, the lagged difference between partners' gross non-benefit incomes, partnership duration, the lagged age difference, lagged household composition, both partners' lagged employment status, region and year.
+Partnership dissolution is modelled using a probit model. Explanatory variables describe the partners' characteristics, household circumstances and partnership duration, with the precise specification depending on the country model. In the UK implementation, the probability is evaluated for the female partner and the resulting separation updates both partners' household and benefit-unit membership.
 
 ## Fertility
 
-Partnered women aged 18 to 44 may give birth to one child in a simulated year. For women in continuous education, the probability is described by a probit model conditional on age, benefit-unit income quintile, the lagged number of children, the lagged number of children aged 0-2, lagged health and lagged partnership status.
+Women within the model's fertility age range may give birth to one child in a simulated year. Eligibility also depends on the assumption about births to women without a partner; the UK model includes these births.
 
-For women who are not in continuous education, the model additionally includes the population fertility rate, lagged labour-market activity, education and region. Including the population fertility rate allows projected aggregate changes in fertility to be distributed across women according to their observed characteristics.
+In the UK implementation, a probit model (F1) supplies each eligible woman's probability of giving birth, conditional on her observed characteristics. A random draw determines whether a birth occurs. The age limits and eligibility settings are defined in the [model parameters](https://github.com/simpaths/SimPaths/blob/develop/src/main/java/simpaths/data/Parameters.java), and the equation is supplied in `reg_fertility.xlsx`.
 
 ### Birth alignment
 
-When fertility alignment is enabled, the projected number of births is aligned to the number of newborns in the official population projections. The procedure samples eligible women and adjusts fertility outcomes until the target number of newborns, distinguished by gender and region, is met.
+In the UK model, fertility alignment adjusts the probit intercept so that the expected fertility rate matches the target derived from population projections. Individual birth outcomes remain stochastic. After the final alignment year, the last adjustment is retained. The calculation is implemented in [`FertilityAlignment`](https://github.com/simpaths/SimPaths/blob/develop/src/main/java/simpaths/model/FertilityAlignment.java).
 
 ## Technical implementation
 
 ### Annual scheduling
 
-The current annual schedule coordinates the module in the following order:
+The UK annual schedule coordinates the module in the following order:
 
 1. `UpdatePotentialHourlyEarnings` refreshes full-time hourly earning potentials used in partner matching.
 2. `CohabitationAlignment` estimates the partnership adjustment when alignment is enabled; `Cohabitation` then identifies people to be considered for matching in `personsToMatch`.

@@ -10,7 +10,7 @@ hide:
 
 SimPaths is a family of models for individual and household life course events, all sharing common components. The framework is designed to project life histories through time, building up a detailed picture of career paths, family (inter)relations, health, and financial circumstances. It builds upon standardised assumptions and data sources, which facilitates adaptation to alternative countries.
 
-The framework is fully open source and coded in Java using the [JAS-mine](../jasmine-reference/index.md) simulation libraries. This overview describes the UK model.
+The framework is fully open source and coded in Java using the [JAS-mine](../jasmine-reference/index.md) simulation libraries. The UK and European models share this framework, with country-specific data, estimated relationships and policy systems. Module availability also differs: the mental-health, social-care and separate asset projections described here are UK extensions.
 
 The modular nature of the SimPaths framework is designed to facilitate analysis of alternative assumptions concerning the tax and benefit system, sensitivity to parameter estimates, and alternative approaches for projecting labour/leisure and consumption/savings decisions.
 
@@ -42,7 +42,7 @@ The individual modules are documented in the following sections:
 
 ### The annual cycle
 
-The diagram shows the model's components and their connections. It describes the conceptual structure; the order of calculations is set by the [annual event schedule](../developer-guide/internals/simpaths-model.md).
+The diagram shows the UK model's components and their connections. It describes the conceptual structure; the order of calculations is set by the [annual event schedule](../developer-guide/internals/simpaths-model.md).
 
 <figure class="module-diagram">
   <a href="../assets/images/model-structure-uk.svg" target="_blank" rel="noopener" aria-label="Open the model structure diagram at full size">
@@ -56,7 +56,7 @@ The diagram shows the model's components and their connections. It describes the
 <summary>Implementation notes</summary>
 <dl>
 <dt>Wealth and transfers</dt>
-<dd>The model includes aggregate wealth accounting under intertemporal optimisation and separate housing, financial and private-pension projections controlled by configuration switches. Bequest settlement distributes estates after death; it does not model transfers between living people. These asset projections and bequest processes are implemented in the development model but have not yet been included in the latest release. Inter-vivos transfers remain proposed.</dd>
+<dd>The UK model includes aggregate wealth accounting under intertemporal optimisation and separate housing, financial and private-pension projections controlled by configuration switches. Bequest settlement distributes estates after death. Transfers between living people (inter-vivos transfers) remain a proposed extension.</dd>
 <dt>Population, wages and childcare</dt>
 <dd>Internal mobility and external migration use population alignment to adjust the population to demographic targets, rather than modelling migration decisions. Wage growth comes from external time-series assumptions. Childcare calculations represent formal use and expenditure, not general childcare time allocation.</dd>
 <dt>Well-being and pensions</dt>
@@ -67,7 +67,7 @@ The diagram shows the model's components and their connections. It describes the
 <a class="diagram-key__full-size" href="../assets/images/model-structure-uk.svg" target="_blank" rel="noopener">Open full size ↗</a>
 </section>
 
-Each year, the model stores previous-year states and updates ages, education, homeownership, general health and potential wages. Partnership and fertility processes establish family circumstances before care, labour supply and income are evaluated. Consumption is then projected, followed by financial distress, mental-health and well-being outcomes. Mortality and population alignment occur towards the end of the year. The initial year uses a reduced schedule because many starting characteristics are supplied by the input data.
+In the UK annual schedule, the model stores previous-year states and updates ages, education, homeownership, general health and potential wages. Partnership and fertility processes establish family circumstances before care, labour supply and income are evaluated. Consumption is then projected, followed by financial distress, mental-health and well-being outcomes. Mortality and population alignment occur towards the end of the year. The initial year uses a reduced schedule because many starting characteristics are supplied by the input data.
 
 ### Transitions and individual variation
 
@@ -75,9 +75,9 @@ Many demographic, family and health transitions are projected using equations es
 
 ### Economic decisions and policy
 
-The labour-supply model represents choices between working-hours alternatives through preferences over disposable income and leisure. Disposable income under each alternative is imputed from precomputed UKMOD tax–benefit results, using the benefit unit's circumstances. A tax–benefit reform can therefore change both income at given working hours and the incentives to work. The [labour-income](modules/labour-income.md) and [disposable-income](modules/disposable-income.md) pages describe these calculations.
+The labour-supply model represents choices between working-hours alternatives through preferences over disposable income and leisure. Disposable income under each alternative is imputed from precomputed tax–benefit results, using the benefit unit's circumstances: UKMOD supplies these results for the UK model and EUROMOD for the European models. A tax–benefit reform can therefore change both income at given working hours and the incentives to work. The [labour-income](modules/labour-income.md) and [disposable-income](modules/disposable-income.md) pages describe these calculations.
 
-An alternative, forward-looking specification chooses employment and discretionary consumption jointly, based on expected utility over the remaining lifetime. Explicit non-pension wealth projections are also available without forward-looking optimisation: in that configuration, discretionary consumption is projected using an estimated equation. When neither forward-looking optimisation nor non-pension wealth projections are enabled, consumption follows an income-based rule with an assumed saving adjustment for non-retired people.
+The UK model also provides a forward-looking specification that chooses employment and discretionary consumption jointly, based on expected utility over the remaining lifetime. Explicit non-pension wealth projections are available without forward-looking optimisation: in that configuration, discretionary consumption is projected using an estimated equation. When neither forward-looking optimisation nor non-pension wealth projections are enabled, consumption follows an income-based rule with an assumed saving adjustment for non-retired people.
 
 ## Parameters, validation and uncertainty {#defining-and-interpreting-a-projection}
 
