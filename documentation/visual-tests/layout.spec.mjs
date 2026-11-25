@@ -1573,7 +1573,7 @@ test("documentation sidebar hover is neutral and keeps the current-page marker",
 
   for (const [scheme, colour, surface] of [
     ['default', 'rgb(26, 29, 33)', 'rgb(236, 238, 240)'],
-    ['slate', 'rgb(241, 237, 242)', 'rgba(239, 168, 210, 0.08)']
+    ['slate', 'rgb(241, 237, 242)', 'rgba(197, 160, 229, 0.08)']
   ]) {
     await page.locator('body').evaluate((body, value) => body.setAttribute('data-md-color-scheme', value), scheme);
     for (const [name, weight] of [['Getting Started', '580'], ['User Guide', '580'], ['Developer Guide', '580'], ['Input Data', '540']]) {
@@ -1600,7 +1600,7 @@ test("documentation sidebar hover is neutral and keeps the current-page marker",
   await link.click();
   await expect(link).toHaveClass(/md-nav__link--active/);
   await link.hover();
-  await expect(link).toHaveCSS('background-color', 'rgba(151, 42, 108, 0.07)');
+  await expect(link).toHaveCSS('background-color', 'rgba(124, 54, 166, 0.07)');
   await expect(link).toHaveCSS('border-left-width', '2px');
   await expect(link).toHaveCSS('font-weight', '600');
   await page.keyboard.press('Tab');

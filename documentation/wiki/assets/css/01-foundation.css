@@ -56,23 +56,23 @@
   }
 }
 
-/* ── White, graphite and berry — drawn from the SimPaths mark ── */
+/* ── White, graphite and violet — drawn from the SimPaths mark ── */
 :root {
   --sp-midnight:        #343134;
   --sp-midnight-deep:   #27232D;
-  --sp-crimson:         #712050;
+  --sp-crimson:         #5B2587;
   --sp-paper:           #FFFFFF;
   --sp-ghost:           #D5D2DA;
   --sp-wine:            #45414B;
   --sp-wine-soft:       #64616B;
-  --sp-accent:          #972A6C;
-  --sp-accent-light:    #B9318A;
-  --sp-accent-bright:   #972A6C;
+  --sp-accent:          #7C36A6;
+  --sp-accent-light:    #8B46B5;
+  --sp-accent-bright:   #7C36A6;
   /* Fixed ink for the deliberately light editorial panels in either theme. */
   --sp-panel-ink:       #343134;
   --sp-panel-muted:     #64616B;
-  --sp-panel-link:      #972A6C;
-  --sp-panel-link-hover:#712050;
+  --sp-panel-link:      #7C36A6;
+  --sp-panel-link-hover:#5B2587;
   --sp-hairline:        linear-gradient(to right, #D5D2DA 0%, #D5D2DA 40%, transparent 100%);
   --sp-surface:         #FFFFFF;
   --sp-surface-strong:  #FFFFFF;
@@ -81,7 +81,7 @@
   --sp-shadow-soft:     0 10px 28px rgba(32,22,28,0.06);
   --sp-shadow-medium:   0 18px 38px rgba(32,22,28,0.1);
   --sp-sidebar-hover:   rgba(52,49,52,0.05);
-  --sp-sidebar-active:  rgba(151,42,108,0.07);
+  --sp-sidebar-active:  rgba(124,54,166,0.07);
   --sp-transition:      all 0.2s ease;
   --sp-home-hero-bg: #27232D;
   --sp-home-max: 61rem;
@@ -109,7 +109,7 @@ body {
 
 [data-md-color-accent="custom"] {
   --md-accent-fg-color:              var(--sp-crimson);
-  --md-accent-fg-color--transparent: rgba(151,42,108,0.08);
+  --md-accent-fg-color--transparent: rgba(124,54,166,0.08);
   --md-accent-bg-color:              var(--sp-paper);
   --md-accent-bg-color--light:       rgba(250,249,245,0.7);
 }
@@ -137,10 +137,11 @@ body {
   --sp-wine:                      #DCD4DF;
   --sp-wine-soft:                 #BDB4C4;
   --sp-ghost:                     #514957;
-  --sp-accent:                    #EFA8D2;
-  --sp-accent-light:              #F6C8E4;
-  --sp-accent-bright:             #EFA8D2;
-  --sp-crimson:                   #F6C8E4;
+  --sp-accent:                    #C5A0E5;
+  --sp-accent-light:              #DCC1F2;
+  --sp-accent-bright:             #C5A0E5;
+  --sp-crimson:                   #DCC1F2;
+  --md-accent-fg-color--transparent: rgba(197,160,229,0.08);
   --md-default-bg-color:          #211E26;
   --md-default-bg-color--light:   #2B2731;
   --md-default-bg-color--lighter: #36303E;
@@ -156,8 +157,8 @@ body {
   --sp-border-strong:             rgba(250,249,245,0.14);
   --sp-shadow-soft:               0 10px 28px rgba(0,0,0,0.22);
   --sp-shadow-medium:             0 18px 38px rgba(0,0,0,0.3);
-  --sp-sidebar-hover:             rgba(239,168,210,0.08);
-  --sp-sidebar-active:            rgba(239,168,210,0.14);
+  --sp-sidebar-hover:             rgba(197,160,229,0.08);
+  --sp-sidebar-active:            rgba(197,160,229,0.14);
 }
 
 [data-md-color-scheme="slate"] .md-typeset .highlight {

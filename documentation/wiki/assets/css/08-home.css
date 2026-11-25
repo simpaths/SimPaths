@@ -208,7 +208,8 @@ html.sp-page-home .md-main .md-top {
   --md-default-fg-color--light: #64616B;
   --md-default-fg-color--lighter: #79747F;
   --md-default-fg-color--lightest: #CCD9E1;
-  --sp-accent: #972A6C;
+  --sp-accent: var(--sp-panel-link);
+  --sp-crimson: var(--sp-panel-link-hover);
   width: 100vw; margin: 0 calc(50% - 50vw);
   padding: 2.5rem 1.2rem 3.25rem;
   background: #E8F0F5;

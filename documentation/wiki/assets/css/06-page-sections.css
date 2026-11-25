@@ -251,7 +251,6 @@ html.sp-page-validation .md-typeset li > ul { margin-top: 0.45em; }
   .md-typeset .research-primary { padding: 1rem; }
 }
 [data-md-color-scheme="slate"] .md-typeset .research-page {
-  --research-page-accent: #e6a5cd;
   --research-feature-surface: #283338;
 }
 
