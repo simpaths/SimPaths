@@ -209,7 +209,7 @@ public class Expectations {
                 personProxyNextPeriod.setI_demPartnerStatus(Dcpst.Single);
         }
         personProxyNextPeriod.setDemPartnerStatusL1(currentStates.getDcpst());
-        personProxyNextPeriod.setLiwwh((ageYearsNextPeriod - Parameters.AGE_TO_BECOME_RESPONSIBLE) * DecisionParams.MONTHS_EMPLOYED_PER_YEAR);
+        personProxyNextPeriod.setLiwwh((int) Math.round((ageYearsNextPeriod - Parameters.AGE_TO_BECOME_RESPONSIBLE) * DecisionParams.MONTHS_EMPLOYED_PER_YEAR / 12.0));
         personProxyNextPeriod.setLabWageFullTimeHrlyL1(labWageFullTimeHrly);
         personProxyNextPeriod.setIoFlag(true);
         if (cohabitation) {
@@ -578,7 +578,7 @@ public class Expectations {
 
     private double getHourlyWageRate(int labourHoursWeekly) {
 
-        if (labourHoursWeekly >= Parameters.MIN_HOURS_FULL_TIME_EMPLOYED) {
+        if (!Person.isPartTimeHours(labourHoursWeekly)) {
             return labWageFullTimeHrly;
         } else {
             double ptPremium;

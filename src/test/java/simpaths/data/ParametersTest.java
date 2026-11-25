@@ -41,4 +41,10 @@ class ParametersTest {
         assertEquals(-20.692523713076813, val, 1.0e-12);
         assertEquals(-FastMath.asinh(4.848628049616065E8), val, 1.0e-12);
     }
+
+    @Test
+    void realDataAllowsStartYearsAfterLatestPopulation() {
+        assertDoesNotThrow(() -> Parameters.validateStartYear(2025));
+        assertThrows(IllegalArgumentException.class, () -> Parameters.validateStartYear(2010));
+    }
 }

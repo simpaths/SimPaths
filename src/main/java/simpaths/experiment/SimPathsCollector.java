@@ -477,14 +477,23 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
 
         public void update() {
 
-            //Ydses_c5
-            var hh_income_cs = new CrossSection<>(model::getBenefitUnits, BenefitUnit::getI_yNonBenHhGrossAsinhNoNull);
-            var hh_income_stats = new Stats(hh_income_cs.get()).descrStats();
+            List<Double> adultIncomes = new ArrayList<>();
+            for (BenefitUnit unit : model.getBenefitUnits()) {
+                double income = unit.getI_yNonBenHhGrossAsinhNoNull();
+                if (unit.getMale() != null) adultIncomes.add(income);
+                if (unit.getFemale() != null) adultIncomes.add(income);
+            }
+            adultIncomes.sort(Double::compare);
+            double[] cutoffs = new double[4];
+            for (int i = 0; i < cutoffs.length; i++) {
+                cutoffs[i] = adultIncomes.isEmpty() ? Double.NaN :
+                        adultIncomes.get((int) Math.ceil(adultIncomes.size() * (i + 1.0) / 5.0) - 1);
+            }
 
-            wealthIncomeStats.setYHhQuintilesC5P20(hh_income_stats.getPercentile(20.0));
-            wealthIncomeStats.setYHhQuintilesC5P40(hh_income_stats.getPercentile(40.0));
-            wealthIncomeStats.setYHhQuintilesC5P60(hh_income_stats.getPercentile(60.0));
-            wealthIncomeStats.setYHhQuintilesC5P80(hh_income_stats.getPercentile(80.0));
+            wealthIncomeStats.setYHhQuintilesC5P20(cutoffs[0]);
+            wealthIncomeStats.setYHhQuintilesC5P40(cutoffs[1]);
+            wealthIncomeStats.setYHhQuintilesC5P60(cutoffs[2]);
+            wealthIncomeStats.setYHhQuintilesC5P80(cutoffs[3]);
 
             if (initialDistributionCalculated) {
                 for (BenefitUnit benefitUnit : model.getBenefitUnits()) {

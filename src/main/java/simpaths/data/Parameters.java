@@ -179,10 +179,8 @@ public class Parameters {
 		"demMaleFlag", 					//demSex
 		"labC4", 				        //labour employment status
 		"labHrsWorkWeek", 				//hours worked per week
-        "labHrsWorkWeekL1",             //hours worked per week in the previous year
 		"demAdultChildFlag",		    //flag indicating adult child living at home in the data
 		"labWageHrly",                  //initial value of hourly earnings from the data
-		"labWageHrlyL1",                //lag(1) of initial value of hourly earnings from the data
         "careNeedFlag",                 //indicator that the individual needs social care
         "careHrsFormal",                //number of hours of formal care received
         "careFormalX",                  //cost of formal care received
@@ -195,7 +193,7 @@ public class Parameters {
         "contRateOPEe",                 //initialisation value of employee contribution rate to occupational pension
         "contRateOPEr",                 //initialisation value of employer contribution rate to occupational pension
         "contRatePP",                   //initialisation value of contribution rate to occupational pension
-        // "labWorkHist",               //Total years in employment since Jan 2007
+        "labEmpNyear",                  //Total years in employment since Jan 2007
 		//"yem", 					    //employment income
 		//"yse", 					    //self-employment income
 
@@ -2374,14 +2372,14 @@ public class Parameters {
     public static void validateStartYear(int year) {
         int min = getMinStartYear();
         int max = getMaxStartYear();
-        if (year < min || year > max) {
+        if (year < min || ((TESTING_FLAG || trainingFlag) && year > max)) {
             String mode;
             if (TESTING_FLAG) mode = "testing data";
             else if (trainingFlag) mode = "training data";
             else mode = "real data";
             throw new IllegalArgumentException(
-                    "Start year " + year + " is outside the allowed range [" + min + ", " + max + "] for " + mode + ". " +
-                            "Choose a value within the supported initial-population years.");
+                    "Start year " + year + " is outside the allowed range [" + min + ", " +
+                            ((TESTING_FLAG || trainingFlag) ? max : "no fixed maximum") + "] for " + mode + ".");
         }
     }
 
@@ -2467,6 +2465,20 @@ public class Parameters {
     public static int getPopulationProjectionsMaxAge() { return populationProjectionsMaxAge; }
 
     public static int getPopulationProjectionsMaxYear() { return populationProjectionsMaxYear; }
+
+    // Estimation's dukfr series (births per 1,000 women aged 15–44), from
+    // input/InitialPopulations/compile/02_create_UKHLS_variables.do.
+    private static final double[] FERTILITY_F1_RATES = {
+            62.5, 64.0, 64.0, 64.6, 61.7, 61.4, 61.5, 61.2,
+            59.7, 57.6, 55.8, 53.4, 54.1, 51.8, 49.8, 48.9
+    };
+
+    public static double getFertilityF1Rate(int year) {
+        if (year < 2009)
+            throw new IllegalArgumentException("F1 fertility rate is unavailable before 2009: " + year);
+        // Hold the 2024 value constant in subsequent years, rather than extrapolating.
+        return FERTILITY_F1_RATES[Math.min(year, 2024) - 2009];
+    }
 
     public static MultiKeyCoefficientMap getFertilityProjectionsByYear() { return fertilityProjectionsByYear; }
     public static double getFertilityProjectionsByYear(int year) {

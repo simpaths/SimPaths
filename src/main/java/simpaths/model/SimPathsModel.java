@@ -218,6 +218,14 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     private int ordering = Parameters.MODEL_ORDERING;    //Used in Scheduling of model events.  Schedule model events at the same time as the collector and observer events, but a lower order, so will be fired before the collector and observer have updated.
 
     private Set<Person> persons;
+    private NewbornHealthDonors newbornHealthDonors;
+
+    NewbornHealthDonors getNewbornHealthDonors() {
+        if (newbornHealthDonors == null) {
+            throw new IllegalStateException("Starting-population newborn health donors have not been initialized");
+        }
+        return newbornHealthDonors;
+    }
 
     //For partnership matching - types based on region and gender:
     //private Map<Gender, LinkedHashMap<Region, Double>> partnershipTargetsGenderRegion;
@@ -366,8 +374,6 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
      */
     @Override
     public void buildObjects() {
-
-
         // time check
         String outputPath = "./output/" + getEngine().getCurrentExperiment().runId;
         elapsedTime0 = System.currentTimeMillis();
@@ -445,6 +451,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         // creates initial population (Person and BenefitUnit objects) based on data in input database.
         // Note that the population may be cropped to simulate a smaller population depending on user choices in the GUI.
         createInitialPopulationDataStructures();
+        newbornHealthDonors = new NewbornHealthDonors(persons);
         elapsedTime1 = System.currentTimeMillis();
         System.out.println("Time to create initial population structures: " + (elapsedTime1 - elapsedTime0)/1000. + " seconds.");
         elapsedTime0 = elapsedTime1;
@@ -519,6 +526,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         if (enableIntertemporalOptimisations)
             yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.UpdateWealth);
         yearlySchedule.addCollectionEvent(benefitUnits, BenefitUnit.Processes.Update);
+        yearlySchedule.addCollectionEvent(persons, Person.Processes.SnapshotPartnerEmployment);
         yearlySchedule.addCollectionEvent(persons, Person.Processes.Update);
 
         yearlySchedule.addCollectionEvent(persons, Person.Processes.Aging);
@@ -1564,7 +1572,12 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             cloneBenefitUnit(originalBenefitUnit, newHousehold, sampleEntry, clonedHouseholdPersons, parentLinks);
         }
         remapClonedParentLinks(clonedHouseholdPersons, parentLinks);
-        newHousehold.resetWeights(1.0d);
+        resetCloneWeights(newHousehold, useWeights);
+    }
+
+    static void resetCloneWeights(Household household, boolean useWeights) {
+        if (!useWeights)
+            household.resetWeights(1.0d);
     }
 
 
@@ -2024,8 +2037,8 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                                         // throw new RuntimeException("Error - both parties to match have the same gender!");
                                     } else {
 
-                                        p1.setDemPartnerNYear(0); //Set years in partnership to 0
-                                        p2.setDemPartnerNYear(0);
+                                        p1.setDemPartnerNYear(1); //First year in partnership
+                                        p2.setDemPartnerNYear(1);
 
                                         // update benefit unit and household
                                         p1.setupNewBenefitUnit(p2, true);
@@ -2657,20 +2670,23 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                 double upratingFactor =
                         Parameters.getTimeSeriesIndex(startYear, UpratingCase.ModelInitialise) /
                                 Parameters.getTimeSeriesIndex(Parameters.getMaxStartYear(), UpratingCase.ModelInitialise);
-                //Modify the underlying initial population being used by applying the upratingFactor to its monetary values
-                String[] columnsToUprate = new String[]{"YPNBIHS_DV", "YPTCIIHS_DV", "YPNCP", "YPNOAB", "YPLGRS_DV"};
-                for (String columnToUprateName : columnsToUprate) {
-                    stat.execute(
-                            "ALTER TABLE PERSON ALTER COLUMN " + columnToUprateName + " NUMERIC(30,6);"
-                                    + "UPDATE PERSON SET " + columnToUprateName + " = SINH(" + columnToUprateName + ") * " + upratingFactor + ";"
-                                    + "UPDATE PERSON SET " + columnToUprateName + " = LOG(" + columnToUprateName + " + SQRT(POWER(" + columnToUprateName + ",2) + 1));"
-                    );
+                if (!Double.isFinite(upratingFactor) || upratingFactor <= 0.0)
+                    throw new IllegalStateException("Invalid initial population uprating factor: " + upratingFactor);
+                String[] asinhIncomes = {"yNonBenPersGrossMonth", "yMiscPersGrossMonth", "yCapitalPersMonth",
+                        "yPensPersGrossMonth", "yEmpPersGrossMonth"};
+                for (String column : asinhIncomes) {
+                    stat.execute("ALTER TABLE PERSON ALTER COLUMN " + column + " DOUBLE PRECISION");
+                    String value = "(SINH(" + column + ") * " + upratingFactor + ")";
+                    stat.execute("UPDATE PERSON SET " + column + " = SIGN(" + value + ") * LN(ABS(" + value
+                            + ") + SQRT(POWER(" + value + ", 2) + 1)) WHERE " + column + " <> -9");
                 }
-                stat.execute(
-                        "UPDATE PERSON SET SIMULATION_TIME = " + startYear + ";"
-                                + "UPDATE PERSON SET SYSTEM_YEAR = " + startYear + ";"
-                );
-                System.out.println("Completed amending Person table");
+                uprateLevelColumns(stat, "PERSON", upratingFactor, "labWageHrly", "careFormalX");
+                uprateLevelColumns(stat, "BENEFITUNIT", upratingFactor, "yDispMonth", "wealthTotValue", "wealthPensValue",
+                        "wealthPrptyValue", "wealthMortgageDebtValue", "wealthUnsecuredDebtLowValue", "wealthUnsecuredDebtHighValue");
+                stat.execute("UPDATE HOUSEHOLD SET SIMULATION_TIME = " + startYear);
+                stat.execute("UPDATE BENEFITUNIT SET SIMULATION_TIME = " + startYear + ", HHTIME = " + startYear);
+                stat.execute("UPDATE PERSON SET SIMULATION_TIME = " + startYear + ", BUTIME = " + startYear + ", SYSTEM_YEAR = " + startYear);
+                System.out.println("Completed uprating initial population tables");
             }
         }
         catch(ClassNotFoundException|SQLException e){
@@ -2691,6 +2707,13 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                 log.debug("SQL Exception thrown: " + e.getMessage());
                 e.printStackTrace();
             }
+        }
+    }
+
+    private static void uprateLevelColumns(Statement stat, String table, double factor, String... columns) throws SQLException {
+        for (String column : columns) {
+            stat.execute("ALTER TABLE " + table + " ALTER COLUMN " + column + " DOUBLE PRECISION");
+            stat.execute("UPDATE " + table + " SET " + column + " = " + column + " * " + factor + " WHERE " + column + " <> -9");
         }
     }
 
@@ -2780,15 +2803,11 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                 for (Household household : inputHouseholdList) {
                     double hhweight = household.getWeight();
                     boolean hasChild = false;
-                    for (BenefitUnit benefitUnit : household.getBenefitUnits()) {
-                        wealthModule.prepareBenefitUnit(benefitUnit);
-                        for (Person person : benefitUnit.getMembers()) {
-                            person.setAdditionalFieldsInInitialPopulation();
+                    initialiseLoadedHousehold(household);
+                    for (BenefitUnit benefitUnit : household.getBenefitUnits())
+                        for (Person person : benefitUnit.getMembers())
                             if (person.getDemAge()<Parameters.AGE_TO_BECOME_RESPONSIBLE)
                                 hasChild = true;
-                        }
-                        benefitUnit.initializeFields();
-                    }
                     if (ignoreTargetsAtPopulationLoad || hasChild)
                         householdList1.add(household);
                     else
@@ -2862,14 +2881,12 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                 }
                 //filter.getRemainingVacancies();
             } else {
-                // use population weights
-
-                households.addAll(inputHouseholdList);
+                // Use population weights, but still run the same initialization and
+                // copy constructors as the unweighted branch. The copy constructors
+                // provide fallbacks for transient lags while retaining survey weights.
                 for (Household household : inputHouseholdList) {
-                    benefitUnits.addAll(household.getBenefitUnits());
-                    for (BenefitUnit benefitUnit : household.getBenefitUnits()) {
-                        persons.addAll(benefitUnit.getMembers());
-                    }
+                    initialiseLoadedHousehold(household);
+                    cloneHousehold(household, SampleEntry.InputData);
                 }
             }
 
@@ -2904,6 +2921,15 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         System.out.println("Number of simulated individuals (persons.size()) is " + persons.size() + " living in " + benefitUnits.size() + " simulated benefitUnits.");
         initialHoursWorkedWeekly = null;
         System.gc();
+    }
+
+    private void initialiseLoadedHousehold(Household household) {
+        for (BenefitUnit benefitUnit : household.getBenefitUnits()) {
+            wealthModule.prepareBenefitUnit(benefitUnit);
+            for (Person person : benefitUnit.getMembers())
+                person.setAdditionalFieldsInInitialPopulation();
+            benefitUnit.initializeFields();
+        }
     }
 
     private void searchForClones(List<Household> householdList, boolean flagConsiderRegion, InitialPopulationFilter filter) {
