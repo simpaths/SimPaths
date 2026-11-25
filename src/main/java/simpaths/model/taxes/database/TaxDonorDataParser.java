@@ -27,7 +27,7 @@ import simpaths.model.taxes.*;
 
 /**
  *
- * CLASS TO MANAGE TRANSLATION OF CSV DATA FROM EUROMOD TO DATABASE FOR DONORS USED TO IMPUTE TAX AND BENEFIT PAYMENTS
+ * CLASS TO MANAGE TRANSLATION OF CSV DATA FROM UKMOD TO DATABASE FOR DONORS USED TO IMPUTE TAX AND BENEFIT PAYMENTS
  * csv data are processed and saved to the DONORPERSON_{country code} table in the relational database. These data
  * are used as working variables to construct the DONORTAXUNIT_{country code} table, which is then used exclusively \
  * for imputing tax and benefit payments, drawing heavily on SQL calls made via Hibernate
@@ -57,7 +57,7 @@ public class TaxDonorDataParser {
         System.out.println(title);
 
         // initialise tax database
-        Parameters.setCountryBenefitUnitName(); //Specify names of benefit unit variables in EUROMOD
+        Parameters.setCountryBenefitUnitName(); //Specify names of benefit unit variables in UKMOD
 
         // establish database connection
         Connection conn = null;
@@ -178,7 +178,7 @@ public class TaxDonorDataParser {
                 + "ALTER TABLE " + personTableName + " ALTER COLUMN ID BIGINT NOT NULL;"
                 + "ALTER TABLE " + personTableName + " ADD PRIMARY KEY (ID);"
 
-                //Reclassify EUROMOD variables
+                //Reclassify UKMOD variables
                 // may need to change data structure type otherwise SQL conversion error, so create new column of the correct type,
                 // map data from old column and drop old column
 
@@ -191,7 +191,7 @@ public class TaxDonorDataParser {
 
                 //Country
                 + "ALTER TABLE " + personTableName + " ADD COUNTRY VARCHAR_IGNORECASE;"
-                + "UPDATE " + personTableName + " SET COUNTRY = '" + country + "' WHERE DCT = " + country.getEuromodCountryCode() + ";"
+                + "UPDATE " + personTableName + " SET COUNTRY = '" + country + "' WHERE DCT = " + country.getUKMODCountryCode() + ";"
                 + "ALTER TABLE " + personTableName + " DROP COLUMN DCT;"
 
                 //Education
@@ -286,7 +286,7 @@ public class TaxDonorDataParser {
                 + "UPDATE " + personTableName + " SET WORK_SECTOR = 'Self_Employed' WHERE abs(YEM) < abs(YSE);"		//Size of earnings derived from self-employment income (including declared self-employment losses) is larger than employment income (or loss - although while yse is sometimes negative, I'm not sure if yem is ever negative), so define as self-employed.
                 + "UPDATE " + personTableName + " SET WORK_SECTOR = 'Public_Employee' WHERE LCS = 1;"		//Lastly, regardless of yem or yse, if lcs = 1, indicates person is s civil servant so overwrite any value with 'Public_Employee' work_sector value.
 
-                //        		+ "UPDATE " + personTable + " SET earnings = yem + yse;"		//Now use EUROMOD output ils_earns, which includes more than just yem + yse, depending on the country (e.g. in Italy there is a temporary employment field yemtj 'income from co.co.co.').
+                //        		+ "UPDATE " + personTable + " SET earnings = yem + yse;"		//Now use UKMOD output ils_earns, which includes more than just yem + yse, depending on the country (e.g. in Italy there is a temporary employment field yemtj 'income from co.co.co.').
                 + "ALTER TABLE " + personTableName + " ALTER COLUMN YEM RENAME TO EMPLOYMENT_INCOME;"
                 + "ALTER TABLE " + personTableName + " ALTER COLUMN YSE RENAME TO SELF_EMPLOYMENT_INCOME;"
                 + "ALTER TABLE " + personTableName + " DROP COLUMN LCS;"
@@ -315,11 +315,11 @@ public class TaxDonorDataParser {
             );
 
             // loop over each policy reference
-            for( Integer fromYear: Parameters.EUROMODpolicyScheduleSystemYearMap.keySet()) {
+            for( Integer fromYear: Parameters.UKMODpolicyScheduleSystemYearMap.keySet()) {
 
                 // construct variable names
-                String systemName = Parameters.EUROMODpolicyScheduleSystemYearMap.get(fromYear).getKey();
-                Integer systemYear = Parameters.EUROMODpolicyScheduleSystemYearMap.get(fromYear).getValue();
+                String systemName = Parameters.UKMODpolicyScheduleSystemYearMap.get(fromYear).getKey();
+                Integer systemYear = Parameters.UKMODpolicyScheduleSystemYearMap.get(fromYear).getValue();
                 Set<String> inputPersonDynamicColumnNames = new LinkedHashSet<>(0);
                 inputPersonDynamicColumnNames.add("IDPERSON");
                 for(String variable: Parameters.DONOR_POLICY_VARIABLES) {
@@ -427,15 +427,15 @@ public class TaxDonorDataParser {
 
     /**
      *
-     * Constructs the tax donor population based on the data stored in .txt files produced by EUROMOD.
+     * Constructs the tax donor population based on the data stored in .txt files produced by UKMOD.
      * Note that in order to store this information in an efficient way, we make the important
-     * assumption that all EUROMOD output for a particular country is derived from the same
-     * input population (this is plausible, given that EUROMOD is a static microsimulation).
-     * When running EUROMOD, the most recent input population for a particular country should be
+     * assumption that all UKMOD output for a particular country is derived from the same
+     * input population (this is plausible, given that UKMOD is a static microsimulation).
+     * When running UKMOD, the most recent input population for a particular country should be
      * used (currently IT_2014_a2.txt and UK_2013_a3.txt).
      *
-     * This method constructs a .csv file that aggregates the information from multiple EUROMOD
-     * output .txt files, picking up the relevant columns for each EUROMOD policy scenario, that
+     * This method constructs a .csv file that aggregates the information from multiple UKMOD
+     * output .txt files, picking up the relevant columns for each UKMOD policy scenario, that
      * will eventually be parsed into the JAS-mine input database.
      *
      */
@@ -458,7 +458,7 @@ public class TaxDonorDataParser {
         final String delimiter = ",";
 
         // prepare file and buffer to write data
-        Map<Integer, String> euromodPolicySchedule = Parameters.calculateEUROMODpolicySchedule(country);
+        Map<Integer, String> ukmodPolicySchedule = Parameters.calculateUKMODpolicySchedule(country);
         Path target = FileSystems.getDefault().getPath(Parameters.INPUT_DIRECTORY, Parameters.getTaxDonorInputFileName() + ".csv");
         if (target.toFile().exists()) {
             target.toFile().delete();		// delete previous version of the file to allow the new one to be constructed
@@ -469,21 +469,21 @@ public class TaxDonorDataParser {
             // read data
             Map<String, List<String[]>> allFilesByName = new LinkedHashMap<String, List<String[]>>();
 
-            // get list of attributes (column names) from EUROMOD output files that are not policy dependent (i.e. they are like the input data)
+            // get list of attributes (column names) from UKMOD output files that are not policy dependent (i.e. they are like the input data)
             Set<String> policyInvariantAttributeNames = new LinkedHashSet<String>(Arrays.asList(Parameters.DONOR_STATIC_VARIABLES));
 
             //Append the names of country-specific variables
             Parameters.setCountryBenefitUnitName(); //Specify names of benefit unit variables
             policyInvariantAttributeNames.add((String) Parameters.getBenefitUnitVariableNames().getValue(country.getCountryName()));
 
-            // create list of attributes (column names) of EUROMOD output files that depend on the policy parameters and that will vary between different scenarios
+            // create list of attributes (column names) of UKMOD output files that depend on the policy parameters and that will vary between different scenarios
             Set<String> policyOutputVariables = new LinkedHashSet<String>(Arrays.asList(Parameters.DONOR_POLICY_VARIABLES));
 
             int numRows = -1;
-            for (String policyName: euromodPolicySchedule.values()) {
+            for (String policyName: ukmodPolicySchedule.values()) {
 
                 Path source;
-                source = FileSystems.getDefault().getPath(Parameters.getEuromodOutputDirectory(), policyName + ".txt");
+                source = FileSystems.getDefault().getPath(Parameters.getUKMODOutputDirectory(), policyName + ".txt");
                 List<String> fileContentByLine = Files.readAllLines(source);
 
                 // Get indices of required vars. The first file should include Input & Output vars, the rest only Output vars.
@@ -504,7 +504,7 @@ public class TaxDonorDataParser {
                 else {
                     int newNumRows = fileContentByLine.size();
                     if (newNumRows != numRows) {
-                        throw new IllegalArgumentException("ERROR - the EUROMOD policy scenario textfile " + policyName + ".txt has " + newNumRows + " rows, which is not the same number as at least one other EUROMOD .txt file!  All files must have the same number of rows (each row corresponds to a different person / agent)!");
+                        throw new IllegalArgumentException("ERROR - the UKMOD policy scenario textfile " + policyName + ".txt has " + newNumRows + " rows, which is not the same number as at least one other UKMOD .txt file!  All files must have the same number of rows (each row corresponds to a different person / agent)!");
                     }
                 }
 
@@ -525,14 +525,14 @@ public class TaxDonorDataParser {
             target.toFile().createNewFile();
             bufferWriter = new BufferedWriter(new FileWriter(target.toFile(), true));
 
-            // structure to hold all data to be parsed from the EUROMOD output files. The first key is the EUROMOD output text filename, while the value is a map that maps the name of the attribute (i.e. the column name) to its array index (i.e. the column number, starting from 0) in the output file, as stored in allFilesByName.
+            // structure to hold all data to be parsed from the UKMOD output files. The first key is the UKMOD output text filename, while the value is a map that maps the name of the attribute (i.e. the column name) to its array index (i.e. the column number, starting from 0) in the output file, as stored in allFilesByName.
             Map<String, LinkedHashMap<String, Integer>> attributePositionsByNameByFilename = new LinkedHashMap<String, LinkedHashMap<String, Integer>>();
             for (String filename: allFilesByName.keySet()) {
                 attributePositionsByNameByFilename.put(filename, new LinkedHashMap<String, Integer>());
             }
 
             // policy independent attributes
-            // the first filename is used to get the data for all the input attributes (i.e. those not affected by EUROMOD policy scenario, not an output).
+            // the first filename is used to get the data for all the input attributes (i.e. those not affected by UKMOD policy scenario, not an output).
             Iterator<String> filenameIter = allFilesByName.keySet().iterator();
             String firstFilename = filenameIter.next();
             String[] header = allFilesByName.get(firstFilename).get(0);		//Get header line
@@ -553,7 +553,7 @@ public class TaxDonorDataParser {
                     String columnName = header[i];
                     if (policyOutputVariables.contains(columnName)) {
                         mapColumnNameToIndex.put(columnName, i);
-                        bufferWriter.append(columnName + "_" + filename + delimiter);		//Note that the policy dependent variable names have an additional label that follows the filename of the specific EUROMOD policy output file.
+                        bufferWriter.append(columnName + "_" + filename + delimiter);		//Note that the policy dependent variable names have an additional label that follows the filename of the specific UKMOD policy output file.
                     }
                 }
             }
@@ -630,8 +630,8 @@ public class TaxDonorDataParser {
 
             // check that all annual samples are the same size (system files for database should have used the same input data
             Integer checkSum = null;
-            for (int fromYear : Parameters.EUROMODpolicyScheduleSystemYearMap.keySet()) {
-                int systemYear = Parameters.EUROMODpolicyScheduleSystemYearMap.get(fromYear).getValue();
+            for (int fromYear : Parameters.UKMODpolicyScheduleSystemYearMap.keySet()) {
+                int systemYear = Parameters.UKMODpolicyScheduleSystemYearMap.get(fromYear).getValue();
                 String query = "SELECT pu FROM DonorPersonPolicy pu WHERE systemYear=" + systemYear;
                 List<DonorPersonPolicy> persons = em.createQuery(query).getResultList();
                 if (checkSum==null) {
@@ -656,9 +656,9 @@ public class TaxDonorDataParser {
                 int numberChildren10To17 = 0, dlltsd1 = -1, dlltsd2 = -1, careProvision = -1;
                 double hoursWorkedPerWeek1 = 0.0, hoursWorkedPerWeek2 = 0.0;
                 boolean flagInitialiseDemographics = true;
-                for (int fromYear : Parameters.EUROMODpolicyScheduleSystemYearMap.keySet()) {
+                for (int fromYear : Parameters.UKMODpolicyScheduleSystemYearMap.keySet()) {
 
-                    int systemYear = Parameters.EUROMODpolicyScheduleSystemYearMap.get(fromYear).getValue();
+                    int systemYear = Parameters.UKMODpolicyScheduleSystemYearMap.get(fromYear).getValue();
                     double origIncome = 0.0;
                     double earnings = 0.0;
                     double dispIncome = 0.0;
@@ -720,7 +720,7 @@ public class TaxDonorDataParser {
                         }
                     }
                     if (!flagInitialiseDemographics && ageTest!=age)
-                        throw new RuntimeException("Demographic characteristics vary across system years derived from EUROMOD");
+                        throw new RuntimeException("Demographic characteristics vary across system years derived from UKMOD");
                     flagInitialiseDemographics = false;
                     double secondIncome = Math.max(0.0, origIncome - principalIncome);
                     DonorTaxUnitPolicy taxUnitPolicy = taxUnit.getPolicyByFromYear(fromYear);

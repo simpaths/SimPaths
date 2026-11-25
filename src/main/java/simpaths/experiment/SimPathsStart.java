@@ -264,11 +264,11 @@ public class SimPathsStart implements ExperimentBuilder {
 
 		Parameters.validateStartYear(startYear);
 
-		// Create EUROMODPolicySchedule input from files
+		// Create UKMODPolicySchedule input from files
 		if (!rewritePolicySchedule &&
-				!new File(Parameters.getInputDirectory() + Parameters.EUROMODpolicyScheduleFilename + ".xlsx").exists()) {
-			throw new FileNotFoundException("Policy Schedule file '"+ File.separator + Parameters.getInputDirectory() +
-					Parameters.EUROMODpolicyScheduleFilename + ".xlsx` doesn't exist. " +
+				!new File(Parameters.UKMOD_DIRECTORY + Parameters.UKMODpolicyScheduleFilename + ".xlsx").exists()) {
+			throw new FileNotFoundException("Policy Schedule file '"+ File.separator + Parameters.UKMOD_DIRECTORY +
+					Parameters.UKMODpolicyScheduleFilename + ".xlsx` doesn't exist. " +
 					"Provide excel file or use `--rewrite-policy-schedule` to re-construct from available policy files.");
 		};
 		if (rewritePolicySchedule) writePolicyScheduleExcelFile();
@@ -289,8 +289,8 @@ public class SimPathsStart implements ExperimentBuilder {
 
 	public static void writePolicyScheduleExcelFile() {
 
-		Collection<File> euromodOutputTextFiles = FileUtils.listFiles(new File(Parameters.getEuromodOutputDirectory()), new String[]{"txt"}, false);
-		Iterator<File> fIter = euromodOutputTextFiles.iterator();
+		Collection<File> ukmodOutputTextFiles = FileUtils.listFiles(new File(Parameters.getUKMODOutputDirectory()), new String[]{"txt"}, false);
+		Iterator<File> fIter = ukmodOutputTextFiles.iterator();
 		while (fIter.hasNext()) {
 			File file = fIter.next();
 			if (file.getName().endsWith("_EMHeader.txt")) {
@@ -300,14 +300,14 @@ public class SimPathsStart implements ExperimentBuilder {
 
 		// create table to allow user specification of policy environment
 		String[] columnNames = {
-				Parameters.EUROMODpolicyScheduleHeadingFilename,
-				Parameters.EUROMODpolicyScheduleHeadingScenarioYearBegins.replace('_', ' '),
-				Parameters.EUROMODpolicyScheduleHeadingScenarioSystemYear.replace('_', ' '),
-				Parameters.EUROMODpolicySchedulePlanHeadingDescription
+				Parameters.UKMODpolicyScheduleHeadingFilename,
+				Parameters.UKMODpolicyScheduleHeadingScenarioYearBegins.replace('_', ' '),
+				Parameters.UKMODpolicyScheduleHeadingScenarioSystemYear.replace('_', ' '),
+				Parameters.UKMODpolicySchedulePlanHeadingDescription
 		};
-		Object[][] data = new Object[euromodOutputTextFiles.size()][columnNames.length];
+		Object[][] data = new Object[ukmodOutputTextFiles.size()][columnNames.length];
 		int row = 0;
-		for (File file: euromodOutputTextFiles) {
+		for (File file: ukmodOutputTextFiles) {
 			String name = file.getName();
 			data[row][0] = name;
 			data[row][1] = name.split("_")[1];
@@ -316,7 +316,7 @@ public class SimPathsStart implements ExperimentBuilder {
 			row++;
 		}
 
-		XLSXfileWriter.createXLSX(Parameters.INPUT_DIRECTORY, Parameters.EUROMODpolicyScheduleFilename, country.toString(), columnNames, data);
+		XLSXfileWriter.createXLSX(Parameters.UKMOD_DIRECTORY, Parameters.UKMODpolicyScheduleFilename, country.toString(), columnNames, data);
 	}
 
 
@@ -371,7 +371,7 @@ public class SimPathsStart implements ExperimentBuilder {
 		if (choices[0]) {
 			// choose the country and the simulation start year
 			// this information can be used when constructing a new donor population
-			// and referenced when adjusting the EUROMOD policy schedule (scenario plan).
+			// and referenced when adjusting the UKMOD policy schedule (scenario plan).
 			Collection<File> testList = FileUtils.listFiles(new File(Parameters.getInputDirectoryInitialPopulations()), new String[]{"csv"}, false);
 			if (testList.size()==0)
 				Parameters.setTrainingFlag(true);
@@ -388,10 +388,10 @@ public class SimPathsStart implements ExperimentBuilder {
 		if (choices[2]) {
 			// call to modify policies
 
-			// run EUROMOD
-			//CallEUROMOD.run();
+			// run UKMOD
+			//CallUKMOD.run();
 
-			//run EUROMOD Light
+			//run UKMOD Light
 			CallEMLight.run();
 		}
 
@@ -399,9 +399,9 @@ public class SimPathsStart implements ExperimentBuilder {
 			// call to select policies
 
 			// load previously stored values for policy description and initiation year
-			MultiKeyCoefficientMap previousEUROMODfileInfo = ExcelAssistant.loadCoefficientMap(Parameters.getInputDirectory() + Parameters.EUROMODpolicyScheduleFilename + ".xlsx", country.toString(), 1);
-			Collection<File> euromodOutputTextFiles = FileUtils.listFiles(new File(Parameters.getEuromodOutputDirectory()), new String[]{"txt"}, false);
-			Iterator<File> fIter = euromodOutputTextFiles.iterator();
+			MultiKeyCoefficientMap previousUKMODfileInfo = ExcelAssistant.loadCoefficientMap(Parameters.UKMOD_DIRECTORY + Parameters.UKMODpolicyScheduleFilename + ".xlsx", country.toString(), 1);
+			Collection<File> ukmodOutputTextFiles = FileUtils.listFiles(new File(Parameters.getUKMODOutputDirectory()), new String[]{"txt"}, false);
+			Iterator<File> fIter = ukmodOutputTextFiles.iterator();
 			while (fIter.hasNext()) {
 				File file = fIter.next();
 				if (file.getName().endsWith("_EMHeader.txt")) {
@@ -411,28 +411,28 @@ public class SimPathsStart implements ExperimentBuilder {
 
 			// create table to allow user specification of policy environment
 	        String[] columnNames = {
-					Parameters.EUROMODpolicyScheduleHeadingFilename,
-					Parameters.EUROMODpolicyScheduleHeadingScenarioYearBegins.replace('_', ' '),
-					Parameters.EUROMODpolicyScheduleHeadingScenarioSystemYear.replace('_', ' '),
-	        		Parameters.EUROMODpolicySchedulePlanHeadingDescription
+					Parameters.UKMODpolicyScheduleHeadingFilename,
+					Parameters.UKMODpolicyScheduleHeadingScenarioYearBegins.replace('_', ' '),
+					Parameters.UKMODpolicyScheduleHeadingScenarioSystemYear.replace('_', ' '),
+				Parameters.UKMODpolicySchedulePlanHeadingDescription
 			};
-	        Object[][] data = new Object[euromodOutputTextFiles.size()][columnNames.length];
+	        Object[][] data = new Object[ukmodOutputTextFiles.size()][columnNames.length];
 	        int row = 0;
-	        for (File file: euromodOutputTextFiles) {
+	        for (File file: ukmodOutputTextFiles) {
 	        	String name = file.getName();
 	        	data[row][0] = name;
-        		if (previousEUROMODfileInfo.getValue(name, Parameters.EUROMODpolicyScheduleHeadingScenarioYearBegins) != null) {
-        			data[row][1] = previousEUROMODfileInfo.getValue(name, Parameters.EUROMODpolicyScheduleHeadingScenarioYearBegins).toString();
+			if (previousUKMODfileInfo.getValue(name, Parameters.UKMODpolicyScheduleHeadingScenarioYearBegins) != null) {
+				data[row][1] = previousUKMODfileInfo.getValue(name, Parameters.UKMODpolicyScheduleHeadingScenarioYearBegins).toString();
 	        	} else {
 	        		data[row][1] = "";
 	        	}
-				if (previousEUROMODfileInfo.getValue(name, Parameters.EUROMODpolicyScheduleHeadingScenarioSystemYear) != null) {
-					data[row][2] = previousEUROMODfileInfo.getValue(name, Parameters.EUROMODpolicyScheduleHeadingScenarioSystemYear).toString();
+				if (previousUKMODfileInfo.getValue(name, Parameters.UKMODpolicyScheduleHeadingScenarioSystemYear) != null) {
+					data[row][2] = previousUKMODfileInfo.getValue(name, Parameters.UKMODpolicyScheduleHeadingScenarioSystemYear).toString();
 				} else {
 					data[row][2] = "";
 				}
-        		if (previousEUROMODfileInfo.getValue(name, Parameters.EUROMODpolicySchedulePlanHeadingDescription) != null) {
-        			data[row][3] = previousEUROMODfileInfo.getValue(name, Parameters.EUROMODpolicySchedulePlanHeadingDescription).toString();
+			if (previousUKMODfileInfo.getValue(name, Parameters.UKMODpolicySchedulePlanHeadingDescription) != null) {
+				data[row][3] = previousUKMODfileInfo.getValue(name, Parameters.UKMODpolicySchedulePlanHeadingDescription).toString();
 	        	} else {
 	        		data[row][3] = "";
 	        	}
@@ -440,20 +440,20 @@ public class SimPathsStart implements ExperimentBuilder {
 	        }
 
 	        // create GUI display content
-	        String titleEUROMODtable = "Update EUROMOD Policy Schedule";
-	        String textEUROMODtable =
-				"<html><h2 style=\"text-align: center; font-size:120%;\">Select EUROMOD policies to use in simulation by entering a valid 'policy start year' and 'policy system year'</h2>" +
+	        String titleUKMODtable = "Update UKMOD Policy Schedule";
+	        String textUKMODtable =
+				"<html><h2 style=\"text-align: center; font-size:120%;\">Select UKMOD policies to use in simulation by entering a valid 'policy start year' and 'policy system year'</h2>" +
 				"<p style=\"text-align:center; font-size:120%;\">Policies for which no start year is provided will be omitted from the simulation.<br />" +
-				"<p style=\"text-align:center; font-size:120%;\">Policy system year must match the year selected in EUROMOD / UKMOD when creating the policy.<br />" +
+				"<p style=\"text-align:center; font-size:120%;\">Policy system year must match the year selected in UKMOD when creating the policy.<br />" +
 				"If no policy is selected for the start year of the simulation (<b>" + startYear + "</b>), then the earliest policy will be applied.<br />" +
 				"<b>Optional</b>: add a description of the scenario policy to record what the policy refers to.</p>";
-	        ScenarioTable tableEUROMODscenarios = new ScenarioTable(textEUROMODtable, columnNames, data);
+	        ScenarioTable tableUKMODscenarios = new ScenarioTable(textUKMODtable, columnNames, data);
 
 	        // pass content to display
-			FormattedDialogBoxNonStatic policyScheduleBox = new FormattedDialogBoxNonStatic(titleEUROMODtable, null, 900, 300 + euromodOutputTextFiles.size()*11, tableEUROMODscenarios, true);
+			FormattedDialogBoxNonStatic policyScheduleBox = new FormattedDialogBoxNonStatic(titleUKMODtable, null, 900, 300 + ukmodOutputTextFiles.size()*11, tableUKMODscenarios, true);
 
 			//Store a copy in the input directory so that we have a record of the policy schedule for reference
-			XLSXfileWriter.createXLSX(Parameters.INPUT_DIRECTORY, Parameters.EUROMODpolicyScheduleFilename, country.toString(), columnNames, data);
+			XLSXfileWriter.createXLSX(Parameters.UKMOD_DIRECTORY, Parameters.UKMODpolicyScheduleFilename, country.toString(), columnNames, data);
 		}
 
 		if(choices[0] || choices[2] || choices[3] || choices[4]) {

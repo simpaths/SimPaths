@@ -1,0 +1,50 @@
+name: Documentation checks
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      # Keep this job present on every PR, including ones with nothing to build.
+      - name: Check documentation build inputs
+        id: changes
+        run: |
+          python3 -m unittest discover -s .github/scripts -p 'test_*.py'
+          python3 .github/scripts/docs_changes.py
+      - uses: actions/setup-python@v6
+        if: steps.changes.outputs.changed == 'true'
+        with:
+          python-version: '3.13'
+      - run: pip install -r documentation/requirements.txt
+        if: steps.changes.outputs.changed == 'true'
+      - uses: actions/setup-java@v5
+        if: steps.changes.outputs.changed == 'true'
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      - name: Build selected branch and matching API
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          TARGET_BRANCH: ${{ github.base_ref || github.ref_name }}
+        run: bash documentation/scripts/build-version.sh "$TARGET_BRANCH" "$RUNNER_TEMP/site"
+      - uses: actions/setup-node@v4
+        if: steps.changes.outputs.changed == 'true'
+        with:
+          node-version: '22'
+      - name: Browser regression checks
+        if: steps.changes.outputs.changed == 'true'
+        working-directory: documentation/visual-tests
+        run: |
+          npm ci
+          bash ../scripts/check-browser-ci.sh "$RUNNER_TEMP/site" playwright.config.mjs

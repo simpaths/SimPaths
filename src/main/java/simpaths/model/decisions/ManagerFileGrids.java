@@ -203,7 +203,7 @@ public class ManagerFileGrids {
         String filePath = DecisionParams.gridsOutputDirectory + File.separator + "grid_age_" + ageYears + ".csv";
         String[] HEADERS = {"wealth", "wageperhour", "pensionperyear", "birthyear", "wageoffer1", "retirement", "health", "disability",
                 "socialcarereceipt", "socialcareprovision", "region", "student", "education", "children0", "children1", "children2",
-                "married", "gender", "consumptionshare", "employment1", "employment2", "valuefunction"};
+                "partnered", "gender", "consumptionshare", "employment1", "employment2", "valuefunction"};
         try {
             BufferedWriter writer = Files.newBufferedWriter(Paths.get(filePath));
             var csvFormat = CSVFormat.DEFAULT.builder().setHeader(HEADERS).get();

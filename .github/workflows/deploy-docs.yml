@@ -1,48 +1,98 @@
-name: Deploy Documentation
-
+name: Deploy documentation
 on:
   push:
-    branches:
-      - documentation
-    paths:
-      - 'documentation/wiki/**'
-      - 'mkdocs.yml'
+    branches: [develop]
   workflow_dispatch:
-
 permissions:
   contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
-
 jobs:
-  build-and-deploy:
+  build:
+    if: github.repository == 'simpaths/SimPaths' && github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.changes.outputs.changed }}
+      source: ${{ github.sha }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
         with:
+          persist-credentials: false
           fetch-depth: 0
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
+      - name: Check documentation build inputs
+        id: changes
+        run: |
+          python3 -m unittest discover -s .github/scripts -p 'test_*.py'
+          python3 .github/scripts/docs_changes.py
+      - uses: actions/setup-python@v6
+        if: steps.changes.outputs.changed == 'true'
         with:
-          python-version: '3.x'
-
-      - name: Install MkDocs and dependencies
-        run: pip install "mkdocs>=1.6,<2.0" mkdocs-material
-
-      - name: Build documentation site
-        run: mkdocs build --strict
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v5
+          python-version: '3.13'
+      - run: pip install -r documentation/requirements.txt
+        if: steps.changes.outputs.changed == 'true'
+      - uses: actions/setup-java@v5
+        if: steps.changes.outputs.changed == 'true'
         with:
-          path: site/
-
-      - name: Deploy to GitHub Pages
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      - name: Build website and matching API
+        if: steps.changes.outputs.changed == 'true'
+        run: bash documentation/scripts/build-version.sh develop "$RUNNER_TEMP/published"
+      - name: Verify publication contents
+        if: steps.changes.outputs.changed == 'true'
+        run: python documentation/scripts/check-published-site.py "$RUNNER_TEMP/published"
+      - uses: actions/setup-node@v4
+        if: steps.changes.outputs.changed == 'true'
+        with:
+          node-version: '22'
+      - name: Verify published site in a browser
+        if: steps.changes.outputs.changed == 'true'
+        working-directory: documentation/visual-tests
+        run: |
+          npm ci
+          bash ../scripts/check-browser-ci.sh "$RUNNER_TEMP/published" publication.config.mjs
+      - uses: actions/upload-pages-artifact@v4
+        if: steps.changes.outputs.changed == 'true'
+        with:
+          path: ${{ runner.temp }}/published
+  deploy:
+    needs: build
+    if: github.repository == 'simpaths/SimPaths' && github.ref == 'refs/heads/develop' && needs.build.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    # Only actual deployments share a queue. An unrelated push must not cancel
+    # a pending documentation build just because its own build is skipped.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+      # Preserve pending deployments even when builds finish out of order.
+      queue: max
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.build.outputs.source }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Reject superseded documentation
+        env:
+          SOURCE_SHA: ${{ needs.build.outputs.source }}
+        run: |
+          git fetch origin develop
+          python3 - <<'PY'
+          import os
+          import subprocess
+          import sys
+          sys.path.insert(0, '.github/scripts')
+          from docs_changes import needs_build
+          tip = subprocess.check_output(['git', 'rev-parse', 'FETCH_HEAD'], text=True).strip()
+          changed, _ = needs_build('push', {'before': os.environ['SOURCE_SHA'], 'after': tip})
+          if changed:
+              sys.exit('Newer documentation/API changes exist; this build will not be deployed.')
+          PY
+      - uses: actions/deploy-pages@v4
         id: deployment
-        uses: actions/deploy-pages@v5

@@ -60,7 +60,17 @@ All three are JPA `@Entity` classes persisted via Hibernate/H2. Each carries a `
 
 ### Simulation lifecycle
 
-`SimPathsModel` (extends `AbstractSimulationManager`) owns the main simulation loop. Each year it fires ordered events that update entities via `EventListener.onEvent()`. The sequence covers: mortality → union formation/dissolution → fertility → education → labour market → taxes/benefits → health → social care → statistics collection.
+`SimPathsModel` (extends `AbstractSimulationManager`) owns the main simulation loop. `SimPathsModel.buildSchedule()` defines the ordered events it fires each year, which update entities via `EventListener.onEvent()`. From the second simulated year, the sequence is:
+
+1. `BenefitUnit.Update`, then `Person.Update`: last year's values are stored as lags before anyone changes benefit unit.
+2. Ageing (at 18 a person gets their own benefit unit), retirement, education, leaving the parental home, home ownership, physical health.
+3. Partnership formation and dissolution, union matching, fertility.
+4. Social care (if enabled), unemployment, then labour supply and tax-benefit imputation (`LabourMarketUpdate`), followed by benefit receipt, wealth and consumption.
+5. `CalculateChangeInEDI`, then `CalculateAtRiskOfPoverty`: current-year income and poverty status.
+6. Financial distress, mental health (GHQ-12), SF-12 and life satisfaction.
+7. Mortality, population alignment, inheritance, EQ-5D, output variables.
+
+`SimPathsCollector` then collects statistics, ordered after the model's events. The first simulated year (`startYear`) runs a reduced schedule (`firstYearSched`) with only mortality, population alignment, inheritance and bookkeeping. The behavioural equations therefore first run in the second simulated year.
 
 ### Key classes to know
 
@@ -76,7 +86,7 @@ All three are JPA `@Entity` classes persisted via Hibernate/H2. Each carries a `
 
 ### Tax-benefit imputation (`model/taxes/`)
 
-Tax and benefit outcomes are not calculated analytically. Instead, the model uses **statistical matching**: simulated households are matched to a pre-built donor database derived from EUROMOD/UKMOD output. `TaxDonorDataParser` builds this database; `DonorTaxImputation` performs the matching using a nearest-neighbour key function (`KeyFunction1`–`KeyFunction4`).
+Tax and benefit outcomes are not calculated analytically. Instead, the model uses **statistical matching**: simulated households are matched to a pre-built donor database derived from UKMOD output. `TaxDonorDataParser` builds this database; `DonorTaxImputation` performs the matching using a nearest-neighbour key function (`KeyFunction1`–`KeyFunction4`).
 
 ### Intertemporal optimisation (`model/decisions/`)
 
@@ -88,7 +98,11 @@ All behavioural equations are estimated externally and loaded at startup from Ex
 
 ### Alignment
 
-Several demographic processes are aligned to external targets (ONS projections, LFS shares) via `ActivityAlignmentV2`, `FertilityAlignment`, `PartnershipAlignment`, `InSchoolAlignment`, `SocialCareAlignment`. Alignment factors are exported to `AlignmentStatistics.csv` each run.
+Several demographic processes are aligned to external targets (ONS projections, LFS shares) via `ActivityAlignmentV2`, `FertilityAlignment`, `PartnershipAlignment`, `InSchoolAlignment`, `RetirementAlignment`, `SocialCareAlignment`. Alignment factors are exported to `AlignmentStatistics.csv` each run.
+
+The target do-files in `input/alignment_files/DoFilesTarget/` (`01` employment, `02` in school, `03` partnered, `05` retirement) compute each target on the initial populations reweighted to the official population in `align_popProjections.xlsx` by gender × region × single year of age. The weighted UKHLS sample has a different age mix (issue #576), while the simulated population follows the official mix. `00_popproj_weights.do` defines `popproj_weight`, which adds `wgt_popproj` = `wgthhcross` × official count / survey weighted count of the person's cell (ages 90+ pooled). Call it on the whole annual file, before restricting to the target population; employment sums it over the benefit unit. The do-files write `alignment_targets_*.xlsx` straight to `input/alignment_files/`. The earlier versions, weighted by `wgthhcross` only, are kept as `*_NotPopProjAgeNormalised.do` and `*_NotPopProjAgeNormalised.xlsx`; the model does not read them.
+
+Retirement alignment (`alignRetirement`, default `false`) shifts the R1a/R1b probit index in `Person.updateRetirementStatus` so that the share of retired persons among those aged `MIN_AGE_TO_RETIRE` (50) or older meets `input/alignment_files/alignment_targets_retirement.xlsx`. `RetirementAlignment.inTargetPopulation` defines that population for `alignRtrdSimShare` in `AlignmentStatistics.csv`. The alignment itself runs just before the Retirement process, when `labC4` is still null (it is `@NullInitialised`, unlike in SimPathsEU), so like `Person.updateRetirementStatus` it reads the lagged status `labC4L1` and takes everyone aged 50+ as the population. Code that ports alignment logic from SimPathsEU must account for this. `input/alignment_files/DoFilesTarget/05_retirement_targets_initpopdata.do` computes the target from the reweighted initial populations on the persons aged 50+ with a labour status, so its `min_age_to_retire` must equal `MIN_AGE_TO_RETIRE`. The adjustment lives in the `retirement_adjustment` sheet of `alignment_adjustment_series.xlsx` (`TimeSeriesVariable.RetirementAdjustment`) and, like `students_adjustment`, is a direct probit shift that is not appended to the regression coefficients. The search runs up to `RETIREMENT_ALIGNMENT_END_YEAR` (2023, settable through `model_args`) and later years keep its last adjustment, so in a run starting in 2023 the one-year catch-up from the starting population is applied in every later year; leave it off for long projections.
 
 ### Configuration
 
@@ -97,7 +111,7 @@ Runs are configured via YAML files in `config/`. `default.yml` documents all ava
 ### Output
 
 Output is written to `output/<run-timestamp>/csv/` by `SimPathsCollector`. Key files:
-- `WealthIncomeStatistics.csv` — income and wealth (Gini, percentiles, S-Index, plus income and wealth by age band)
+- `WealthIncomeStatistics.csv` — income and wealth (Gini, percentiles, plus income and wealth by age band)
 - `DemographicStatistics.csv` — demographics by age band (partnership, dependent children, population counts)
 - `HealthStatistics.csv` — population health by age band (self-rated health, disability shares)
 - `LabourStatistics.csv` — labour market transitions, participation, full-time/part-time shares by age band
@@ -108,7 +122,7 @@ The four age-band outputs share one population traversal per year via `AgeBandAg
 
 ### Integration tests
 
-`RunSimPathsIntegrationTest` runs the full simulation end-to-end using the built JARs and compares CSV output against reference files in `src/test/java/simpaths/integrationtest/expected/`. If a substantive change shifts the output, update the expected files and commit them.
+`RunSimPathsIntegrationTest` runs the full simulation end-to-end using the built JARs and compares CSV output against reference files in `src/test/java/simpaths/integrationtest/expected/`. If a substantive change shifts the output, update the expected files and commit them. See `documentation/wiki/developer-guide/how-to/integration-tests.md` for how to run it (`mvn package` first; `mvn test` does not run it) and how to update the expected files.
 
 ## Domain Knowledge
 
@@ -123,3 +137,36 @@ Tax donor matching therefore requires a two-step price bridge:
 2. Deflate the imputed financial values from the matched donor record back to 2015 prices.
 
 The default uprating series is `TimeSeriesVariable.Inflation`, sourced from the `inflation` worksheet in `input/economic_time_series.xlsx`. An alternative option (added 2026-04) allows wage growth to be used instead of price growth for the initial matching step, controlled via a config flag.
+
+### Lagged regressors are kept on the person
+
+The equations were estimated with lags defined per person (`xtset idperson swv` in Stata), so a lagged regressor follows the person, not their current benefit unit. Each lag is an `@Lag` field on `Person`, filled by a private `get*ForLag()` getter in `Person.Update`, before ageing or partnership changes move anyone to a new unit. If a person has no history yet (first simulated year, newborns, immigrants), the read-time getter falls back as shown below. The copy constructor copies all of these lags.
+
+| Lag | `Person` field | Captured from the unit's | Under 18 | No personal history |
+|---|---|---|---|---|
+| Income quintile | `yHhQuintilesMonthC5L1` | `yHhQuintilesMonthC5` | parents' value | unit's lag → Q3 |
+| Home ownership | `demPrptyFlagL1` | stored lag `wealthPrptyFlagL1` | parents' value | not owned |
+| Number of children | `numberChildrenAllL1`, `numberChildren02L1` | current counts | 0 | unit's lag → 0 |
+| Household composition | `demCompHhC4L1` | `demCompHhC4` | `SingleNoChildren` | unit's lag → `SingleNoChildren` |
+| At-risk-of-poverty flag | `yPvrtyFlagL1` | `yPvrtyFlag` | parents' value | unit's lag → no transition |
+| Equivalised disposable income | `yDispEquivYearL1` | stored lag `yDispEquivYearL1` | parents' value | unit's lag → no change |
+
+- **Capture order.** `BenefitUnit.Update` runs before `Person.Update` and nulls the unit's `@NullInitialised` fields (e.g. `wealthPrptyFlag`, `yDispEquivYear`). For those, copy the unit's stored lag, not its current value. Check this when adding a new lag.
+- **Partner employment.** `Person.SnapshotPartnerEmployment` captures the combined employment lag for all people before `Person.Update` resets `labC4`. As in the current-year getter, a missing individual status is classified as not employed.
+- **Under 18.** Children and household composition use 0 children and `SingleNoChildren` below `Parameters.AGE_TO_BECOME_RESPONSIBLE`. The other lags use the parents' unit's value.
+- **Home ownership.** `demPrptyFlagL1` is a nullable `Boolean`; read it with `Boolean.TRUE.equals(...)`.
+- **Poverty and income change.** These regressors compare the person's lag with the current unit's current value (`getYPvrtyFlag()`, `getEquivalisedDisposableIncomeYearly()`).
+
+Unit tests: `src/test/java/simpaths/model/person/Lagged*Test`.
+
+Whether the education equations (E1a/E1b) should use parental rather than own-unit income is a separate, unresolved specification question (issue #543); it needs consistent re-estimation and Java changes.
+
+### Current-year poverty status is classified mid-year
+
+`BenefitUnit.yPvrtyFlag` is 1 when equivalised disposable income is below 60% of the weighted median. The flag used to be set only by the collector, after all of the year's events. So `FinancialDistress` and the mental-health and wellbeing equations (`HM1`/`HM2`, `MCS`/`PCS`, `DLS`) read last year's flag, or no flag for a unit formed that year. Entry into and exit from poverty therefore never switched on.
+
+`SimPathsModel.Processes.CalculateAtRiskOfPoverty` now runs right after `CalculateChangeInEDI` and before `FinancialDistress`. It calls `collector.calculateAtRiskOfPoverty()` and throws if no collector is attached. Any new process that reads the current poverty flag must be scheduled after this event. Unit tests don't run the yearly schedule, so only the integration test checks this ordering.
+
+### Equivalence scale
+
+`BenefitUnit.getEquivalisedWeight()` and `Household.getEquivalisedDisposableIncomeYearly()` must both use the OECD scale: 1.0 for the first adult, 0.5 for each further person aged 14+, 0.3 per child under 14 (issue #541).

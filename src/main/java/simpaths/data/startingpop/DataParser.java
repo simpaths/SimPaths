@@ -59,7 +59,7 @@ public class DataParser {
 		}
 	}
 
-	//CREATE PERSON AND HOUSEHOLD TABLES IN INPUT DATABASE BY USING SQL COMMANDS ON EUROMOD POPULATION DATA
+	//CREATE PERSON AND HOUSEHOLD TABLES IN INPUT DATABASE BY USING SQL COMMANDS ON UKMOD POPULATION DATA
 	//donorTables set to true means that this method is being used to create donor population tables, 
 	//as opposed to the initial population for simulation
 	private static void parse(String inputFileLocation, String inputFileName, Connection conn, Country country, int startyear) {

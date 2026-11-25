@@ -4,7 +4,7 @@ public enum Country {
 	
 	UK("United Kingdom", 15);			//United Kingdom of Great Britain and Northern Ireland
 	
-	//EUROMOD country codes for all EU countries
+	//UKMOD country codes for all EU countries
 //	Country	dct
 //	AT	1
 //	BE	2
@@ -36,12 +36,12 @@ public enum Country {
 
 	
 	private final String countryName;
-	private final int euromodCountryCode;		//The number that EUROMOD uses to represent a country (the variable 'dct')
+	private final int ukmodCountryCode;		//The number that UKMOD uses to represent a country (the variable 'dct')
 	
-	private Country(String countryName, int euromodCountryCode)
+	private Country(String countryName, int ukmodCountryCode)
     {
         this.countryName = countryName;
-        this.euromodCountryCode = euromodCountryCode;
+        this.ukmodCountryCode = ukmodCountryCode;
     }
 
     public String getCountryName()
@@ -59,10 +59,10 @@ public enum Country {
     }
     
     /**
-     * @return the number representing the EUROMOD variable dct, the country variable in EUROMOD
+     * @return the number representing the UKMOD variable dct, the country variable in UKMOD
      */
-    public int getEuromodCountryCode() {
-    	return euromodCountryCode;
+    public int getUKMODCountryCode() {
+        return ukmodCountryCode;
     }
     
 }

@@ -424,7 +424,7 @@ graph drop _all
 restore
 
 
-* Marital status 
+* Partnership status
 preserve
 
 collapse (mean) dchpd pred_dchpd* [aw = dwt], by(dcpst stm)

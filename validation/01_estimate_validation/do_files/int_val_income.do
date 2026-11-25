@@ -213,7 +213,7 @@ restore
 graph drop _all		
 	
 	
-* Marital status 
+* Partnership status
 preserve
 	
 collapse (mean) receives_ypncp pred_receives_ypncp  [aw = dwt], by(dcpst stm)
@@ -460,7 +460,7 @@ restore
 graph drop _all		
 	
 	
-* Marital status 
+* Partnership status
 preserve
 	
 collapse (mean) receives_ypncp pred_receives_ypncp  [aw = dwt], by(dcpst stm)
@@ -1014,7 +1014,7 @@ restore
 graph drop _all		
 	
 	
-* Marital status 
+* Partnership status
 preserve
 	
 collapse (mean) receives_ypnoab pred_receives_ypnoab  [aw = dwt], by(dcpst stm)

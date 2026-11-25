@@ -212,7 +212,7 @@ graph drop _all
 restore
 
 
-* Marital status 
+* Partnership status
 preserve
 
 collapse (mean) ded pred_ded* [aw = dwt], by(dcpst stm)
@@ -460,7 +460,7 @@ graph drop _all
 restore
 
 
-* Marital status 
+* Partnership status
 preserve
 
 collapse (mean) der pred_der* [aw = dwt], by(dcpst stm)

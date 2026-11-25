@@ -2,7 +2,10 @@ package simpaths.model.enums;
 
 public enum TimeVaryingRate {
 
-    RealSavingReturns,
+    RealSavingReturn,
+    RealPensionReturn,
+    RealHousingReturn,
+    RealMortgageRate,
     RealDebtCostLow,
     RealDebtCostHigh;
 }

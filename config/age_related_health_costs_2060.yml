@@ -8,7 +8,7 @@ maxNumberOfRuns: 1
 executeWithGui: false
 randomSeed: 606
 startYear: 2019
-endYear: 2029
+endYear: 2060
 popSize: 25000
 
 model_args:

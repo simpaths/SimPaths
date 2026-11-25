@@ -148,6 +148,7 @@ public class OutputReadme {
         out.println("| Alignment: fertility | " + onOff(model.isAlignFertility()) + " |");
         out.println("| Alignment: cohabitation | " + onOff(model.isAlignCohabitation()) + " |");
         out.println("| Alignment: in school | " + onOff(model.isAlignInSchool()) + " |");
+        out.println("| Alignment: retirement | " + onOff(model.isAlignRetirement()) + " |");
         out.println("| Alignment: employment | " + onOff(model.isAlignEmployment()) + " |");
         out.println();
         out.println("Diagnostics for the alignment routines that ran are in `AlignmentStatistics.csv`,");
@@ -165,7 +166,7 @@ public class OutputReadme {
 
         describe(out, collector.isPersistWealthIncomeStatistics(), "WealthIncomeStatistics.csv", "one row per year",
                 "Income and wealth. Gini coefficients for market and equivalised disposable income, "
-                        + "income percentiles, median equivalised disposable income and the S-Index, plus "
+                        + "income percentiles, median equivalised disposable income, plus "
                         + "labour, investment and pension income, investment losses, disposable income gross "
                         + "of losses, and wealth by age band.");
 

@@ -20,6 +20,7 @@ import simpaths.data.statistics.HealthStatistics;
 import simpaths.data.statistics.WellbeingByGender;
 import simpaths.model.BenefitUnit;
 import simpaths.model.SimPathsModel;
+import simpaths.model.enums.Les_c4;
 import simpaths.model.enums.Quintiles;
 // import plug-in packages
 import org.apache.commons.math3.util.Pair;
@@ -42,6 +43,7 @@ import simpaths.data.Parameters;
 import simpaths.data.statistics.AlignmentStatistics;
 import simpaths.data.statistics.WealthIncomeStatistics;
 import simpaths.data.statistics.DemographicStatistics;
+import simpaths.data.statistics.WealthValidationStats;
 import simpaths.model.Person;
 import simpaths.model.enums.Region;
 
@@ -82,6 +84,8 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
     @GUIparameter(description="Toggle to turn export to .csv files on/off")
     private boolean exportToCSV = true;
 
+    private boolean persistWealthValidationStatistics = false;
+
     @GUIparameter(description="Toggle to turn persistence of statistics on/off")
     private boolean persistWealthIncomeStatistics = true;
 
@@ -106,6 +110,8 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
     private int ordering = Parameters.COLLECTOR_ORDERING;
 
     private SimPathsModel model;
+
+    private WealthValidationStats wealthValidationStats;
 
     private WealthIncomeStatistics wealthIncomeStats;
 
@@ -139,13 +145,17 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
 
     private Ydses_c5 yHhQuintilesMonthC5;
 
-    private GrossLabourIncome grossLabourIncome;
+    private GrossLabourForceEarnings grossLabourForceEarnings;
+
+    private GrossEmploymentEarnings grossEmploymentEarnings;
 
     private DataExport exportPersons;
 
     private DataExport exportBenefitUnits;
 
     private DataExport exportHouseholds;
+
+    private DataExport exportWealthValidationStatistics;
 
     private DataExport exportWealthIncomeStatistics;
 
@@ -184,6 +194,7 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
         DumpPersons,
         DumpBenefitUnits,
         DumpHouseholds,
+        DumpWealthValidationStatistics,
         DumpWealthIncomeStatistics,
         DumpDemographicStatistics,
         DumpAlignmentStatistics,
@@ -224,6 +235,14 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
         case DumpHouseholds:
             try {
                 exportHouseholds.export();
+            } catch (Exception e) {
+                log.error(e.getMessage());
+            }
+            break;
+        case DumpWealthValidationStatistics:
+            wealthValidationStats.update(model);
+            try {
+                exportWealthValidationStatistics.export();
             } catch (Exception e) {
                 log.error(e.getMessage());
             }
@@ -318,6 +337,7 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
 
         model = (SimPathsModel) getManager();
 
+        wealthValidationStats = new WealthValidationStats();
         wealthIncomeStats = new WealthIncomeStatistics();
         demographicStats = new DemographicStatistics();
         alignmentStats = new AlignmentStatistics();
@@ -348,6 +368,8 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
             exportBenefitUnits = new DataExport(model.getBenefitUnits(), exportToDatabase, exportToCSV);
         if (persistHouseholds)
             exportHouseholds = new DataExport(model.getHouseholds(), exportToDatabase, exportToCSV);
+        if (persistWealthValidationStatistics)
+            exportWealthValidationStatistics = new DataExport(List.of(wealthValidationStats), exportToDatabase, exportToCSV);
         if (persistWealthIncomeStatistics)
             exportWealthIncomeStatistics = new DataExport(List.of(wealthIncomeStats), exportToDatabase, exportToCSV);
         if (persistDemographicStatistics)
@@ -371,9 +393,8 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
         }
 
         yHhQuintilesMonthC5 = new Ydses_c5();
-        grossLabourIncome = new GrossLabourIncome();
-
-
+        grossLabourForceEarnings = new GrossLabourForceEarnings();
+        grossEmploymentEarnings = new GrossEmploymentEarnings();
     }
 
     /**
@@ -411,6 +432,10 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
 //		getEngine().getEventQueue().scheduleOnce(new SingleTargetEvent(this, Processes.CalculateEquivalisedHouseholdDisposableIncome), model.getEndYear(), -2);
         if (calculateGiniCoefficients) {
             getEngine().getEventQueue().scheduleRepeat(new SingleTargetEvent(this, Processes.CalculateGiniCoefficients), model.getStartYear() + dataDumpStartTime, ordering, dataDumpTimePeriod);
+        }
+
+        if (persistWealthValidationStatistics) {
+            getEngine().getEventQueue().scheduleRepeat(new SingleTargetEvent(this, Processes.DumpWealthValidationStatistics), model.getStartYear() + dataDumpStartTime, ordering, dataDumpTimePeriod);
         }
 
         if (persistWealthIncomeStatistics) {
@@ -513,7 +538,7 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
     //	Inner classes for data collection
     // ---------------------------------------------------------------------
 
-    private class GrossLabourIncome {
+    private class GrossLabourForceEarnings {
 
         final SimPathsModel model = (SimPathsModel) getManager();
 
@@ -522,26 +547,43 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
             var income_cs = new CrossSection<>(filtered, Person::getCovidYLabGross);
             var income_stats = new Stats(income_cs.get()).descrStats();
 
-            wealthIncomeStats.setYLabP20(income_stats.getPercentile(20.0));
-            wealthIncomeStats.setYLabP40(income_stats.getPercentile(40.0));
-            wealthIncomeStats.setYLabP60(income_stats.getPercentile(60.0));
-            wealthIncomeStats.setYLabP80(income_stats.getPercentile(80.0));
+            wealthIncomeStats.setLabFceEarningsP20(income_stats.getPercentile(20.0));
+            wealthIncomeStats.setLabFceEarningsP40(income_stats.getPercentile(40.0));
+            wealthIncomeStats.setLabFceEarningsP60(income_stats.getPercentile(60.0));
+            wealthIncomeStats.setLabFceEarningsP80(income_stats.getPercentile(80.0));
 
             for (Person person : model.getPersons()) {
                 double covidModuleGrossLabourIncomeBaseline = person.getCovidYLabGross();
-                if (covidModuleGrossLabourIncomeBaseline <= wealthIncomeStats.getYLabP20()) {
+                if (covidModuleGrossLabourIncomeBaseline <= wealthIncomeStats.getLabFceEarningsP20()) {
                     person.setCovidYLabGrossXt5(Quintiles.Q1);
-                } else if (covidModuleGrossLabourIncomeBaseline <= wealthIncomeStats.getYLabP40()) {
+                } else if (covidModuleGrossLabourIncomeBaseline <= wealthIncomeStats.getLabFceEarningsP40()) {
                     person.setCovidYLabGrossXt5(Quintiles.Q2);
-                } else if (covidModuleGrossLabourIncomeBaseline <= wealthIncomeStats.getYLabP60()) {
+                } else if (covidModuleGrossLabourIncomeBaseline <= wealthIncomeStats.getLabFceEarningsP60()) {
                     person.setCovidYLabGrossXt5(Quintiles.Q3);
-                } else if (covidModuleGrossLabourIncomeBaseline <= wealthIncomeStats.getYLabP80()) {
+                } else if (covidModuleGrossLabourIncomeBaseline <= wealthIncomeStats.getLabFceEarningsP80()) {
                     person.setCovidYLabGrossXt5(Quintiles.Q4);
                 } else {
                     person.setCovidYLabGrossXt5(Quintiles.Q5);
                 }
             }
 
+        }
+    }
+
+    private class GrossEmploymentEarnings {
+
+        final SimPathsModel model = (SimPathsModel) getManager();
+
+        public void update() {
+            var filtered = new FilteredCollection<>(model::getPersons, Filters.employment(Les_c4.EmployedOrSelfEmployed));
+            //var income_cs = new CrossSection<>(filtered, Person::getCovidYLabGross);
+            var income_cs = new CrossSection<>(filtered, Person::getGrossEarningsYearly);
+            var income_stats = new Stats(income_cs.get()).descrStats();
+
+            wealthIncomeStats.setEmployedEarningsP20(income_stats.getPercentile(20.0));
+            wealthIncomeStats.setEmployedEarningsP40(income_stats.getPercentile(40.0));
+            wealthIncomeStats.setEmployedEarningsP60(income_stats.getPercentile(60.0));
+            wealthIncomeStats.setEmployedEarningsP80(income_stats.getPercentile(80.0));
         }
     }
 
@@ -557,14 +599,24 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
         private boolean initialDistributionCalculated;
 
         public void update() {
-            //Ydses_c5
-            var hh_income_cs = new CrossSection<>(model::getBenefitUnits, BenefitUnit::getI_yNonBenHhGrossAsinhNoNull);
-            var hh_income_stats = new Stats(hh_income_cs.get()).descrStats();
 
-            wealthIncomeStats.setYHhQuintilesC5P20(hh_income_stats.getPercentile(20.0));
-            wealthIncomeStats.setYHhQuintilesC5P40(hh_income_stats.getPercentile(40.0));
-            wealthIncomeStats.setYHhQuintilesC5P60(hh_income_stats.getPercentile(60.0));
-            wealthIncomeStats.setYHhQuintilesC5P80(hh_income_stats.getPercentile(80.0));
+            List<Double> adultIncomes = new ArrayList<>();
+            for (BenefitUnit unit : model.getBenefitUnits()) {
+                double income = unit.getI_yNonBenHhGrossAsinhNoNull();
+                if (unit.getMale() != null) adultIncomes.add(income);
+                if (unit.getFemale() != null) adultIncomes.add(income);
+            }
+            adultIncomes.sort(Double::compare);
+            double[] cutoffs = new double[4];
+            for (int i = 0; i < cutoffs.length; i++) {
+                cutoffs[i] = adultIncomes.isEmpty() ? Double.NaN :
+                        adultIncomes.get((int) Math.ceil(adultIncomes.size() * (i + 1.0) / 5.0) - 1);
+            }
+
+            wealthIncomeStats.setYHhQuintilesC5P20(cutoffs[0]);
+            wealthIncomeStats.setYHhQuintilesC5P40(cutoffs[1]);
+            wealthIncomeStats.setYHhQuintilesC5P60(cutoffs[2]);
+            wealthIncomeStats.setYHhQuintilesC5P80(cutoffs[3]);
 
             if (initialDistributionCalculated) {
                 for (BenefitUnit benefitUnit : model.getBenefitUnits()) {
@@ -605,8 +657,8 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
             //Filter out people with non-finite or negative gross earnings
             Map<Person, Double> validPersonalGrossEarningsMap = new LinkedHashMap<Person, Double>();
             for(Person person: model.getPersons()) {
-                Double grossEarnings = person.getGrossEarningsWeekly();
-                if(grossEarnings != null && Double.isFinite(grossEarnings) && grossEarnings >= 0.) {
+                double grossEarnings = person.getEarningsWeekly();
+                if (grossEarnings >= 0.) {
                     validPersonalGrossEarningsMap.put(person, grossEarnings);
                 }
             }
@@ -850,7 +902,8 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
 
     private void calculateGrossIncome() {
         yHhQuintilesMonthC5.update();
-        grossLabourIncome.update();
+        grossLabourForceEarnings.update();
+        grossEmploymentEarnings.update();
     }
 
     // ---------------------------------------------------------------------
@@ -919,6 +972,14 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
 
     public void setExportToCSV(boolean exportToCSV) {
         this.exportToCSV = exportToCSV;
+    }
+
+    public boolean isPersistWealthValidationStatistics() {
+        return persistWealthValidationStatistics;
+    }
+
+    public void setPersistWealthValidationStatistics(boolean val) {
+        persistWealthValidationStatistics = val;
     }
 
     public boolean isPersistWealthIncomeStatistics() {

@@ -153,7 +153,7 @@ public class DonorTaxImputation {
         //------------------------------------------------------------
         // The candidate pool is organised in increasing order of original income
         // ordering is controlled by database query in SimPathsModel.populateTaxdbReferences
-        // normalised income is monthly in BASE_PRICE_YEAR prices (same as EUROMOD)
+        // normalised income is monthly in BASE_PRICE_YEAR prices (same as UKMOD)
         // Search here uses the golden search algorithm
         targetNormalisedOriginalIncome = Parameters.normaliseWeeklyIncome(keys.getPriceYear(), keys.getOriginalIncomePerWeek());
         int lowerInd, upperInd, testInd;
@@ -390,9 +390,9 @@ public class DonorTaxImputation {
         Integer fromYear = null;
         int fromYear0, fromYear1 = 0;
         int ii = 0;
-        Iterator<Integer> iter = Parameters.EUROMODpolicyScheduleSystemYearMap.keySet().iterator();
-        // this code works because the rows of Parameters.EUROMODpolicyScheduleSystemYearMap are in ascending order by fromYear
-        while (ii < Parameters.EUROMODpolicyScheduleSystemYearMap.size()) {
+        Iterator<Integer> iter = Parameters.UKMODpolicyScheduleSystemYearMap.keySet().iterator();
+        // this code works because the rows of Parameters.UKMODpolicyScheduleSystemYearMap are in ascending order by fromYear
+        while (ii < Parameters.UKMODpolicyScheduleSystemYearMap.size()) {
 
             fromYear0 = fromYear1;
             fromYear1 = iter.next();
@@ -409,7 +409,7 @@ public class DonorTaxImputation {
         if (fromYear == null)
             fromYear = fromYear1;
 
-        return Parameters.EUROMODpolicyScheduleSystemYearMap.get(fromYear).getValue();
+        return Parameters.UKMODpolicyScheduleSystemYearMap.get(fromYear).getValue();
     }
 
     private Integer getPoolSize(List<Integer> pool) {

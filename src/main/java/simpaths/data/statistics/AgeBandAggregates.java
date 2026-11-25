@@ -22,7 +22,7 @@ import simpaths.model.enums.Indicator;
  */
 public class AgeBandAggregates {
 
-    public final double[] prMarr = {0.,0.,0.};          // share cohabiting
+    public final double[] prPartnered = {0.,0.,0.};     // share in a partnership
     public final double[] avkids = {0.,0.,0.};          // average dependent children
     public final double[] health = {0.,0.,0.};          // average self-rated health
     public final double[] prDisa = {0.,0.,0.};          // share with long-term disability
@@ -44,7 +44,7 @@ public class AgeBandAggregates {
         var persons = supplier.get();
         AgeBandAggregates agg = new AgeBandAggregates();
 
-        double[] prMarr = agg.prMarr;
+        double[] prPartnered = agg.prPartnered;
         double[] avkids = agg.avkids;
         double[] health = agg.health;
         double[] prDisa = agg.prDisa;
@@ -72,7 +72,7 @@ public class AgeBandAggregates {
 
                 double es = person.getBenefitUnit().getEquivalisedWeight();
 
-                prMarr[ii] += person.getCohabiting();
+                prPartnered[ii] += person.getCohabiting();
                 avkids[ii] += person.getBenefitUnit().getNumberChildrenAll();
                 health[ii] += person.getHealthSelfRatedValue();
                 prDisa[ii] += (Indicator.True.equals(person.getHealthDsblLongtermFlag()))? 1.0: 0.0;
@@ -104,7 +104,7 @@ public class AgeBandAggregates {
 
             if (popula[ii]>0) {
 
-                prMarr[ii] /= popula[ii];
+                prPartnered[ii] /= popula[ii];
                 avkids[ii] /= popula[ii];
                 health[ii] /= popula[ii];
                 prDisa[ii] /= popula[ii];

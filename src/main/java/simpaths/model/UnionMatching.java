@@ -142,8 +142,8 @@ public class UnionMatching {
             if (!male.getRegion().equals(female.getRegion()))
                 female.setRegion(male.getRegion());
 
-            male.setDemPartnerNYear(0); //Set years in partnership to 0
-            female.setDemPartnerNYear(0);
+            male.setDemPartnerNYear(1); //First year in partnership
+            female.setDemPartnerNYear(1);
 
             //Update household
             male.setupNewBenefitUnit(female, true);        //All the lines below are executed within the setupNewHome() method for both male and female.  Note need to have partner reference before calling setupNewHome!

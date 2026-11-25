@@ -17,14 +17,14 @@ import static simpaths.data.Parameters.EMPLOYMENT_ALIGNMENT_END_YEAR;
 //import microsim.statistics.ILongSource;
 
 
-//Significantly simplified LabourMarket module. Should just contain simple labour supply for now and matching with euromod donor population.
+//Significantly simplified LabourMarket module. Should just contain simple labour supply for now and matching with ukmod donor population.
 public class LabourMarket {
 
     private final SimPathsModel model;
 
 //	private final SimPathsObserver observer; //Not used but maybe we want to graph labour supply and earnings etc. in the observer
 
-    private String EUROMODpolicyNameForThisYear;
+    private String UKMODpolicyNameForThisYear;
 
     private LinkedHashMap<Region, Set<BenefitUnit>> benefitUnitsByRegion; //Don't think we care about regions, but maybe benefitUnits are matched by region?
 
@@ -47,7 +47,7 @@ public class LabourMarket {
         model = (SimPathsModel) SimulationEngine.getInstance().getManager(SimPathsModel.class.getCanonicalName());
 //		observer = (SimPathsObserver) SimulationEngine.getInstance().getManager(SimPathsObserver.class.getCanonicalName());	//To allow intra-time-step updates of convergence plots
         this.benefitUnits = benefitUnits;
-        EUROMODpolicyNameForThisYear = Parameters.getEUROMODpolicyForThisYear(model.getYear());
+        UKMODpolicyNameForThisYear = Parameters.getUKMODpolicyForThisYear(model.getYear());
 
         benefitUnitsByRegion = new LinkedHashMap<Region, Set<BenefitUnit>>();		//For use in labour market module
         benefitUnitsAllRegions = new LinkedHashSet<>();
@@ -80,7 +80,6 @@ public class LabourMarket {
             benefitUnitsCovid19Update.clear();
 
             for (BenefitUnit benefitUnit : benefitUnits) {
-                benefitUnit.updateNonLabourIncome();
                 if (benefitUnit.getAtRiskOfWork()) {
                     benefitUnitsCovid19Update.add(benefitUnit); // Put benefit units at risk of work in a set to update. Could use the same set as structural model, but seems cleaner to keep the two separate
                 } else {
@@ -97,7 +96,7 @@ public class LabourMarket {
                 // Update fields of benefit units entering Covid-19 module:
                 benefitUnit.resetLabourStates(); // Update potential earnings which are then used to calculate gross income in the Covid-19 module
 
-                // TODO: At the end of the year, having saved monthly states and corresponding gross incomes, sample one at random that will be the "yearly" value. This recreates the way in which FRS data underlying EUROMOD is sampled.
+                // TODO: At the end of the year, having saved monthly states and corresponding gross incomes, sample one at random that will be the "yearly" value. This recreates the way in which FRS data underlying UKMOD is sampled.
                 /*
                 Prepare simulated objects when the Covid-19 module runs for the first time (first month of the first year - April 2020)
                 In the simulation, there is no distinction between employed and self-employed individuals.
@@ -118,8 +117,8 @@ public class LabourMarket {
                         male.initialise_les_c6_from_c4();
                         female.initialise_les_c6_from_c4();
 
-                        boolean setMaleSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(male, Person.DoublesVariables.class));
-                        boolean setFemaleSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(female, Person.DoublesVariables.class));
+                        boolean setMaleSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(male, Person.Variables.class));
+                        boolean setFemaleSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(female, Person.Variables.class));
                         if (setMaleSelfEmployed && male.getLabC4().equals(Les_c4.EmployedOrSelfEmployed)) {
                             male.setLabC7Covid(Les_c7_covid.SelfEmployed);
                         }
@@ -130,7 +129,7 @@ public class LabourMarket {
                         Person male = benefitUnit.getMale();
                         male.initialise_les_c6_from_c4();
                         personsInBenefitUnit.add(male);
-                        boolean setSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(male, Person.DoublesVariables.class));
+                        boolean setSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(male, Person.Variables.class));
                         if (setSelfEmployed && male.getLabC4().equals(Les_c4.EmployedOrSelfEmployed)) {
                             male.setLabC7Covid(Les_c7_covid.SelfEmployed);
                         }
@@ -138,7 +137,7 @@ public class LabourMarket {
                         Person female = benefitUnit.getFemale();
                         female.initialise_les_c6_from_c4();
                         personsInBenefitUnit.add(female);
-                        boolean setSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(female, Person.DoublesVariables.class));
+                        boolean setSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(female, Person.Variables.class));
                         if (setSelfEmployed && female.getLabC4().equals(Les_c4.EmployedOrSelfEmployed)) {
                             female.setLabC7Covid(Les_c7_covid.SelfEmployed);
                         }
@@ -158,14 +157,14 @@ public class LabourMarket {
                         personsInBenefitUnit.add(female);
                         if (male != null && male.getLabC7Covid() == null) {
                             male.initialise_les_c6_from_c4();
-                            boolean setMaleSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(male, Person.DoublesVariables.class));
+                            boolean setMaleSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(male, Person.Variables.class));
                             if (setMaleSelfEmployed && male.getLabC4().equals(Les_c4.EmployedOrSelfEmployed)) {
                                 male.setLabC7Covid(Les_c7_covid.SelfEmployed);
                             }
                         }
                         if (female != null && female.getLabC7Covid() == null) {
                             female.initialise_les_c6_from_c4();
-                            boolean setFemaleSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(female, Person.DoublesVariables.class));
+                            boolean setFemaleSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(female, Person.Variables.class));
                             if (setFemaleSelfEmployed && female.getLabC4().equals(Les_c4.EmployedOrSelfEmployed)) {
                                 female.setLabC7Covid(Les_c7_covid.SelfEmployed);
                             }
@@ -175,7 +174,7 @@ public class LabourMarket {
                         personsInBenefitUnit.add(male);
                         if (male != null && male.getLabC7Covid() == null) {
                             male.initialise_les_c6_from_c4();
-                            boolean setSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(male, Person.DoublesVariables.class));
+                            boolean setSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(male, Person.Variables.class));
                             if (setSelfEmployed && male.getLabC4().equals(Les_c4.EmployedOrSelfEmployed)) {
                                 male.setLabC7Covid(Les_c7_covid.SelfEmployed);
                             }
@@ -185,7 +184,7 @@ public class LabourMarket {
                         personsInBenefitUnit.add(female);
                         if (female != null && female.getLabC7Covid() == null) {
                             female.initialise_les_c6_from_c4();
-                            boolean setSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(female, Person.DoublesVariables.class));
+                            boolean setSelfEmployed = (labourInnov.nextDouble() < Parameters.getRegC19LS_SE().getProbability(female, Person.Variables.class));
                             if (setSelfEmployed && female.getLabC4().equals(Les_c4.EmployedOrSelfEmployed)) {
                                 female.setLabC7Covid(Les_c7_covid.SelfEmployed);
                             }
@@ -200,7 +199,7 @@ public class LabourMarket {
 
                 /*
                 In the reduced form the transitions depend on regressions. Different regression is applied for different past states: employed, self-employed, not-employed, furloughed.
-                We store all monthly values, and at the end of the year choose one value at random to replicate sampling design of FRS and EUROMOD. But labour market states and incomes have to be updated from month to month first, as next month's state depends on the previous month.
+                We store all monthly values, and at the end of the year choose one value at random to replicate sampling design of FRS and UKMOD. But labour market states and incomes have to be updated from month to month first, as next month's state depends on the previous month.
                 updateMonthlyLabourSupplyCovid19() method predicts monthly transition, work hours, gross and disposable income and adds such triplet to an array list keeping track of monthly values.
                  */
                 for (BenefitUnit benefitUnit : benefitUnitsCovid19Update) {
@@ -219,7 +218,7 @@ public class LabourMarket {
         } else {
             // Otherwise, use the default model of labour supply
 
-            EUROMODpolicyNameForThisYear = Parameters.getEUROMODpolicyForThisYear(year);    //Update EUROMOD policy to apply to this year
+            UKMODpolicyNameForThisYear = Parameters.getUKMODpolicyForThisYear(year);    //Update UKMOD policy to apply to this year
 
             for (Region region : Parameters.getCountryRegions()) {
                 benefitUnitsByRegion.get(region).clear();
@@ -231,7 +230,6 @@ public class LabourMarket {
                     benefitUnitsByRegion.get(benefitUnit.getRegion()).add(benefitUnit);        //This is the collection of benefitUnits that will enter the labour market
                     benefitUnitsAllRegions.add(benefitUnit);
                 } else {
-                    benefitUnit.updateNonLabourIncome();
                     benefitUnit.updateDisposableIncomeIfNotAtRiskOfWork();
                 }
             }
@@ -260,6 +258,9 @@ public class LabourMarket {
             //Update Labour Supply
             benefitUnitsAllRegions.parallelStream()
                     .forEach(BenefitUnit::updateLabourSupplyAndIncome);
+//            for (BenefitUnit benefitUnit : benefitUnitsAllRegions) {
+//                benefitUnit.updateLabourSupplyAndIncome();
+//            }
 
             Map<Education, Double> potentialHourlyEarningsByEdu = new LinkedHashMap<Education, Double>();
             Map<Education, Integer> countByEdu = new LinkedHashMap<Education, Integer>();
@@ -312,13 +313,13 @@ public class LabourMarket {
             if (person != null && person.getCovidYLabGrossXt5() == null) {
                 double covidModuleGrossLabourIncomeBaseline = person.getCovidYLabGross();
                 WealthIncomeStatistics wealthIncomeStats = ((SimPathsCollector) SimulationEngine.getInstance().getManager(SimPathsCollector.class.getCanonicalName())).getWealthIncomeStats();
-                if (covidModuleGrossLabourIncomeBaseline <= wealthIncomeStats.getYLabP20()) {
+                if (covidModuleGrossLabourIncomeBaseline <= wealthIncomeStats.getLabFceEarningsP20()) {
                     person.setCovidYLabGrossXt5(Quintiles.Q1);
-                } else if (covidModuleGrossLabourIncomeBaseline <= wealthIncomeStats.getYLabP40()) {
+                } else if (covidModuleGrossLabourIncomeBaseline <= wealthIncomeStats.getLabFceEarningsP40()) {
                     person.setCovidYLabGrossXt5(Quintiles.Q2);
-                } else if (covidModuleGrossLabourIncomeBaseline <= wealthIncomeStats.getYLabP60()) {
+                } else if (covidModuleGrossLabourIncomeBaseline <= wealthIncomeStats.getLabFceEarningsP60()) {
                     person.setCovidYLabGrossXt5(Quintiles.Q3);
-                } else if (covidModuleGrossLabourIncomeBaseline <= wealthIncomeStats.getYLabP80()) {
+                } else if (covidModuleGrossLabourIncomeBaseline <= wealthIncomeStats.getLabFceEarningsP80()) {
                     person.setCovidYLabGrossXt5(Quintiles.Q4);
                 } else {
                     person.setCovidYLabGrossXt5(Quintiles.Q5);
@@ -366,8 +367,8 @@ public class LabourMarket {
     //-------------------------------------------------------------------------
 
 
-    public String getEUROMODpolicyNameForThisYear() {
-        return EUROMODpolicyNameForThisYear;
+    public String getUKMODpolicyNameForThisYear() {
+        return UKMODpolicyNameForThisYear;
     }
 
     public int getCovid19TransitionsMonth() {

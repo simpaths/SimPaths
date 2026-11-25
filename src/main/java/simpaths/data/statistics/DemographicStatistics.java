@@ -23,15 +23,15 @@ public class DemographicStatistics {
     @Id
     private PanelEntityKey key = new PanelEntityKey(1L);
 
-    //population shares in cohabiting relationships
-    @Column(name = "pr_married_18_29")
-    private double demMarried18to29Share;
+    //population shares in partnerships
+    @Column(name = "pr_partnered_18_29")
+    private double demPartnered18to29Share;
 
-    @Column(name = "pr_married_30_54")
-    private double demMarried30to54Share;
+    @Column(name = "pr_partnered_30_54")
+    private double demPartnered30to54Share;
 
-    @Column(name = "pr_married_55_74")
-    private double demMarried55to74Share;
+    @Column(name = "pr_partnered_55_74")
+    private double demPartnered55to74Share;
 
     //average dependent children
     @Column(name = "avkids_18_29")
@@ -77,28 +77,28 @@ public class DemographicStatistics {
         this.demPop55to74N = demPop55to74N;
     }
 
-    public double getPrMarried18to29() {
-        return demMarried18to29Share;
+    public double getPrPartnered18to29() {
+        return demPartnered18to29Share;
     }
 
-    public void setPrMarried18to29(double demMarried18to29Share) {
-        this.demMarried18to29Share = demMarried18to29Share;
+    public void setPrPartnered18to29(double demPartnered18to29Share) {
+        this.demPartnered18to29Share = demPartnered18to29Share;
     }
 
-    public double getPrMarried30to54() {
-        return demMarried30to54Share;
+    public double getPrPartnered30to54() {
+        return demPartnered30to54Share;
     }
 
-    public void setPrMarried30to54(double demMarried30to54Share) {
-        this.demMarried30to54Share = demMarried30to54Share;
+    public void setPrPartnered30to54(double demPartnered30to54Share) {
+        this.demPartnered30to54Share = demPartnered30to54Share;
     }
 
-    public double getPrMarried55to74() {
-        return demMarried55to74Share;
+    public double getPrPartnered55to74() {
+        return demPartnered55to74Share;
     }
 
-    public void setPrMarried55to74(double demMarried55to74Share) {
-        this.demMarried55to74Share = demMarried55to74Share;
+    public void setPrPartnered55to74(double demPartnered55to74Share) {
+        this.demPartnered55to74Share = demPartnered55to74Share;
     }
 
     public double getAvkids18to29() {
@@ -127,9 +127,9 @@ public class DemographicStatistics {
 
     public void update(AgeBandAggregates agg) {
 
-        setPrMarried18to29(agg.prMarr[0]);
-        setPrMarried30to54(agg.prMarr[1]);
-        setPrMarried55to74(agg.prMarr[2]);
+        setPrPartnered18to29(agg.prPartnered[0]);
+        setPrPartnered30to54(agg.prPartnered[1]);
+        setPrPartnered55to74(agg.prPartnered[2]);
 
         setAvkids18to29(agg.avkids[0]);
         setAvkids30to54(agg.avkids[1]);

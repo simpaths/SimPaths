@@ -265,7 +265,7 @@ public class ScenarioTable extends JPanel implements ActionListener {
         UIManager.put("swing.boldMetal", Boolean.FALSE); 
 
         //Create and set up the window.
-//        JFrame frame = new JFrame("Select EUROMOD policies and the years they begin");
+//        JFrame frame = new JFrame("Select UKMOD policies and the years they begin");
         JFrame frame = new JFrame(title);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -280,7 +280,7 @@ public class ScenarioTable extends JPanel implements ActionListener {
 		};
         textArea.setContentType("text/html"); // let the text pane know this is what you want
 //        String text = "<html><h2 align=center style=\"font-size:120%;\">"
-//			+ "Select EUROMOD policies to include in this simulation by typing in the year a policy begins.</h2>"
+//			+ "Select UKMOD policies to include in this simulation by typing in the year a policy begins.</h2>"
 //			+ "<p align=center style=\"font-size:120%;\">Note that policies not containing a valid year entry will not be included in the simulation.<br>"
 //			+ "Additionally, please add a description of the scenario policy to store this information";
 
