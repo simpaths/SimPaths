@@ -313,12 +313,12 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
         eduReturnFlag = Indicator.False;
         wgt = mother.getWgt();			//Newborn has same weight as mother (the number of newborns will then be aligned in fertility alignment)
         healthSelfRated = Dhe.VeryGood;
-        healthWbScore0to36 = 10.;			//Set to median for under 18's as a placeholder
-        healthPsyDstrss0to12 = 0.;
         NewbornHealthDonors.Scores health = model.getNewbornHealthDonors().sample(gender, SimulationEngine.getRnd());
         healthMentalMcs = health.mcs();
         healthPhysicalPcs = health.pcs();
-        demLifeSatScore0to10 = 6.;
+        healthWbScore0to36 = health.ghq36();
+        healthPsyDstrss0to12 = health.ghq12();
+        demLifeSatScore0to10 = health.lifeSat();
         eduHighestC4 = Education.InEducation;
         demEthnC6 = mother.getDemEthnC6();
         labC4 = Les_c4.Student;				//Set lag activity status as Student, i.e. in education from birth
@@ -341,14 +341,19 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
 
     NewbornHealthDonors.Scores newbornHealthDonorScores() {
         if (demAge == null || demAge < 0 || demAge >= 16 || demMaleFlag == null
-                || !validNewbornHealthScore(healthMentalMcs) || !validNewbornHealthScore(healthPhysicalPcs)) {
+                || !validNewbornHealthScore(healthMentalMcs, 100.0)
+                || !validNewbornHealthScore(healthPhysicalPcs, 100.0)
+                || !validNewbornHealthScore(healthWbScore0to36, 36.0)
+                || !validNewbornHealthScore(healthPsyDstrss0to12, 12.0)
+                || !validNewbornHealthScore(demLifeSatScore0to10, 10.0)) {
             return null;
         }
-        return new NewbornHealthDonors.Scores(healthMentalMcs, healthPhysicalPcs);
+        return new NewbornHealthDonors.Scores(healthMentalMcs, healthPhysicalPcs,
+                healthWbScore0to36, healthPsyDstrss0to12, demLifeSatScore0to10);
     }
 
-    private static boolean validNewbornHealthScore(Double score) {
-        return score != null && Double.isFinite(score) && score >= 0.0 && score <= 100.0;
+    private static boolean validNewbornHealthScore(Double score, double maximum) {
+        return score != null && Double.isFinite(score) && score >= 0.0 && score <= maximum;
     }
 
     // a "copy constructor" for persons: used by the cloneBenefitUnit method of the SimPathsModel object
