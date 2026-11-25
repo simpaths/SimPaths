@@ -116,24 +116,25 @@ html.sp-page-validation .md-typeset li > ul { margin-top: 0.45em; }
   line-height: 1.3;
 }
 .md-typeset .funding-summary {
-  display: grid; grid-template-columns: 0.8fr 0.8fr 1.6fr;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem;
   margin: 1.9rem 0 0; padding: 0.78rem 0;
   border-top: 1px solid var(--funding-rule);
   border-bottom: 1px solid var(--funding-rule);
 }
 .md-typeset .funding-summary > div { min-width: 0; }
+.md-typeset .funding-summary > div:nth-child(2) { text-align: center; }
+.md-typeset .funding-summary > div:last-child { text-align: right; }
 .md-typeset .funding-summary dd,
 .md-typeset .funding-summary dt { margin: 0; }
 .md-typeset .funding-summary dd {
   color: var(--sp-midnight);
-  font-family: var(--md-code-font), monospace;
-  font-size: 1.05rem; font-weight: 450; letter-spacing: 0.035em; line-height: 1.2;
+  font-size: 1.05rem; font-weight: 500; letter-spacing: -0.015em; line-height: 1.2;
+  font-variant-numeric: tabular-nums;
 }
 .md-typeset .funding-summary dt {
-  margin-top: 0.22rem; color: #756e63;
-  font-family: var(--md-code-font), monospace;
-  font-size: var(--sp-meta-size); font-weight: 500; letter-spacing: 0.11em; line-height: 1.4;
-  text-transform: uppercase;
+  margin-top: 0.3rem; color: var(--funding-meta);
+  font-size: var(--sp-meta-size); font-weight: 500; line-height: 1.4;
+  text-transform: uppercase; letter-spacing: 0.035em;
 }
 .md-typeset ul.funding-list {
   list-style: none; margin: 0; padding: 0;
@@ -177,15 +178,13 @@ html.sp-page-validation .md-typeset li > ul { margin-top: 0.45em; }
 .md-typeset .funding-meta {
   display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 0.55rem;
   margin: 0; color: var(--funding-meta);
-  font-family: var(--md-code-font), monospace;
-  font-size: var(--sp-meta-size); font-weight: 450; letter-spacing: 0.045em; line-height: 1.5;
+  font-size: var(--sp-meta-size); font-weight: 450; line-height: 1.5;
 }
 .md-typeset .funding-years { font-variant-numeric: tabular-nums; }
 .md-typeset .funding-funder {
   padding: 0.08rem 0.34rem 0.1rem; background: var(--funding-label-bg);
   border: 1px solid transparent; border-radius: 2px; color: #34445a;
-  font-size: var(--sp-meta-size); font-weight: var(--sp-label-weight); letter-spacing: 0.055em; line-height: 1.35;
-  text-transform: uppercase;
+  font-size: var(--sp-meta-size); font-weight: var(--sp-label-weight); line-height: 1.35;
 }
 .md-typeset .funding-panel--past .funding-funder {
   background: transparent; border-color: var(--funding-rule); color: var(--funding-meta);
@@ -236,7 +235,6 @@ html.sp-page-validation .md-typeset li > ul { margin-top: 0.45em; }
 }
 @media screen and (max-width: 30em) {
   .md-typeset .funding-summary dd { font-size: 0.88rem; }
-  .md-typeset .funding-summary dt { letter-spacing: 0.08em; }
 }
 
 /* Research: reference paper and chronological publication list. */
