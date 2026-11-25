@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.random.RandomGenerator;
 
 final class NewbornHealthDonors {
-    record Scores(double mcs, double pcs) {}
+    record Scores(double mcs, double pcs, double ghq36, double ghq12, double lifeSat) {}
 
     private final EnumMap<Gender, List<Scores>> byGender = new EnumMap<>(Gender.class);
 
@@ -24,7 +24,7 @@ final class NewbornHealthDonors {
     Scores sample(Gender gender, RandomGenerator random) {
         List<Scores> donors = byGender.get(gender);
         if (donors == null || donors.isEmpty()) {
-            throw new IllegalStateException("No valid starting-population under-16 MCS/PCS donors for sex " + gender);
+            throw new IllegalStateException("No valid starting-population under-16 health-score donors for sex " + gender);
         }
         return donors.get(random.nextInt(donors.size()));
     }

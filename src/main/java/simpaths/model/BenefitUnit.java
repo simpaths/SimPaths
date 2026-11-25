@@ -4313,28 +4313,27 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
                 return (Parameters.isFixTimeTrend && getYear() >= Parameters.timeTrendStopsIn) ? (double) Parameters.timeTrendStopsIn - 2000 : (double) getYear() - 2000;
             }
             case couple_emp_2ft -> {
-                return (getCoupleBoolean() && (getMinWeeklyHoursWorked() >= Parameters.MIN_HOURS_FULL_TIME_EMPLOYED)) ? 1.0 : 0.0;
+                return (getCoupleBoolean() && Person.isFullTimeHours(getMinWeeklyHoursWorked())) ? 1.0 : 0.0;
             }
             case couple_emp_ftpt -> {
                 return (getCoupleBoolean() &&
-                        (getMinWeeklyHoursWorked() > 0) && (getMinWeeklyHoursWorked() < Parameters.MIN_HOURS_FULL_TIME_EMPLOYED) &&
-                        (getMaxWeeklyHoursWorked() >= Parameters.MIN_HOURS_FULL_TIME_EMPLOYED)) ? 1.0 : 0.0;
+                        Person.isPartTimeHours(getMinWeeklyHoursWorked()) &&
+                        Person.isFullTimeHours(getMaxWeeklyHoursWorked())) ? 1.0 : 0.0;
             }
             case couple_emp_2pt -> {
                 return (getCoupleBoolean() &&
-                        (getMinWeeklyHoursWorked() > 0) &&
-                        (getMaxWeeklyHoursWorked() < Parameters.MIN_HOURS_FULL_TIME_EMPLOYED)) ? 1.0 : 0.0;
+                        Person.isPartTimeHours(getMinWeeklyHoursWorked()) &&
+                        Person.isPartTimeHours(getMaxWeeklyHoursWorked())) ? 1.0 : 0.0;
             }
             case couple_emp_ftne -> {
                 return (getCoupleBoolean() &&
                         (getMinWeeklyHoursWorked() == 0) &&
-                        (getMaxWeeklyHoursWorked() >= Parameters.MIN_HOURS_FULL_TIME_EMPLOYED)) ? 1.0 : 0.0;
+                        Person.isFullTimeHours(getMaxWeeklyHoursWorked())) ? 1.0 : 0.0;
             }
             case couple_emp_ptne -> {
                 return (getCoupleBoolean() &&
                         (getMinWeeklyHoursWorked() == 0) &&
-                        (getMaxWeeklyHoursWorked() > 0) &&
-                        (getMaxWeeklyHoursWorked() < Parameters.MIN_HOURS_FULL_TIME_EMPLOYED)) ? 1.0 : 0.0;
+                        Person.isPartTimeHours(getMaxWeeklyHoursWorked())) ? 1.0 : 0.0;
             }
             case couple_emp_2ne -> {
                 return (getCoupleBoolean() && (getMaxWeeklyHoursWorked() == 0)) ? 1.0 : 0.0;
@@ -4431,12 +4430,10 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
                 return ((wealthNonPensionL1.getWealthPrptyValue() > 0.0) && (wealthNonPensionL1.getWealthMortgageDebtValue() == 0.0)) ? 1. : 0.;
             }
             case single_emp_ft -> {
-                return (!getCoupleBoolean() && (getMinWeeklyHoursWorked() >= Parameters.MIN_HOURS_FULL_TIME_EMPLOYED)) ? 1.0 : 0.0;
+                return (!getCoupleBoolean() && Person.isFullTimeHours(getMinWeeklyHoursWorked())) ? 1.0 : 0.0;
             }
             case single_emp_pt -> {
-                return (!getCoupleBoolean() &&
-                        (getMinWeeklyHoursWorked() > 0) &&
-                        (getMaxWeeklyHoursWorked() < Parameters.MIN_HOURS_FULL_TIME_EMPLOYED)) ? 1.0 : 0.0;
+                return (!getCoupleBoolean() && Person.isPartTimeHours(getMinWeeklyHoursWorked())) ? 1.0 : 0.0;
             }
             case single_emp_ne -> {
                 return (!getCoupleBoolean() && (getMaxWeeklyHoursWorked() == 0)) ? 1.0 : 0.0;
@@ -5582,12 +5579,12 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
             if (i_labHrsWork1Week == null)
                 throw new RuntimeException("reference to uninitialised labourHoursWeekly attribute of benefitUnit");
             else
-            if (i_labHrsWork1Week >= Parameters.MIN_HOURS_FULL_TIME_EMPLOYED)
+            if (Person.isFullTimeHours(i_labHrsWork1Week))
                 val = 1;
             else
                 val = 0;
             if (i_labHrsWork2Week != null)
-                if (i_labHrsWork2Week >= Parameters.MIN_HOURS_FULL_TIME_EMPLOYED)
+                if (Person.isFullTimeHours(i_labHrsWork2Week))
                     val += 1;
         } else {
 
@@ -5597,10 +5594,10 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
 
                 val = 0;
                 if (male != null)
-                    if (male.getLabourSupplyHoursWeekly() >= Parameters.MIN_HOURS_FULL_TIME_EMPLOYED)
+                    if (Person.isFullTimeHours(male.getLabourSupplyHoursWeekly()))
                         val += 1;
                 if (female != null)
-                    if (female.getLabourSupplyHoursWeekly() >= Parameters.MIN_HOURS_FULL_TIME_EMPLOYED)
+                    if (Person.isFullTimeHours(female.getLabourSupplyHoursWeekly()))
                         val += 1;
             } else
                 throw new RuntimeException("problem identifying responsible adults");
@@ -5617,12 +5614,12 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
             if (i_labHrsWork1Week == null)
                 throw new RuntimeException("reference to uninitialised labourHoursWeekly attribute of benefitUnit");
             else
-            if (i_labHrsWork1Week < Parameters.MIN_HOURS_FULL_TIME_EMPLOYED && i_labHrsWork1Week > 0)
+            if (Person.isPartTimeHours(i_labHrsWork1Week))
                 val = 1;
             else
                 val = 0;
             if (i_labHrsWork2Week != null)
-                if (i_labHrsWork2Week < Parameters.MIN_HOURS_FULL_TIME_EMPLOYED && i_labHrsWork2Week > 0)
+                if (Person.isPartTimeHours(i_labHrsWork2Week))
                     val += 1;
         } else {
 
@@ -5632,10 +5629,10 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
 
                 val = 0;
                 if (male != null)
-                    if (male.getLabourSupplyHoursWeekly() < Parameters.MIN_HOURS_FULL_TIME_EMPLOYED && male.getLabourSupplyHoursWeekly() > 0)
+                    if (Person.isPartTimeHours(male.getLabourSupplyHoursWeekly()))
                         val += 1;
                 if (female != null)
-                    if (female.getLabourSupplyHoursWeekly() < Parameters.MIN_HOURS_FULL_TIME_EMPLOYED && female.getLabourSupplyHoursWeekly() > 0)
+                    if (Person.isPartTimeHours(female.getLabourSupplyHoursWeekly()))
                         val += 1;
             } else
                 throw new RuntimeException("problem identifying responsible adults");

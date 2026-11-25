@@ -1,6 +1,7 @@
 package simpaths.model;
 
 import org.junit.jupiter.api.Test;
+import simpaths.data.Parameters;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -24,5 +25,12 @@ class FertilityRateTest {
             doReturn(2008).when(person).getYear();
             assertThrows(IllegalArgumentException.class, () -> person.getDoubleValue(Person.Variables.fertilityRate));
         }
+    }
+
+    @Test
+    void fertilityRateUsesInputSeriesAndHoldsLastValueAfterItsEnd() {
+        assertEquals(62.5, Parameters.getFertilityF1Rate(2009));
+        assertEquals(48.9, Parameters.getFertilityF1Rate(2024));
+        assertEquals(48.9, Parameters.getFertilityF1Rate(2050));
     }
 }
