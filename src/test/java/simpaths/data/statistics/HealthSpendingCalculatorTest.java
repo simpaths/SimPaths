@@ -1,14 +1,15 @@
 package simpaths.data.statistics;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import simpaths.data.HealthCostProfile;
-import simpaths.data.Parameters;
 import simpaths.model.Person;
 import simpaths.model.SimPathsModel;
 import simpaths.model.enums.Gender;
 import simpaths.model.enums.SampleExit;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,12 +19,16 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static simpaths.data.HealthCostProfileTestData.ageOnlyProfile;
 
 class HealthSpendingCalculatorTest {
 
+    @TempDir
+    Path temporaryDirectory;
+
     @Test
     void calculatesBenchmarkAndFixed2028AgeSharesAtSingleAges() throws IOException {
-        HealthCostProfile profile = new HealthCostProfile();
+        HealthCostProfile profile = ageOnlyProfile(temporaryDirectory);
         HealthSpendingCalculator calculator = new HealthSpendingCalculator(profile);
         var base = HealthSpendingCalculator.snapshot(2028,
                 List.of(person(0, 2.0), person(101, 1.0), person(102, 1.0)), true, 1.0);
@@ -58,7 +63,7 @@ class HealthSpendingCalculatorTest {
 
     @Test
     void leavesCounterfactualUnavailableWhenRunHasNo2028Snapshot() throws IOException {
-        HealthCostProfile profile = new HealthCostProfile();
+        HealthCostProfile profile = ageOnlyProfile(temporaryDirectory);
         HealthSpendingCalculator calculator = new HealthSpendingCalculator(profile);
         var later = HealthSpendingCalculator.snapshot(2029,
                 List.of(person(0, 2.0)), true, 1.0);
@@ -72,7 +77,7 @@ class HealthSpendingCalculatorTest {
 
     @Test
     void requiresPositiveBasePopulationAndCapturesItOnlyOnce() throws IOException {
-        HealthSpendingCalculator calculator = new HealthSpendingCalculator(new HealthCostProfile());
+        HealthSpendingCalculator calculator = new HealthSpendingCalculator(ageOnlyProfile(temporaryDirectory));
         var empty = HealthSpendingCalculator.snapshot(2028, List.of(), true, 1.0);
         assertThrows(IllegalArgumentException.class, () -> calculator.calculate(empty));
 
@@ -182,7 +187,7 @@ class HealthSpendingCalculatorTest {
 
     @Test
     void pricesEachSexAndActualAgeWithTheActivePopulationWeights() throws IOException {
-        var profile = new HealthCostProfile(Parameters.getAgeHealthCostProfileFile("age_by_sex_health_cost_profile.xlsx"));
+        var profile = new HealthCostProfile();
         Person male = person(32, 2.0);
         male.setDemMaleFlag(Gender.Male);
         Person female = person(32, 3.0);

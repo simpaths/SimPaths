@@ -5,13 +5,13 @@ import org.junit.jupiter.api.io.TempDir;
 import org.yaml.snakeyaml.Yaml;
 import microsim.data.db.PanelEntityKey;
 import simpaths.data.HealthCostProfile;
-import simpaths.data.Parameters;
 import simpaths.data.statistics.HealthSpendingByAge;
 import simpaths.data.statistics.HealthSpendingCalculator;
 import simpaths.data.statistics.HealthSpendingStatistics;
 import simpaths.model.Person;
 import simpaths.model.SimPathsModel;
 import simpaths.model.enums.Country;
+import simpaths.model.enums.Gender;
 import simpaths.model.enums.SampleExit;
 
 import java.io.IOException;
@@ -81,20 +81,19 @@ class HealthSpendingCollectorTest {
         assertFalse(collector.isPersistHealthSpendingStatistics());
         SimPathsMultiRun.updateParameters(collector, castArgs(config.get("collector_args")));
         assertTrue(collector.isPersistHealthSpendingStatistics());
+        assertEquals("age_by_sex_health_cost_profile.xlsx", collector.getHealthCostProfileFilename());
     }
 
     @Test
-    void yamlSelectsTheAgeBySexWorkbook() throws IOException {
+    void yamlCanOverrideTheDefaultCostWorkbook() {
         Map<String, Object> collectorArgs = new Yaml().load("""
                 persistHealthSpendingStatistics: true
-                healthCostProfileFilename: age_by_sex_health_cost_profile.xlsx
+                healthCostProfileFilename: alternative_health_cost_profile.xlsx
                 """);
         var collector = new SimPathsCollector(new SimPathsModel(Country.UK, 2021));
         SimPathsMultiRun.updateParameters(collector, collectorArgs);
         assertTrue(collector.isPersistHealthSpendingStatistics());
-        assertEquals("age_by_sex_health_cost_profile.xlsx", collector.getHealthCostProfileFilename());
-        var profile = new HealthCostProfile(Parameters.getAgeHealthCostProfileFile(collector.getHealthCostProfileFilename()));
-        assertTrue(profile.isSexSpecific());
+        assertEquals("alternative_health_cost_profile.xlsx", collector.getHealthCostProfileFilename());
     }
 
     @Test
@@ -102,10 +101,10 @@ class HealthSpendingCollectorTest {
             throws IOException, ReflectiveOperationException {
         HealthCostProfile profile = new HealthCostProfile();
         HealthSpendingCalculator calculator = new HealthSpendingCalculator(profile);
-        Person exited = person(50, 100.0);
+        Person exited = person(50, 100.0, Gender.Male);
         exited.setSampleExit(SampleExit.Death);
-        var base = populationSnapshot(2028, person(0, 2.0), person(101, 1.0),
-                person(102, 1.0), exited);
+        var base = populationSnapshot(2028, person(0, 2.0, Gender.Male), person(101, 1.0, Gender.Male),
+                person(102, 1.0, Gender.Female), exited);
         var baseResult = calculator.calculate(base);
         SimPathsCollector.validateHealthSpendingDetail(base, baseResult, profile);
 
@@ -113,41 +112,41 @@ class HealthSpendingCollectorTest {
         annual.update(baseResult);
         assertEquals(4.0, annual.getPopulationExpandedPeople());
         assertEquals(baseResult.getBenchmarkExpenditure(), annual.getBenchmarkAnnualGbp2015());
-        assertEquals(annual.getBenchmarkAnnualGbp2015(),
-                annual.getFixedAgeStructureAnnualGbp2015(), 1e-8);
-        assertEquals(0.0, annual.getAgeingEffectAnnualGbp2015(), 1e-8);
+        assertNull(annual.getFixedAgeStructureAnnualGbp2015());
+        assertNull(annual.getAgeingEffectAnnualGbp2015());
 
         HealthSpendingByAge ageRow = new HealthSpendingByAge();
-        ageRow.update(102, base.getPopulationAtAge(102), profile.cost(2028, 102),
+        ageRow.update(102, base.getPopulationAtAge(102), profile.cost(2028, 102, Gender.Female),
                 baseResult.getSpendingByAge().get(102));
         assertEquals(102, ageRow.getAgeYears());
-        assertEquals(profile.cost(2028, 101), ageRow.getCostAnnualGbp2015PerPerson());
+        assertEquals(profile.cost(2028, 101, Gender.Female), ageRow.getCostAnnualGbp2015PerPerson());
         assertEquals(baseResult.getSpendingByAge().get(102),
                 ageRow.getExpenditureAnnualGbp2015());
         Field idField = HealthSpendingByAge.class.getDeclaredField("key");
         idField.setAccessible(true);
         assertEquals(103L, ((PanelEntityKey) idField.get(ageRow)).getId());
 
-        var last = populationSnapshot(2060, person(0, 1.0), person(101, 2.0),
-                person(102, 3.0));
+        var last = populationSnapshot(2060, person(0, 1.0, Gender.Female), person(101, 2.0, Gender.Male),
+                person(102, 3.0, Gender.Female));
         var lastResult = calculator.calculate(last);
         SimPathsCollector.validateHealthSpendingDetail(last, lastResult, profile);
         assertEquals(6.0, lastResult.getTotalPopulation());
-        assertEquals(lastResult.getBenchmarkExpenditure() -
-                        lastResult.getFixedAgeExpenditure().orElseThrow(),
-                lastResult.getAgeingEffect().orElseThrow(), 1e-8);
+        double expected = profile.cost(2060, 0, Gender.Female)
+                + 2.0 * profile.cost(2060, 101, Gender.Male)
+                + 3.0 * profile.cost(2060, 101, Gender.Female);
+        assertEquals(expected, lastResult.getBenchmarkExpenditure(), 1e-8);
     }
 
     @Test
     void laterStartingRunExportsUnavailableCounterfactualAsNull() throws IOException {
         HealthCostProfile profile = new HealthCostProfile();
-        var population = populationSnapshot(2029, person(0, 1.0));
+        var population = populationSnapshot(2029, person(0, 1.0, Gender.Male));
         var result = new HealthSpendingCalculator(profile).calculate(population);
         SimPathsCollector.validateHealthSpendingDetail(population, result, profile);
 
         HealthSpendingStatistics annual = new HealthSpendingStatistics();
         annual.update(result);
-        assertEquals(profile.cost(2029, 0), annual.getBenchmarkAnnualGbp2015());
+        assertEquals(profile.cost(2029, 0, Gender.Male), annual.getBenchmarkAnnualGbp2015());
         assertNull(annual.getFixedAgeStructureAnnualGbp2015());
         assertNull(annual.getAgeingEffectAnnualGbp2015());
     }
@@ -176,6 +175,7 @@ class HealthSpendingCollectorTest {
         assertTrue(readme.contains("HealthSpendingStatistics.csv"));
         assertTrue(readme.contains("HealthSpendingByAge.csv"));
         assertTrue(readme.contains("HealthStatistics.csv"));
+        assertTrue(readme.contains("input/age_by_sex_health_cost_profile.xlsx"));
         assertTrue(readme.contains("Ages 102+ remain distinct rows but use the age-101 cost"));
         assertTrue(readme.contains("`2028` labels 2028-29"));
         assertTrue(readme.contains("annual, not equivalised, and in real-2015 pounds"));
@@ -189,13 +189,14 @@ class HealthSpendingCollectorTest {
         when(model.getPersons()).thenReturn(persons);
         when(model.isUseWeights()).thenReturn(true);
         when(model.getScalingFactor()).thenReturn(1.0);
-        return HealthSpendingCalculator.snapshot(year, model);
+        return HealthSpendingCalculator.snapshot(year, model, true);
     }
 
-    private static Person person(int age, double weight) {
+    private static Person person(int age, double weight, Gender gender) {
         Person person = new Person(true);
         person.setDemAge(age);
         person.setWgt(weight);
+        person.setDemMaleFlag(gender);
         return person;
     }
 

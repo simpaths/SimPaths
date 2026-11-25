@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -71,11 +70,6 @@ class HealthSpendingIntegrationTest {
         int effectCol = column(annualHeader, "ageingEffectAnnualGbp2015");
         int populationCol = column(annualHeader, "populationExpandedPeople");
 
-        double baseBenchmark = number(annual.get(2028), benchmarkCol);
-        assertClose(baseBenchmark, number(annual.get(2028), fixedCol));
-        assertClose(0.0, number(annual.get(2028), effectCol));
-        assertFalse(annual.get(2029)[fixedCol].equals("null"));
-
         List<String> ageLines = Files.readAllLines(csvDirectory.resolve("HealthSpendingByAge.csv"));
         String[] ageHeader = ageLines.get(0).split(",", -1);
         int agePopulationCol = column(ageHeader, "populationExpandedPeople");
@@ -94,6 +88,8 @@ class HealthSpendingIntegrationTest {
         }
         assertEquals(annual.keySet(), expenditureByYear.keySet());
         for (int year : annual.keySet()) {
+            assertEquals("null", annual.get(year)[fixedCol]);
+            assertEquals("null", annual.get(year)[effectCol]);
             assertClose(number(annual.get(year), benchmarkCol), expenditureByYear.get(year));
             assertClose(number(annual.get(year), populationCol), populationByYear.get(year));
         }
