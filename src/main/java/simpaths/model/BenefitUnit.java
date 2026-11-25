@@ -404,6 +404,7 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
             }
             case ReceivesBenefits -> {
                 setReceivesBenefitsFlag();
+                setReceivesBenefitsFlagUCNonUC();
             }
             case UpdateNonPensionWealth -> {
                 updateNonPensionWealth();
@@ -748,7 +749,6 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
 
     public void setReceivesBenefitsFlagUCNonUC() {
 
-        // TO DO: this will require an additional test of whether UC is received or not - for now all receive UC if any ben
         boolean receivesBenefitsFlagUC = getReceivedUC() == 1 && Parameters.UC_ROLLOUT;
         boolean receivesLegacyBenefitsFlag = !receivesBenefitsFlagUC && getReceivedLegacyBenefits() == 1;
         Occupancy occupancy = getOccupancy();
@@ -769,6 +769,10 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
             }
             default ->
                 throw new IllegalStateException("Benefit Unit with the following ID has no recognised occupancy: " + getKey().getId());
+        }
+        for (Person child : getChildren()) {
+            child.setReceivesBenefitsFlagUC(receivesBenefitsFlagUC);
+            child.setReceivesBenefitsFlagNonUC(receivesLegacyBenefitsFlag);
         }
     }
 
@@ -823,6 +827,8 @@ public class BenefitUnit implements EventListener, IDoubleSource, Weight, Compar
             calculateBUIncome();
             demDbMatchTax = evaluatedTransfers.getMatch();
             idtaxDbDonor = demDbMatchTax.getCandidateID();
+            setReceivedUC(evaluatedTransfers.getReceivedUC());
+            setReceivedLegacyBenefits(evaluatedTransfers.getReceivedLegacyBenefit());
         } else {
             throw new RuntimeException("call to evaluate disposable income on assumption of zero risk of employment where there is risk");
         }
