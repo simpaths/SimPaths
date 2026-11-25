@@ -104,11 +104,11 @@ class SiteTypographyTest(unittest.TestCase):
         self.assertTrue(weights)
         self.assertEqual(set(weights), {"450"})
 
-    def test_documentation_description_keeps_its_original_compact_scale(self):
-        rules = blocks(self.styles["04-landing-components.css"], ".md-typeset .docs-index__intro")
-        self.assertTrue(rules)
-        self.assertEqual({rule["font-size"] for rule in rules if "font-size" in rule}, {"0.72rem"})
-        self.assertEqual({rule["line-height"] for rule in rules if "line-height" in rule}, {"1.6"})
+    def test_documentation_description_uses_standard_body_typography(self):
+        self.assert_uses("04-landing-components.css", ".md-typeset .docs-index__intro",
+                         "font-size", "--sp-reading-copy-size")
+        self.assert_uses("04-landing-components.css", ".md-typeset .docs-index__intro",
+                         "line-height", "--sp-reading-line-height")
 
     def test_navigation_and_reading_flow_use_shared_rules(self):
         self.assert_uses("02-shell-navigation.css", ".md-nav__link", "font-size", "--sp-nav-size")

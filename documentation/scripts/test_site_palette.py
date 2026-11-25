@@ -142,7 +142,7 @@ class SitePaletteTest(unittest.TestCase):
 
     def test_documentation_intro_and_funding_use_neutral_body_text(self):
         self.assertEqual(self.rule("04-landing-components.css", ".md-typeset .docs-index__intro")["color"],
-                         "var(--md-default-fg-color--light)")
+                         "var(--md-default-fg-color)")
         funding = self.rule("06-page-sections.css", ".md-typeset .funding-page")
         self.assertEqual(funding["--funding-rule"], "#D2DCD5")
         self.assertEqual(funding["--funding-copy"], "#353B38")

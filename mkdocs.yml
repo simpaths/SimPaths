@@ -50,7 +50,7 @@ extra_css:
   - assets/css/01-foundation.css?v=20261125-green-restored-2
   - assets/css/02-shell-navigation.css?v=20261125-sidebar-softened-1
   - assets/css/03-content.css?v=20261125-build-cleanup-1
-  - assets/css/04-landing-components.css?v=20261125-green-restored-2
+  - assets/css/04-landing-components.css?v=20261125-docs-intro-body-2
   - assets/css/05-site-chrome.css?v=20261125-green-restored-2
   - assets/css/06-page-sections.css?v=20261125-funding-typography-4
   - assets/css/07-roadmap.css?v=20261125-green-restored-2

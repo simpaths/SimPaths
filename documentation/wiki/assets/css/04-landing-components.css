@@ -85,9 +85,9 @@
 .md-typeset .docs-index__intro {
   margin: 1.05rem 0 0;
   max-width: var(--sp-reading-measure);
-  color: var(--md-default-fg-color--light);
-  font-size: 0.72rem;
-  line-height: 1.6;
+  color: var(--md-default-fg-color);
+  font-size: var(--sp-reading-copy-size);
+  line-height: var(--sp-reading-line-height);
 }
 
 .md-typeset .docs-index__section {
