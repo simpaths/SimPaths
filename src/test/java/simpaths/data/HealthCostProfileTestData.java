@@ -12,10 +12,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
-/** Synthetic cost matrices for tests of the optional age-only format. */
+/** Cost workbooks for health-spending tests. */
 public final class HealthCostProfileTestData {
 
     private HealthCostProfileTestData() {
+    }
+
+    public static HealthCostProfile bundledAgeBySexProfile() throws IOException {
+        // Use the checked-in workbook independently of the model's shared input directory.
+        File workbook = Path.of("input", Parameters.AGE_HEALTH_COST_PROFILE_FILENAME).toFile();
+        return new HealthCostProfile(workbook);
     }
 
     public static HealthCostProfile ageOnlyProfile(Path directory) throws IOException {

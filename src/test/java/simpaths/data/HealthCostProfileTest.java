@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static simpaths.data.HealthCostProfileTestData.bundledAgeBySexProfile;
 import static simpaths.data.HealthCostProfileTestData.writeAgeOnlyWorkbook;
 
 class HealthCostProfileTest {
@@ -20,7 +21,7 @@ class HealthCostProfileTest {
 
     @Test
     void readsBothSheetsOfTheDefaultModelWorkbook() throws IOException {
-        HealthCostProfile profile = new HealthCostProfile();
+        HealthCostProfile profile = bundledAgeBySexProfile();
 
         assertEquals("age_by_sex_health_cost_profile.xlsx", Parameters.getAgeHealthCostProfileFile().getName());
         assertTrue(profile.isSexSpecific());
@@ -118,7 +119,7 @@ class HealthCostProfileTest {
 
     @Test
     void requiresSexWhenLookingUpCostsInTheDefaultWorkbook() throws IOException {
-        var profile = new HealthCostProfile();
+        var profile = bundledAgeBySexProfile();
         assertThrows(IllegalStateException.class, () -> profile.cost(2028, 0));
     }
 

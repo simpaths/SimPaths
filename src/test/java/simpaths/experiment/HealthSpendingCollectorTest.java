@@ -30,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static simpaths.data.HealthCostProfileTestData.bundledAgeBySexProfile;
 
 class HealthSpendingCollectorTest {
 
@@ -99,7 +100,7 @@ class HealthSpendingCollectorTest {
     @Test
     void annualAndAgeRowsUseOneSnapshotAndReconcileAt2028And2060()
             throws IOException, ReflectiveOperationException {
-        HealthCostProfile profile = new HealthCostProfile();
+        HealthCostProfile profile = bundledAgeBySexProfile();
         HealthSpendingCalculator calculator = new HealthSpendingCalculator(profile);
         Person exited = person(50, 100.0, Gender.Male);
         exited.setSampleExit(SampleExit.Death);
@@ -139,7 +140,7 @@ class HealthSpendingCollectorTest {
 
     @Test
     void laterStartingRunExportsUnavailableCounterfactualAsNull() throws IOException {
-        HealthCostProfile profile = new HealthCostProfile();
+        HealthCostProfile profile = bundledAgeBySexProfile();
         var population = populationSnapshot(2029, person(0, 1.0, Gender.Male));
         var result = new HealthSpendingCalculator(profile).calculate(population);
         SimPathsCollector.validateHealthSpendingDetail(population, result, profile);

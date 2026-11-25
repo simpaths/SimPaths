@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static simpaths.data.HealthCostProfileTestData.ageOnlyProfile;
+import static simpaths.data.HealthCostProfileTestData.bundledAgeBySexProfile;
 
 class HealthSpendingCalculatorTest {
 
@@ -88,7 +89,7 @@ class HealthSpendingCalculatorTest {
 
     @Test
     void rejectsUnsupportedYearEvenWithEmptyPopulation() throws IOException {
-        HealthSpendingCalculator calculator = new HealthSpendingCalculator(new HealthCostProfile());
+        HealthSpendingCalculator calculator = new HealthSpendingCalculator(bundledAgeBySexProfile());
         var unsupported = HealthSpendingCalculator.snapshot(2061, List.of(), true, 1.0);
         assertThrows(IllegalArgumentException.class, () -> calculator.calculate(unsupported));
     }
@@ -187,7 +188,7 @@ class HealthSpendingCalculatorTest {
 
     @Test
     void pricesEachSexAndActualAgeWithTheActivePopulationWeights() throws IOException {
-        var profile = new HealthCostProfile();
+        var profile = bundledAgeBySexProfile();
         Person male = person(32, 2.0);
         male.setDemMaleFlag(Gender.Male);
         Person female = person(32, 3.0);
