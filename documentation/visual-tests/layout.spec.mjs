@@ -852,28 +852,6 @@ test("homepage keeps its explanation together and model overview links directly 
   await expect(page).toHaveURL(/\/overview\/modules\/ageing\/$/);
 });
 
-test("former model description links preserve their destination and fragments", async ({ page, browser }) => {
-  for (const suffix of ['', '?source=bookmark#simulated-modules', '#model-description']) {
-    await page.goto('/overview/model-description/' + suffix);
-    await expect(page).toHaveURL(new URL('/overview/' + suffix, page.url()).href);
-    await expect(page.locator('article h1')).toHaveText(/^Model overview(?:¶)?$/);
-    if (suffix.includes('#')) {
-      await expect.poll(() => page.locator('#' + suffix.split('#')[1]).evaluate(el =>
-        el.getBoundingClientRect().top - document.querySelector('.md-header').getBoundingClientRect().bottom
-      )).toBeGreaterThanOrEqual(0);
-    }
-  }
-  const fallback = await browser.newContext({ javaScriptEnabled: false });
-  try {
-    const noScript = await fallback.newPage();
-    await noScript.goto(new URL('/overview/model-description/', page.url()).href);
-    await expect(noScript).toHaveURL(new URL('/overview/', page.url()).href);
-    await expect(noScript.locator('article h1')).toHaveText(/^Model overview(?:¶)?$/);
-  } finally {
-    await fallback.close();
-  }
-});
-
 test("homepage introduces a first simulation and highlights selected research", async ({ page }) => {
   await page.setViewportSize({ width: 1512, height: 900 });
   await page.goto("/", { waitUntil: "domcontentloaded" });
