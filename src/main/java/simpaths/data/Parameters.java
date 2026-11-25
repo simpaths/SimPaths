@@ -311,6 +311,7 @@ public class Parameters {
     public static final int MIN_AGE_SOCIAL_CARE = 65; //Minimum age to receive formal social care
     public static final int MIN_AGE_FLEXIBLE_LABOUR_SUPPLY = 16; //Used when filtering people who can be "flexible in labour supply"
     public static final int MAX_AGE_FLEXIBLE_LABOUR_SUPPLY = 75;
+    public static final int MAX_YEARS_IN_WORK_REGRESSION = 13; // Maximum Liwwh value observed in the labour-supply estimation data
     public static final int MIN_HOURS_FULL_TIME_EMPLOYED = 25;	// used to distinguish full-demYear from part-demYear employment (needs to be consistent with Labour enum)
     public static final double MIN_HOURLY_WAGE_RATE = 1.5;
     public static final double MAX_HOURLY_WAGE_RATE = 150.0;

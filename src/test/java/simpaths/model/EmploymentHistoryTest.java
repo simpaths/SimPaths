@@ -63,11 +63,27 @@ class EmploymentHistoryTest {
         UpdateManager.applyAnnotations(person);
         person.onEvent(Person.Processes.Aging);
         assertEquals(6, person.getLiwwh());
+
+        person.setLiwwh(13);
+        setField(person, "labC4L1", Les_c4.EmployedOrSelfEmployed);
+        person.onEvent(Person.Processes.Aging);
+        assertEquals(14, getField(person, "labEmpNyear"));
+        assertEquals(13, person.getLiwwh());
+
+        person.setLiwwh(30);
+        assertEquals(30, getField(person, "labEmpNyear"));
+        assertEquals(13, person.getLiwwh());
     }
 
     private static void setField(Person person, String name, Object value) throws Exception {
         Field field = Person.class.getDeclaredField(name);
         field.setAccessible(true);
         field.set(person, value);
+    }
+
+    private static Object getField(Person person, String name) throws Exception {
+        Field field = Person.class.getDeclaredField(name);
+        field.setAccessible(true);
+        return field.get(person);
     }
 }

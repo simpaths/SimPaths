@@ -6591,7 +6591,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
     public TemplateIndividual getLtIncomeDonor() {return ltIncomeDonor;}
 
     public Integer getLiwwh() {
-        return labEmpNyear;
+        return (labEmpNyear == null) ? null : Math.min(labEmpNyear, MAX_YEARS_IN_WORK_REGRESSION);
     }
 
     public boolean isHousingOwned() {
