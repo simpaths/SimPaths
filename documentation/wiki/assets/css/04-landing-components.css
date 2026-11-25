@@ -1,19 +1,19 @@
 /* ═══════════════════════════════════════════════
    DOCUMENTATION LANDING PAGE
-   Related blue, rose and violet surfaces drawn from the SimPaths mark.
+   Mint guides, pale green reference and violet resources.
 ═══════════════════════════════════════════════ */
 
 .md-typeset .docs-hub--index {
-  --docs-panel-ink: #343134;
-  --docs-panel-copy: #55515C;
-  --docs-panel-rule: rgba(52, 49, 52, 0.16);
-  --docs-guides-background: #D6E6F7;
-  --docs-resources-background: #F1D9E7;
-  --docs-reference-background: #E4DCF3;
+  --docs-panel-ink: #25362F;
+  --docs-panel-copy: #4F5953;
+  --docs-panel-rule: rgba(37, 54, 47, 0.16);
+  --docs-guides-background: #B8DBCD;
+  --docs-resources-background: #DCCBEE;
+  --docs-reference-background: #C9DFD5;
   width: 100%;
   margin: 0;
   padding-bottom: 2rem;
-  color: #1f2630;
+  color: var(--md-default-fg-color);
   hyphens: none;
 }
 
@@ -36,7 +36,7 @@
   width: 3.4rem;
   height: 2.34rem;
   padding: 0.1rem 0.3rem;
-  background: #fff;
+  background: transparent;
   border-radius: 4px;
 }
 
@@ -61,7 +61,7 @@
 .md-typeset .docs-hub--index h2 {
   max-width: none;
   padding: 0;
-  color: #171b21;
+  color: #25362F;
   border: 0;
   font-family: "Inter", var(--md-text-font), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
   letter-spacing: -0.025em;
@@ -85,7 +85,7 @@
 .md-typeset .docs-index__intro {
   margin: 1.05rem 0 0;
   max-width: var(--sp-reading-measure);
-  color: rgba(31, 38, 48, 0.72);
+  color: var(--md-default-fg-color--light);
   font-size: 0.72rem;
   line-height: 1.6;
 }
@@ -98,7 +98,7 @@
   border-radius: 6px;
 }
 
-/* Give each group a distinct hue with the same lightness and shared text colours. */
+/* Distinct surfaces retain the shared green headings and neutral body text. */
 .md-typeset .docs-index__section--guides {
   --docs-panel-background: var(--docs-guides-background);
 }
@@ -169,21 +169,25 @@
 }
 
 [data-md-color-scheme="slate"] .md-typeset .docs-hub--index {
-  --docs-panel-ink: #F3EEF5;
-  --docs-panel-copy: #DCD4E1;
-  --docs-panel-rule: rgba(243, 238, 245, 0.2);
-  --docs-guides-background: #293A50;
-  --docs-resources-background: #462F42;
-  --docs-reference-background: #38304D;
-  color: #dce5ee;
+  --docs-panel-ink: #D0E2D6;
+  --docs-panel-copy: #D4DDD7;
+  --docs-panel-rule: rgba(237, 244, 239, 0.2);
+  --docs-guides-background: #25483E;
+  --docs-resources-background: #3B304E;
+  --docs-reference-background: #253F38;
+  color: var(--md-default-fg-color);
 }
 
 [data-md-color-scheme="slate"] .md-typeset .docs-hub--index h1 {
-  color: #edf3f8;
+  color: var(--sp-midnight);
 }
 
-[data-md-color-scheme="slate"] .md-typeset .docs-index__intro {
-  color: rgba(220, 229, 238, 0.68);
+[data-md-color-scheme="slate"] .md-typeset .docs-index__mark svg.docs-index__mark-image--light {
+  display: none;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .docs-index__mark svg.docs-index__mark-image--dark {
+  display: block;
 }
 
 @media (max-width: 680px) {

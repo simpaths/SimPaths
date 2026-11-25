@@ -19,9 +19,9 @@ class DocumentationHubTest(unittest.TestCase):
         self.assertEqual(heading[0]["gap"], "0.6rem")
         self.assertEqual(mark[0]["flex-shrink"], "0")
 
-    def test_logo_reserves_a_compact_white_frame_without_a_dark_mode_image_swap(self):
+    def test_logo_uses_the_page_surface_and_switches_for_dark_mode(self):
         mark = blocks(self.css, ".md-typeset .docs-index__mark")
-        self.assertEqual(mark[0]["background"], "#fff")
+        self.assertEqual(mark[0]["background"], "transparent")
         self.assertEqual(mark[0]["height"], "2.34rem")
         self.assertEqual(mark[0]["padding"], "0.1rem 0.3rem")
         self.assertEqual(mark[0]["border-radius"], "4px")
@@ -29,8 +29,8 @@ class DocumentationHubTest(unittest.TestCase):
         self.assertTrue(any(rule.get("padding-inline") == "0.1rem" for rule in mark))
         self.assertNotIn("aspect-ratio", mark[0])
         dark_prefix = '[data-md-color-scheme="slate"] .md-typeset .docs-index__mark'
-        for suffix in ("", " svg.docs-index__mark-image--light", " svg.docs-index__mark-image--dark"):
-            self.assertFalse(blocks(self.css, dark_prefix + suffix))
+        self.assertEqual(blocks(self.css, dark_prefix + " svg.docs-index__mark-image--light")[0]["display"], "none")
+        self.assertEqual(blocks(self.css, dark_prefix + " svg.docs-index__mark-image--dark")[0]["display"], "block")
 
     def test_links_use_only_arrow_motion_without_highlight_fills(self):
         self.assertNotIn("--docs-panel-hover", self.css)
@@ -58,6 +58,7 @@ class DocumentationHubTest(unittest.TestCase):
             "reference": ["../jasmine-reference/", "../developer-guide/internals/api/"],
         }
         self.assertEqual(set(groups), set(expected))
+        self.assertEqual(list(groups), ["guides", "reference", "resources"])
         for name, destinations in expected.items():
             with self.subTest(section=name):
                 self.assertIn(f'<h2 id="{name}">{name.title()}</h2>', groups[name])

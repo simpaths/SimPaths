@@ -10,24 +10,6 @@
   text-align: left; hyphens: none;
 }
 
-.md-typeset .page-intro {
-  max-width: 49rem;
-  margin: -0.1rem 0 1.15rem;
-  color: var(--sp-midnight);
-  font-size: var(--sp-reading-copy-size);
-  line-height: var(--sp-reading-line-height);
-  text-align: left;
-  hyphens: none;
-  -webkit-hyphens: none;
-}
-
-.md-typeset .page-intro--support {
-  margin-top: -0.82rem;
-  color: var(--md-default-fg-color--light);
-  font-size: var(--sp-reading-copy-size);
-  line-height: var(--sp-reading-line-height);
-}
-
 /* Setup guides: keep instructions and supporting notes distinct without cards. */
 .md-typeset .setup-guide { container-type: inline-size; }
 .md-typeset .setup-guide__intro { margin-bottom: 1.6rem; }
@@ -51,7 +33,7 @@
 }
 
 /* ── Headings ── */
-.md-typeset :is(h1, h2, h3, h4) {
+.md-typeset :is(h1, h2, h3, h4, h5, h6) {
   font-family: var(--sp-heading-font) !important;
   color: var(--sp-midnight);
   font-weight: var(--sp-subheading-weight);
@@ -99,24 +81,8 @@
 .md-typeset h4 {
   font-size: 0.9rem;
 }
-.md-typeset :is(h5, h6) { font-weight: var(--sp-subheading-weight); }
 /* Markdown emphasis must not compound the heading or column-label weight. */
 .md-typeset :is(h1, h2, h3, h4, h5, h6, th) :is(strong, b) { font-weight: inherit; }
-
-[data-md-color-scheme="slate"] .md-typeset h1,
-[data-md-color-scheme="slate"] .md-typeset h2,
-[data-md-color-scheme="slate"] .md-typeset h3,
-[data-md-color-scheme="slate"] .md-typeset h4 {
-  color: var(--md-default-fg-color);
-}
-
-[data-md-color-scheme="slate"] .md-typeset .page-intro {
-  color: var(--md-default-fg-color);
-}
-
-[data-md-color-scheme="slate"] .md-typeset .page-intro--support {
-  color: var(--md-default-fg-color--light);
-}
 
 @media (max-width: 760px) {
   .md-typeset pre > code {
@@ -236,8 +202,6 @@
   --sp-code-annotation: #b23c7a;
   --sp-code-error: #b42332;
   --sp-code-gutter-bg: rgba(52,49,52,0.035);
-  --sp-code-chip-bg: rgba(151,42,108,0.06);
-  --sp-code-chip-border: rgba(151,42,108,0.16);
 }
 
 [data-md-color-scheme="slate"] {
@@ -539,6 +503,7 @@
 .md-typeset .admonition-title,
 .md-typeset summary {
   font-family: var(--sp-heading-font) !important;
+  color: var(--sp-midnight);
   font-weight: var(--sp-subheading-weight);
   font-size: var(--sp-reading-copy-size);
   background: #F6F6F8 !important;
@@ -586,25 +551,6 @@
   margin-top: 0.55rem;
   color: var(--md-default-fg-color--light);
   font-size: var(--sp-label-size);
-}
-
-.md-typeset .module-equation {
-  margin: 1rem auto 1.15rem;
-  padding: 0.85rem 1rem;
-  max-width: 42rem;
-  text-align: center;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 0.98rem;
-  line-height: 1.7;
-  background: var(--sp-surface-strong);
-  border: 1px solid var(--sp-border-soft);
-  border-radius: 14px;
-  box-shadow: var(--sp-shadow-soft);
-}
-
-.md-typeset .module-inline-equation {
-  font-family: Georgia, "Times New Roman", serif;
-  white-space: nowrap;
 }
 
 /* Reading tables: compact column labels, a neutral header rule and aligned rows. */

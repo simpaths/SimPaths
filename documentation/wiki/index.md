@@ -13,6 +13,8 @@ hide:
 </div>
 </section>
 
+<div class="simpaths-home-sheet">
+
 <section class="simpaths-home-intro-band">
 <div class="simpaths-home-intro-band__inner">
   <p class="simpaths-home-intro-band__lede">SimPaths is an open-source framework for modelling individual and household life courses. It projects how people’s careers, family relationships, health and financial circumstances evolve over time and interact with one another. Its modular design supports analysis of alternative assumptions about tax and benefit systems, sensitivity to parameter estimates, and different approaches to projecting labour and leisure, consumption and saving decisions.</p>
@@ -50,14 +52,17 @@ hide:
 </div>
 </section>
 
+</div>
+
 <section id="use-simpaths" class="simpaths-home-paths" aria-labelledby="use-simpaths-title">
 <div class="simpaths-home-paths__inner">
+  <div class="simpaths-first-run">
+    <div class="simpaths-first-run__summary">
   <header class="simpaths-home-paths__header">
     <h2 id="use-simpaths-title">Use SimPaths</h2>
   </header>
-
-  <div class="simpaths-first-run">
       <p class="simpaths-first-run__intro">Try a first simulation using the training population and tax–benefit data included in the repository. This lets you check the installation before preparing inputs for your own research.</p>
+    </div>
       <ol class="simpaths-first-run__steps" aria-label="Steps to a first simulation">
         <li><a href="getting-started/environment-setup/">
           <span class="simpaths-first-run__number" aria-hidden="true">01</span>
@@ -92,27 +97,27 @@ hide:
 
 <div class="research-list">
 
-<a href="https://doi.org/10.1093/eurpub/ckaf161.076" class="research-entry research-entry--mental-health">
+<a href="https://doi.org/10.1093/eurpub/ckaf161.076" class="research-entry">
   <div class="research-entry__meta">
-    <span class="research-label">MENTAL HEALTH · 2025</span>
+    <span class="research-label">MENTAL HEALTH · <time datetime="2025">2025</time></span>
     <span class="research-journal">European Journal of Public Health</span>
   </div>
   <p class="research-title">Tax reforms vs benefit enhancement to address mental health inequalities: a microsimulation study</p>
   <p class="research-authors">Igelstrom E, Kopasker D, Richiardi MG, Katikireddi SV</p>
 </a>
 
-<a href="https://www.sciencedirect.com/science/article/pii/S0167268125000319" class="research-entry research-entry--life-course">
+<a href="https://www.sciencedirect.com/science/article/pii/S0167268125000319" class="research-entry">
   <div class="research-entry__meta">
-    <span class="research-label">LIFE COURSE · 2025</span>
+    <span class="research-label">LIFE COURSE · <time datetime="2025">2025</time></span>
     <span class="research-journal">Journal of Economic Behavior &amp; Organization</span>
   </div>
   <p class="research-title">Attenuation and reinforcement mechanisms over the life course</p>
   <p class="research-authors">Richiardi M, Bronka P, van de Ven J</p>
 </a>
 
-<a href="https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1004358" class="research-entry research-entry--health-policy">
+<a href="https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1004358" class="research-entry">
   <div class="research-entry__meta">
-    <span class="research-label">HEALTH POLICY · 2024</span>
+    <span class="research-label">HEALTH POLICY · <time datetime="2024">2024</time></span>
     <span class="research-journal">PLOS Medicine</span>
   </div>
   <p class="research-title">Short-term impacts of Universal Basic Income on population mental health inequalities in the UK</p>

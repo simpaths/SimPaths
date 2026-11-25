@@ -23,7 +23,6 @@
   --md-code-font: "JetBrains Mono";
   --sp-heading-font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --sp-brand-font: var(--sp-heading-font);
-  --sp-hero-title-font: var(--sp-heading-font);
   --sp-research-font: var(--md-text-font), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   /* Shared editorial scale; display branding and compact metadata stay distinct. */
   --sp-title-size: 1.8rem;
@@ -56,34 +55,35 @@
   }
 }
 
-/* ── White, graphite and violet — drawn from the SimPaths mark ── */
+/* ── Forest green and pale sage, with violet link accents from the SimPaths mark ── */
 :root {
-  --sp-midnight:        #343134;
-  --sp-midnight-deep:   #27232D;
-  --sp-crimson:         #5B2587;
+  --sp-midnight:        #25362F;
+  --sp-body-ink:        #353B38;
+  --sp-midnight-deep:   #25362F;
+  --sp-crimson:         #244D3B;
   --sp-paper:           #FFFFFF;
-  --sp-ghost:           #D5D2DA;
-  --sp-wine:            #45414B;
-  --sp-wine-soft:       #64616B;
-  --sp-accent:          #7C36A6;
-  --sp-accent-light:    #8B46B5;
-  --sp-accent-bright:   #7C36A6;
+  --sp-wine:            #4F5953;
+  --sp-wine-soft:       #626C66;
+  --sp-accent:          #30644E;
+  --sp-link:            #7C36A6;
+  --sp-link-hover:      #5B2587;
   /* Fixed ink for the deliberately light editorial panels in either theme. */
-  --sp-panel-ink:       #343134;
-  --sp-panel-muted:     #64616B;
+  --sp-panel-ink:       #353B38;
+  --sp-panel-heading:   #25362F;
+  --sp-panel-muted:     #626C66;
   --sp-panel-link:      #7C36A6;
   --sp-panel-link-hover:#5B2587;
-  --sp-hairline:        linear-gradient(to right, #D5D2DA 0%, #D5D2DA 40%, transparent 100%);
+  --sp-hairline:        linear-gradient(to right, #D2DCD5 0%, #D2DCD5 40%, transparent 100%);
   --sp-surface:         #FFFFFF;
   --sp-surface-strong:  #FFFFFF;
-  --sp-border-soft:     rgba(52,49,52,0.1);
-  --sp-border-strong:   rgba(52,49,52,0.16);
-  --sp-shadow-soft:     0 10px 28px rgba(32,22,28,0.06);
-  --sp-shadow-medium:   0 18px 38px rgba(32,22,28,0.1);
-  --sp-sidebar-hover:   rgba(52,49,52,0.05);
-  --sp-sidebar-active:  rgba(124,54,166,0.07);
+  --sp-border-soft:     rgba(37,54,47,0.1);
+  --sp-border-strong:   rgba(37,54,47,0.16);
+  --sp-shadow-soft:     0 10px 28px rgba(25,45,35,0.06);
+  --sp-sidebar-hover:   rgba(37,54,47,0.05);
+  --sp-sidebar-active:  rgba(48,100,78,0.08);
   --sp-transition:      all 0.2s ease;
-  --sp-home-hero-bg: #27232D;
+  --sp-header-bg: #FFFFFF;
+  --sp-home-hero-bg: #E5EEE8;
   --sp-home-max: 61rem;
 }
 
@@ -109,7 +109,7 @@ body {
 
 [data-md-color-accent="custom"] {
   --md-accent-fg-color:              var(--sp-crimson);
-  --md-accent-fg-color--transparent: rgba(124,54,166,0.08);
+  --md-accent-fg-color--transparent: rgba(48,100,78,0.08);
   --md-accent-bg-color:              var(--sp-paper);
   --md-accent-bg-color--light:       rgba(250,249,245,0.7);
 }
@@ -117,13 +117,13 @@ body {
 /* Pure white canvas; neutral layers and readable secondary text. */
 [data-md-color-scheme="default"] {
   --md-default-bg-color:          var(--sp-paper);
-  --md-default-bg-color--light:   #F6F6F8;
-  --md-default-bg-color--lighter: #EEEDEF;
-  --md-default-bg-color--lightest:#E1DFE5;
-  --md-default-fg-color: #343134;
-  --md-default-fg-color--light: #64616B;
-  --md-default-fg-color--lighter: #79747F;
-  --md-default-fg-color--lightest: #E1DFE5;
+  --md-default-bg-color--light:   #F4F7F5;
+  --md-default-bg-color--lighter: #EAF0EC;
+  --md-default-bg-color--lightest:#D2DCD5;
+  --md-default-fg-color: var(--sp-body-ink);
+  --md-default-fg-color--light: var(--sp-wine-soft);
+  --md-default-fg-color--lighter: #707973;
+  --md-default-fg-color--lightest: #D2DCD5;
 }
 
 /* ═══════════════════════════════════════════════
@@ -132,33 +132,33 @@ body {
 
 [data-md-color-scheme="slate"] {
   color-scheme: dark;
-  --sp-home-hero-bg:              var(--md-default-bg-color);
-  --sp-midnight:                  #F1EDF2;
-  --sp-wine:                      #DCD4DF;
-  --sp-wine-soft:                 #BDB4C4;
-  --sp-ghost:                     #514957;
-  --sp-accent:                    #C5A0E5;
-  --sp-accent-light:              #DCC1F2;
-  --sp-accent-bright:             #C5A0E5;
-  --sp-crimson:                   #DCC1F2;
-  --md-accent-fg-color--transparent: rgba(197,160,229,0.08);
-  --md-default-bg-color:          #211E26;
-  --md-default-bg-color--light:   #2B2731;
-  --md-default-bg-color--lighter: #36303E;
-  --md-default-bg-color--lightest:#514957;
-  --md-code-bg-color:             #2B2731;
-  --md-default-fg-color:          var(--sp-midnight);
+  --sp-header-bg:                var(--md-default-bg-color);
+  --sp-home-hero-bg:              var(--sp-header-bg);
+  --sp-midnight:                  #D0E2D6;
+  --sp-body-ink:                  #E3E8E5;
+  --sp-wine:                      #D4DDD7;
+  --sp-wine-soft:                 #B5C0B9;
+  --sp-accent:                    #A7CDB5;
+  --sp-crimson:                   #C4DFCE;
+  --sp-link:                      #C5A0E5;
+  --sp-link-hover:                #DCC1F2;
+  --md-accent-fg-color--transparent: rgba(167,205,181,0.08);
+  --md-default-bg-color:          #1E2522;
+  --md-default-bg-color--light:   #29322D;
+  --md-default-bg-color--lighter: #35423A;
+  --md-default-bg-color--lightest:#455B4E;
+  --md-code-bg-color:             #29322D;
+  --md-default-fg-color:          var(--sp-body-ink);
   --md-default-fg-color--light:   var(--sp-wine-soft);
-  --md-default-fg-color--lighter: #A89CAF;
-  --md-default-fg-color--lightest:#514957;
-  --sp-surface:                   #2B2731;
-  --sp-surface-strong:            #36303E;
+  --md-default-fg-color--lighter: #A3B6A9;
+  --md-default-fg-color--lightest:#455B4E;
+  --sp-surface:                   #29322D;
+  --sp-surface-strong:            #35423A;
   --sp-border-soft:               rgba(250,249,245,0.08);
   --sp-border-strong:             rgba(250,249,245,0.14);
   --sp-shadow-soft:               0 10px 28px rgba(0,0,0,0.22);
-  --sp-shadow-medium:             0 18px 38px rgba(0,0,0,0.3);
-  --sp-sidebar-hover:             rgba(197,160,229,0.08);
-  --sp-sidebar-active:            rgba(197,160,229,0.14);
+  --sp-sidebar-hover:             rgba(167,205,181,0.08);
+  --sp-sidebar-active:            rgba(167,205,181,0.14);
 }
 
 [data-md-color-scheme="slate"] .md-typeset .highlight {
@@ -176,20 +176,23 @@ body {
 ═══════════════════════════════════════════════ */
 
 .md-typeset a:not(.md-button):not(.headerlink):not(.md-nav__link) {
-  color: var(--sp-accent);
+  color: var(--sp-link);
   text-decoration: none;
   border-bottom: 1px solid transparent;
   transition: color 0.15s ease, border-color 0.15s ease;
 }
 
 .md-typeset a:not(.md-button):not(.headerlink):not(.md-nav__link):hover {
-  color: var(--sp-crimson);
-  border-bottom-color: var(--sp-crimson);
+  color: var(--sp-link-hover);
+  border-bottom-color: var(--sp-link-hover);
 }
+
+/* Linked headings share the heading palette; publication titles opt into link ink. */
+.md-typeset :is(h1, h2, h3, h4, h5, h6, dt) a:not(.md-button):not(.headerlink):not(.md-nav__link) { color: var(--sp-midnight); --sp-link-hover: var(--sp-midnight); }
 
 /* Inline links remain identifiable without relying on hue. */
 .md-typeset p a:not(.md-button) { text-decoration: underline; text-underline-offset: 0.16em; }
 @media (prefers-reduced-motion: reduce) {
   :root { --sp-transition: none; }
-  .md-tabs__link::after, .md-button, .simpaths-home-research-band :is(a.research-entry, .research-title) { transition: none !important; transform: none !important; }
+  .md-button, .simpaths-first-run__arrow, .simpaths-home-research-band :is(a.research-entry, .research-title), .simpaths-home-research-band a.research-entry::after { transition: none !important; transform: none !important; }
 }

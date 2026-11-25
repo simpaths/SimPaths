@@ -21,7 +21,8 @@ test("validation uses consistent body typography and correctly nested instructio
     "31-validating-regression-estimates",
     "32-validating-the-simulated-output"
   ]);
-  await expect(article.locator(".page-intro, strong, em")).toHaveCount(0);
+  await expect(article.locator(".page-intro, em")).toHaveCount(0);
+  await expect(article.locator(".validation-scope strong, .validation-downloads strong")).toHaveCount(5);
   await page.evaluate(() => document.fonts.ready);
   const typography = await article.locator("p, li, code").filter({hasNot: page.locator(".sp-version")}).evaluateAll(elements =>
     elements.filter(element => element.textContent.trim()).map(element => {
@@ -30,7 +31,7 @@ test("validation uses consistent body typography and correctly nested instructio
     })
   );
   expect(new Set(typography).size).toBe(1);
-  const lists = article.locator(":scope > ol");
+  const lists = article.locator(".validation-scope > ol, .validation-downloads > ol, .validation-run__grid > section > ol");
   await expect(lists).toHaveCount(4);
   for (const [index, count] of [2, 3, 4, 4].entries()) {
     await expect(lists.nth(index).locator(":scope > li")).toHaveCount(count);
@@ -255,7 +256,7 @@ test("interior pages keep a contained reading measure and consistent alignment",
       measurements.push({ ...measurement, path });
     }
     for (const noSectionNav of [true, false]) {
-      const starts = measurements.filter(item => item.noSectionNav === noSectionNav).map(item => item.titleX);
+      const starts = measurements.filter(item => item.noSectionNav === noSectionNav && item.path !== "/validation/").map(item => item.titleX);
       expect(Math.max(...starts) - Math.min(...starts), `${width}px: content start`).toBeLessThanOrEqual(1);
     }
     if (width >= 960) {
@@ -265,9 +266,9 @@ test("interior pages keep a contained reading measure and consistent alignment",
       for (const path of ["/documentation/", "/getting-started/"]) {
         expect(Math.abs(byPath[path].width - prose.width), path).toBeLessThanOrEqual(1);
       }
-      for (const path of ["/validation/", "/research/", "/funding/"]) {
+      for (const path of ["/research/", "/funding/"]) {
         expect(byPath[path].width, path).toBeLessThanOrEqual(prose.readingMeasure + 1);
-        expect(Math.abs(byPath[path].width - byPath["/validation/"].width), path).toBeLessThanOrEqual(1);
+        expect(Math.abs(byPath[path].width - byPath["/research/"].width), path).toBeLessThanOrEqual(1);
       }
     }
   }
@@ -295,7 +296,7 @@ test("model overview uses a contents sidebar beside the established reading meas
   expect(overviewMeasure.overflow).toBeLessThanOrEqual(8);
 });
 
-test("validation has one centred column without a contents sidebar or reserved space", async ({ page }) => {
+test("validation uses its standalone width for parallel checks and stacks them on smaller screens", async ({ page }) => {
   await page.setViewportSize({ width: 1512, height: 900 });
   await page.goto("/validation/", { waitUntil: "domcontentloaded" });
 
@@ -304,17 +305,36 @@ test("validation has one centred column without a contents sidebar or reserved s
 
   const desktop = await page.evaluate(() => ({
     primaryDisplay: getComputedStyle(document.querySelector(".md-sidebar--primary")).display,
-    frameWidth: document.querySelector(".md-main__inner").getBoundingClientRect().width,
-    contentX: document.querySelector(".md-content__inner").getBoundingClientRect().x,
-    contentWidth: document.querySelector(".md-content__inner").getBoundingClientRect().width,
-    readingMeasure: parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--sp-reading-measure")) * parseFloat(getComputedStyle(document.documentElement).fontSize)
+    frameWidth: document.querySelector(".validation-sheet").getBoundingClientRect().width,
+    contentX: document.querySelector(".validation-scope").getBoundingClientRect().x,
+    contentWidth: document.querySelector(".validation-scope").getBoundingClientRect().width,
+    mastheadX: document.querySelector(".validation-masthead__inner").getBoundingClientRect().x,
+    overlap: document.querySelector(".validation-masthead").getBoundingClientRect().bottom - document.querySelector(".validation-sheet").getBoundingClientRect().top,
+    readingMeasure: parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--sp-reading-measure")) * parseFloat(getComputedStyle(document.documentElement).fontSize),
+    pageMeasure: parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--sp-home-max")) * parseFloat(getComputedStyle(document.documentElement).fontSize)
   }));
 
   expect(desktop.primaryDisplay).toBe("none");
-  expect(Math.abs(desktop.frameWidth - desktop.contentWidth)).toBeLessThanOrEqual(1);
+  expect(desktop.frameWidth).toBeGreaterThan(desktop.contentWidth);
+  expect(Math.abs(desktop.mastheadX - desktop.contentX)).toBeLessThanOrEqual(1);
+  expect(desktop.overlap).toBeGreaterThan(0);
   expect(Math.abs(desktop.contentX - (1512 - desktop.contentWidth) / 2)).toBeLessThanOrEqual(1);
-  expect(desktop.contentWidth).toBeGreaterThan(500);
-  expect(desktop.contentWidth).toBeLessThanOrEqual(desktop.readingMeasure + 1);
+  expect(desktop.contentWidth).toBeGreaterThan(desktop.readingMeasure);
+  expect(desktop.contentWidth).toBeLessThanOrEqual(desktop.pageMeasure + 1);
+
+  for (const width of [1512, 1024, 768, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    const layout = await page.evaluate(() => ({
+      columns: [...document.querySelectorAll(".validation-scope > ol, .validation-downloads > ol, .validation-run__grid")]
+        .map(element => getComputedStyle(element).gridTemplateColumns.split(" ").length),
+      workflowWidths: [...document.querySelectorAll(".validation-run__grid > section")]
+        .map(element => element.getBoundingClientRect().width),
+      overflow: document.documentElement.scrollWidth - innerWidth
+    }));
+    expect(layout.columns, `${width}px`).toEqual(width >= 1024 ? [2, 3, 2] : [1, 1, 1]);
+    expect(Math.max(...layout.workflowWidths)).toBeLessThanOrEqual(desktop.readingMeasure + 1);
+    expect(layout.overflow).toBeLessThanOrEqual(1);
+  }
 
   await page.setViewportSize({ width: 390, height: 844 });
   const mobilePrimaryVisibility = await page
@@ -449,7 +469,7 @@ test("site state exposes explicit styling hooks", async ({ page }) => {
   await expect(page.locator(".sp-modules-branch")).not.toHaveCount(0);
 });
 
-test("search stays white with neutral focus emphasis and no header wash", async ({ page }, testInfo) => {
+test("search is unboxed until opened and retains clear keyboard focus", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop");
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.emulateMedia({ reducedMotion: "reduce" });
@@ -467,8 +487,8 @@ test("search stays white with neutral focus emphasis and no header wash", async 
     };
   });
   const closed = await appearance();
-  expect(closed.background).toBe("rgb(255, 255, 255)");
-  expect(closed.border).toBe("rgba(48, 48, 48, 0.2)");
+  expect(closed.background).toBe("rgba(0, 0, 0, 0)");
+  expect(closed.border).toBe("rgba(0, 0, 0, 0)");
   expect(closed.headerWash).toBe("none");
   expect(closed.inputDecoration).toBe("none");
   await page.locator(".md-search").hover();
@@ -478,8 +498,8 @@ test("search stays white with neutral focus emphasis and no header wash", async 
   await expect(page.locator(".md-search__input")).toBeFocused();
   await expect(page.locator("body")).toHaveClass(/sp-search-open/);
   const open = await appearance();
-  expect(open.background).toBe(closed.background);
-  expect(open.border).toBe("rgb(48, 48, 48)");
+  expect(open.background).toBe("rgb(255, 255, 255)");
+  expect(open.border).toBe("rgb(37, 54, 47)");
   expect(open.shadow).toContain("0px 0px 0px 1px");
   expect(open.height).toBe(closed.height);
   expect(open.headerBackground).toBe(closed.headerBackground);
@@ -831,13 +851,13 @@ test("homepage keeps its explanation together and model overview links directly 
   const intro = page.locator('.simpaths-home-intro-band__lede');
   await expect(intro).toContainText("modelling individual and household life courses");
   await expect(intro).toHaveCSS('font-weight', '450');
-  await expect(intro).toHaveCSS('color', 'rgb(52, 49, 52)');
+  await expect(intro).toHaveCSS('color', 'rgb(53, 59, 56)');
   await expect(page.locator('.simpaths-home-intro-band__body').first()).toContainText("UK, Greece, Hungary, Italy and Poland");
   const description = page.locator('.simpaths-home-features dd');
   await expect(description).toHaveCount(4);
   for (const paragraph of await description.all()) {
     await expect(paragraph).toHaveCSS('font-weight', '400');
-    await expect(paragraph).toHaveCSS('color', 'rgb(52, 49, 52)');
+    await expect(paragraph).toHaveCSS('color', 'rgb(53, 59, 56)');
   }
   await page.goto('/overview/');
   await expect(page.locator('article h1')).toHaveText(/^Model overview(?:¶)?$/);
@@ -862,6 +882,7 @@ test("homepage introduces a first simulation and highlights selected research", 
   await expect(page.locator(".simpaths-home-paths__header p")).toHaveCount(0);
   await expect(page.locator(".simpaths-home-paths__route")).toHaveCount(0);
   await expect(page.locator(".simpaths-first-run__steps a")).toHaveCount(3);
+  await expect(page.locator(".simpaths-first-run__number")).toHaveCount(3);
   await expect(page.locator(".simpaths-first-run__note")).toContainText("not substantive analysis");
   await expect(page.locator(".simpaths-home-paths a")).toHaveCount(4);
   await expect(page.locator(".simpaths-home-paths__browse")).toHaveAttribute("href", /documentation\/$/);
@@ -916,6 +937,7 @@ test("homepage introduces a first simulation and highlights selected research", 
       journalColors: journals.map((journal) => getComputedStyle(journal).color),
       authorColors: authors.map((author) => getComputedStyle(author).color),
       summaryCount: document.querySelectorAll(".simpaths-home-research-band .research-summary").length,
+      headerAboveList: header.getBoundingClientRect().bottom <= list.getBoundingClientRect().top,
       headerLeft: Math.round(header.getBoundingClientRect().left),
       firstEntryLeft: Math.round(entries[0].getBoundingClientRect().left)
     };
@@ -923,12 +945,13 @@ test("homepage introduces a first simulation and highlights selected research", 
 
   expect(presentation.pathHeight).toBeGreaterThan(300);
   expect(presentation.pathHeight).toBeLessThan(550);
-  expect(presentation.pathBackground).toBe("rgb(232, 240, 245)");
-  expect(presentation.pathHeadingColor).toBe("rgb(52, 49, 52)");
-  expect(presentation.researchBackground).toBe("rgb(247, 247, 249)");
-  expect(presentation.researchHeadingColor).toBe("rgb(52, 49, 52)");
-  expect(presentation.pathColumns).toBe(3);
-  expect(Math.max(...presentation.stepTops) - Math.min(...presentation.stepTops)).toBeLessThanOrEqual(1);
+  expect(presentation.pathBackground).toBe("rgb(255, 255, 255)");
+  expect(presentation.pathHeadingColor).toBe("rgb(37, 54, 47)");
+  expect(presentation.researchBackground).toBe("rgb(247, 248, 247)");
+  expect(presentation.researchHeadingColor).toBe("rgb(37, 54, 47)");
+  expect(presentation.pathColumns).toBe(1);
+  expect(presentation.stepTops[0]).toBeLessThan(presentation.stepTops[1]);
+  expect(presentation.stepTops[1]).toBeLessThan(presentation.stepTops[2]);
   expect(presentation.pathFrameBackground).toBe("rgba(0, 0, 0, 0)");
   expect(presentation.pathFrameShadow).toBe("none");
   expect(new Set(presentation.stepBackgrounds)).toEqual(new Set(["rgba(0, 0, 0, 0)"]));
@@ -939,32 +962,30 @@ test("homepage introduces a first simulation and highlights selected research", 
   expect(presentation.entryCount).toBe(3);
   expect(new Set(presentation.entryHeights).size).toBe(1);
   expect(presentation.entryBorders).toEqual(["0px", "0px", "0px"]);
-  expect(presentation.entryBackgrounds).toEqual([
-    "rgb(255, 255, 255)",
-    "rgb(255, 255, 255)",
-    "rgb(255, 255, 255)"
-  ]);
+  expect(new Set(presentation.entryBackgrounds)).toEqual(new Set(["rgb(255, 255, 255)"]));
   expect(presentation.entryCursors).toEqual(["pointer", "pointer", "pointer"]);
   expect(presentation.entryHrefs.every((href) => href.startsWith("https://"))).toBe(true);
-  expect(presentation.entryArrows.every((arrow) => arrow !== "none")).toBe(true);
+  expect(presentation.entryArrows.every((arrow) => arrow.includes("↗"))).toBe(true);
   expect(presentation.titleWeights.every((weight) => weight < 600)).toBe(true);
-  expect(new Set(presentation.labelColors).size).toBe(3);
-  expect(new Set(presentation.journalColors)).toEqual(new Set(["rgb(100, 97, 107)"]));
-  expect(new Set(presentation.authorColors)).toEqual(new Set(["rgb(100, 97, 107)"]));
+  expect(new Set(presentation.labelColors)).toEqual(new Set(["rgb(48, 100, 78)"]));
+  expect(new Set(presentation.journalColors)).toEqual(new Set(["rgb(98, 108, 102)"]));
+  expect(new Set(presentation.authorColors)).toEqual(new Set(["rgb(23, 23, 23)"]));
   expect(presentation.summaryCount).toBe(0);
-  expect(presentation.headerLeft).toBeLessThan(presentation.firstEntryLeft);
+  expect(presentation.headerLeft).toBe(presentation.firstEntryLeft);
+  expect(presentation.headerAboveList).toBe(true);
 
   const firstResearchEntry = page.locator(".simpaths-home-research-band .research-entry").first();
   await firstResearchEntry.hover();
   await page.waitForTimeout(250);
   const hoverState = await firstResearchEntry.evaluate((entry) => ({
     background: getComputedStyle(entry).backgroundColor,
-    arrowBackground: getComputedStyle(entry, "::after").backgroundColor,
-    titleDecoration: getComputedStyle(entry.querySelector(".research-title")).textDecorationLine
+    titleDecoration: getComputedStyle(entry.querySelector(".research-title")).textDecorationLine,
+    titleDecorationColor: getComputedStyle(entry.querySelector(".research-title")).textDecorationColor,
+    titleColor: getComputedStyle(entry.querySelector(".research-title")).color
   }));
   expect(hoverState.background).not.toBe("rgb(255, 255, 255)");
-  expect(hoverState.arrowBackground).toBe("rgb(255, 255, 255)");
   expect(hoverState.titleDecoration).toContain("underline");
+  expect(hoverState.titleDecorationColor).toBe(hoverState.titleColor);
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.reload({ waitUntil: "domcontentloaded" });
@@ -997,8 +1018,8 @@ test("homepage introduces a first simulation and highlights selected research", 
   expect(mobileFooter.height).toBeLessThan(260);
   expect(mobileFooter.copyrightWidth).toBeGreaterThan(0);
   expect(mobileFooter.copyrightWidth).toBeLessThanOrEqual(390);
-  expect(mobileFooter.background).toBe("rgb(39, 35, 45)");
-  expect(mobileFooter.textColor).toBe("rgb(198, 194, 205)");
+  expect(mobileFooter.background).toBe("rgb(37, 54, 47)");
+  expect(mobileFooter.textColor).toBe("rgb(194, 210, 199)");
   expect(mobileFooter.brandColor).toBe("rgb(255, 255, 255)");
   expect(Math.abs(mobileFooter.bandToFooterGap)).toBeLessThanOrEqual(1);
   expect(mobileFooter.textTransform).toBe("none");
@@ -1027,7 +1048,7 @@ test("homepage hero is complete and stable at first paint", async ({ page }) => 
   await expect(hero.getByRole("heading", { level: 1 })).toHaveText("SimPaths");
   await expect(hero.locator(".simpaths-home-hero__strap")).toHaveText("Life Course Microsimulation");
   await expect(hero.locator(".simpaths-home-hero__logo")).toBeVisible();
-  await expect(hero).toHaveCSS("background-color", "rgb(39, 35, 45)");
+  await expect(hero).toHaveCSS("background-color", "rgb(229, 238, 232)");
   const intro = page.locator(".simpaths-home-intro-band");
   await expect(intro.locator(".simpaths-home-intro-band__lede")).toContainText("SimPaths is an open-source framework");
   await expect(intro.locator(".simpaths-home-routes")).toHaveCount(0);
@@ -1096,7 +1117,7 @@ test("documentation masthead integrates the SimPaths mark", async ({ page }) => 
   expect(desktop.markGap).toBeLessThanOrEqual(14);
   expect(desktop.markWidth).toBeGreaterThanOrEqual(60);
   expect(desktop.markWidth).toBeLessThanOrEqual(80);
-  expect(desktop.markBackground).toBe("rgb(255, 255, 255)");
+  expect(desktop.markBackground).toBe("rgba(0, 0, 0, 0)");
   expect(desktop.markBeforeTitle).toBe(true);
   expect(desktop.introAlignedWithMark).toBe(true);
   expect(desktop.lightImageInline).toBe(true);
@@ -1117,9 +1138,9 @@ test("documentation masthead integrates the SimPaths mark", async ({ page }) => 
     };
   });
 
-  expect(darkMode.markBackground).toBe("rgb(255, 255, 255)");
-  expect(darkMode.light).toBe("block");
-  expect(darkMode.dark).toBe("none");
+  expect(darkMode.markBackground).toBe("rgba(0, 0, 0, 0)");
+  expect(darkMode.light).toBe("none");
+  expect(darkMode.dark).toBe("block");
   expect(darkMode.darkImageInline).toBe(true);
   expect(darkMode.darkImageAspectRatio).toBeGreaterThan(1.8);
   expect(darkMode.darkImageAspectRatio).toBeLessThan(1.9);
@@ -1160,8 +1181,9 @@ test("documentation masthead integrates the SimPaths mark", async ({ page }) => 
 test("research keeps readable citations beside year and type, stacking on mobile", async ({ page }, testInfo) => {
   await page.goto("/research/", { waitUntil: "domcontentloaded" });
   const catalogue = page.locator(".research-page");
-  await expect(catalogue.locator("h2")).toHaveText(["The model paper", "Selected publications"]);
-  for (const [heading, count] of [["The model paper", 1], ["Selected publications", 7]]) {
+  await expect(catalogue.locator("h2")).toHaveText(["Selected publications"]);
+  await expect(catalogue.locator(".research-primary .research-publication__meta")).toHaveText(/2025\s+Reference paper/);
+  for (const [heading, count] of [["Reference paper", 1], ["Selected publications", 7]]) {
     await expect(page.getByRole("region", { name: heading, exact: true }).locator("article")).toHaveCount(count);
   }
   await expect(page.locator(".sp-page-nav")).toHaveCount(0);
@@ -1334,7 +1356,7 @@ test("funding uses a compact linked ledger without changing grant details", asyn
   expect(await layout()).toMatchObject({
     summaryColumns: 3, entryColumns: 3,
     panelBackground: "rgba(0, 0, 0, 0)", entryBackground: "rgba(0, 0, 0, 0)",
-    entryColor: "rgb(36, 42, 49)", titleColor: "rgb(36, 42, 49)",
+    entryColor: "rgb(53, 59, 56)", titleColor: "rgb(53, 59, 56)",
     summaryTopRule: "1px", summaryBottomRule: "1px", listTopRule: "1px", rowBottomRule: "1px",
     titleWrap: "wrap", metadataFirst: true, fullWidthRows: true, overflow: 0
   });
@@ -1565,16 +1587,16 @@ test("documentation sidebar hover is neutral and keeps the current-page marker",
   const link = sidebar.getByRole('link', { name: 'Environment Setup', exact: true });
   const before = await link.boundingBox();
   await link.hover();
-  await expect(link).toHaveCSS('background-color', 'rgb(236, 238, 240)');
-  await expect(link).toHaveCSS('color', 'rgb(26, 29, 33)');
+  await expect(link).toHaveCSS('background-color', 'rgb(234, 240, 236)');
+  await expect(link).toHaveCSS('color', 'rgb(37, 54, 47)');
   await expect(link).toHaveCSS('box-shadow', 'none');
   await expect(link).toHaveCSS('transform', 'none');
   await expect(link).toHaveCSS('font-weight', '430');
   expect(await link.boundingBox()).toEqual(before);
 
   for (const [scheme, colour, surface] of [
-    ['default', 'rgb(26, 29, 33)', 'rgb(236, 238, 240)'],
-    ['slate', 'rgb(241, 237, 242)', 'rgba(197, 160, 229, 0.08)']
+    ['default', 'rgb(37, 54, 47)', 'rgb(234, 240, 236)'],
+    ['slate', 'rgb(227, 232, 229)', 'rgba(167, 205, 181, 0.08)']
   ]) {
     await page.locator('body').evaluate((body, value) => body.setAttribute('data-md-color-scheme', value), scheme);
     for (const [name, weight] of [['Getting Started', '580'], ['User Guide', '580'], ['Developer Guide', '580'], ['Input Data', '540']]) {
@@ -1601,7 +1623,7 @@ test("documentation sidebar hover is neutral and keeps the current-page marker",
   await link.click();
   await expect(link).toHaveClass(/md-nav__link--active/);
   await link.hover();
-  await expect(link).toHaveCSS('background-color', 'rgba(124, 54, 166, 0.07)');
+  await expect(link).toHaveCSS('background-color', 'rgba(48, 100, 78, 0.08)');
   await expect(link).toHaveCSS('border-left-width', '2px');
   await expect(link).toHaveCSS('font-weight', '600');
   await page.keyboard.press('Tab');
@@ -1611,23 +1633,22 @@ test("documentation sidebar hover is neutral and keeps the current-page marker",
   await expect(link).toHaveCSS('outline-offset', '-2px');
 
   const documentation = sidebar.getByRole('link', { name: 'Documentation', exact: true });
-  await expect(documentation.locator('..')).toHaveCSS('background-color', 'rgb(255, 255, 255)');
-  await expect(documentation.locator('..')).toHaveCSS('border-top-width', '1px');
+  await expect(documentation.locator('..')).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+  await expect(documentation.locator('..')).toHaveCSS('border-top-width', '0px');
   await expect(documentation.locator('..')).toHaveCSS('box-shadow', 'none');
   await documentation.hover();
-  await expect(documentation).toHaveCSS('color', 'rgb(26, 29, 33)');
-  await expect(documentation).toHaveCSS('font-weight', '560');
-  await expect(documentation.locator('..')).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+  await expect(documentation).toHaveCSS('color', 'rgb(37, 54, 47)');
+  await expect(documentation).toHaveCSS('font-weight', '600');
+  await expect(documentation.locator('..')).toHaveCSS('background-color', 'rgb(234, 240, 236)');
   const mark = await documentation.evaluate(link => {
     const style = getComputedStyle(link, '::before');
-    return { background: style.backgroundImage, width: parseFloat(style.width), height: parseFloat(style.height) };
+    return { background: style.backgroundImage, content: style.content };
   });
-  expect(mark.background).toContain('homepage-hero-logo.svg');
-  expect(mark.width).toBeGreaterThan(20);
-  expect(mark.height).toBeGreaterThan(12);
+  expect(mark).toEqual({ background: 'none', content: 'none' });
   await documentation.click();
   await expect(page).toHaveURL(/\/documentation\/$/);
-  await expect(documentation.locator('..')).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+  await expect(documentation.locator('..')).toHaveCSS('background-color', 'rgba(48, 100, 78, 0.08)');
+  await expect(documentation.locator('..')).toHaveCSS('box-shadow', 'rgb(48, 100, 78) 2px 0px 0px 0px inset');
 
   await sidebar.getByRole('link', { name: 'User Guide', exact: true }).click();
   await expect(page).toHaveURL(/\/user-guide\/$/);

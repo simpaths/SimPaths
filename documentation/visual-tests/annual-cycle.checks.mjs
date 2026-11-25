@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test("model overview keeps the diagram, notes and module links usable", async ({ page }) => {
   await page.goto("/overview/#the-annual-cycle");
+  await expect(page.locator('script[src*="annual-cycle.js"]')).toHaveCount(0);
   const diagram = page.locator("figure.module-diagram");
   await expect(diagram).toBeVisible();
   await expect.poll(() => diagram.locator("img").evaluate(image => image.complete && image.naturalWidth > 0)).toBe(true);

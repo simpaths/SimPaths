@@ -44,22 +44,6 @@ hide:
 </section>
 
 <div class="docs-index__secondary">
-<section class="docs-index__section docs-index__section--resources" aria-labelledby="resources">
-<h2 id="resources">Resources</h2>
-<div class="docs-index__links">
-  <a class="docs-index__link" href="../getting-started/video-tutorials/">
-    <strong>Video Tutorials</strong>
-    <span class="docs-index__arrow" aria-hidden="true">→</span>
-    <span class="docs-index__description">Video demonstrations of installation and common model workflows.</span>
-  </a>
-  <a class="docs-index__link" href="https://github.com/simpaths/SimPaths">
-    <strong>Source Code</strong>
-    <span class="docs-index__arrow" aria-hidden="true">↗</span>
-    <span class="docs-index__description">View the SimPaths repository on GitHub.</span>
-  </a>
-</div>
-</section>
-
 <section class="docs-index__section docs-index__section--reference" aria-labelledby="reference">
 <h2 id="reference">Reference</h2>
 <div class="docs-index__links">
@@ -72,6 +56,22 @@ hide:
     <strong>Generate API documentation</strong>
     <span class="docs-index__arrow" aria-hidden="true">→</span>
     <span class="docs-index__description">Build and inspect the Javadoc reference for your local version of SimPaths.</span>
+  </a>
+</div>
+</section>
+
+<section class="docs-index__section docs-index__section--resources" aria-labelledby="resources">
+<h2 id="resources">Resources</h2>
+<div class="docs-index__links">
+  <a class="docs-index__link" href="../getting-started/video-tutorials/">
+    <strong>Video Tutorials</strong>
+    <span class="docs-index__arrow" aria-hidden="true">→</span>
+    <span class="docs-index__description">Video demonstrations of installation and common model workflows.</span>
+  </a>
+  <a class="docs-index__link" href="https://github.com/simpaths/SimPaths">
+    <strong>Source Code</strong>
+    <span class="docs-index__arrow" aria-hidden="true">↗</span>
+    <span class="docs-index__description">View the SimPaths repository on GitHub.</span>
   </a>
 </div>
 </section>

@@ -1,24 +1,39 @@
 ---
+title: Model Validation
 hide:
   - toc
 ---
 
+<div class="validation-masthead" markdown="1">
+<div class="validation-masthead__inner" markdown="1">
+
 # Model Validation
 
-<span class="validation-page-marker" hidden></span>
+<div class="validation-masthead__intro" markdown="1">
 
 This section explains the current procedures used to validate SimPaths inputs and outputs, from regression checks to aggregate comparisons against external survey data. Validation is a core part of maintaining trust in the model after changes to parameters, code, or input data, and it provides a structured way to spot specification or implementation issues early.
 
-For the model paper and published applications, see [Research](../research/index.md). The procedures below describe how to perform the checks; they do not present a set of validation results for a particular model release.
+The procedures below describe how to perform the checks; they do not present a set of validation results for a particular model release.
+
+</div>
+</div>
+</div>
+
+<div class="validation-sheet" markdown="1">
+
+<section class="validation-scope" markdown="1">
 
 ## Scope of the checks { #1-introduction }
 
 The procedures documented here cover two kinds of checks:
 
-1. Validating regression estimates. This step assesses the performance of the regression models that govern key behavioural and demographic processes within SimPaths (e.g. leaving the parental home, returning to education). Using the estimated regression coefficients, we generate predicted values for each observation in the estimation sample, compute/plot aggregate statistics, and compare these with the equivalent values from the estimation sample. This provides a straightforward check that the estimated relationships embedded in the model are consistent with observed empirical patterns.
+1. **Validating regression estimates.** This step assesses the performance of the regression models that govern key behavioural and demographic processes within SimPaths (e.g. leaving the parental home, returning to education). Using the estimated regression coefficients, we generate predicted values for each observation in the estimation sample, compute/plot aggregate statistics, and compare these with the equivalent values from the estimation sample. This provides a straightforward check that the estimated relationships embedded in the model are consistent with observed empirical patterns.
 
-2. Validating simulated output. The second check examines the simulated output produced by SimPaths. The model is run for a period in which comparable survey data are available (2011–2023), and aggregate measures from the simulated data are compared to benchmarks computed using data from the UK Household Longitudinal Study (UKHLS). The validation focuses on the model's ability to reproduce aggregate measures over time (time-series consistency) and distributions within years, rather than the accuracy of individual trajectories through time.
+2. **Validating simulated output.** The second check examines the simulated output produced by SimPaths. The model is run for a period in which comparable survey data are available (2011–2023), and aggregate measures from the simulated data are compared to benchmarks computed using data from the UK Household Longitudinal Study (UKHLS). The validation focuses on the model's ability to reproduce aggregate measures over time (time-series consistency) and distributions within years, rather than the accuracy of individual trajectories through time.
 
+</section>
+
+<section class="validation-downloads" markdown="1">
 
 ## Obtaining the validation scripts { #2-obtaining-the-validation-scripts }
 
@@ -26,25 +41,31 @@ Validation procedures are currently executed in Stata. The corresponding do-file
 
 You can access these files in one of three ways:
 
-1. Clone the repository. This is suitable for developers who want the full version history or plan to contribute changes. See the [Working in GitHub guide](../developer-guide/working-in-github.md).
+1. **Clone the repository.** This is suitable for developers who want the full version history or plan to contribute changes. See the [Working in GitHub guide](../developer-guide/working-in-github.md).
 
-2. Download the repository as a ZIP file. This provides a snapshot of all files on the selected branch.
+2. **Download the repository as a ZIP file.** This provides a snapshot of all files on the selected branch.
 
     - In the GitHub interface, select the `develop` branch, click Code, and choose Download ZIP.
     - Extract the ZIP file locally and navigate to the validation folder.
 
-3. Download individual files directly from GitHub. This is suitable if you only need a few specific scripts.
+3. **Download individual files directly from GitHub.** This is suitable if you only need a few specific scripts.
 
     - Select the `develop` branch and navigate to the desired file in the validation folder.
     - Click the Download raw file icon (the downward arrow) at the top right of the file viewer to save it locally.
 
 These methods differ in how much of the repository you download. Downloading an individual script does not include the other files it may need.
 
+</section>
+
+<section class="validation-run" markdown="1">
 
 ## Running the validation scripts { #3-running-the-validation-scripts }
 
 Once you have obtained the relevant validation files, the next step is to run them in Stata.
 This section explains how to set up your working environment, what data are required, and how to execute the validation do-files for each stage of validation.
+
+<div class="validation-run__grid" markdown="1">
+<section markdown="1">
 
 ### Validating regression estimates { #31-validating-regression-estimates }
 
@@ -75,6 +96,8 @@ Before running these scripts, four preparatory steps are required:
 
 Run the validation do-files to produce the plots once these steps are complete.
 
+</section>
+<section markdown="1">
 
 ### Validating the simulated output { #32-validating-the-simulated-output }
 
@@ -119,3 +142,9 @@ Before running these scripts, complete the following preparatory steps:
     Open 00_master.do in the do_files subfolder. In “Define directories”, set the global dir_path to the main simulation-validation folder. Run the file up to, but not including, “Run do files” to set directories and parameters, adjusting these as necessary.
 
 Run the validation do-files to produce the plots once these steps are complete.
+
+</section>
+</div>
+</section>
+
+</div>

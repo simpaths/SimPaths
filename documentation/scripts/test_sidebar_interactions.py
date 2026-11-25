@@ -44,8 +44,8 @@ class SidebarInteractionTest(unittest.TestCase):
             self.assertEqual(blocks(self.source, selector)[0]["font-weight"], weight)
 
     def test_transitions_only_fade_colours_and_respect_reduced_motion(self):
-        for element, transition in ((".md-nav__link", "color 120ms ease, background-color 120ms ease"),
-                                    (".md-nav__container", "background-color 120ms ease")):
+        for element, transition in ((".md-nav__link", "color 160ms ease-out, background-color 160ms ease-out"),
+                                    (".md-nav__container", "background-color 160ms ease-out")):
             rules = blocks(self.source, SIDEBAR + " " + element)
             self.assertEqual(rules[0]["transition"], transition)
             self.assertEqual(rules[-1]["transition"].replace("!important", "").strip(), "none")
@@ -57,31 +57,23 @@ class SidebarInteractionTest(unittest.TestCase):
         self.assertEqual(rule["border-left"], "2px solid var(--sp-accent)")
         self.assertEqual(rule["font-weight"], "600")
 
-    def test_documentation_home_has_a_distinct_flat_surface(self):
-        self.assertEqual(blocks(self.source, HOME), [{
-            "--sp-sidebar-hover-bg": "var(--sp-sidebar-home-hover)",
-            "background": "var(--sp-sidebar-home-bg) !important",
-            "border": "1px solid var(--sp-sidebar-home-border)",
-            "border-radius": "4px !important", "box-shadow": "none !important"
-        }])
+    def test_documentation_home_uses_the_shared_navigation_state(self):
+        home = blocks(self.source, HOME)[0]
+        self.assertEqual(home["background"], "transparent !important")
+        self.assertEqual(home["box-shadow"], "none !important")
+        self.assertEqual(home["position"], "static")
+        self.assertNotIn("border", home)
+        self.assertEqual(home["border-radius"], "6px !important")
         link = HOME + " > a.md-nav__link"
-        self.assertEqual(blocks(self.source, link)[-1]["font-weight"], "560")
-        mark = blocks(self.source, link + "::before")[0]
-        self.assertEqual(mark["background"],
-                         'url("../images/homepage-hero-logo.svg") center / contain no-repeat')
-        self.assertEqual(mark["width"], "1.4rem")
-        self.assertEqual(mark["height"], "0.85rem")
-        self.assertEqual(mark["content"], '\"\"')
+        self.assertEqual(blocks(self.source, link)[-1]["font-weight"], "600")
+        self.assertFalse(blocks(self.source, link + "::before"))
+        self.assertNotIn("--sp-sidebar-home-", self.source)
+        current = blocks(self.source, SIDEBAR + " .md-nav__container.sp-nav-container-active")[0]
+        self.assertEqual(current["background"], "var(--sp-sidebar-active) !important")
+        self.assertEqual(current["box-shadow"], "inset 2px 0 0 var(--sp-accent) !important")
+        self.assertEqual(blocks(self.source, HOME + ".sp-nav-container-active")[0], current)
         template = CSS.parents[3] / "overrides/main.html"
         self.assertIn("assets/images/homepage-hero-logo.svg", template.read_text())
-
-    def test_documentation_home_has_both_theme_palettes(self):
-        dark = '[data-md-color-scheme="slate"].sp-docs-navigation .md-sidebar--primary'
-        for selector, colours in ((SIDEBAR, ("#fff", "#d9dce0", "#fff")),
-                                  (dark, ("var(--sp-surface)", "var(--sp-border-strong)", "var(--sp-surface-strong)"))):
-            rule = blocks(self.source, selector)[0]
-            for role, value in zip(("bg", "border", "hover"), colours):
-                self.assertEqual(rule["--sp-sidebar-home-" + role], value)
 
     def test_filter_and_navigation_share_one_width(self):
         script = (CSS.parent.parent / "js/sidebar-filter.js").read_text()
@@ -121,8 +113,8 @@ class SidebarInteractionTest(unittest.TestCase):
 
     def test_neutral_hover_has_a_dark_theme_variant(self):
         light_rule = blocks(self.source, SIDEBAR)[0]
-        self.assertEqual(light_rule["--sp-sidebar-hover-ink"], "#1a1d21")
-        self.assertEqual(light_rule["--sp-sidebar-hover-bg"], "#eceef0")
+        self.assertEqual(light_rule["--sp-sidebar-hover-ink"], "#25362F")
+        self.assertEqual(light_rule["--sp-sidebar-hover-bg"], "#EAF0EC")
         dark = '[data-md-color-scheme="slate"].sp-docs-navigation .md-sidebar--primary'
         dark_rule = blocks(self.source, dark)[0]
         self.assertEqual(dark_rule["--sp-sidebar-hover-ink"], "var(--md-default-fg-color)")

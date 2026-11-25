@@ -51,7 +51,7 @@
   margin: 0;
   padding: 0.7rem 2rem 0.7rem 0.85rem;
   background: transparent !important;
-  color: var(--md-default-fg-color);
+  color: var(--sp-midnight);
   font-size: var(--sp-reading-copy-size);
   font-weight: var(--sp-subheading-weight);
   line-height: 1.5;

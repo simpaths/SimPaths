@@ -82,7 +82,6 @@ class SiteTypographyTest(unittest.TestCase):
 
     def test_main_prose_uses_the_same_scale_including_mobile(self):
         prose = {
-            "03-content.css": [".md-typeset .page-intro", ".md-typeset .page-intro--support"],
             "06-page-sections.css": [".md-typeset .funding-lead", ".md-typeset .research-page__intro",
                                      ".md-typeset .cite-entry",
                                      ".md-typeset .module-detail__lead"],

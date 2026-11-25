@@ -9,12 +9,11 @@ hide:
 <h1>Research</h1>
 <p class="research-page__intro">Selected research on the methods behind SimPaths and its applications to life course dynamics, social care and the health effects of tax and benefit policy.</p>
 
-<section class="research-primary" aria-labelledby="primary-reference">
-<div class="research-primary__label"><h2 id="primary-reference">The model paper</h2></div>
+<section class="research-primary" aria-label="Reference paper">
   <article class="research-publication research-primary__paper">
     <div class="research-publication__meta">
       <time datetime="2025">2025</time>
-      <span>Journal article</span>
+      <span id="primary-reference">Reference paper</span>
     </div>
     <div class="research-publication__details">
       <h3><a href="https://microsimulation.pub/articles/00318">SimPaths: an open-source microsimulation model for life course analysis</a></h3>
