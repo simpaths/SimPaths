@@ -3787,7 +3787,11 @@ public class Parameters {
     }
 
     public static File getAgeHealthCostProfileFile() {
-        return new File(getInputDirectory(), AGE_HEALTH_COST_PROFILE_FILENAME);
+        return getAgeHealthCostProfileFile(AGE_HEALTH_COST_PROFILE_FILENAME);
+    }
+
+    public static File getAgeHealthCostProfileFile(String filename) {
+        return new File(getInputDirectory(), filename);
     }
 
     public static boolean isFinite(Double dd) {

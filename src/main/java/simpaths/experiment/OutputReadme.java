@@ -183,20 +183,23 @@ public class OutputReadme {
                 && model.getEndYear() >= HealthCostProfile.FIRST_YEAR;
         describe(out, healthSpendingOutput, "HealthSpendingStatistics.csv", "one row per year, from 2028",
                 "Annual UK public health spending in real-2015 pounds: expanded population, "
-                        + "benchmark expenditure, expenditure with 2028 single-age shares fixed, and "
-                        + "their difference (the ageing effect). Fixed-age expenditure and ageing "
-                        + "effect are `null` if this run has no 2028 population snapshot.");
+                        + "scenario expenditure (`benchmarkAnnualGbp2015`), and, for an age-only workbook "
+                        + "with a 2028 population snapshot, expenditure with 2028 single-age shares fixed "
+                        + "and the difference (the ageing effect). The last two columns are `null` for "
+                        + "age-by-sex workbooks. Use the difference in scenario expenditure between the "
+                        + "regular and 2026 no-ageing alignment runs for that experiment.");
 
         describe(out, healthSpendingOutput, "HealthSpendingByAge.csv",
                 "one row per simulated year and actual single-year age, from 2028",
                 "Expanded people, annual real-2015 pounds per person, and annual real-2015 "
                         + "expenditure. Ages 102+ remain distinct rows but use the age-101 cost. "
-                        + "The expenditure rows sum to that year's benchmark in "
+                        + "With sex-specific costs, the per-person figure is the population-weighted mean "
+                        + "of the male and female costs at that age. Expenditure rows sum to the year's scenario total in "
                         + "`HealthSpendingStatistics.csv`.");
         if (healthSpendingOutput) {
-            out.println("These fiscal outputs use the unscaled (`s=1`) OBR September 2024 age profile");
-            out.println("prepared in `input/age_health_cost_profile.xlsx`; its 2015-price conversion,");
-            out.println("morbidity shift and non-demographic growth are already in the input costs.");
+            out.println("These fiscal outputs use `input/" + collector.getHealthCostProfileFilename() + "`.");
+            out.println("The OBR-based profiles already include the 2015-price conversion,");
+            out.println("morbidity shift and non-demographic growth.");
             out.println();
         }
 

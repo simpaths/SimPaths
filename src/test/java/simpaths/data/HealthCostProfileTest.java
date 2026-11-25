@@ -1,5 +1,7 @@
 package simpaths.data;
 
+import simpaths.model.enums.Gender;
+
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -117,6 +119,23 @@ class HealthCostProfileTest {
         IllegalArgumentException columnError = assertThrows(IllegalArgumentException.class,
                 () -> new HealthCostProfile(extraColumnFile));
         assertTrue(columnError.getMessage().contains("after age_101"));
+    }
+
+    @Test
+    void readsBothSheetsOfPreparedAgeBySexProfile() throws IOException {
+        var profile = new HealthCostProfile(Parameters.getAgeHealthCostProfileFile("age_by_sex_health_cost_profile.xlsx"));
+        assertTrue(profile.isSexSpecific());
+        assertEquals(1481.542465087039, profile.cost(2028, 0, Gender.Male), 1e-8);
+        assertEquals(1176.8493949232945, profile.cost(2028, 0, Gender.Female), 1e-8);
+        assertEquals(18457.198085567856, profile.cost(2060, 102, Gender.Female), 1e-8);
+        assertThrows(IllegalStateException.class, () -> profile.cost(2028, 0));
+    }
+
+    @Test
+    void rejectsAgeBySexWorkbookWithOneSheetMissing() throws IOException {
+        File file = writeWorkbook(2060, sheet -> sheet.getWorkbook().setSheetName(0, "male"));
+        var error = assertThrows(IllegalArgumentException.class, () -> new HealthCostProfile(file));
+        assertTrue(error.getMessage().contains("both 'male' and 'female'"));
     }
 
     private File writeWorkbook(int lastYear, Consumer<Sheet> change) throws IOException {

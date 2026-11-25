@@ -7,6 +7,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.CellReference;
+import simpaths.model.enums.Gender;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,7 +29,8 @@ public final class HealthCostProfile {
     private static final int AGE_COLUMNS = MAX_INPUT_AGE + 1;
     private static final int TOTAL_COLUMNS = AGE_COLUMNS + 1;
 
-    private final double[][] costs = new double[LAST_YEAR - FIRST_YEAR + 1][AGE_COLUMNS];
+    private final double[][] costs;
+    private final double[][] femaleCosts;
 
     public HealthCostProfile() throws IOException {
         this(Parameters.getAgeHealthCostProfileFile());
@@ -38,16 +40,47 @@ public final class HealthCostProfile {
         Objects.requireNonNull(file, "Health cost profile file must not be null");
         try (InputStream input = new FileInputStream(file);
              Workbook workbook = WorkbookFactory.create(input)) {
-            Sheet sheet = workbook.getSheet(SHEET_NAME);
-            if (sheet == null) {
-                throw new IllegalArgumentException("Missing worksheet '" + SHEET_NAME + "' in " + file);
+            Sheet male = workbook.getSheet("male");
+            Sheet female = workbook.getSheet("female");
+            if (male != null || female != null) {
+                if (male == null || female == null) {
+                    throw new IllegalArgumentException("An age-by-sex profile requires both 'male' and 'female' worksheets in " + file);
+                }
+                costs = readSheet(male);
+                femaleCosts = readSheet(female);
+            } else {
+                Sheet sheet = workbook.getSheet(SHEET_NAME);
+                if (sheet == null) {
+                    throw new IllegalArgumentException("Missing worksheet '" + SHEET_NAME + "' in " + file);
+                }
+                costs = readSheet(sheet);
+                femaleCosts = null;
             }
-            readSheet(sheet);
         }
     }
 
-    /** Returns the annual cost for the given year and actual single-year age. */
+    public boolean isSexSpecific() {
+        return femaleCosts != null;
+    }
+
+    /** Returns the annual cost from an age-only profile. */
     public double cost(int year, int age) {
+        if (isSexSpecific()) {
+            throw new IllegalStateException("An age-by-sex health cost lookup requires sex");
+        }
+        return cost(year, age, costs);
+    }
+
+    /** Returns the annual cost for the person's sex and actual single-year age. */
+    public double cost(int year, int age, Gender gender) {
+        if (!isSexSpecific()) {
+            return cost(year, age);
+        }
+        Objects.requireNonNull(gender, "An age-by-sex health cost lookup requires sex");
+        return cost(year, age, gender == Gender.Female ? femaleCosts : costs);
+    }
+
+    private static double cost(int year, int age, double[][] matrix) {
         if (year < FIRST_YEAR || year > LAST_YEAR) {
             throw new IllegalArgumentException("Health cost year " + year + " is outside "
                     + FIRST_YEAR + "-" + LAST_YEAR);
@@ -55,13 +88,14 @@ public final class HealthCostProfile {
         if (age < 0) {
             throw new IllegalArgumentException("Health cost age must be non-negative: " + age);
         }
-        return costs[year - FIRST_YEAR][Math.min(age, MAX_INPUT_AGE)];
+        return matrix[year - FIRST_YEAR][Math.min(age, MAX_INPUT_AGE)];
     }
 
-    private void readSheet(Sheet sheet) {
+    private static double[][] readSheet(Sheet sheet) {
+        double[][] costs = new double[LAST_YEAR - FIRST_YEAR + 1][AGE_COLUMNS];
         Row header = sheet.getRow(0);
         if (header == null) {
-            throw new IllegalArgumentException("Missing header row in worksheet '" + SHEET_NAME + "'");
+            throw new IllegalArgumentException("Missing header row in worksheet '" + sheet.getSheetName() + "'");
         }
         for (int column = 0; column < TOTAL_COLUMNS; column++) {
             String expected = column == 0 ? "year" : "age_" + (column - 1);
@@ -116,6 +150,7 @@ public final class HealthCostProfile {
                 throw new IllegalArgumentException("Missing health cost year " + year);
             }
         }
+        return costs;
     }
 
     private static double numericValue(Cell cell, String context) {

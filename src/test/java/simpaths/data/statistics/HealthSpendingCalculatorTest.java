@@ -2,8 +2,10 @@ package simpaths.data.statistics;
 
 import org.junit.jupiter.api.Test;
 import simpaths.data.HealthCostProfile;
+import simpaths.data.Parameters;
 import simpaths.model.Person;
 import simpaths.model.SimPathsModel;
+import simpaths.model.enums.Gender;
 import simpaths.model.enums.SampleExit;
 
 import java.io.IOException;
@@ -176,6 +178,32 @@ class HealthSpendingCalculatorTest {
         assertThrows(IllegalArgumentException.class,
                 () -> HealthSpendingCalculator.snapshot(2028,
                         List.of(person(0, Double.MAX_VALUE), person(0, Double.MAX_VALUE)), true, 1.0));
+    }
+
+    @Test
+    void pricesEachSexAndActualAgeWithTheActivePopulationWeights() throws IOException {
+        var profile = new HealthCostProfile(Parameters.getAgeHealthCostProfileFile("age_by_sex_health_cost_profile.xlsx"));
+        Person male = person(32, 2.0);
+        male.setDemMaleFlag(Gender.Male);
+        Person female = person(32, 3.0);
+        female.setDemMaleFlag(Gender.Female);
+        Person older = person(103, 1.0);
+        older.setDemMaleFlag(Gender.Male);
+        Person exited = person(32, 500.0);
+        exited.setSampleExit(SampleExit.Death);
+        var snapshot = HealthSpendingCalculator.snapshot(2028,
+                List.of(male, female, older, exited, person(40, 0.0)), false, 4.0, true);
+        var result = new HealthSpendingCalculator(profile).calculate(snapshot);
+
+        double at32 = 8.0 * profile.cost(2028, 32, Gender.Male) + 12.0 * profile.cost(2028, 32, Gender.Female);
+        double at103 = 4.0 * profile.cost(2028, 101, Gender.Male);
+        assertEquals(24.0, result.getTotalPopulation());
+        assertEquals(at32, result.getSpendingByAge().get(32), 1e-8);
+        assertEquals(at103, result.getSpendingByAge().get(103), 1e-8);
+        assertEquals(at32 + at103, result.getBenchmarkExpenditure(), 1e-8);
+        assertTrue(result.getFixedAgeExpenditure().isEmpty());
+        assertTrue(result.getAgeingEffect().isEmpty());
+        assertFalse(result.getSpendingByAge().containsKey(40));
     }
 
     private static Person person(int age, double weight) {

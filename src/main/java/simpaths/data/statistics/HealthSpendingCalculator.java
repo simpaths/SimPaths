@@ -3,9 +3,11 @@ package simpaths.data.statistics;
 import simpaths.data.HealthCostProfile;
 import simpaths.model.Person;
 import simpaths.model.SimPathsModel;
+import simpaths.model.enums.Gender;
 import simpaths.model.enums.SampleExit;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 import java.util.OptionalDouble;
 import java.util.SortedMap;
@@ -27,17 +29,17 @@ public final class HealthSpendingCalculator {
 
     /**
      * Prices the realised single-age population using this year's cost profile.
-     * Once the run reaches 2028, it also estimates what the same year's spending
-     * would be if age shares stayed at their realised 2028 values. Population
-     * size and per-person costs still change each year; only age shares are fixed.
-     * A run beginning after 2028 has no fixed-age counterfactual.
+     * The age-only profile also uses the run's realised 2028 age shares for a
+     * counterfactual. The age-by-sex experiment compares separate runs with
+     * regular and 2026 no-ageing population targets.
      */
     public SpendingResult calculate(PopulationSnapshot snapshot) {
         Objects.requireNonNull(snapshot, "Population snapshot must not be null");
         int year = snapshot.getYear();
         // Validate the year even for an empty population.
-        costProfile.cost(year, 0);
-        if (year == HealthCostProfile.FIRST_YEAR) {
+        costProfile.cost(year, 0, Gender.Male);
+        boolean captureAgeShares = !costProfile.isSexSpecific() && year == HealthCostProfile.FIRST_YEAR;
+        if (captureAgeShares) {
             if (baseYearAgeShares != null) {
                 throw new IllegalStateException("2028 health-spending baseline has already been captured");
             }
@@ -50,7 +52,7 @@ public final class HealthSpendingCalculator {
         double benchmark = 0.0;
         // Benchmark: sum(actual expanded people at age a * this year's cost at age a).
         for (var entry : snapshot.getPopulationByAge().entrySet()) {
-            double ageSpending = entry.getValue() * costProfile.cost(year, entry.getKey());
+            double ageSpending = snapshot.expenditureAtAge(costProfile, entry.getKey());
             benchmark += ageSpending;
             if (!Double.isFinite(ageSpending) || !Double.isFinite(benchmark)) {
                 throw new IllegalArgumentException("Non-finite health spending in year " + year);
@@ -59,7 +61,7 @@ public final class HealthSpendingCalculator {
         }
 
         SortedMap<Integer, Double> sharesForThisYear = baseYearAgeShares;
-        if (year == HealthCostProfile.FIRST_YEAR) {
+        if (captureAgeShares) {
             // Capture age shares from this run's 2028 population, not from an input file.
             // Each share is the expanded population at that age / total 2028 population.
             SortedMap<Integer, Double> shares = new TreeMap<>();
@@ -87,7 +89,7 @@ public final class HealthSpendingCalculator {
             // The two totals differ only because their age distributions differ.
             ageingEffect = OptionalDouble.of(benchmark - fixedSpending);
         }
-        if (year == HealthCostProfile.FIRST_YEAR) {
+        if (captureAgeShares) {
             // Retain these shares for later years of this simulation run.
             baseYearAgeShares = sharesForThisYear;
         }
@@ -100,19 +102,31 @@ public final class HealthSpendingCalculator {
      * Call this after annual population alignment, not before it.
      */
     public static PopulationSnapshot snapshot(int year, SimPathsModel model) {
+        return snapshot(year, model, false);
+    }
+
+    public static PopulationSnapshot snapshot(int year, SimPathsModel model, boolean bySex) {
         Objects.requireNonNull(model, "SimPaths model must not be null");
-        return snapshot(year, model.getPersons(), model.isUseWeights(), model.getScalingFactor());
+        return snapshot(year, model.getPersons(), model.isUseWeights(), model.getScalingFactor(), bySex);
     }
 
     // Package-private so the weighting and exit rules can be tested without running a simulation.
     static PopulationSnapshot snapshot(int year, Iterable<Person> persons,
                                        boolean useWeights, double scalingFactor) {
+        return snapshot(year, persons, useWeights, scalingFactor, false);
+    }
+
+    static PopulationSnapshot snapshot(int year, Iterable<Person> persons,
+                                       boolean useWeights, double scalingFactor, boolean bySex) {
         Objects.requireNonNull(persons, "Persons must not be null");
         if (!Double.isFinite(scalingFactor) || scalingFactor <= 0.0) {
             throw new IllegalArgumentException("Scaling factor must be finite and positive: " + scalingFactor);
         }
 
         SortedMap<Integer, Double> populationByAge = new TreeMap<>();
+        Map<Gender, SortedMap<Integer, Double>> populationByAgeAndSex = bySex
+                ? Map.of(Gender.Male, new TreeMap<>(), Gender.Female, new TreeMap<>())
+                : null;
         for (Person person : persons) {
             Objects.requireNonNull(person, "Persons must not contain null");
             if (!SampleExit.NotYet.equals(person.getSampleExit())) {
@@ -134,6 +148,16 @@ public final class HealthSpendingCalculator {
                 throw new IllegalArgumentException("Non-finite effective weight at age " + age
                         + " in year " + year);
             }
+            if (bySex) {
+                if (effectiveWeight == 0.0) {
+                    continue;
+                }
+                Gender gender = person.getDemMaleFlag();
+                if (gender == null) {
+                    throw new IllegalArgumentException("Missing sex for active person at age " + age + " in year " + year);
+                }
+                populationByAgeAndSex.get(gender).merge(age, effectiveWeight, Double::sum);
+            }
             double ageTotal = populationByAge.getOrDefault(age, 0.0) + effectiveWeight;
             if (!Double.isFinite(ageTotal)) {
                 throw new IllegalArgumentException("Non-finite population total at age " + age
@@ -149,19 +173,22 @@ public final class HealthSpendingCalculator {
                 throw new IllegalArgumentException("Non-finite total population in year " + year);
             }
         }
-        return new PopulationSnapshot(year, populationByAge, totalPopulation);
+        return new PopulationSnapshot(year, populationByAge, populationByAgeAndSex, totalPopulation);
     }
 
     /** Expanded people at their actual single-year ages, including ages above 101. */
     public static final class PopulationSnapshot {
         private final int year;
         private final SortedMap<Integer, Double> populationByAge;
+        private final Map<Gender, SortedMap<Integer, Double>> populationByAgeAndSex;
         private final double totalPopulation;
 
         private PopulationSnapshot(int year, SortedMap<Integer, Double> populationByAge,
+                                   Map<Gender, SortedMap<Integer, Double>> populationByAgeAndSex,
                                    double totalPopulation) {
             this.year = year;
             this.populationByAge = Collections.unmodifiableSortedMap(new TreeMap<>(populationByAge));
+            this.populationByAgeAndSex = populationByAgeAndSex;
             this.totalPopulation = totalPopulation;
         }
 
@@ -182,6 +209,18 @@ public final class HealthSpendingCalculator {
                 throw new IllegalArgumentException("Age must be non-negative: " + age);
             }
             return populationByAge.getOrDefault(age, 0.0);
+        }
+
+        public double expenditureAtAge(HealthCostProfile profile, int age) {
+            if (!profile.isSexSpecific()) {
+                return getPopulationAtAge(age) * profile.cost(year, age);
+            }
+            if (populationByAgeAndSex == null) {
+                throw new IllegalStateException("An age-by-sex health cost profile requires a population snapshot by sex");
+            }
+            double males = populationByAgeAndSex.get(Gender.Male).getOrDefault(age, 0.0);
+            double females = populationByAgeAndSex.get(Gender.Female).getOrDefault(age, 0.0);
+            return males * profile.cost(year, age, Gender.Male) + females * profile.cost(year, age, Gender.Female);
         }
     }
 
@@ -223,12 +262,12 @@ public final class HealthSpendingCalculator {
             return benchmarkExpenditure;
         }
 
-        /** Empty if this calculator has not observed the run's 2028 population. */
+        /** Available for an age-only profile with the run's 2028 population. */
         public OptionalDouble getFixedAgeExpenditure() {
             return fixedAgeExpenditure;
         }
 
-        /** Benchmark less fixed-age expenditure; empty without a 2028 baseline. */
+        /** Benchmark less fixed-age expenditure, when the within-run comparison is available. */
         public OptionalDouble getAgeingEffect() {
             return ageingEffect;
         }

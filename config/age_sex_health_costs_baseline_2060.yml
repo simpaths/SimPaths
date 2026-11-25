@@ -1,0 +1,25 @@
+# Health spending under the regular population projection.
+# Pair with age_sex_health_costs_no_ageing_2060.yml and compare annual scenario spending.
+
+maxNumberOfRuns: 1
+executeWithGui: false
+randomSeed: 606
+startYear: 2021
+endYear: 2060
+popSize: 50000
+
+parameter_args:
+  populationProjectionFilename: align_popProjections.xlsx
+  UKMODpolicyScheduleFilename: UKMODpolicySchedule_wealth_scenarios
+
+model_args:
+  bequestSyntheticRecipientCount: 2
+  alignPopulation: true
+  alignCohabitation: true
+  alignFertility: true
+  FERTILITY_ALIGNMENT_END_YEAR: 2060
+  PARTNERSHIP_ALIGNMENT_END_YEAR: 2060
+
+collector_args:
+  persistHealthSpendingStatistics: true
+  healthCostProfileFilename: age_by_sex_health_cost_profile.xlsx

@@ -74,6 +74,7 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
 
     @GUIparameter(description="Calculate age-related public health spending (real 2015 pounds)")
     private boolean persistHealthSpendingStatistics = false;
+    private String healthCostProfileFilename = Parameters.AGE_HEALTH_COST_PROFILE_FILENAME;
 
     @GUIparameter(description="Report wellbeing statistics by gender (WellbeingByGender.csv)")
     private boolean persistWellbeingByGender = true;
@@ -292,7 +293,8 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
             if (healthSpendingCalculator == null) {
                 throw new IllegalStateException("Health spending calculator was not initialised");
             }
-            var populationSnapshot = HealthSpendingCalculator.snapshot(spendingYear, model);
+            var populationSnapshot = HealthSpendingCalculator.snapshot(
+                    spendingYear, model, healthCostProfile.isSexSpecific());
             latestHealthSpendingResult = healthSpendingCalculator.calculate(
                     populationSnapshot);
             validateHealthSpendingDetail(populationSnapshot, latestHealthSpendingResult,
@@ -301,12 +303,14 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
             exportHealthSpendingStatistics.export();
             for (var agePopulation : populationSnapshot.getPopulationByAge().entrySet()) {
                 int age = agePopulation.getKey();
-                healthSpendingAgeRow.update(age, agePopulation.getValue(),
-                        healthCostProfile.cost(spendingYear, age),
-                        latestHealthSpendingResult.getSpendingByAge().get(age));
+                double population = agePopulation.getValue();
+                double expenditure = latestHealthSpendingResult.getSpendingByAge().get(age);
+                double cost = healthCostProfile.isSexSpecific()
+                        ? expenditure / population : healthCostProfile.cost(spendingYear, age);
+                healthSpendingAgeRow.update(age, population, cost, expenditure);
                 exportHealthSpendingByAge.export();
             }
-            log.info("Health spending, simulated year {}: benchmark={} real-2015 pounds; "
+            log.info("Health spending, simulated year {}: scenario expenditure={} real-2015 pounds; "
                             + "fixed-2028-age-structure={}; ageing effect={}",
                     spendingYear,
                     latestHealthSpendingResult.getBenchmarkExpenditure(),
@@ -348,7 +352,7 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
         if (persistHealthSpendingStatistics &&
                 firstHealthSpendingYear(model.getStartYear(), model.getEndYear()) >= 0) {
             try {
-                healthCostProfile = new HealthCostProfile();
+                healthCostProfile = new HealthCostProfile(Parameters.getAgeHealthCostProfileFile(healthCostProfileFilename));
             } catch (IOException e) {
                 throw new IllegalStateException("Could not load age-related health cost profile", e);
             }
@@ -518,7 +522,7 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
         double detailTotal = 0.0;
         for (var entry : population.getPopulationByAge().entrySet()) {
             Double expenditure = result.getSpendingByAge().get(entry.getKey());
-            double expected = entry.getValue() * profile.cost(result.getYear(), entry.getKey());
+            double expected = population.expenditureAtAge(profile, entry.getKey());
             if (expenditure == null || !Double.isFinite(expected)
                     || Math.abs(expenditure - expected) > Math.max(1.0, expected) * 1e-12) {
                 throw new IllegalStateException("Age-detail health spending differs from population × cost "
@@ -1036,6 +1040,10 @@ public class SimPathsCollector extends AbstractSimulationCollectorManager implem
 
     public boolean isPersistHealthSpendingStatistics() {
         return persistHealthSpendingStatistics;
+    }
+
+    public String getHealthCostProfileFilename() {
+        return healthCostProfileFilename;
     }
 
     public void setPersistHealthSpendingStatistics(boolean persistHealthSpendingStatistics) {

@@ -80,6 +80,27 @@ class HealthSpendingCollectorTest {
     }
 
     @Test
+    void ageBySexScenariosDifferOnlyInPopulationTargets() throws IOException {
+        Map<String, Object> baseline;
+        Map<String, Object> noAgeing;
+        try (var regular = Files.newInputStream(Path.of("config/age_sex_health_costs_baseline_2060.yml"));
+             var fixed = Files.newInputStream(Path.of("config/age_sex_health_costs_no_ageing_2060.yml"))) {
+            baseline = new Yaml().load(regular);
+            noAgeing = new Yaml().load(fixed);
+        }
+        assertEquals("align_popProjections.xlsx",
+                castArgs(baseline.get("parameter_args")).remove("populationProjectionFilename"));
+        assertEquals("align_popProjections_no_ageing_2026.xlsx",
+                castArgs(noAgeing.get("parameter_args")).remove("populationProjectionFilename"));
+        assertEquals(baseline, noAgeing);
+
+        var collector = new SimPathsCollector(new SimPathsModel(Country.UK, 2021));
+        SimPathsMultiRun.updateParameters(collector, castArgs(baseline.get("collector_args")));
+        assertTrue(collector.isPersistHealthSpendingStatistics());
+        assertEquals("age_by_sex_health_cost_profile.xlsx", collector.getHealthCostProfileFilename());
+    }
+
+    @Test
     void annualAndAgeRowsUseOneSnapshotAndReconcileAt2028And2060()
             throws IOException, ReflectiveOperationException {
         HealthCostProfile profile = new HealthCostProfile();
