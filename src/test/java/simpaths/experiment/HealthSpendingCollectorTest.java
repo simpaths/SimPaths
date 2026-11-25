@@ -5,6 +5,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.yaml.snakeyaml.Yaml;
 import microsim.data.db.PanelEntityKey;
 import simpaths.data.HealthCostProfile;
+import simpaths.data.Parameters;
 import simpaths.data.statistics.HealthSpendingByAge;
 import simpaths.data.statistics.HealthSpendingCalculator;
 import simpaths.data.statistics.HealthSpendingStatistics;
@@ -13,7 +14,6 @@ import simpaths.model.SimPathsModel;
 import simpaths.model.enums.Country;
 import simpaths.model.enums.SampleExit;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
@@ -56,14 +56,18 @@ class HealthSpendingCollectorTest {
     }
 
     @Test
-    void scenarioYamlSetsTheActualModelAndCollectorFields() throws IOException, ReflectiveOperationException {
-        Map<String, Object> config;
-        try (FileInputStream input = new FileInputStream("config/age_related_health_costs_2060.yml")) {
-            config = new Yaml().load(input);
-        }
+    void yamlEnablesHealthSpendingAndExtendsAlignment() throws ReflectiveOperationException {
+        Map<String, Object> config = new Yaml().load("""
+                model_args:
+                  alignPopulation: true
+                  alignCohabitation: true
+                  alignFertility: true
+                  FERTILITY_ALIGNMENT_END_YEAR: 2060
+                  PARTNERSHIP_ALIGNMENT_END_YEAR: 2060
+                collector_args:
+                  persistHealthSpendingStatistics: true
+                """);
 
-        assertEquals(2019, config.get("startYear"));
-        assertEquals(2060, config.get("endYear"));
         SimPathsModel model = new SimPathsModel(Country.UK, 2019);
         assertFalse(model.isAlignFertility());
         SimPathsMultiRun.updateParameters(model, castArgs(config.get("model_args")));
@@ -80,24 +84,17 @@ class HealthSpendingCollectorTest {
     }
 
     @Test
-    void ageBySexScenariosDifferOnlyInPopulationTargets() throws IOException {
-        Map<String, Object> baseline;
-        Map<String, Object> noAgeing;
-        try (var regular = Files.newInputStream(Path.of("config/age_sex_health_costs_baseline_2060.yml"));
-             var fixed = Files.newInputStream(Path.of("config/age_sex_health_costs_no_ageing_2060.yml"))) {
-            baseline = new Yaml().load(regular);
-            noAgeing = new Yaml().load(fixed);
-        }
-        assertEquals("align_popProjections.xlsx",
-                castArgs(baseline.get("parameter_args")).remove("populationProjectionFilename"));
-        assertEquals("align_popProjections_no_ageing_2026.xlsx",
-                castArgs(noAgeing.get("parameter_args")).remove("populationProjectionFilename"));
-        assertEquals(baseline, noAgeing);
-
+    void yamlSelectsTheAgeBySexWorkbook() throws IOException {
+        Map<String, Object> collectorArgs = new Yaml().load("""
+                persistHealthSpendingStatistics: true
+                healthCostProfileFilename: age_by_sex_health_cost_profile.xlsx
+                """);
         var collector = new SimPathsCollector(new SimPathsModel(Country.UK, 2021));
-        SimPathsMultiRun.updateParameters(collector, castArgs(baseline.get("collector_args")));
+        SimPathsMultiRun.updateParameters(collector, collectorArgs);
         assertTrue(collector.isPersistHealthSpendingStatistics());
         assertEquals("age_by_sex_health_cost_profile.xlsx", collector.getHealthCostProfileFilename());
+        var profile = new HealthCostProfile(Parameters.getAgeHealthCostProfileFile(collector.getHealthCostProfileFilename()));
+        assertTrue(profile.isSexSpecific());
     }
 
     @Test

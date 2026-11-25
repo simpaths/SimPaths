@@ -25,6 +25,26 @@ import static org.junit.jupiter.api.Assertions.fail;
 @EnabledIfSystemProperty(named = "simpaths.healthSpending.integration", matches = "true")
 class HealthSpendingIntegrationTest {
 
+    private static final String SMOKE_CONFIG = """
+            maxNumberOfRuns: 1
+            executeWithGui: false
+            randomSeed: 606
+            startYear: 2019
+            endYear: 2029
+            popSize: 20000
+            model_args:
+              alignPopulation: true
+              alignCohabitation: true
+              alignFertility: true
+              FERTILITY_ALIGNMENT_END_YEAR: 2029
+              PARTNERSHIP_ALIGNMENT_END_YEAR: 2029
+            collector_args:
+              persistHealthSpendingStatistics: true
+              persistPersons: false
+              persistBenefitUnits: false
+              persistHouseholds: false
+            """;
+
     @TempDir
     Path temporaryDirectory;
 
@@ -36,15 +56,7 @@ class HealthSpendingIntegrationTest {
                 "Build multirun.jar before this opt-in test");
 
         long started = System.currentTimeMillis();
-        Path log = temporaryDirectory.resolve("health-spending-smoke.log");
-        Process process = new ProcessBuilder("java", "-jar", "multirun.jar", "-config",
-                "age_related_health_costs_smoke.yml", "-P", "none")
-                .redirectErrorStream(true).redirectOutput(log.toFile()).start();
-        if (!process.waitFor(20, TimeUnit.MINUTES)) {
-            process.destroyForcibly();
-            fail("Short health-spending simulation timed out; see " + log);
-        }
-        assertEquals(0, process.exitValue(), () -> "Short simulation failed:\n" + tail(log));
+        runSmokeSimulation(temporaryDirectory.resolve("health-spending-smoke.log"));
 
         Path csvDirectory = findNewCsvDirectory(started);
         Map<Integer, String[]> annual = rowsByYear(csvDirectory.resolve("HealthSpendingStatistics.csv"));
@@ -91,6 +103,24 @@ class HealthSpendingIntegrationTest {
         System.out.printf("Health-spending smoke run: realised 2028 population %.2f; "
                         + "prepared alignment reference 69427756.31; difference %.2f%n",
                 populationByYear.get(2028), populationByYear.get(2028) - 69427756.31);
+    }
+
+    private static void runSmokeSimulation(Path log) throws IOException, InterruptedException {
+        // The runner resolves -config names under config/.
+        Path config = Files.createTempFile(Path.of("config"), "health-spending-smoke-", ".yml");
+        try {
+            Files.writeString(config, SMOKE_CONFIG);
+            Process process = new ProcessBuilder("java", "-jar", "multirun.jar", "-config",
+                    config.getFileName().toString(), "-P", "none")
+                    .redirectErrorStream(true).redirectOutput(log.toFile()).start();
+            if (!process.waitFor(20, TimeUnit.MINUTES)) {
+                process.destroyForcibly().waitFor(10, TimeUnit.SECONDS);
+                fail("Short health-spending simulation timed out; see " + log);
+            }
+            assertEquals(0, process.exitValue(), () -> "Short simulation failed:\n" + tail(log));
+        } finally {
+            Files.deleteIfExists(config);
+        }
     }
 
     private static Path findNewCsvDirectory(long started) throws IOException {
