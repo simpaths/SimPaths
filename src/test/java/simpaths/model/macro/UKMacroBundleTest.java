@@ -8,6 +8,8 @@ import simpaths.model.enums.Labour;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Set;
 
@@ -82,6 +84,35 @@ class UKMacroBundleTest {
             double hoursPerWorker = Double.parseDouble(expected[hours]);
             assertEquals(wagePerWorker - hoursPerWorker, state.getHourlyWageDeviation(), 1e-8,
                     "Hourly wage response at horizon " + row);
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource({"MacroModel", "MacroModel-2019q1"})
+    void bundleProvenanceResolvesAgainstTheUkCheckout(String directory) throws Exception {
+        Path bundle = Path.of("input", "UK", directory);
+        assertFalse(Files.exists(bundle.resolve("BUNDLE_NOT_VERIFIED.txt")));
+        List<String> hashes = Files.readAllLines(bundle.resolve("BUNDLE_PROVENANCE.txt")).stream()
+                .filter(line -> line.startsWith("sha256 "))
+                .toList();
+        assertFalse(hashes.isEmpty());
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        for (String line : hashes) {
+            String[] fields = line.split(" ", 4);
+            Path file = Path.of(fields[3]);
+            assertTrue(Files.isRegularFile(file), "Bundle input is missing: " + file);
+            byte[] bytes = Files.readAllBytes(file);
+            if (fields[1].equals("t")) {
+                for (byte value : bytes) {
+                    if (value != '\r') {
+                        digest.update(value);
+                    }
+                }
+            } else {
+                assertEquals("b", fields[1], "Unexpected hash mode");
+                digest.update(bytes);
+            }
+            assertEquals(fields[2], HexFormat.of().formatHex(digest.digest()), file.toString());
         }
     }
 

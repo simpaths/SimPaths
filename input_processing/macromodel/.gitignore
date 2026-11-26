@@ -1,0 +1,25 @@
+# Dynare writes these into the working directory unconditionally.
++Macromodel_*/
+Macromodel_*/
+*.log
+*.asv
+*.mat
+params_*_estimated.txt
+
+# Run artefacts. data/ and country_params/ are tracked; these are not.
+output/
+logs/
+figures/
+
+# Stata working frames and logs; only the UK CPI cache is tracked.
+stata/*.dta
+!stata/hicp_q_sa_uk.dta
+stata/*.dtas
+stata/*.log
+stata/*.png
+# X-13ARIMA-SEATS: the binary (see tools/x13as/README.md) and its run files, written
+# when do_HICP_seasonal_adjustment = 1. The binary also leaves Fortran scratch files
+# in Stata's working directory.
+tools/x13as/*.exe
+stata/x13_work/
+stata/fort.*

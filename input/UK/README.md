@@ -21,9 +21,13 @@ The 2019 bundle re-solves the Ramsey handoff using the existing UK calibration
 and the same population alignment workbook as UK SimPaths. It carries forward
 the original UK DSGE policy and shock files. The exports trace back to the
 SimPathsEU WELLSIM checkout at `304a8aca4040e17483d5d324553d0f7c8b6401e2`.
-Paths under `input_processing/macromodel` in the provenance manifests refer
-to the macro source checkout. For the 2019 export, the detrended CSV records
-the Ramsey rebuild and the frozen model identifies the retained DSGE fit.
+The provenance manifests link to the tracked UK rebuild inputs in this
+checkout. For the 2019 export they record both the Ramsey detrending audit
+and the original estimation data for the retained DSGE fit.
+
+See the [UK rebuild workflow](../../input_processing/macromodel/README.md) to
+prepare a bundle for another start year or to refresh the underlying data
+and re-estimate the DSGE.
 
 ## Training smoke test
 

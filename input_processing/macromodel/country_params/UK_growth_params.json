@@ -1,0 +1,59 @@
+{
+  "model_version": "2.0",
+  "model_type": "ramsey",
+  "country": "UK",
+  "calibration_date": "2026-11-09",
+  "calibration_source": "ONS (QNA chained volumes and current prices, D1/D11, CPI D7BT), OECD (LFS, QNA employment and hours, STES 3-month rate), Eurostat (fixed 2015 EUR/GBP rate), PWT 10.01 via FRED (RKNANPGBA666NRUG, RGDPNAGBA666NRUG, LABSHPGBA156NRUG), Bank of England",
+  "parameters": {
+    "alpha_K": 0.33,
+    "delta_annual": 0.05,
+    "beta_annual": 0.96,
+    "sigma": 1.5,
+    "tfp_growth_annual": 0.0051,
+    "K_override": 6593000,
+    "x_comments": {
+      "alpha_K": "Capital share set to 0.33 for cross-country comparability with Germany, Poland, Spain and Sweden, all of which use 0.33 in the Ramsey layer. PWT 10.01 labsh for the UK is 0.60 (2000: 0.598, 2019: 0.608), implying alpha nearer 0.40, the same gap Spain has; holding alpha_K fixed keeps the Ramsey trends comparable across countries.",
+      "delta_annual": "5% annual depreciation for total-economy capital, as for Germany and Spain, the other mature economies whose measured capital stock is dominated by slowly depreciating dwellings and structures. The growth model matches total GFCF (ONS NPQT, P51G), structures included, so it needs the composite rate, not the DSGE's equipment-like delta_k. There is no sharper UK-specific pin in this repository.",
+      "beta_annual": "Discount factor: 0.96 annual, as for the other four countries. It pins the terminal modified-golden-rule BGP real rate jointly with sigma and terminal_growth.g_A_terminal_annual; the resulting r* is written to output/documentation_data/ramsey/ramsey_summary_UK.json (structural.r_star_annual) by calibrate_growth_model rather than quoted here, because it is derived and would go stale.",
+      "sigma": "Inverse IES (CRRA coefficient). sigma=1.5 is mid-range consensus (1=log, 2=high risk aversion), same as the other four.",
+      "tfp_growth_annual": "0.51% annual labour-augmenting TFP growth, set by the rule g_A = g_(Y/(N h)) * (1 - alpha_K), with g_(Y/(N h)) the growth of GDP per hour worked: on a BGP where K grows with Y, output per hour grows at g_A / (1 - alpha_K). On the current levels data (2000q1-2025q1, all persons in employment and hours per person employed) GDP per hour worked grows 0.80% p.a. (first against last four quarters), so the rule gives 0.80% * 0.67 = 0.54%. The rule value is not used because it lowers corr(y_ramsey, y_hp) from 0.82 to 0.80 (measured 2026-11-09). It sits between Spain (0.4%) and Sweden (0.65%), next to Germany's 0.53%. It averages across the UK productivity slowdown: GDP per hour worked grows 1.78% p.a. over 2000-2007 and 0.46% p.a. over 2008q1-2025q1, so the full-sample rate is a compromise neither half of the sample shows. Revisit if the sample is extended. The forward path converges to the common terminal_growth rate (see that block).",
+      "K_override": "Override initial capital stock K_0 (million EUR, chain-linked 2015) at the base year, set to the balanced-growth K/Y these structural parameters imply (3.19 x the 2000 GDP). The two measured anchors bracket it: the perpetual-inventory stock gives K/Y = 2.54, too low because UK investment was weak around 2000, and PWT 10.01 (RKNANPGBA666NRUG / RGDPNAGBA666NRUG, 2017 national prices) gives 4.44, its dwellings stock valued with PWT's low structures depreciation. Starting from the PIM stock forces a capital-deepening transition the data do not show: corr(y_ramsey, y_hp) falls from 0.79 to 0.36 and corr(c_ramsey, c_hp) from 0.63 to 0.11, and the first Ramsey pass fails InvShareVsData. Set to 0 to disable the override and use PIM."
+    }
+  },
+  "base_year": 2000,
+  "base_quarter": "2000Q1",
+  "base_year_values": {
+    "x_comment": "calibrate_growth_model.m writes calibrated base-year levels and derived fields into input/UK/MacroModel/growth_params_UK.json."
+  },
+  "inflation_target": {
+    "pi_star_annual": 2,
+    "convergence_rho": 0.95,
+    "x_comment": "Bank of England 2% target on the CPI, the measure that is the observable here (ONS D7BT, the UK's HICP). The target was 2.5% on RPIX until December 2003; that was a change of index rather than of stance, and the trend starts from the sample's own inflation and converges to 2%. pi_star entered as annual percent."
+  },
+  "labor_trends": {
+    "nawru_source": "PLACEHOLDER: HP trend (lambda=160000) of the in-sample ILO unemployment rate, written by calibrate_growth_model.m. Intended source: AMECO.",
+    "nawru_file": "nawru_uk.csv",
+    "demographic_L_source": "Up to the SimPaths handoff quarter: HP trend (lambda=160000) of the labour force, written by calibrate_growth_model.m. After it: growth path of the SimPaths UK align_popProjections.xlsx (ONS estimates and projections, ages 15-64), written by build_population_projection.m.",
+    "demographic_L_file": "demographic_L_uk.csv",
+    "demographic_P_source": "Up to the SimPaths handoff quarter: HP trend (lambda=160000) of the resident population (pop_level, census breaks spliced in the data stage), written by calibrate_growth_model.m. After it: growth path of SimPaths align_popProjections.xlsx (all ages), written by build_population_projection.m.",
+    "demographic_P_file": "demographic_P_uk.csv",
+    "hours_trend_method": "log_linear",
+    "x_comment": "nawru_file is read for diagnostics only. The rows of demographic_L_file beyond the estimation sample override the default N extrapolation in ramsey_trend.m. Hours: log-linear trend fitted to observed. The SimPaths UK workbook switches the English regions from the ONS mid-2023 estimates to the 2018-based subnational projections in 2024; those projections predate the post-2020 migration surge, so its working-age population falls 1.2% between 2023 and 2024 and the forward N path inherits the step. It is kept because SimPaths UK aligns its population to the same workbook; for a newer ONS projection, replace the workbook rather than the step. The planner reads demographic_P_file in full and holds P/N at its last value beyond it."
+  },
+  "solver": {
+    "method": "stacked_newton_lbj",
+    "terminal_tail_quarters": 400,
+    "newton_tolerance": 1e-10,
+    "max_newton_iterations": 200,
+    "finite_difference_step_scale": 1e-7,
+    "jacobian_half_bandwidth": 1,
+    "line_search": "armijo_backtracking",
+    "x_comment": "Stacked-time Newton (LBJ) perfect-foresight solver with terminal K/Y closure. 400 terminal quarters (~100 years) as for Germany, Spain and Sweden; the terminal_growth path has converged long before their end (rho_quarterly^400 is about 1e-6). Newton convergence requires ||F||_inf <= 1.0e-10 within 200 iterations."
+  },
+  "terminal_growth": {
+    "enabled": true,
+    "g_A_terminal_annual": 0.005,
+    "rho_quarterly": 0.966,
+    "x_comment": "Forward TFP growth starts at tfp_growth_annual and converges quarter by quarter to g_A_terminal_annual, g_t = g_term + rho_quarterly * (g_(t-1) - g_term). All five countries share g_A_terminal_annual = 0.5% and rho_quarterly = 0.966, a half-life of 5 years. The in-sample rate is measured per country; the long run is a common assumption, because TFP growth decades ahead is unknown and convergence to a common rate is the neutral one. 0.5% is the conservative value: it implies long-run growth of output per hour of 0.75% a year (g_A / (1 - alpha_K)). The half-life keeps a catch-up rate from carrying far into the projection: it puts Poland's forward trend wage growth (2023q1-2059q4) at about 1.6% a year (measured 2026-11-09), close to the trend in vanilla SimPaths' wage equation (about 1.5% a year). The in-sample solve holds tfp_growth_annual through the last data quarter; the forward solve converges from the handoff quarter."
+  }
+}

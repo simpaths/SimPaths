@@ -5,7 +5,7 @@ exported_at  2026-11-09 14:07:35
 dynare       6.5
 matlab       R2025b
 # sha256 <t|b> <hex> <path>; t = CR bytes dropped before hashing
-# input/ paths refer to the UK checkout. input_processing/ paths refer to the macro build checkout.
+# Paths are relative to the SimPaths UK checkout.
 sha256 t a87ba80fc1e93659553465f96e190b71f28e03e98cff7f462655290cb6cc2896 input_processing/macromodel/Macromodel_UK_frozen.mod
 sha256 t ad405d7d3649349ddd02bdf0434d6a5df51037ac6291870166aaba5ef71eed10 input_processing/macromodel/data/data_for_dynare_UK.csv
 sha256 t bf90f3f1b53d2e136e68ad76182ffb05738d91dcfae97386c407f11cd6fced21 input_processing/macromodel/data/data_for_dynare_levels_UK.csv

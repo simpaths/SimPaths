@@ -5,8 +5,11 @@ exported_at  2026-11-26 11:17:19
 dynare       unknown
 matlab       R2026a
 # sha256 <t|b> <hex> <path>; t = CR bytes dropped before hashing
-# input/ paths refer to the UK checkout. input_processing/ paths refer to the macro build checkout.
-sha256 t b0f4df0b72103f0e67b66bb8d2eb5416b6c9fb7280d2c4848e044d0b195bb678 input_processing/macromodel/data/data_for_dynare_UK.csv
+# Paths are relative to the SimPaths UK checkout.
+# Ramsey handoff detrending audit
+sha256 t b0f4df0b72103f0e67b66bb8d2eb5416b6c9fb7280d2c4848e044d0b195bb678 input_processing/macromodel/data/data_for_dynare_handoff_2019q1_UK.csv
+# Original estimation data for the retained DSGE fit
+sha256 t ad405d7d3649349ddd02bdf0434d6a5df51037ac6291870166aaba5ef71eed10 input_processing/macromodel/data/data_for_dynare_UK.csv
 sha256 t bf90f3f1b53d2e136e68ad76182ffb05738d91dcfae97386c407f11cd6fced21 input_processing/macromodel/data/data_for_dynare_levels_UK.csv
 sha256 t 68e9943cb1479d623b707bd23510180dd5a63a025c9cf8b456e1750df647f2fe input_processing/macromodel/country_params/UK_growth_params.json
 sha256 b 046847410a23e48e41773f4f5f310cfd2aaa83f60497b024fb91835addb6298a input/alignment_files/align_popProjections.xlsx
