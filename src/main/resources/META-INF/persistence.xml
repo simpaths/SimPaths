@@ -61,6 +61,8 @@
 		<class>simpaths.data.statistics.DemographicStatistics</class>
 		<class>simpaths.data.statistics.AlignmentStatistics</class>
 		<class>simpaths.data.statistics.HealthStatistics</class>
+		<class>simpaths.data.statistics.HealthSpendingStatistics</class>
+		<class>simpaths.data.statistics.HealthSpendingByAge</class>
 		<class>simpaths.data.statistics.LabourStatistics</class>
 		<class>simpaths.data.statistics.WellbeingByGender</class>
 		<exclude-unlisted-classes>false</exclude-unlisted-classes>

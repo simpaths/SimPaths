@@ -369,6 +369,7 @@ public class Parameters {
     //For use with UKMOD and h2 input database construction
     public static String WORKING_DIRECTORY = System.getProperty("user.dir");
     public static String INPUT_DIRECTORY = WORKING_DIRECTORY + File.separator + "input" + File.separator;
+    public static final String AGE_HEALTH_COST_PROFILE_FILENAME = "age_by_sex_health_cost_profile.xlsx";
     public static boolean trainingFlag = false;
     public static String INPUT_DIRECTORY_INITIAL_POPULATIONS = INPUT_DIRECTORY + "InitialPopulations" + File.separator; //Path to directory containing initial population for each year
     public static String ALIGNMENT_DIRECTORY = INPUT_DIRECTORY + "alignment_files" + File.separator;
@@ -3839,6 +3840,14 @@ public class Parameters {
 
     public static String getInputDirectory() {
         return INPUT_DIRECTORY;
+    }
+
+    public static File getAgeHealthCostProfileFile() {
+        return getAgeHealthCostProfileFile(AGE_HEALTH_COST_PROFILE_FILENAME);
+    }
+
+    public static File getAgeHealthCostProfileFile(String filename) {
+        return new File(getInputDirectory(), filename);
     }
 
     public static boolean isFinite(Double dd) {
