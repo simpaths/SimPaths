@@ -404,6 +404,7 @@ test("roadmap contains public priorities rather than editorial notes", async ({ 
 
 test("site state exposes explicit styling hooks", async ({ page }) => {
   await page.setViewportSize({ width: 1512, height: 900 });
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/documentation/", { waitUntil: "domcontentloaded" });
 
   await expect(page.locator("body")).toHaveClass(/sp-page-docs-index/);
@@ -481,6 +482,7 @@ test("search is unboxed until opened and retains clear keyboard focus", async ({
     const style = getComputedStyle(form);
     return {
       background: style.backgroundColor, border: style.borderColor, shadow: style.boxShadow,
+      radius: parseFloat(style.borderRadius),
       height: form.getBoundingClientRect().height,
       headerBackground: getComputedStyle(header).backgroundImage,
       headerWash: getComputedStyle(header, "::before").content,
@@ -500,8 +502,9 @@ test("search is unboxed until opened and retains clear keyboard focus", async ({
   await expect(page.locator("body")).toHaveClass(/sp-search-open/);
   const open = await appearance();
   expect(open.background).toBe("rgb(255, 255, 255)");
-  expect(open.border).toBe("rgb(37, 54, 47)");
-  expect(open.shadow).toContain("0px 0px 0px 1px");
+  expect(open.border).toBe("rgba(37, 54, 47, 0.16)");
+  expect(open.shadow).toContain("rgba(25, 45, 35, 0.07)");
+  expect(open.radius).toBeGreaterThanOrEqual(open.height / 2);
   expect(open.height).toBe(closed.height);
   expect(open.headerBackground).toBe(closed.headerBackground);
   expect(open.headerWash).toBe("none");
