@@ -4,9 +4,7 @@
 html.sp-page-home {
   --sp-home-section-weight: 580;
   --sp-home-section-size: 1.45rem;
-  --sp-home-overlap: 1.6rem;
-  --sp-home-inset-margin: 1.6rem;
-  --sp-home-sheet-gutter: clamp(1.2rem, 3.2vw, 2.4rem);
+  --sp-home-gutter: calc(1.6rem + clamp(1.2rem, 3.2vw, 2.4rem));
 }
 
 html.sp-page-home .md-main { background: var(--sp-paper); }
@@ -27,16 +25,8 @@ html.sp-page-home .md-main .md-top {
 
 .simpaths-home-hero {
   width: 100%; margin: 0;
-  padding: 2.65rem 1.2rem calc(2.72rem + var(--sp-home-overlap));
+  padding: 2.65rem 1.2rem 2.72rem;
   background: var(--sp-home-hero-bg);
-}
-
-.simpaths-home-sheet {
-  position: relative;
-  width: calc(100% - 2 * var(--sp-home-inset-margin));
-  max-width: calc(var(--sp-home-max) + 2 * var(--sp-home-sheet-gutter));
-  margin: calc(-1 * var(--sp-home-overlap)) auto 0;
-  background: var(--sp-paper);
 }
 
 .simpaths-home-hero__inner {
@@ -79,7 +69,7 @@ html.sp-page-home .md-main .md-top {
   --sp-midnight: var(--sp-panel-ink);
   --md-default-fg-color: var(--sp-panel-ink);
   width: 100%; margin: 0;
-  padding: 2.5rem var(--sp-home-sheet-gutter) 2.75rem;
+  padding: 2.5rem var(--sp-home-gutter) 2.75rem;
   color: var(--sp-panel-ink);
   background: var(--sp-paper);
 }
@@ -213,7 +203,7 @@ html.sp-page-home .md-main .md-top {
   --md-default-fg-color--lighter: #707973;
   --md-default-fg-color--lightest: #CCDCD1;
   width: 100%; margin: 0;
-  padding: 2.5rem calc(var(--sp-home-inset-margin) + var(--sp-home-sheet-gutter)) 3.25rem;
+  padding: 2.5rem var(--sp-home-gutter) 3.25rem;
   background: var(--sp-paper);
   scroll-margin-top: calc(var(--sp-header-height) + 0.75rem);
 }
@@ -306,9 +296,8 @@ html.sp-page-home .md-main .md-top {
 @media (max-width: 760px) {
   html.sp-page-home {
     --sp-home-section-size: 1.3rem;
-    --sp-home-overlap: 0rem; --sp-home-inset-margin: 0rem; --sp-home-sheet-gutter: 1rem;
+    --sp-home-gutter: 1rem;
   }
-  .simpaths-home-sheet { width: 100%; }
   .simpaths-home-hero {
     padding: 1.85rem 1rem 2rem;
   }
@@ -335,7 +324,7 @@ html.sp-page-home .md-main .md-top {
 .simpaths-home-research-band {
   --sp-midnight: var(--sp-panel-ink);
   width: 100%; margin: 0;
-  padding: 3rem calc(var(--sp-home-inset-margin) + var(--sp-home-sheet-gutter)) 3.25rem;
+  padding: 3rem var(--sp-home-gutter) 3.25rem;
   background: #F7F8F7;
 }
 .md-typeset .simpaths-home-research-band .research-section {

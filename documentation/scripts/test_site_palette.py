@@ -97,11 +97,12 @@ class SitePaletteTest(unittest.TestCase):
         self.assertEqual(self.rule(filename, ".md-typeset .simpaths-home-research-band .research-header .section-heading")["color"], "var(--sp-panel-heading)")
         self.assertEqual(self.rule(filename, ".md-typeset .simpaths-home-research-band .archive-link")["color"], "var(--sp-accent) !important")
 
-    def test_footer_uses_forest_green_and_reserves_white_for_the_brand(self):
+    def test_footer_uses_blue_green_and_reserves_white_for_the_brand(self):
         filename = "05-site-chrome.css"
         footer = self.rule(filename, ".md-footer")
-        self.assertEqual(footer["background"], "#25362F")
-        self.assertEqual(footer["--sp-footer-muted"], "#C2D2C7")
+        background = resolve_colour(footer["background"], self.tokens)
+        self.assertEqual(background, "#28554C")
+        self.assertEqual(footer["--sp-footer-muted"], "#E9ECE5")
         for selector in (".md-footer", ".md-footer-meta", ".md-copyright",
                          ".md-copyright__highlight", ".md-social__link::after",
                          ".md-social__link:hover::after"):
@@ -120,7 +121,7 @@ class SitePaletteTest(unittest.TestCase):
             linear = [c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4 for c in channels]
             return sum(c * weight for c, weight in zip(linear, (0.2126, 0.7152, 0.0722)))
 
-        contrast = (luminance(footer["--sp-footer-muted"]) + 0.05) / (luminance(footer["background"]) + 0.05)
+        contrast = (luminance(footer["--sp-footer-muted"]) + 0.05) / (luminance(background) + 0.05)
         self.assertGreaterEqual(contrast, 4.5)
 
     def test_homepage_prose_follows_the_theme_while_light_panel_metadata_stays_muted(self):

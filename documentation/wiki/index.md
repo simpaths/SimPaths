@@ -13,8 +13,6 @@ hide:
 </div>
 </section>
 
-<div class="simpaths-home-sheet">
-
 <section class="simpaths-home-intro-band">
 <div class="simpaths-home-intro-band__inner">
   <p class="simpaths-home-intro-band__lede">SimPaths is an open-source framework for modelling individual and household life courses. It projects how people’s careers, family relationships, health and financial circumstances evolve over time and interact with one another. Its modular design supports analysis of alternative assumptions about tax and benefit systems, sensitivity to parameter estimates, and different approaches to projecting labour and leisure, consumption and saving decisions.</p>
@@ -51,8 +49,6 @@ hide:
   </div>
 </div>
 </section>
-
-</div>
 
 <section id="use-simpaths" class="simpaths-home-paths" aria-labelledby="use-simpaths-title">
 <div class="simpaths-home-paths__inner">

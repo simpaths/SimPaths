@@ -240,7 +240,7 @@ test("interior pages keep a contained reading measure and consistent alignment",
       await page.evaluate(() => document.fonts.ready);
       const measurement = await page.evaluate(() => {
         const title = document.querySelector(".docs-index__heading, h1").getBoundingClientRect();
-        // Validation has a full-width masthead around an inset reading area.
+        // Validation has a full-width masthead above its reading area.
         const article = (document.querySelector(".validation-scope") || document.querySelector(".md-content__inner")).getBoundingClientRect();
         const frame = document.querySelector(".md-main__inner").getBoundingClientRect();
         return { titleX: title.x, articleX: article.x, articleRight: article.right, width: article.width,
@@ -318,7 +318,7 @@ test("validation uses its standalone width for parallel checks and stacks them o
   expect(desktop.primaryDisplay).toBe("none");
   expect(desktop.frameWidth).toBeGreaterThan(desktop.contentWidth);
   expect(Math.abs(desktop.mastheadX - desktop.contentX)).toBeLessThanOrEqual(1);
-  expect(desktop.overlap).toBeGreaterThan(0);
+  expect(Math.abs(desktop.overlap)).toBeLessThanOrEqual(1);
   expect(Math.abs(desktop.contentX - (1512 - desktop.contentWidth) / 2)).toBeLessThanOrEqual(1);
   expect(desktop.contentWidth).toBeGreaterThan(desktop.readingMeasure);
   expect(desktop.contentWidth).toBeLessThanOrEqual(desktop.pageMeasure + 1);
@@ -1019,8 +1019,8 @@ test("homepage introduces a first simulation and highlights selected research", 
   expect(mobileFooter.height).toBeLessThan(260);
   expect(mobileFooter.copyrightWidth).toBeGreaterThan(0);
   expect(mobileFooter.copyrightWidth).toBeLessThanOrEqual(390);
-  expect(mobileFooter.background).toBe("rgb(37, 54, 47)");
-  expect(mobileFooter.textColor).toBe("rgb(194, 210, 199)");
+  expect(mobileFooter.background).toBe("rgb(40, 85, 76)");
+  expect(mobileFooter.textColor).toBe("rgb(233, 236, 229)");
   expect(mobileFooter.brandColor).toBe("rgb(255, 255, 255)");
   expect(Math.abs(mobileFooter.bandToFooterGap)).toBeLessThanOrEqual(1);
   expect(mobileFooter.textTransform).toBe("none");

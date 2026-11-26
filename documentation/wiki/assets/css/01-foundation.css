@@ -43,15 +43,16 @@
   --sp-label-weight: 550;
   --sp-meta-size: 0.62rem;
   --sp-nav-size: 0.675rem;
-  --sp-header-height: 4rem;
+  --sp-header-progress: 0;
+  --sp-header-height: calc(4rem - 0.5rem * var(--sp-header-progress));
   --sp-header-row-offset: 0rem;
   --sp-toc-size: 0.67rem;
 }
 
 @media (min-width: 64em) {
   :root {
-    --sp-header-height: 5rem;
-    --sp-header-row-offset: 0.8rem;
+    --sp-header-height: calc(5rem - 1.15rem * var(--sp-header-progress));
+    --sp-header-row-offset: calc(0.8rem - 0.22rem * var(--sp-header-progress));
   }
 }
 
@@ -82,8 +83,9 @@
   --sp-sidebar-hover:   rgba(37,54,47,0.05);
   --sp-sidebar-active:  rgba(48,100,78,0.08);
   --sp-transition:      all 0.2s ease;
-  --sp-header-bg: #FFFFFF;
+  --sp-header-bg: var(--sp-home-hero-bg);
   --sp-home-hero-bg: #E5EEE8;
+  --sp-footer-bg: #28554C;
   --sp-home-max: 61rem;
 }
 

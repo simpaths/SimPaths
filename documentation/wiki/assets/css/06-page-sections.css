@@ -9,7 +9,7 @@
 /* Validation is a standalone guide, with parallel checks inside a shared frame. */
 html.sp-page-validation .md-main__inner {
   --validation-width: var(--sp-reading-measure);
-  --validation-overlap: 1.6rem; --validation-inset: 1.6rem; --validation-gutter: clamp(1.2rem, 3.2vw, 2.4rem);
+  --validation-gutter: calc(1.6rem + clamp(1.2rem, 3.2vw, 2.4rem));
   display: block; width: 100%; max-width: none; margin: 0;
 }
 html.sp-page-validation .md-container .md-main__inner .md-content > .md-content__inner {
@@ -18,7 +18,7 @@ html.sp-page-validation .md-container .md-main__inner .md-content > .md-content_
 html.sp-page-validation .md-content__inner::before { display: none; }
 .md-typeset .validation-masthead {
   width: 100%; margin: 0;
-  padding: 2.5rem calc(var(--validation-inset) + var(--validation-gutter)) calc(2.5rem + var(--validation-overlap));
+  padding: 2.5rem var(--validation-gutter);
   background: var(--sp-home-hero-bg);
 }
 [data-md-color-scheme="slate"] .validation-masthead { background: var(--md-default-bg-color--light); }
@@ -31,9 +31,9 @@ html.sp-page-validation .md-content__inner::before { display: none; }
 .md-typeset .validation-masthead h1,
 .md-typeset .validation-masthead__intro > p:last-child { margin-bottom: 0; }
 .md-typeset .validation-sheet {
-  position: relative; width: calc(100% - 2 * var(--validation-inset));
+  width: 100%;
   max-width: calc(var(--validation-width) + 2 * var(--validation-gutter));
-  margin: calc(-1 * var(--validation-overlap)) auto 0; padding: 2.5rem var(--validation-gutter) 2.75rem;
+  margin: 0 auto; padding: 2.5rem var(--validation-gutter) 2.75rem;
   background: var(--md-default-bg-color);
 }
 .md-typeset .validation-scope { margin-top: 0; }
@@ -78,7 +78,7 @@ html.sp-page-validation .md-typeset li > ul { margin-top: 0.45em; }
   .md-typeset .validation-downloads > ol { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (max-width: 760px) {
-  html.sp-page-validation .md-main__inner { --validation-overlap: 0rem; --validation-inset: 0rem; --validation-gutter: 1rem; }
+  html.sp-page-validation .md-main__inner { --validation-gutter: 1rem; }
   .md-typeset .validation-masthead { padding-block: 1.6rem; }
   .md-typeset .validation-sheet { padding-block: 2rem; }
   .md-typeset .validation-downloads,
