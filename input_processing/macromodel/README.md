@@ -2,7 +2,7 @@
 
 SimPaths reads a prepared bundle in Java. The build sources here produce the
 Ramsey trend and the quarterly Dynare policy matrices for that bundle. See the
-[UK run guide](../../input/UK/README.md) for the shipped 2019Q1 and 2023Q1
+[UK run guide](../../input/UK/README.md) for the shipped 2015Q1–2023Q1
 bundles and the Java smoke test.
 
 The pipeline was ported from SimPathsEU at

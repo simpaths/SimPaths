@@ -1,7 +1,8 @@
 package simpaths.model.macro;
 
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import simpaths.model.Person;
 import simpaths.model.enums.Labour;
 
@@ -12,6 +13,8 @@ import java.security.MessageDigest;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -20,9 +23,9 @@ import static org.mockito.Mockito.when;
 class UKMacroBundleTest {
 
     @ParameterizedTest
-    @CsvSource({"MacroModel,2023", "MacroModel-2019q1,2019"})
-    void loadsTheMatchingHandoffAndAppliesFeedback(String directory, int startYear) {
-        Path bundle = Path.of("input", "UK", directory);
+    @MethodSource("handoffYears")
+    void loadsTheMatchingHandoffAndAppliesFeedback(int startYear) {
+        Path bundle = bundleForYear(startYear);
         MacroModelManager manager = ramseyManager(bundle);
         MacroModelManager mismatch = ramseyManager(bundle);
 
@@ -56,9 +59,9 @@ class UKMacroBundleTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"MacroModel,eps_r", "MacroModel-2019q1,eps_r", "MacroModel-2019q1,eps_h"})
-    void replaysAOneSigmaDynareImpulse(String directory, String shock) throws IOException {
-        Path bundle = Path.of("input", "UK", directory);
+    @MethodSource("impulseResponseCases")
+    void replaysAOneSigmaDynareImpulse(int startYear, String shock) throws IOException {
+        Path bundle = bundleForYear(startYear);
         DSGEModel model = new DSGEModel();
         model.setLogEnabled(false);
         model.loadFromDirectory(bundle.toString());
@@ -88,9 +91,9 @@ class UKMacroBundleTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"MacroModel", "MacroModel-2019q1"})
-    void bundleProvenanceResolvesAgainstTheUkCheckout(String directory) throws Exception {
-        Path bundle = Path.of("input", "UK", directory);
+    @MethodSource("handoffYears")
+    void bundleProvenanceResolvesAgainstTheUkCheckout(int startYear) throws Exception {
+        Path bundle = bundleForYear(startYear);
         assertFalse(Files.exists(bundle.resolve("BUNDLE_NOT_VERIFIED.txt")));
         List<String> hashes = Files.readAllLines(bundle.resolve("BUNDLE_PROVENANCE.txt")).stream()
                 .filter(line -> line.startsWith("sha256 "))
@@ -114,6 +117,31 @@ class UKMacroBundleTest {
             }
             assertEquals(fields[2], HexFormat.of().formatHex(digest.digest()), file.toString());
         }
+    }
+
+    @ParameterizedTest
+    @MethodSource("handoffYears")
+    void retainsTheOriginalUkDsgeFit(int startYear) throws IOException {
+        Path reference = bundleForYear(2023);
+        Path bundle = bundleForYear(startYear);
+        for (String file : List.of("model_info.json", "shock_params.csv",
+                "policy_A.csv", "policy_Bs.csv", "policy_C.csv", "policy_D.csv")) {
+            assertEquals(-1L, Files.mismatch(reference.resolve(file), bundle.resolve(file)), file);
+        }
+    }
+
+    private static Stream<Integer> handoffYears() {
+        return IntStream.rangeClosed(2015, 2023).boxed();
+    }
+
+    private static Stream<Arguments> impulseResponseCases() {
+        return Stream.concat(handoffYears().map(year -> Arguments.of(year, "eps_r")),
+                Stream.of(Arguments.of(2019, "eps_h")));
+    }
+
+    private static Path bundleForYear(int startYear) {
+        String directory = startYear == 2023 ? "MacroModel" : "MacroModel-" + startYear + "q1";
+        return Path.of("input", "UK", directory);
     }
 
     private static MacroModelManager ramseyManager(Path bundle) {
