@@ -6,6 +6,9 @@ randomSeed: 100
 maxNumberOfRuns: 1
 executeWithGui: false
 
+parameter_args:
+    trainingFlag: true
+
 model_args:
     mm_macroModel: ramsey_dsge
     mm_macroBundleDir: input/UK/MacroModel-2019q1

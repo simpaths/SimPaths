@@ -295,15 +295,11 @@ function run_full_workflow(country, options)
         fprintf('  STEP 4: Postestimation analysis SKIPPED\n\n');
     end
 
-    % Documentation summaries were written by the stages above into
-    % output/documentation_data/. Rendering them into the Overleaf tables is a
-    % separate step, documentation_tables/refresh_documentation_tables.m, which
-    % reads that folder and writes into WELLSIM_SVEC_Overleaf.
+    % The summary path is relative to the model's working directory.
     if options.skip_growth_calibration && options.skip_detrending && options.skip_postestimation
         documentation_status = 'no summary-writing stage ran';
     else
-        % Short enough for the 62-character summary box.
-        documentation_status = sprintf('render with refresh_documentation_tables(''%s'')', country);
+        documentation_status = 'written to output/documentation_data/';
     end
 
     % -------------------------------------------------------------------------

@@ -18,7 +18,8 @@
 
 local x13_exe     "`c(pwd)'\..\tools\x13as\x13as_ascii.exe"
 local x13_version "1.1 b62"
-local x13_workdir "`c(pwd)'\x13_work"
+// A relative path avoids truncation when X-13 opens files in a deep workspace.
+local x13_workdir "x13_work"
 local x13_spec    "transform{ function=auto } automdl{ } outlier{ types=(ao ls tc) }"
 
 if !fileexists("`x13_exe'") {

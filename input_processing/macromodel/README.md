@@ -47,7 +47,31 @@ disp(modelFolder)
 ```
 
 Set Stata's working directory to the returned folder's `stata` subdirectory.
-Use Stata 19 with `dbnomics` (`ssc install dbnomics` if needed), then run:
+Use Stata 19. Install the DBnomics client and its dependencies if needed.
+
+```stata
+ssc install dbnomics
+ssc install libjson
+ssc install moss
+```
+
+The SSC client version 1.2.0 can stop at `variable series_num not found` on
+single-series imports. If you hit this error, use `which dbnomics` to locate
+the client and make the following change in a local copy on Stata's ado path.
+In `dbnomics_import`, add these two lines immediately before the existing
+``qui replace series_num = series_num + `offset'`` line.
+
+```stata
+capture confirm variable series_num
+if _rc quietly generate long series_num = 0
+```
+
+If Mata reports `urlencode() is built-in`, rename the client's own
+`urlencode` definition and its calls to `dbnomics_urlencode` in the same
+copy. The live UK refresh was verified on StataNow 19.5 with these changes
+and the cached UK CPI seasonal adjustment.
+
+Then run the data script.
 
 ```stata
 do make_datasets.do UK

@@ -44,8 +44,9 @@ and re-estimate the DSGE.
 
 ## Training smoke test
 
-From the repository root, build the JAR and training database, then run the
-2019–2022 macro test:
+Run this smoke test in a disposable checkout. The database setup command
+replaces that checkout's input database with the training database.
+From the disposable checkout's root, build the JAR and run the 2019–2022 test.
 
 ```text
 mvn package
