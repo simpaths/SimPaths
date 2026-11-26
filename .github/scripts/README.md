@@ -35,3 +35,40 @@ Run the change-detection tests with:
 ```sh
 python3 -m unittest discover -s .github/scripts -p 'test_*.py' -v
 ```
+
+## Before pushing website changes
+
+Run the complete local preflight from the checkout you intend to push:
+
+```sh
+bash documentation/scripts/preflight-docs.sh
+```
+
+It runs the workflow tests, CSS and content checks, Python tests, Java/API build,
+strict MkDocs build, and both existing Playwright suites at desktop and mobile
+sizes. It serves the fresh build on a separate port instead of using an existing
+preview. A failure stops the command. Browser failure screenshots and traces are
+saved in `documentation/visual-tests/test-results/`.
+
+Install `documentation/requirements.txt` and provide Maven, JDK 25 and Node.js
+before running it. The command uses `npm ci` and the pinned Playwright browser.
+Local browsers run on the host OS; GitHub still checks Linux and the actual Pages
+deployment, so a local pass cannot guarantee that external services will succeed.
+
+The optional hook in `documentation/scripts/git-hooks/pre-push` uses the same
+changed-file rules as CI. It blocks relevant pushes on a failed preflight and
+requires the tested documentation/API inputs to be committed. Unrelated pushes,
+tag pushes and branch deletions do not run the build. It tests the checked-out
+commit, not another branch named in a push command.
+
+For a repository with `extensions.worktreeConfig` already enabled, install it
+for just the website checkout (check for an existing hook before replacing one):
+
+```sh
+git config --worktree core.hooksPath "$PWD/documentation/scripts/git-hooks"
+```
+
+When an approved design changes, update tests that intentionally specify its
+appearance in the same commit. Keep navigation, accessibility, reduced-motion
+and overflow checks intact. A visual review or a successful MkDocs build alone
+does not replace the full preflight.
