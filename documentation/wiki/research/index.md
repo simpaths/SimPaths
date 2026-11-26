@@ -7,7 +7,7 @@ hide:
 
 <div class="research-page">
 <h1>Research</h1>
-<p class="research-page__intro">Selected research on the methods behind SimPaths and its applications to life course dynamics, social care and the health effects of tax and benefit policy.</p>
+<p class="research-page__intro">Publications on the methods behind SimPaths and research using the model.</p>
 
 <section class="research-primary" aria-label="Reference paper">
   <article class="research-publication research-primary__paper">
@@ -24,7 +24,7 @@ hide:
 </section>
 
 <section class="research-list" aria-labelledby="further-references">
-<h2 id="further-references">Selected publications</h2>
+<h2 id="further-references">Publications</h2>
   <article class="research-publication" id="journal-articles">
     <div class="research-publication__meta">
       <time datetime="2025">2025</time>

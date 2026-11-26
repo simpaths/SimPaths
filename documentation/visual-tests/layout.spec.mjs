@@ -1182,9 +1182,9 @@ test("documentation masthead integrates the SimPaths mark", async ({ page }) => 
 test("research keeps readable citations beside year and type, stacking on mobile", async ({ page }, testInfo) => {
   await page.goto("/research/", { waitUntil: "domcontentloaded" });
   const catalogue = page.locator(".research-page");
-  await expect(catalogue.locator("h2")).toHaveText(["Selected publications"]);
+  await expect(catalogue.locator("h2")).toHaveText(["Publications"]);
   await expect(catalogue.locator(".research-primary .research-publication__meta")).toHaveText(/2025\s+Reference paper/);
-  for (const [heading, count] of [["Reference paper", 1], ["Selected publications", 7]]) {
+  for (const [heading, count] of [["Reference paper", 1], ["Publications", 7]]) {
     await expect(page.getByRole("region", { name: heading, exact: true }).locator("article")).toHaveCount(count);
   }
   await expect(page.locator(".sp-page-nav")).toHaveCount(0);
