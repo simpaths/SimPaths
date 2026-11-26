@@ -19,7 +19,7 @@ import org.apache.logging.log4j.Logger;
  * the modified parameters, producing different trend paths for wages, output, capital,
  * and the natural interest rate.</p>
  *
- * <h3>CSV Format</h3>
+ * <h2>CSV Format</h2>
  * <pre>
  *   year, g_A, delta, alpha_K, beta, sigma, g_Y, nx_Y, N, P
  *   2025, 0.0025, 0, 0, 0, 0, 0, 0, 0, 0
@@ -54,7 +54,7 @@ import org.apache.logging.log4j.Logger;
  * For years <b>beyond the last row</b> in the CSV, the last row's values persist
  * (permanent shift assumption).</p>
  *
- * <h3>Economic interpretation examples</h3>
+ * <h2>Economic interpretation examples</h2>
  * <ul>
  *   <li>"Innovation policy raises TFP growth by 0.25 pp permanently":
  *       g_A = 0.0025 in every row</li>

@@ -18,18 +18,18 @@ import org.apache.logging.log4j.Logger;
  * All model dimensions and variable indices are loaded dynamically from
  * model_info.json, with dimensions and indices read from export metadata.
  *
- * <h3>Key insight for SimPaths coupling</h3>
+ * <h2>Key insight for SimPaths coupling</h2>
  * <ul>
  *   <li>Wage (w) is a STATE variable → extract from s_t directly</li>
  *   <li>Inflation (π) is a STATE when iota_p indexation puts pi(-1) in the NKPC; DSGEState resolves the side from model_info.json (piIsState)</li>
  * </ul>
  *
- * <h3>Inputs</h3>
+ * <h2>Inputs</h2>
  * <p>The DSGE takes no input from SimPaths. Its annual step
  * ({@link #stepAnnual(DSGEShockScenario, int)}) receives the scenario's shocks only, all zero
  * without a scenario, and hands SimPaths the cycle wage and inflation deviations.</p>
  *
- * <h3>Shock Input Convention</h3>
+ * <h2>Shock Input Convention</h2>
  * <p>One rule for every shock, eps_L and eps_h included: an innovation in standard-deviation
  * units, so 1.0 is a one-standard-deviation shock. Inputs are converted to raw Dynare
  * innovations by multiplying by the shock's standard deviation before the policy matrices
@@ -524,7 +524,7 @@ public class DSGEModel {
      *     s_t = A  × s_{t-1} + Bs × ε_t    (state transition)
      *     y_t = C  × s_{t-1} + D  × ε_t    (jump variables)
      *
-     * <h3>Shock Input Convention</h3>
+     * <h4>Shock Input Convention</h4>
      * <p>Every shock, eps_L and eps_h included, is an innovation in standard-deviation units:
      * eps_a = 1.0 is a one-σ technology shock, eps_L = 1.0 a one-σ labour-force shock. Each is
      * converted to a raw innovation by multiplying by its std dev before the policy matrices

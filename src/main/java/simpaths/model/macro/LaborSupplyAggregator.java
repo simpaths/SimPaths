@@ -16,7 +16,7 @@ import simpaths.model.enums.Labour;
  * (MacroPaths.csv) and for the planner's end-of-year feedback. It computes no shocks:
  * the DSGE takes no input from SimPaths.
  *
- * <h3>Aggregation Strategy</h3>
+ * <h2>Aggregation Strategy</h2>
  *
  * <p>For each working-age person in the microsimulation:</p>
  * <ol>
@@ -29,7 +29,7 @@ import simpaths.model.enums.Labour;
  * anchors (L and h latched once after the first labour market, the head counts eagerly in
  * the start year) are the bases of the level indices.</p>
  *
- * <h3>Extensive Margin (L) — Critical Design Decision</h3>
+ * <h2>Extensive Margin (L) — Critical Design Decision</h2>
  *
  * <p>L is the population-weighted count of persons who are <b>at risk of work</b>
  * (SimPaths' {@link simpaths.model.Person#atRiskOfWork()} — the same gate the
@@ -41,7 +41,7 @@ import simpaths.model.enums.Labour;
  * via stale hours. The at-risk pool determines who enters the labor supply
  * model but is not itself part of L.</p>
  *
- * <h3>Weighting — Correct For Both Run Modes</h3>
+ * <h2>Weighting — Correct For Both Run Modes</h2>
  *
  * <p>Every count-like aggregate is a weighted sum of {@code Person.getWeight()},
  * not a raw head count. SimPaths supports two population modes:</p>

@@ -43,7 +43,7 @@ import org.apache.logging.log4j.Logger;
  * the balanced growth path ratio at the terminal date (extended well beyond
  * the simulation horizon).</p>
  *
- * <h3>Two usage modes</h3>
+ * <h2>Two usage modes</h2>
  * <ol>
  *   <li><b>MATLAB (estimation pipeline)</b>: Detrend historical observables.
  *       Implemented in {@code ramsey_trend.m} with identical algorithm.</li>
@@ -56,7 +56,7 @@ import org.apache.logging.log4j.Logger;
  * and must produce identical results (verified by {@code RamseyTrendModelTest}
  * at a relative tolerance of 1e-9). Labour input is exogenous on both sides.</p>
  *
- * <h3>SimPaths integration</h3>
+ * <h2>SimPaths integration</h2>
  * <p>In forward projection mode, the model initializes from the terminal
  * capital stock and TFP level ({@code growth_terminal_state.json}) and
  * solves the full path at initialization. It then steps through the

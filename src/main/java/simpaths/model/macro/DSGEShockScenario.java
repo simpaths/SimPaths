@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
  * <p>This class enables counterfactual simulations by injecting pre-specified
  * time series of DSGE shocks (e.g., cost-push, technology, monetary policy).</p>
  *
- * <h3>CSV Format</h3>
+ * <h2>CSV Format</h2>
  * <p>The scenario file must have a header row with columns:</p>
  * <pre>
  *   year, quarter, eps_a, eps_r, eps_d, eps_p, eps_L, eps_sep, eps_h, eps_inv
@@ -22,7 +22,7 @@ import org.apache.logging.log4j.Logger;
  * Not all shocks need to be present — missing columns default to zero.
  * Quarters not listed in the file also default to zero.</p>
  *
- * <h3>Shock Units</h3>
+ * <h2>Shock Units</h2>
  * <p>Every column is an innovation in standard-deviation units, as in {@link DSGEModel}:
  * 1.0 is a one-σ shock, eps_L and eps_h included. Because the labour force and hours are
  * persistent, a shock repeated every quarter accumulates (at a persistence of 0.95 a

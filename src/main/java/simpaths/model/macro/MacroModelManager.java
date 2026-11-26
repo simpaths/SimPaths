@@ -30,7 +30,7 @@ import simpaths.model.enums.UpratingCase;
  * <p>This class encapsulates all DSGE-related state and logic, keeping
  * SimPathsModel clean and focused on microsimulation orchestration.</p>
  *
- * <h3>Layers</h3>
+ * <h2>Layers</h2>
  * <ul>
  *   <li><b>Ramsey trend</b> ({@link RamseyTrendModel}): the planner's secular wage path.
  *       SimPaths' realized employment and hours reach it only through the end-of-year
@@ -42,7 +42,7 @@ import simpaths.model.enums.UpratingCase;
  * <p>One pass per year: the labour market runs once, and nothing in the macro layer
  * re-runs it within the year.</p>
  *
- * <h3>Responsibilities</h3>
+ * <h2>Responsibilities</h2>
  * <ul>
  *   <li>Loading and initializing the macro layers from the bundle files</li>
  *   <li>Running the yearly macro update and the planner's end-of-year feedback</li>
@@ -50,7 +50,7 @@ import simpaths.model.enums.UpratingCase;
  *   <li>Logging and diagnostics for debugging feedback chain</li>
  * </ul>
  *
- * <h3>Usage</h3>
+ * <h2>Usage</h2>
  * <pre>{@code
  * MacroModelManager dsge = new MacroModelManager();
  * dsge.setEnabled(true);
