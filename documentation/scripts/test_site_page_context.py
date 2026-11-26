@@ -36,22 +36,6 @@ class SitePageContextTest(unittest.TestCase):
                 self.assertEqual(head, marker)
                 self.assertIn("sp-no-section-nav", head.split())
 
-    def test_reading_trail_links_to_real_parent_indexes(self):
-        index = SimpleNamespace(is_page=True, url="overview/", file=SimpleNamespace(name="index"))
-        leaf = SimpleNamespace(is_page=True, url="overview/modules/ageing/", file=SimpleNamespace(name="ageing"))
-        model = SimpleNamespace(title="Model", children=[index])
-        modules = SimpleNamespace(title="Simulated Modules", children=[leaf])
-        html = self.render("overview/modules/education/", [modules, model])
-        self.assertIn('aria-label="Breadcrumb"', html)
-        self.assertIn('<a href="/overview/">Model</a>', html)
-        self.assertIn('<span>Simulated Modules</span>', html)
-        self.assertNotIn('href="/overview/modules/ageing/"', html)
-
-    def test_section_landing_does_not_link_to_itself(self):
-        index = SimpleNamespace(is_page=True, url="overview/", file=SimpleNamespace(name="index"))
-        model = SimpleNamespace(title="Model", children=[index])
-        self.assertNotIn('class="sp-breadcrumbs"', self.render("overview/", [model]))
-
 
 if __name__ == "__main__":
     unittest.main()

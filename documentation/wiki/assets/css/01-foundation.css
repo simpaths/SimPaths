@@ -34,6 +34,7 @@
   --sp-reading-copy-size: 0.82rem;
   --sp-reading-line-height: 1.75;
   --sp-reading-measure: 42rem;
+  --sp-wide-measure: 56rem;
   --sp-layout-rail: 11.5rem;
   --sp-layout-gap: 1.2rem;
   --sp-page-gutter: 0.8rem;
@@ -80,6 +81,7 @@
   --sp-border-soft:     rgba(37,54,47,0.1);
   --sp-border-strong:   rgba(37,54,47,0.16);
   --sp-shadow-soft:     0 10px 28px rgba(25,45,35,0.06);
+  --sp-card-radius:     0.16rem;
   --sp-sidebar-hover:   rgba(37,54,47,0.05);
   --sp-sidebar-active:  rgba(48,100,78,0.08);
   --sp-transition:      all 0.2s ease;

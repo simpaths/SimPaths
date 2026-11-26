@@ -239,7 +239,7 @@ test("interior pages keep a contained reading measure and consistent alignment",
       await page.goto(path, { waitUntil: "domcontentloaded" });
       await page.evaluate(() => document.fonts.ready);
       const measurement = await page.evaluate(() => {
-        const title = document.querySelector(".docs-index__heading, h1").getBoundingClientRect();
+        const title = document.querySelector("h1").getBoundingClientRect();
         // Validation has a full-width masthead above its reading area.
         const article = (document.querySelector(".validation-scope") || document.querySelector(".md-content__inner")).getBoundingClientRect();
         const frame = document.querySelector(".md-main__inner").getBoundingClientRect();
@@ -310,9 +310,10 @@ test("validation uses its standalone width for parallel checks and stacks them o
     contentX: document.querySelector(".validation-scope").getBoundingClientRect().x,
     contentWidth: document.querySelector(".validation-scope").getBoundingClientRect().width,
     mastheadX: document.querySelector(".validation-masthead__inner").getBoundingClientRect().x,
+    introWidth: document.querySelector(".validation-masthead__intro").getBoundingClientRect().width,
     overlap: document.querySelector(".validation-masthead").getBoundingClientRect().bottom - document.querySelector(".validation-sheet").getBoundingClientRect().top,
     readingMeasure: parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--sp-reading-measure")) * parseFloat(getComputedStyle(document.documentElement).fontSize),
-    pageMeasure: parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--sp-home-max")) * parseFloat(getComputedStyle(document.documentElement).fontSize)
+    pageMeasure: parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--sp-wide-measure")) * parseFloat(getComputedStyle(document.documentElement).fontSize)
   }));
 
   expect(desktop.primaryDisplay).toBe("none");
@@ -322,6 +323,7 @@ test("validation uses its standalone width for parallel checks and stacks them o
   expect(Math.abs(desktop.contentX - (1512 - desktop.contentWidth) / 2)).toBeLessThanOrEqual(1);
   expect(desktop.contentWidth).toBeGreaterThan(desktop.readingMeasure);
   expect(desktop.contentWidth).toBeLessThanOrEqual(desktop.pageMeasure + 1);
+  expect(Math.abs(desktop.introWidth - desktop.contentWidth)).toBeLessThanOrEqual(1);
 
   for (const width of [1512, 1024, 768, 390]) {
     await page.setViewportSize({ width, height: 900 });
@@ -342,6 +344,19 @@ test("validation uses its standalone width for parallel checks and stacks them o
     .locator(".md-sidebar--primary")
     .evaluate((element) => getComputedStyle(element).visibility);
   expect(mobilePrimaryVisibility).toBe("visible");
+
+  const sectionLinks = page.getByRole("navigation", { name: "Validation sections" }).getByRole("link");
+  await expect(sectionLinks).toHaveCount(3);
+  for (const link of await sectionLinks.all()) {
+    const destination = new URL(await link.getAttribute("href"), page.url());
+    await link.click();
+    await expect(page).toHaveURL(destination.href);
+    const heading = page.locator(`[id="${destination.hash.slice(1)}"]`);
+    await expect(heading).toBeInViewport();
+    const headingTop = await heading.evaluate(element => element.getBoundingClientRect().top);
+    const headerBottom = await page.locator(".md-header").evaluate(element => element.getBoundingClientRect().bottom);
+    expect(headingTop).toBeGreaterThanOrEqual(headerBottom);
+  }
 });
 
 test("roadmap contains public priorities rather than editorial notes", async ({ page }) => {
@@ -811,8 +826,8 @@ test("getting-started pages provide a deliberate reading journey", async ({ page
 
 test("dark theme preserves header, sidebar and filter contrast", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
+  await page.emulateMedia({ colorScheme: "dark" });
   await page.goto("/documentation/");
-  await page.getByRole("combobox", { name: "Colour theme", exact: true }).selectOption("dark");
   await expect(page.locator("body")).toHaveAttribute("data-md-color-scheme", "slate");
   await page.evaluate(() => scrollTo(0, 0));
   await page.evaluate(async () => {
@@ -848,6 +863,25 @@ test("dark theme preserves header, sidebar and filter contrast", async ({ page }
   });
   expect(contrasts.length).toBeGreaterThan(6);
   for (const sample of contrasts) expect(sample.ratio, sample.selector).toBeGreaterThanOrEqual(sample.minimum);
+});
+
+test("theme follows the computer after old preferences, reloads and navigation", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.goto("/documentation/");
+  await page.evaluate(() => localStorage.setItem('/.__palette', JSON.stringify({
+    index: 2, color: {media: '(prefers-color-scheme: dark)', scheme: 'slate', primary: 'custom', accent: 'custom'}
+  })));
+  await page.reload();
+  await expect(page.locator('body')).toHaveAttribute('data-md-color-scheme', 'default');
+  await expect(page.locator('.sp-theme-control, [data-md-component="top"]')).toHaveCount(0);
+  await page.emulateMedia({ colorScheme: "dark" });
+  await expect(page.locator('body')).toHaveAttribute('data-md-color-scheme', 'slate');
+  await page.locator('.md-content').getByRole('link', {name: /^Getting Started/}).click();
+  await expect(page).toHaveURL(/\/getting-started\//);
+  await expect(page.locator('body')).toHaveAttribute('data-md-color-scheme', 'slate');
+  await expect(page.locator('[data-md-component="top"]')).toHaveCount(0);
+  await page.emulateMedia({ colorScheme: "light" });
+  await expect(page.locator('body')).toHaveAttribute('data-md-color-scheme', 'default');
 });
 
 test("homepage keeps its explanation together and model overview links directly to modules", async ({ page }) => {
@@ -1065,121 +1099,25 @@ test("homepage hero is complete and stable at first paint", async ({ page }) => 
     const layout = await hero.evaluate(element => {
       const band = element.getBoundingClientRect();
       const strap = element.querySelector(".simpaths-home-hero__strap").getBoundingClientRect();
+      const intro = document.querySelector(".simpaths-home-intro-band__lede").getBoundingClientRect();
+      const features = document.querySelector(".simpaths-home-feature-map").getBoundingClientRect();
       return {
         firstScreen: band.bottom <= innerHeight && strap.bottom <= band.bottom,
         fullWidth: Math.abs(band.width - innerWidth) <= 1 && Math.abs(band.left) <= 1,
+        introWidth: intro.width, introX: intro.x, featuresX: features.x, featuresWidth: features.width,
+        homeMeasure: parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--sp-home-max")) * parseFloat(getComputedStyle(document.documentElement).fontSize),
         overflow: document.documentElement.scrollWidth - innerWidth
       };
     });
     expect(layout.firstScreen, `Homepage hero at ${width}px`).toBe(true);
     expect(layout.fullWidth).toBe(true);
+    expect(layout.introWidth).toBeLessThanOrEqual(layout.homeMeasure + 1);
+    expect(Math.abs(layout.introX - (width - layout.introWidth) / 2)).toBeLessThanOrEqual(1);
+    expect(Math.abs(layout.introX - layout.featuresX)).toBeLessThanOrEqual(1);
+    expect(Math.abs(layout.introWidth - layout.featuresWidth)).toBeLessThanOrEqual(1);
     expect(layout.overflow).toBeLessThanOrEqual(1);
   }
   expect(mathRequests).toEqual([]);
-});
-
-test("documentation masthead integrates the SimPaths mark", async ({ page }) => {
-  const logoRequests = [];
-  await page.route("**/assets/images/documentation-logo-mark*.svg", route => {
-    logoRequests.push(route.request().url());
-    return route.abort();
-  });
-  await page.setViewportSize({ width: 1512, height: 900 });
-  await page.goto("/documentation/", { waitUntil: "domcontentloaded" });
-
-  const desktop = await page.evaluate(() => {
-    const masthead = document.querySelector(".docs-index__masthead");
-    const markElement = document.querySelector(".docs-index__mark");
-    const mark = markElement.getBoundingClientRect();
-    const title = masthead.querySelector("h1").getBoundingClientRect();
-    const intro = masthead.querySelector(".docs-index__intro").getBoundingClientRect();
-    const lightImage = masthead.querySelector(".docs-index__mark-image--light");
-    const darkImage = masthead.querySelector(".docs-index__mark-image--dark");
-
-    return {
-      title: masthead.querySelector("h1").textContent.trim(),
-      fallbackTitles: [...document.querySelectorAll(".md-content__inner > h1")].map((item) =>
-        item.textContent.trim()
-      ),
-      headingLayout: getComputedStyle(masthead.querySelector(".docs-index__heading")).display,
-      markGap: title.left - mark.right,
-      markWidth: mark.width,
-      markBackground: getComputedStyle(markElement).backgroundColor,
-      markBeforeTitle: mark.right < title.left,
-      introAlignedWithMark: Math.abs(intro.left - mark.left) < 1,
-      lightImageInline: lightImage.tagName === "svg" && lightImage.querySelectorAll("path").length > 0,
-      lightImageAspectRatio: lightImage.viewBox.baseVal.width / lightImage.viewBox.baseVal.height,
-      lightImageDisplay: getComputedStyle(lightImage).display,
-      darkImageDisplay: getComputedStyle(darkImage).display
-    };
-  });
-
-  expect(desktop.title).toBe("SimPaths Documentation");
-  expect(desktop.fallbackTitles).toEqual([]);
-  expect(desktop.headingLayout).toBe("flex");
-  expect(desktop.markGap).toBeGreaterThanOrEqual(10);
-  expect(desktop.markGap).toBeLessThanOrEqual(14);
-  expect(desktop.markWidth).toBeGreaterThanOrEqual(60);
-  expect(desktop.markWidth).toBeLessThanOrEqual(80);
-  expect(desktop.markBackground).toBe("rgba(0, 0, 0, 0)");
-  expect(desktop.markBeforeTitle).toBe(true);
-  expect(desktop.introAlignedWithMark).toBe(true);
-  expect(desktop.lightImageInline).toBe(true);
-  expect(desktop.lightImageAspectRatio).toBeGreaterThan(1.8);
-  expect(desktop.lightImageAspectRatio).toBeLessThan(1.9);
-  expect(desktop.lightImageDisplay).toBe("block");
-  expect(desktop.darkImageDisplay).toBe("none");
-
-  const darkMode = await page.evaluate(() => {
-    document.documentElement.dataset.mdColorScheme = "slate";
-    const darkImage = document.querySelector(".docs-index__mark-image--dark");
-    return {
-      markBackground: getComputedStyle(document.querySelector(".docs-index__mark")).backgroundColor,
-      light: getComputedStyle(document.querySelector(".docs-index__mark-image--light")).display,
-      dark: getComputedStyle(darkImage).display,
-      darkImageInline: darkImage.tagName === "svg" && darkImage.querySelectorAll("path").length > 0,
-      darkImageAspectRatio: darkImage.viewBox.baseVal.width / darkImage.viewBox.baseVal.height
-    };
-  });
-
-  expect(darkMode.markBackground).toBe("rgba(0, 0, 0, 0)");
-  expect(darkMode.light).toBe("none");
-  expect(darkMode.dark).toBe("block");
-  expect(darkMode.darkImageInline).toBe(true);
-  expect(darkMode.darkImageAspectRatio).toBeGreaterThan(1.8);
-  expect(darkMode.darkImageAspectRatio).toBeLessThan(1.9);
-
-  // Also cover Material's in-place navigation, not only a fresh page load.
-  await page.goto("/", { waitUntil: "domcontentloaded" });
-  await page.locator(".md-tabs").getByRole("link", { name: "Documentation", exact: true }).click();
-  await expect(page).toHaveURL(/\/documentation\/$/);
-  await expect(page.locator(".docs-index__mark svg:visible")).toHaveCount(1);
-  await expect(page.locator(".docs-index__mark img")).toHaveCount(0);
-
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.reload({ waitUntil: "domcontentloaded" });
-
-  const mobile = await page.evaluate(() => {
-    const masthead = document.querySelector(".docs-index__masthead");
-    const mark = document.querySelector(".docs-index__mark").getBoundingClientRect();
-    const title = masthead.querySelector("h1").getBoundingClientRect();
-
-    return {
-      headingLayout: getComputedStyle(masthead.querySelector(".docs-index__heading")).display,
-      markGap: title.left - mark.right,
-      markBeforeTitle: mark.right < title.left,
-      alignedCentre: Math.abs((mark.top + mark.bottom) / 2 - (title.top + title.bottom) / 2) < 1,
-      overflow: document.documentElement.scrollWidth - window.innerWidth
-    };
-  });
-
-  expect(mobile.headingLayout).toBe("flex");
-  expect(mobile.markGap).toBeGreaterThanOrEqual(10);
-  expect(mobile.markGap).toBeLessThanOrEqual(14);
-  expect(mobile.markBeforeTitle).toBe(true);
-  expect(mobile.alignedCentre).toBe(true);
-  expect(mobile.overflow).toBe(0);
-  expect(logoRequests).toEqual([]);
 });
 
 test("research keeps readable citations beside year and type, stacking on mobile", async ({ page }, testInfo) => {

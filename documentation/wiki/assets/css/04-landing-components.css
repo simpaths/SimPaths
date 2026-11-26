@@ -8,7 +8,7 @@
   --docs-panel-copy: #4F5953;
   --docs-panel-rule: rgba(37, 54, 47, 0.16);
   --docs-guides-background: #B8DBCD;
-  --docs-resources-background: #DCCBEE;
+  --docs-resources-background: #EFE9F4;
   --docs-reference-background: #C9DFD5;
   width: 100%;
   margin: 0;
@@ -26,35 +26,6 @@
   margin-bottom: 1.4rem;
   padding-bottom: 1.4rem;
   border-bottom: 1px solid var(--sp-border-strong);
-}
-
-.md-typeset .docs-index__mark {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 3.4rem;
-  height: 2.34rem;
-  padding: 0.1rem 0.3rem;
-  background: transparent;
-  border-radius: 4px;
-}
-
-.md-typeset .docs-index__mark svg {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-.md-typeset .docs-index__mark svg.docs-index__mark-image--dark {
-  display: none;
-}
-
-.md-typeset .docs-index__heading {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  min-width: 0;
 }
 
 .md-typeset .docs-hub--index h1,
@@ -173,7 +144,7 @@
   --docs-panel-copy: #D4DDD7;
   --docs-panel-rule: rgba(237, 244, 239, 0.2);
   --docs-guides-background: #25483E;
-  --docs-resources-background: #3B304E;
+  --docs-resources-background: #302C38;
   --docs-reference-background: #253F38;
   color: var(--md-default-fg-color);
 }
@@ -182,36 +153,11 @@
   color: var(--sp-midnight);
 }
 
-[data-md-color-scheme="slate"] .md-typeset .docs-index__mark svg.docs-index__mark-image--light {
-  display: none;
-}
-
-[data-md-color-scheme="slate"] .md-typeset .docs-index__mark svg.docs-index__mark-image--dark {
-  display: block;
-}
-
-@media (max-width: 680px) {
-  .md-typeset .docs-hub--index {
-    width: 100%;
-    margin-left: 0;
-  }
-
-}
-
 @media (max-width: 520px) {
-  .md-typeset .docs-index__mark {
-    width: 2.5rem;
-    padding-inline: 0.1rem;
-  }
   .md-typeset .docs-index__secondary,
   .md-typeset .docs-index__section--guides .docs-index__links {
     grid-template-columns: minmax(0, 1fr);
   }
-}
-
-/* The header already carries the mark; give the title room on narrow phones. */
-@media (max-width: 360px) {
-  .md-typeset .docs-index__mark { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

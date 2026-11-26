@@ -7,13 +7,7 @@ hide:
 <div class="docs-hub docs-hub--index">
 
 <header class="docs-index__masthead">
-  <div class="docs-index__heading">
-    <div class="docs-index__mark" aria-hidden="true">
---8<-- "documentation/wiki/assets/images/documentation-logo-mark.svg"
---8<-- "documentation/wiki/assets/images/documentation-logo-mark-dark.svg"
-    </div>
-    <h1>SimPaths Documentation</h1>
-  </div>
+  <h1>Documentation</h1>
   <p class="docs-index__intro">SimPaths is an open-source dynamic microsimulation framework written in Java and built on the JAS-mine simulation libraries. This documentation explains how to install, configure and run the model, work with its data and parameters, and understand or extend its implementation. It follows ongoing model development; some features may not yet be included in the latest release.</p>
 </header>
 

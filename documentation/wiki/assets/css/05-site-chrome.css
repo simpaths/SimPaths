@@ -100,17 +100,6 @@
   outline-offset: 3px;
 }
 
-.sp-theme-control:not([hidden]) {
-  display: flex; align-items: center; gap: 0.45rem; margin: 0 1rem;
-  color: var(--sp-footer-muted); font-size: var(--sp-meta-size);
-}
-.sp-theme-control select {
-  min-height: 1.8rem; padding: 0.2rem 0.45rem; border: 1px solid #9DB9AE;
-  border-radius: 4px; background: transparent; color: var(--sp-footer-muted);
-  font: inherit; cursor: pointer; color-scheme: dark;
-}
-.sp-theme-control select:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
-
 @media (max-width: 620px) {
   .md-footer-meta {
     padding: 1.1rem 0 1.2rem;
@@ -348,18 +337,6 @@ html.sp-no-section-nav .md-main__inner {
   max-width: var(--sp-reading-measure);
 }
 
-.md-typeset .sp-breadcrumbs { margin: 0 0 0.65rem; }
-.md-typeset .sp-breadcrumbs ol {
-  display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.45rem;
-  margin: 0; padding: 0; list-style: none;
-  font-size: var(--sp-meta-size); line-height: 1.6;
-  color: var(--md-default-fg-color--light);
-}
-.md-typeset .sp-breadcrumbs .sp-breadcrumbs__list > li { margin: 0; padding: 0; }
-.md-typeset .sp-breadcrumbs li + li::before { content: "/"; margin-right: 0.45rem; opacity: 0.6; }
-.md-typeset .sp-breadcrumbs a { color: inherit; text-decoration: underline; text-underline-offset: 0.15em; }
-.md-typeset .sp-breadcrumbs a:focus-visible { outline: 2px solid var(--sp-accent); outline-offset: 3px; }
-.md-typeset .sp-breadcrumbs + h1 { margin-top: 0; }
 html.sp-page-directory .md-typeset > p,
 html.sp-page-directory .dev-guide-intro__copy { max-width: var(--sp-reading-measure); }
 
@@ -405,18 +382,3 @@ html.sp-page-directory .dev-guide-intro__copy { max-width: var(--sp-reading-meas
   background: var(--sp-midnight-deep);
   border-color: transparent;
 }
-
-/* ═══════════════════════════════════════════════
-   BACK TO TOP
-═══════════════════════════════════════════════ */
-
-.md-container .md-top {
-  display: none !important;
-}
-
-html.sp-tab-model .md-container .md-top,
-html.sp-tab-documentation .md-container .md-top {
-  display: inline-flex !important;
-}
-
-/* Version identity follows the selected source branch. */

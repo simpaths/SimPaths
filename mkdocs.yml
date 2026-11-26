@@ -36,7 +36,6 @@ theme:
     - navigation.tabs.sticky
     - navigation.sections
     - navigation.indexes
-    - navigation.top
     - navigation.footer
     - toc.follow
     - search.suggest
@@ -47,14 +46,14 @@ theme:
 
 extra_css:
   # Keep this order: later component files intentionally refine earlier layers.
-  - assets/css/01-foundation.css?v=20261126-flat-layout
+  - assets/css/01-foundation.css?v=20261126-content-width
   - assets/css/02-shell-navigation.css?v=20261126-flat-layout
   - assets/css/03-content.css?v=20261125-build-cleanup-1
-  - assets/css/04-landing-components.css?v=20261125-docs-intro-body-2
-  - assets/css/05-site-chrome.css?v=20261126-flat-layout
-  - assets/css/06-page-sections.css?v=20261126-flat-layout
+  - assets/css/04-landing-components.css?v=20261126-reading-refinements
+  - assets/css/05-site-chrome.css?v=20261126-reading-refinements
+  - assets/css/06-page-sections.css?v=20261126-content-width
   - assets/css/07-roadmap.css?v=20261125-green-restored-2
-  - assets/css/08-home.css?v=20261126-flat-layout
+  - assets/css/08-home.css?v=20261126-hero-spacing
   - assets/css/09-model-explorer.css?v=20261125-build-cleanup-1
   - assets/css/10-developer-guide.css?v=20261125-green-headings-1
 
@@ -62,7 +61,6 @@ extra_javascript:
   - assets/js/mathjax.js?v=20261011-audit-1
   - assets/js/site-state.js?v=20261126-flat-layout
   - assets/js/navigation-controls.js?v=20261011-audit-1
-  - assets/js/theme-preference.js?v=20261011-audit-1
   - assets/js/toc-indicator.js?v=20260905-toc-marker-1
   - assets/js/sidebar-filter.js?v=20261011-navigation-fix-1
 

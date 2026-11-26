@@ -35,6 +35,9 @@
       {% endif %}
     {% endif %}
     {% if not config.theme.palette is mapping %}
+      {# Always use Material's automatic palette, including for visitors who
+         previously saved a site-specific preference. Set it before first paint. #}
+      <script>__md_set("__palette", {index: 0, color: {{ config.theme.palette[0] | tojson }}});</script>
       {% include "partials/javascripts/palette.html" %}
     {% endif %}
     {% if config.extra.alternate %}

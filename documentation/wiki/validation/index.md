@@ -16,6 +16,11 @@ This section explains the current procedures used to validate SimPaths inputs an
 The procedures below describe how to perform the checks; they do not present a set of validation results for a particular model release.
 
 </div>
+<nav class="validation-sections" aria-label="Validation sections">
+  <a href="#1-introduction">Scope of the checks</a>
+  <a href="#2-obtaining-the-validation-scripts">Get the scripts</a>
+  <a href="#3-running-the-validation-scripts">Run the checks</a>
+</nav>
 </div>
 </div>
 

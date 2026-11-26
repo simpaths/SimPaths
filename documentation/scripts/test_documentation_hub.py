@@ -12,26 +12,6 @@ class DocumentationHubTest(unittest.TestCase):
     def setUpClass(cls):
         cls.css = (Path(__file__).resolve().parents[1] / "wiki/assets/css/04-landing-components.css").read_text()
 
-    def test_masthead_keeps_the_mark_next_to_the_title(self):
-        mark = blocks(self.css, ".md-typeset .docs-index__mark")
-        heading = blocks(self.css, ".md-typeset .docs-index__heading")
-        self.assertEqual(heading[0]["display"], "flex")
-        self.assertEqual(heading[0]["gap"], "0.6rem")
-        self.assertEqual(mark[0]["flex-shrink"], "0")
-
-    def test_logo_uses_the_page_surface_and_switches_for_dark_mode(self):
-        mark = blocks(self.css, ".md-typeset .docs-index__mark")
-        self.assertEqual(mark[0]["background"], "transparent")
-        self.assertEqual(mark[0]["height"], "2.34rem")
-        self.assertEqual(mark[0]["padding"], "0.1rem 0.3rem")
-        self.assertEqual(mark[0]["border-radius"], "4px")
-        self.assertTrue(any(rule.get("width") == "2.5rem" for rule in mark))
-        self.assertTrue(any(rule.get("padding-inline") == "0.1rem" for rule in mark))
-        self.assertNotIn("aspect-ratio", mark[0])
-        dark_prefix = '[data-md-color-scheme="slate"] .md-typeset .docs-index__mark'
-        self.assertEqual(blocks(self.css, dark_prefix + " svg.docs-index__mark-image--light")[0]["display"], "none")
-        self.assertEqual(blocks(self.css, dark_prefix + " svg.docs-index__mark-image--dark")[0]["display"], "block")
-
     def test_links_use_only_arrow_motion_without_highlight_fills(self):
         self.assertNotIn("--docs-panel-hover", self.css)
         self.assertNotIn("background-color 180ms", self.css)
