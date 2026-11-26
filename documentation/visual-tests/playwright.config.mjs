@@ -12,7 +12,7 @@ export default defineConfig({
   use: {
     baseURL: externalServer || "http://127.0.0.1:8142",
     colorScheme: "light",
-    reducedMotion: "reduce",
+    contextOptions: { reducedMotion: "reduce" },
     screenshot: "only-on-failure",
     trace: "retain-on-failure"
   },
