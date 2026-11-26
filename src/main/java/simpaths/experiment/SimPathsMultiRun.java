@@ -21,6 +21,8 @@ import microsim.engine.MultiRun;
 import microsim.engine.SimulationEngine;
 import microsim.gui.shell.MultiRunFrame;
 import simpaths.model.enums.Country;
+import simpaths.model.enums.MacroLogLevel;
+import simpaths.model.enums.MacroModelMode;
 
 import org.apache.logging.log4j.Level;
 // Logging and file writing
@@ -549,6 +551,12 @@ public class SimPathsMultiRun extends MultiRun {
 	}
 
 	private static Object convertToType(Object value, Class<?> targetType) {
+		if (targetType == MacroModelMode.class) {
+			return MacroModelMode.fromConfigValue(value);
+		}
+		if (targetType == MacroLogLevel.class) {
+			return MacroLogLevel.fromConfigValue(value);
+		}
 		// Convert the YAML value to the target type
 		if (int.class.equals(targetType)) {
 			return ((Number) value).intValue();

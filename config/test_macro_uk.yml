@@ -1,0 +1,14 @@
+# Run after the UK training database has been built with test_create_database.yml.
+startYear: 2019
+endYear: 2022
+popSize: 4000
+randomSeed: 100
+maxNumberOfRuns: 1
+executeWithGui: false
+
+model_args:
+    mm_macroModel: ramsey_dsge
+    mm_macroBundleDir: input/UK/MacroModel-2019q1
+    mm_dsgeShockScenario: one_sigma_rate_shock.csv
+    mm_useMacroPathRecorder: true
+    mm_macroLogging: state

@@ -30,6 +30,16 @@ popSize: 50000            # simulated population size (larger = more accurate, s
 
 model_args:
 
+  # --- WELLSIM macro model ---
+#    mm_macroModel: "off"             # off | ramsey | dsge | ramsey_dsge
+#    mm_macroBundleDir: ""            # defaults to input/UK/MacroModel. The bundle handoff must match startYear.
+#    mm_dsgeShockScenario: ""         # DSGE shock CSV in the selected bundle
+#    mm_ramseyScenario: ""            # Ramsey scenario CSV in the selected bundle
+#    mm_useMacroPathRecorder: false   # write MacroPaths.csv, also available with macro mode off
+#    mm_macroLogging: "off"           # off | state | verbose
+#    mm_ramseyFeedbackPersistence: 1.0
+#    mm_ramseyFeedbackReferenceYear: 0  # 0 uses the first year with a UK labour-market update
+
   # --- Time trend controls ---
 #    maxAge: 130                              # maximum age kept in simulation; persons above this are removed
 #    fixTimeTrend: true                       # if true, freezes the time trend in regression equations

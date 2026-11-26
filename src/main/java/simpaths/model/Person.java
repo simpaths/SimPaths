@@ -170,7 +170,8 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
 //	is a separate process in the simulation, and it is computed for every adult
 //	individual in the simulated population, in each simulated period.
     @Column(name="labWageHrly") private Double labWageFullTimeHrly;		//Is hourly rate.  Initialised with value: ils_earns / (4.34 * lhw), where lhw is the weekly hours a person worked in UKMOD input data
-    @Lag(field="labWageFullTimeHrly") @Transient private Double labWageFullTimeHrlyL1; // Lag(1) of potentialHourlyEarnings
+    @Lag(getter="getLabWageFullTimeHrlyForLag") @Transient private Double labWageFullTimeHrlyL1;
+    @Transient private Double hourlyWageBeforeMacro;
     @Transient private Double yDispEquivYear;
     @NullInitialised private Double xEquivYear;
     @Lag(field="xEquivYear") @Transient private Double xEquivYearL1;
@@ -604,6 +605,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
                 labC4 = Les_c4.NotEmployed;
             }
         }
+        hourlyWageBeforeMacro = originalPerson.hourlyWageBeforeMacro;
         if (originalPerson.labWageFullTimeHrlyL1 !=null && originalPerson.labWageFullTimeHrlyL1 >= Parameters.MIN_HOURLY_WAGE_RATE) {
             labWageFullTimeHrlyL1 = Math.min(Parameters.MAX_HOURLY_WAGE_RATE, Math.max(Parameters.MIN_HOURLY_WAGE_RATE, originalPerson.labWageFullTimeHrlyL1));
         } else  {
@@ -2079,7 +2081,7 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
 
     protected void updateFullTimeHourlyEarnings() {
 
-        if (demAge < Parameters.MIN_AGE_TO_HAVE_INCOME || demAge > Parameters.MAX_AGE_FLEXIBLE_LABOUR_SUPPLY) {
+        if (!canProjectHourlyEarnings()) {
             return;
         }
         double rmse, wagesInnov = statInnovations.getDoubleDraw(16);
@@ -2127,13 +2129,36 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
 
         // Uprate and set level of potential earnings
         double upratedFullTimeHourlyEarnings = Math.exp(logFullTimeHourlyEarnings);
-        if (upratedFullTimeHourlyEarnings < Parameters.MIN_HOURLY_WAGE_RATE) {
-            setLabWageFullTimeHrly(Parameters.MIN_HOURLY_WAGE_RATE);
-        } else if (upratedFullTimeHourlyEarnings > Parameters.MAX_HOURLY_WAGE_RATE) {
-            setLabWageFullTimeHrly(Parameters.MAX_HOURLY_WAGE_RATE);
-        } else {
-            setLabWageFullTimeHrly(upratedFullTimeHourlyEarnings);
+        if (model.usesMacroWages()) {
+            hourlyWageBeforeMacro = upratedFullTimeHourlyEarnings;
         }
+        setLabWageFullTimeHrly(boundHourlyWage(upratedFullTimeHourlyEarnings));
+    }
+
+    /** Called by the macro manager after the wage regression and before labour supply. */
+    public Double applyMacroHourlyWage(double deviationPct) {
+        if (hourlyWageBeforeMacro == null || !canProjectHourlyEarnings() || !SampleExit.NotYet.equals(demExitSample)) {
+            return null;
+        }
+        double previousWage = labWageFullTimeHrly;
+        setLabWageFullTimeHrly(boundHourlyWage(hourlyWageBeforeMacro * (1.0 + deviationPct / 100.0)));
+        return previousWage;
+    }
+
+    private Double getLabWageFullTimeHrlyForLag() {
+        // W1 already receives the macro wage each year. Keep that overlay out of its own lag.
+        if (hourlyWageBeforeMacro == null) {
+            return labWageFullTimeHrly;
+        }
+        return boundHourlyWage(hourlyWageBeforeMacro);
+    }
+
+    private boolean canProjectHourlyEarnings() {
+        return demAge >= Parameters.MIN_AGE_TO_HAVE_INCOME && demAge <= Parameters.MAX_AGE_FLEXIBLE_LABOUR_SUPPLY;
+    }
+
+    private static double boundHourlyWage(double wage) {
+        return Math.max(Parameters.MIN_HOURLY_WAGE_RATE, Math.min(Parameters.MAX_HOURLY_WAGE_RATE, wage));
     }
     public void setyCapitalPersMonth(double val) {
         yCapitalPersMonth = val;
@@ -4078,7 +4103,8 @@ public class Person implements EventListener, IDoubleSource, IIntSource, Weight,
                 return (getCovidYLabGrossXt5().equals(Quintiles.Q5)) ? 1. : 0.;
             }
             case realWageGrowth -> { // Note: the values provided to the wage regression must be rebased to 2015, the default BASE_PRICE_YEAR.
-                return Parameters.getTimeSeriesIndex(getYear(), UpratingCase.Earnings);
+                int regressionYear = model == null ? getYear() : model.wageGrowthRegressorYear();
+                return Parameters.getTimeSeriesIndex(regressionYear, UpratingCase.Earnings);
             }
             case Cut1 -> {
                 // ordered probit/logit cut points ignored when calculating score
