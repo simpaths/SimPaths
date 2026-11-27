@@ -8,8 +8,8 @@
 
 /* Validation is a standalone guide, with parallel checks inside a shared frame. */
 html.sp-page-validation .md-main__inner {
-  --validation-width: var(--sp-reading-measure);
-  --validation-gutter: calc(1.6rem + clamp(1.2rem, 3.2vw, 2.4rem));
+  --validation-width: var(--sp-standalone-measure);
+  --validation-gutter: var(--sp-standalone-gutter);
   display: block; width: 100%; max-width: none; margin: 0;
 }
 html.sp-page-validation .md-container .md-main__inner .md-content > .md-content__inner {
@@ -85,13 +85,11 @@ html.sp-page-validation .md-typeset :not(pre) > code {
 .md-typeset .validation-run__grid > section > ol > li { margin-bottom: 0.85em; }
 html.sp-page-validation .md-typeset li > ul { margin-top: 0.45em; }
 @media (min-width: 64em) {
-  html.sp-page-validation .md-main__inner { --validation-width: var(--sp-wide-measure); }
   .md-typeset .validation-scope > ol,
   .md-typeset .validation-run__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .md-typeset .validation-downloads > ol { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (max-width: 760px) {
-  html.sp-page-validation .md-main__inner { --validation-gutter: 1rem; }
   .md-typeset .validation-masthead { padding-block: 1.6rem; }
   .md-typeset .validation-sheet { padding-block: 2rem; }
   .md-typeset .validation-downloads,
@@ -263,10 +261,16 @@ html.sp-page-validation .md-typeset li > ul { margin-top: 0.45em; }
   font-size: var(--sp-reading-copy-size); line-height: var(--sp-reading-line-height);
 }
 .md-typeset .research-primary {
+  position: relative;
   padding: 1.3rem 1.5rem;
   background: var(--research-feature-surface);
   border-left: 3px solid var(--research-page-accent);
   border-radius: var(--sp-card-radius);
+  transition: transform 240ms cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 240ms ease;
+}
+.md-typeset .research-primary:is(:hover, :focus-within) {
+  transform: translateY(-4px);
+  box-shadow: 0 3px 10px rgba(25,35,30,0.05);
 }
 .md-typeset .research-list { margin-top: 2rem; }
 .md-typeset .research-list > h2 { margin: 0 0 1rem; font-size: 1.05rem; font-weight: 520; }
@@ -295,7 +299,7 @@ html.sp-page-validation .md-typeset li > ul { margin-top: 0.45em; }
 .md-typeset .research-publication h3 a::after {
   content: " ↗"; display: inline; font-size: .75em; white-space: nowrap;
 }
-.md-typeset .research-publication h3 a:is(:hover, :focus-visible) {
+.md-typeset .research-list .research-publication h3 a:is(:hover, :focus-visible) {
   text-decoration: underline !important; text-underline-offset: .2em;
   text-decoration-thickness: 1px !important;
 }
@@ -310,7 +314,19 @@ html.sp-page-validation .md-typeset li > ul { margin-top: 0.45em; }
 .md-typeset .research-publication__source { margin: .35rem 0 0; color: var(--md-default-fg-color); }
 .md-typeset .research-publication__source cite { font-style: normal; }
 .md-typeset .research-publication__format { white-space: nowrap; font-size: .7rem; font-weight: 400; }
-.md-typeset .research-primary__paper h3 { font-size: 1.06rem; line-height: 1.45; font-weight: 500; }
+.md-typeset .research-primary__paper h3 { font-size: .9rem; line-height: 1.45; font-weight: 450; }
+/* Extend the single paper link across the card without duplicate tab stops. */
+.md-typeset .research-primary h3 a::before {
+  content: ""; position: absolute; inset: 0; border-radius: var(--sp-card-radius);
+}
+.md-typeset .research-primary h3 a:focus-visible { outline: none; }
+.md-typeset .research-primary h3 a:focus-visible::before {
+  outline: 2px solid var(--research-page-accent); outline-offset: 4px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .md-typeset .research-primary { transition: none; }
+  .md-typeset .research-primary:is(:hover, :focus-within) { transform: none; }
+}
 @media screen and (max-width: 45em) {
   .md-typeset .research-primary { padding: 1rem; }
 }

@@ -332,9 +332,20 @@ html:not(.sp-page-home) .md-content__inner::before { display: none; }
 }
 
 /* Standalone pages have one centred column, without empty sidebar tracks. */
+html.sp-no-section-nav {
+  --sp-standalone-measure: var(--sp-reading-measure);
+  --sp-standalone-gutter: calc(1.6rem + clamp(1.2rem, 3.2vw, 2.4rem));
+}
 html.sp-no-section-nav .md-main__inner {
   display: block;
-  max-width: var(--sp-reading-measure);
+  width: calc(100% - 2 * var(--sp-standalone-gutter));
+  max-width: var(--sp-standalone-measure);
+}
+@media (min-width: 64em) {
+  html.sp-no-section-nav { --sp-standalone-measure: var(--sp-wide-measure); }
+}
+@media (max-width: 760px) {
+  html.sp-no-section-nav { --sp-standalone-gutter: 1rem; }
 }
 
 html.sp-page-directory .md-typeset > p,

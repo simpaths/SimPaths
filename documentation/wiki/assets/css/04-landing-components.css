@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════
    DOCUMENTATION LANDING PAGE
-   Mint guides, pale green reference and violet resources.
+   Mint guides, pale green reference and warm peach resources.
 ═══════════════════════════════════════════════ */
 
 .md-typeset .docs-hub--index {
@@ -8,7 +8,7 @@
   --docs-panel-copy: #4F5953;
   --docs-panel-rule: rgba(37, 54, 47, 0.16);
   --docs-guides-background: #B8DBCD;
-  --docs-resources-background: #EFE9F4;
+  --docs-resources-background: #FBE4DB;
   --docs-reference-background: #C9DFD5;
   width: 100%;
   margin: 0;
@@ -144,7 +144,7 @@
   --docs-panel-copy: #D4DDD7;
   --docs-panel-rule: rgba(237, 244, 239, 0.2);
   --docs-guides-background: #25483E;
-  --docs-resources-background: #302C38;
+  --docs-resources-background: #3B2E28;
   --docs-reference-background: #253F38;
   color: var(--md-default-fg-color);
 }

@@ -257,7 +257,7 @@ test("interior pages keep a contained reading measure and consistent alignment",
       measurements.push({ ...measurement, path });
     }
     for (const noSectionNav of [true, false]) {
-      const starts = measurements.filter(item => item.noSectionNav === noSectionNav && item.path !== "/validation/").map(item => item.titleX);
+      const starts = measurements.filter(item => item.noSectionNav === noSectionNav).map(item => item.titleX);
       expect(Math.max(...starts) - Math.min(...starts), `${width}px: content start`).toBeLessThanOrEqual(1);
     }
     if (width >= 960) {
@@ -268,8 +268,7 @@ test("interior pages keep a contained reading measure and consistent alignment",
         expect(Math.abs(byPath[path].width - prose.width), path).toBeLessThanOrEqual(1);
       }
       for (const path of ["/research/", "/funding/"]) {
-        expect(byPath[path].width, path).toBeLessThanOrEqual(prose.readingMeasure + 1);
-        expect(Math.abs(byPath[path].width - byPath["/research/"].width), path).toBeLessThanOrEqual(1);
+        expect(Math.abs(byPath[path].width - byPath["/validation/"].width), path).toBeLessThanOrEqual(1);
       }
     }
   }
@@ -1018,12 +1017,9 @@ test("homepage introduces a first simulation and highlights selected research", 
   const hoverState = await firstResearchEntry.evaluate((entry) => ({
     background: getComputedStyle(entry).backgroundColor,
     titleDecoration: getComputedStyle(entry.querySelector(".research-title")).textDecorationLine,
-    titleDecorationColor: getComputedStyle(entry.querySelector(".research-title")).textDecorationColor,
-    titleColor: getComputedStyle(entry.querySelector(".research-title")).color
   }));
-  expect(hoverState.background).not.toBe("rgb(255, 255, 255)");
-  expect(hoverState.titleDecoration).toContain("underline");
-  expect(hoverState.titleDecorationColor).toBe(hoverState.titleColor);
+  expect(hoverState.background).toBe("rgb(255, 255, 255)");
+  expect(hoverState.titleDecoration).toBe("none");
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.reload({ waitUntil: "domcontentloaded" });
@@ -1166,7 +1162,15 @@ test("research keeps readable citations beside year and type, stacking on mobile
   }
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBe(0);
   const modelLink = catalogue.locator(".research-primary h3 a");
+  const referenceCard = catalogue.locator(".research-primary");
+  await referenceCard.hover();
+  await expect(modelLink).toHaveCSS("text-decoration-line", "none");
+  expect(await referenceCard.evaluate(card => {
+    const bounds = card.getBoundingClientRect();
+    return document.elementFromPoint(bounds.left + 10, bounds.top + 10)?.closest("a")?.href;
+  })).toBe(await modelLink.getAttribute("href"));
   await modelLink.focus();
+  expect(await modelLink.evaluate(link => getComputedStyle(link, "::before").outlineStyle)).toBe("solid");
   await modelLink.press("Tab");
   const nextPaper = catalogue.locator(".research-list .research-publication h3 a").first();
   await expect(nextPaper).toBeFocused();

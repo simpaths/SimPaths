@@ -57,7 +57,7 @@
   }
 }
 
-/* ── Forest green and pale sage, with violet link accents from the SimPaths mark ── */
+/* ── Forest green and pale sage, with coral-red links drawn from the logo ── */
 :root {
   --sp-midnight:        #25362F;
   --sp-body-ink:        #353B38;
@@ -67,14 +67,14 @@
   --sp-wine:            #4F5953;
   --sp-wine-soft:       #626C66;
   --sp-accent:          #30644E;
-  --sp-link:            #7C36A6;
-  --sp-link-hover:      #5B2587;
+  --sp-link:            #C33730;
+  --sp-link-hover:      #A52D27;
   /* Fixed ink for the deliberately light editorial panels in either theme. */
   --sp-panel-ink:       #353B38;
   --sp-panel-heading:   #25362F;
   --sp-panel-muted:     #626C66;
-  --sp-panel-link:      #7C36A6;
-  --sp-panel-link-hover:#5B2587;
+  --sp-panel-link:      #C33730;
+  --sp-panel-link-hover:#A52D27;
   --sp-hairline:        linear-gradient(to right, #D2DCD5 0%, #D2DCD5 40%, transparent 100%);
   --sp-surface:         #FFFFFF;
   --sp-surface-strong:  #FFFFFF;
@@ -144,8 +144,8 @@ body {
   --sp-wine-soft:                 #B5C0B9;
   --sp-accent:                    #A7CDB5;
   --sp-crimson:                   #C4DFCE;
-  --sp-link:                      #C5A0E5;
-  --sp-link-hover:                #DCC1F2;
+  --sp-link:                      #FF9D91;
+  --sp-link-hover:                #FFC5BB;
   --md-accent-fg-color--transparent: rgba(167,205,181,0.08);
   --md-default-bg-color:          #1E2522;
   --md-default-bg-color--light:   #29322D;

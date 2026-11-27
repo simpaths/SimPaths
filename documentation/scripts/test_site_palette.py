@@ -56,7 +56,7 @@ class SitePaletteTest(unittest.TestCase):
     def test_online_light_palette_roles(self):
         expected = {
             "--sp-paper": "#FFFFFF", "--sp-midnight": "#25362F",
-            "--sp-accent": "#30644E", "--sp-link": "#7C36A6",
+            "--sp-accent": "#30644E", "--sp-link": "#C33730",
             "--sp-surface": "#FFFFFF",
             "--sp-surface-strong": "#FFFFFF",
         }
