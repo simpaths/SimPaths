@@ -1593,8 +1593,8 @@ test("documentation sidebar hover is neutral and keeps the current-page marker",
   expect(mark).toEqual({ background: 'none', content: 'none' });
   await documentation.click();
   await expect(page).toHaveURL(/\/documentation\/$/);
-  await expect(documentation.locator('..')).toHaveCSS('background-color', 'rgba(48, 100, 78, 0.08)');
-  await expect(documentation.locator('..')).toHaveCSS('box-shadow', 'rgb(48, 100, 78) 2px 0px 0px 0px inset');
+  await expect(documentation.locator('..')).toHaveCSS('background-color', 'rgba(112, 112, 112, 0.1)');
+  await expect(documentation.locator('..')).toHaveCSS('box-shadow', 'rgb(53, 59, 56) 2px 0px 0px 0px inset');
 
   await sidebar.getByRole('link', { name: 'User Guide', exact: true }).click();
   await expect(page).toHaveURL(/\/user-guide\/$/);

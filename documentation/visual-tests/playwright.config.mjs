@@ -4,7 +4,7 @@ const externalServer = process.env.SIMPATHS_DOCS_URL;
 
 export default defineConfig({
   testDir: ".",
-  testMatch: "layout.spec.mjs",
+  testMatch: ["layout.spec.mjs", "scroll.spec.mjs"],
   outputDir: "test-results",
   reporter: [["list"]],
   fullyParallel: false,

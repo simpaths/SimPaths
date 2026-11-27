@@ -71,7 +71,9 @@ class SidebarInteractionTest(unittest.TestCase):
         current = blocks(self.source, SIDEBAR + " .md-nav__container.sp-nav-container-active")[0]
         self.assertEqual(current["background"], "var(--sp-sidebar-active) !important")
         self.assertEqual(current["box-shadow"], "inset 2px 0 0 var(--sp-accent) !important")
-        self.assertEqual(blocks(self.source, HOME + ".sp-nav-container-active")[0], current)
+        home_current = blocks(self.source, HOME + ".sp-nav-container-active")[0]
+        self.assertEqual(home_current["background"], "rgba(112, 112, 112, 0.1) !important")
+        self.assertEqual(home_current["box-shadow"], "inset 2px 0 0 var(--sp-body-ink) !important")
         template = CSS.parents[3] / "overrides/main.html"
         self.assertIn("assets/images/homepage-hero-logo.svg", template.read_text())
 

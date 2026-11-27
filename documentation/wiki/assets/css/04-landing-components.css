@@ -1,15 +1,15 @@
 /* ═══════════════════════════════════════════════
    DOCUMENTATION LANDING PAGE
-   Mint guides, pale green reference and warm peach resources.
+   Pale sage guides and reference, with a soft coral-clay resources tint.
 ═══════════════════════════════════════════════ */
 
 .md-typeset .docs-hub--index {
   --docs-panel-ink: #25362F;
   --docs-panel-copy: var(--sp-body-ink);
   --docs-panel-rule: rgba(37, 54, 47, 0.16);
-  --docs-guides-background: #B8DBCD;
-  --docs-resources-background: #FBE4DB;
-  --docs-reference-background: #C9DFD5;
+  --docs-guides-background: var(--sp-home-hero-bg);
+  --docs-resources-background: #F0D2C4;
+  --docs-reference-background: var(--docs-guides-background);
   width: 100%;
   margin: 0;
   padding-bottom: 2rem;
@@ -144,8 +144,8 @@
   --docs-panel-copy: #D4DDD7;
   --docs-panel-rule: rgba(237, 244, 239, 0.2);
   --docs-guides-background: #25483E;
-  --docs-resources-background: #3B2E28;
-  --docs-reference-background: #253F38;
+  --docs-resources-background: #3E302B;
+  --docs-reference-background: var(--docs-guides-background);
   color: var(--md-default-fg-color);
 }
 

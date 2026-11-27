@@ -10,7 +10,10 @@
   border: 0;
   backdrop-filter: none; -webkit-backdrop-filter: none;
   min-height: var(--sp-header-height);
-  transition: min-height var(--sp-header-motion), box-shadow var(--sp-header-motion);
+  /* Reserve the expanded height so scroll anchoring cannot feed back into
+     header progress. The margin and height must share the same transition. */
+  margin-bottom: calc(var(--sp-header-expanded-height) - var(--sp-header-height));
+  transition: min-height var(--sp-header-motion), margin-bottom var(--sp-header-motion), box-shadow var(--sp-header-motion);
 }
 .md-header__inner {
   min-height: var(--sp-header-height); gap: 0.8rem;
@@ -552,18 +555,19 @@ html.sp-tab-model .md-sidebar--primary .md-nav--primary > .md-nav__list > .md-na
   border-bottom: 1px solid rgba(37, 54, 47, 0.105);
 }
 
-/* The section home uses the navigation's existing current-page marker. */
+/* A neutral section-home pill separates navigation from the sage content panels. */
 body.sp-docs-navigation .md-sidebar--primary .md-nav--primary > .md-nav__list > .md-nav__item--active.md-nav__item--section > .md-nav__container {
   position: static; margin: 0.15rem 0 0.4rem;
   background: transparent !important; box-shadow: none !important;
   border-radius: 6px !important;
 }
 body.sp-docs-navigation .md-sidebar--primary .md-nav--primary > .md-nav__list > .md-nav__item--active.md-nav__item--section > .md-nav__container.sp-nav-container-active {
-  background: var(--sp-sidebar-active) !important; box-shadow: inset 2px 0 0 var(--sp-accent) !important;
+  background: rgba(112, 112, 112, 0.1) !important; box-shadow: inset 2px 0 0 var(--sp-body-ink) !important;
 }
 
 body.sp-docs-navigation .md-sidebar--primary .md-nav--primary > .md-nav__list > .md-nav__item--active.md-nav__item--section > .md-nav__container > a.md-nav__link {
   padding-block: 0.42rem;
+  color: var(--sp-body-ink) !important;
   font-weight: 600;
 }
 
