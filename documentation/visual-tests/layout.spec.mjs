@@ -324,7 +324,7 @@ test("validation uses its standalone width for parallel checks and stacks them o
   expect(desktop.contentWidth).toBeLessThanOrEqual(desktop.pageMeasure + 1);
   expect(Math.abs(desktop.introWidth - desktop.contentWidth)).toBeLessThanOrEqual(1);
 
-  for (const width of [1512, 1024, 768, 390]) {
+  for (const width of [1512, 1280, 1100, 1024, 768, 390]) {
     await page.setViewportSize({ width, height: 900 });
     const layout = await page.evaluate(() => ({
       columns: [...document.querySelectorAll(".validation-scope > ol, .validation-downloads > ol, .validation-run__grid")]
@@ -333,7 +333,7 @@ test("validation uses its standalone width for parallel checks and stacks them o
         .map(element => element.getBoundingClientRect().width),
       overflow: document.documentElement.scrollWidth - innerWidth
     }));
-    expect(layout.columns, `${width}px`).toEqual(width >= 1024 ? [2, 3, 2] : [1, 1, 1]);
+    expect(layout.columns, `${width}px`).toEqual(width >= 1280 ? [2, 3, 2] : [1, 1, 1]);
     expect(Math.max(...layout.workflowWidths)).toBeLessThanOrEqual(desktop.readingMeasure + 1);
     expect(layout.overflow).toBeLessThanOrEqual(1);
   }

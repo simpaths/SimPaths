@@ -37,6 +37,7 @@
   --sp-wide-measure: 56rem;
   --sp-layout-rail: 11.5rem;
   --sp-layout-gap: 1.2rem;
+  --sp-layout-measure: calc(var(--sp-reading-measure) + 2 * (var(--sp-layout-gap) + var(--sp-layout-rail)));
   --sp-page-gutter: 0.8rem;
   --sp-section-gap: 2.1rem;
   --sp-subheading-gap: 1.35rem;

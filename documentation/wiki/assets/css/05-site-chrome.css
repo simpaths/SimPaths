@@ -321,7 +321,7 @@ html:not(.sp-page-home) .md-content__inner::before { display: none; }
 @media screen and (min-width: 76.25em) {
   html:not(.sp-page-home) .md-main__inner {
     grid-template-columns: var(--sp-layout-rail) minmax(0, var(--sp-reading-measure)) var(--sp-layout-rail);
-    max-width: calc(var(--sp-reading-measure) + 2 * (var(--sp-layout-gap) + var(--sp-layout-rail)));
+    max-width: var(--sp-layout-measure);
   }
   html:not(.sp-page-home) .md-main__inner > .md-content { grid-column: 2; }
   html:not(.sp-page-home) .md-sidebar--primary {

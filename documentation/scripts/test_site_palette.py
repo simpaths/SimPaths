@@ -51,7 +51,7 @@ class SitePaletteTest(unittest.TestCase):
         for theme, overrides in (("default", {}), ("slate", dark)):
             for section in ("guides", "resources", "reference"):
                 panel = self.rule(filename, f".md-typeset .docs-index__section--{section}")
-                yield theme, section, {**base, **overrides, **panel}
+                yield theme, section, {**self.tokens, **base, **overrides, **panel}
 
     def test_online_light_palette_roles(self):
         expected = {

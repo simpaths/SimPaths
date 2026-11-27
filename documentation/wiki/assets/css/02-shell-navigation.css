@@ -17,6 +17,23 @@
   transition: min-height var(--sp-header-motion);
 }
 
+/* Align the desktop header with the documentation rails on every page. */
+@media (min-width: 76.25em) {
+  .md-header .md-header__inner {
+    width: calc(100% - 2 * var(--sp-page-gutter));
+    max-width: var(--sp-layout-measure);
+    padding-inline: 0;
+  }
+  .md-header .md-header__title {
+    width: var(--sp-layout-rail);
+    margin-inline: 0;
+  }
+  .md-header .md-header__title .md-header__topic {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 /* SimPaths uses its own repository links and follows the system colour scheme. */
 .md-header__source,
 .md-header [data-md-component="palette"] {

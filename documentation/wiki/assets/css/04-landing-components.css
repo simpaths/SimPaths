@@ -5,7 +5,7 @@
 
 .md-typeset .docs-hub--index {
   --docs-panel-ink: #25362F;
-  --docs-panel-copy: #4F5953;
+  --docs-panel-copy: var(--sp-body-ink);
   --docs-panel-rule: rgba(37, 54, 47, 0.16);
   --docs-guides-background: #B8DBCD;
   --docs-resources-background: #FBE4DB;

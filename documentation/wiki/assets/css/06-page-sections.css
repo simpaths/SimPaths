@@ -64,14 +64,15 @@ html.sp-page-validation .md-content__inner::before { display: none; }
 .md-typeset .validation-scope > ol > li,
 .md-typeset .validation-downloads > ol > li { margin: 0 0 0 1.25em; padding: 0; }
 .md-typeset .validation-scope strong,
-.md-typeset .validation-downloads strong {
+.md-typeset .validation-downloads strong,
+.md-typeset .validation-run__grid > section > ol > li > p > strong {
   display: block; margin-bottom: 0.35rem; color: var(--sp-midnight);
   font-weight: var(--sp-subheading-weight);
 }
 .md-typeset .validation-run__grid {
   display: grid; gap: 2rem 2.4rem; margin-top: 1.6rem;
 }
-.md-typeset .validation-run__grid > section { min-width: 0; }
+.md-typeset .validation-run__grid > section { min-width: 0; max-width: var(--sp-reading-measure); }
 html.sp-page-validation .md-typeset h2,
 html.sp-page-validation .md-typeset h3 { scroll-margin-top: calc(var(--sp-header-height) + 1rem); }
 html.sp-page-validation .md-typeset p,
@@ -84,7 +85,7 @@ html.sp-page-validation .md-typeset :not(pre) > code {
 }
 .md-typeset .validation-run__grid > section > ol > li { margin-bottom: 0.85em; }
 html.sp-page-validation .md-typeset li > ul { margin-top: 0.45em; }
-@media (min-width: 64em) {
+@media (min-width: 80em) {
   .md-typeset .validation-scope > ol,
   .md-typeset .validation-run__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .md-typeset .validation-downloads > ol { grid-template-columns: repeat(3, minmax(0, 1fr)); }
