@@ -32,9 +32,13 @@ The procedures below describe how to perform the checks; they do not present a s
 
 The procedures documented here cover two kinds of checks:
 
-1. **Validating regression estimates.** Check the regressions governing processes such as leaving the parental home or returning to education. Use the estimated coefficients to generate predictions for the estimation sample, then compare aggregate statistics from those predictions with the observed sample.
+1. **Validating regression estimates.** This step assesses the performance of the regression models that govern key behavioural and demographic processes within SimPaths (e.g. leaving the parental home, returning to education). Using the estimated regression coefficients, we generate predicted values for each observation in the estimation sample, compute/plot aggregate statistics, and compare these with the equivalent values from the estimation sample.
 
-2. **Validating simulated output.** Run SimPaths over 2011–2023 and compare aggregate outputs with benchmarks from the UK Household Longitudinal Study (UKHLS). These checks assess trends over time and distributions within each year, rather than the accuracy of individual trajectories.
+    This provides a straightforward check that the estimated relationships embedded in the model are consistent with observed empirical patterns.
+
+2. **Validating simulated output.** The second check examines the simulated output produced by SimPaths. The model is run for a period in which comparable survey data are available (2011–2023), and aggregate measures from the simulated data are compared to benchmarks computed using data from the UK Household Longitudinal Study (UKHLS).
+
+    The validation focuses on the model's ability to reproduce aggregate measures over time (time-series consistency) and distributions within years, rather than the accuracy of individual trajectories through time.
 
 </section>
 
