@@ -427,8 +427,8 @@ test("site state exposes explicit styling hooks", async ({ page }) => {
 
   const searchTrigger = page.locator('.md-search__form > button[data-sp-toggle="search"]');
   const closedSearch = await page.locator(".md-search").boundingBox();
-  expect(closedSearch.width).toBeGreaterThanOrEqual(145);
-  expect(closedSearch.width).toBeLessThanOrEqual(165);
+  expect(closedSearch.width).toBeGreaterThanOrEqual(190);
+  expect(closedSearch.width).toBeLessThanOrEqual(210);
 
   await searchTrigger.click();
   await expect(page.locator("body")).toHaveClass(/sp-search-open/);
