@@ -34,8 +34,8 @@ class CodeColoursTest(unittest.TestCase):
         self.assertEqual(TextOnly(result).text, "SimPathsModel.buildSchedule()")
 
     def test_documented_classes_use_the_same_colour_as_source_classes(self):
-        for name in ("ManagerLifetimeIncomes", "LifetimeIncomeImputation", "AnnualIncome",
-                     "BirthCohort", "Individual", "MyAgent", "Variables"):
+        for name in ("ManagerLifetimeIncomes", "TemplateIndividual", "NormalisedIncome",
+                     "SampleIndividual", "ImputedIncome", "MyAgent", "Variables"):
             with self.subTest(name=name):
                 self.assertEqual(colours.highlight_inline(name),
                                  f'<span class="sp-code-type">{name}</span>')
@@ -127,11 +127,11 @@ class NotJava {}
         self.assertEqual(self.render(source), source)
 
     def test_documented_types_also_work_in_java_examples(self):
-        source = markdown.markdown('```java\nAnnualIncome income;\nMyAgent agent;\n```',
+        source = markdown.markdown('```java\nNormalisedIncome income;\nMyAgent agent;\n```',
                                    extensions=["pymdownx.superfences", "pymdownx.highlight"],
                                    extension_configs={"pymdownx.highlight": {"pygments_lang_class": True}})
         result = self.render(source)
-        self.assertIn('class="nc">AnnualIncome', result)
+        self.assertIn('class="nc">NormalisedIncome', result)
         self.assertIn('class="nc">MyAgent', result)
         self.assertIn('class="n">income', result)
         self.assertEqual(TextOnly(result).text, TextOnly(source).text)
