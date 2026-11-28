@@ -1,0 +1,31 @@
+Data vintage for UK
+=========================================
+generated_by     make_datasets.do
+generated_at      8 Nov 2026 14:36:48
+stata_version    19
+country          UK
+sample_requested 2000q1 to 2025q1
+observed_span    2000q1 to 2025q1
+observations     101
+covid_censored   2020q1-2021q2 (y c inv pi w n u_rate L h)
+hicp_seasonal    reused existing hicp_q_sa_uk.dta: X-13ARIMA-SEATS 1.1 b62 (SEATS) on ONS D7BT, 1996m1-2025m12, via make_datasets_hicp_uk.do (fetched 21 Oct 2026)
+series_fetched   yes (dbnomics)
+population_source   ONS POP UKPOP.A
+population_breaks   none
+script_checksum  3425691504 (length 84068)
+git_head         ref: refs/heads/JW/planner-population
+
+Files written by this run
+-----------------------------------------
+  input_processing/macromodel/data/data_for_dynare_levels_UK.csv  Ramsey calibration input
+  input_processing/macromodel/data/data_for_dynare_hp_UK.csv      HP benchmark only
+  data_UK.dta                                    Stata working frame
+  data_for_dynare_UK.dta                         Stata frame WITH HP cycles
+
+NAMING TRAP: data_for_dynare_UK.dta is NOT the Stata form of
+input_processing/macromodel/data/data_for_dynare_UK.csv. The CSV is RAMSEY-detrended
+and written by ramsey_trend.m; the .dta is this script's HP frame. Same stem,
+different producer, different content (integration contract 12).
+
+Series definitions: see the mata series_codes_* blocks in make_datasets.do
+at the checksum above.

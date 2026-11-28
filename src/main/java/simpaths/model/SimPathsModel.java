@@ -37,6 +37,7 @@ import simpaths.model.benefitunit.WealthModule;
 import simpaths.model.decisions.DecisionParams;
 import simpaths.model.decisions.ManagerPopulateGrids;
 import simpaths.model.enums.*;
+import simpaths.model.macro.MacroModelManager;
 import simpaths.model.lifetime_incomes.ManagerLifetimeIncomes;
 import simpaths.model.lifetime_incomes.TemplateIndividual;
 import simpaths.model.taxes.*;
@@ -255,6 +256,17 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     private Map<Long, Double> initialHoursWorkedWeekly;
 
     private LabourMarket labourMarket;
+    private final MacroModelManager macroManager = new MacroModelManager();
+
+    @GUIparameter(description = "WELLSIM macro model mode")
+    private MacroModelMode mm_macroModel = MacroModelMode.OFF;
+    private String mm_macroBundleDir = "";
+    private String mm_dsgeShockScenario = "";
+    private String mm_ramseyScenario = "";
+    private boolean mm_useMacroPathRecorder = false;
+    private MacroLogLevel mm_macroLogging = MacroLogLevel.OFF;
+    private double mm_ramseyFeedbackPersistence = 1.0;
+    private int mm_ramseyFeedbackReferenceYear = 0;
 
     public int tmpPeopleAssigned = 0;
 
@@ -374,6 +386,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
      */
     @Override
     public void buildObjects() {
+        configureMacroModel();
         // time check
         String outputPath = "./output/" + getEngine().getCurrentExperiment().runId;
         elapsedTime0 = System.currentTimeMillis();
@@ -603,6 +616,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
 
         // Unemployment
         yearlySchedule.addCollectionEvent(persons, Person.Processes.Unemployment);
+        addEventToAllYears(Processes.AdvanceMacroModel);
 
         // update references for optimising behaviour
         // needs to be positioned after all decision states for the current period have been simulated
@@ -668,6 +682,7 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         // mortality (migration) and population alignment at year's end
         addCollectionEventToAllYears(persons, Person.Processes.ConsiderMortality);
         addEventToAllYears(Processes.PopulationAlignment); // start population alignment in year 0 (startYear)
+        addEventToAllYears(Processes.CaptureMacroFeedback);
         addEventToAllYears(Processes.SettleInheritance);
         addCollectionEventToAllYears(benefitUnits, BenefitUnit.Processes.UpdateDemographics);
         // yearlySchedule.addEvent(this, Processes.PopulationAlignment);
@@ -857,6 +872,8 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
         EndYear,
         UnionMatching,
         LabourMarketUpdate,
+        AdvanceMacroModel,
+        CaptureMacroFeedback,
         AssignMortgageIncomeQuintiles,
         AssignFinancialWealthRanks,
 
@@ -972,10 +989,31 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
                     System.out.println("Proportion of students will be aligned.");
                 }
             }
+            case AdvanceMacroModel -> {
+                if (macroManager.isRecorderActive()) {
+                    macroManager.updateEquilibrium(year, startYear, country.name(), persons);
+                }
+            }
             case LabourMarketUpdate -> {
 
                 labourMarket.update(year);
+                if (macroManager.isRecorderActive()) {
+                    macroManager.latchStartYearAnchorsPostLabourMarket(year, persons);
+                    macroManager.logWageAdjustmentSummary();
+                }
                 if (commentsOn) log.info("Labour market update complete.");
+            }
+            case CaptureMacroFeedback -> {
+                if (macroManager.isRecorderActive()) {
+                    Set<Person> activePersons = new LinkedHashSet<>();
+                    for (Person person : persons) {
+                        if (SampleExit.NotYet.equals(person.getSampleExit())) {
+                            activePersons.add(person);
+                        }
+                    }
+                    macroManager.updateLevelAggregatesPostAlignment(year, activePersons);
+                    macroManager.applyRamseyRecursiveFeedback(year, activePersons);
+                }
             }
             case Timer -> {
                 printElapsedTime();
@@ -1018,6 +1056,10 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
             }
             case CleanUp -> {
 
+                macroManager.exportPaths(getEngine().getCurrentExperiment().getOutputFolder());
+                if (macroManager.isLogMacroState()) {
+                    macroManager.logDiagnosticsSummary();
+                }
                 try {
                     inheritanceModule.updateImmigrantLinkAudit(
                             validImmigrantParentReferences, unresolvedImmigrantParentReferences);
@@ -2994,6 +3036,52 @@ public class SimPathsModel extends AbstractSimulationManager implements EventLis
     // ---------------------------------------------------------------------
     // Access methods
     // ---------------------------------------------------------------------
+
+    private void configureMacroModel() {
+        if (!mm_macroModel.usesDsge() && mm_dsgeShockScenario != null && !mm_dsgeShockScenario.isBlank()) {
+            throw new IllegalArgumentException("mm_dsgeShockScenario requires a DSGE macro model mode");
+        }
+        if (!mm_macroModel.usesRamseyTrend() &&
+                ((mm_ramseyScenario != null && !mm_ramseyScenario.isBlank()) ||
+                        mm_ramseyFeedbackPersistence != 1.0 || mm_ramseyFeedbackReferenceYear != 0)) {
+            throw new IllegalArgumentException("Ramsey scenario and feedback settings require a Ramsey macro model mode");
+        }
+
+        macroManager.setEnabled(usesMacroWages());
+        macroManager.setUseDsge(mm_macroModel.usesDsge());
+        macroManager.setUseRamseyTrend(mm_macroModel.usesRamseyTrend());
+        macroManager.setMacroBundleDir(mm_macroBundleDir);
+        macroManager.setDsgeShockScenario(mm_dsgeShockScenario);
+        macroManager.setRamseyScenario(mm_ramseyScenario);
+        macroManager.setPathRecordingEnabled(mm_useMacroPathRecorder);
+        macroManager.setRecorderOnlyMode(mm_useMacroPathRecorder && !usesMacroWages());
+        macroManager.setLogMacroState(mm_macroLogging.logsState());
+        macroManager.setVerboseMacroLogging(mm_macroLogging.isVerbose());
+        MacroModelManager.requireFeedbackReferenceYearInsideRun(mm_ramseyFeedbackReferenceYear, startYear, endYear);
+        macroManager.setRamseyFeedbackPersistence(mm_ramseyFeedbackPersistence);
+        macroManager.setRamseyFeedbackReferenceYear(mm_ramseyFeedbackReferenceYear);
+    }
+
+    public void setMacroModelMode(MacroModelMode mode) {
+        mm_macroModel = mode;
+    }
+
+    public void setMacroBundleDir(String directory) {
+        mm_macroBundleDir = directory;
+    }
+
+    public void setDsgeShockScenario(String scenario) {
+        mm_dsgeShockScenario = scenario;
+    }
+
+    boolean usesMacroWages() {
+        return mm_macroModel.isOn();
+    }
+
+    int wageGrowthRegressorYear() {
+        // Ramsey supplies the trend from handoff onward, including in retrospective runs.
+        return mm_macroModel.usesRamseyTrend() ? startYear : year;
+    }
 
     public Integer getStartYear() {
         return startYear;

@@ -1,0 +1,7 @@
+{
+  "K_terminal": 8.7538449364046417e+06,
+  "A_terminal": 5.9653216999113225e-02,
+  "handoff_time": "2021q1",
+  "projection_quarters": 320,
+  "comment": "Capital stock and TFP level at the SimPaths handoff quarter. Use as initial values for SimPaths forward projection."
+}

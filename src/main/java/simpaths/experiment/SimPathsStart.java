@@ -37,6 +37,7 @@ import microsim.gui.shell.MicrosimShell;
 // import SimPaths packages
 import simpaths.model.enums.Country;
 import simpaths.model.enums.UnionMatchingMethod;
+import simpaths.model.enums.MacroModelMode;
 import simpaths.data.*;
 import simpaths.model.taxes.database.TaxDonorDataParser;
 
@@ -58,6 +59,9 @@ public class SimPathsStart implements ExperimentBuilder {
 	private static boolean doRun = true;
 
 	private static boolean rewritePolicySchedule = false;
+	private static MacroModelMode macroModelMode = MacroModelMode.OFF;
+	private static String macroBundleDir;
+	private static String dsgeShockScenario;
 
 
 	/**
@@ -161,6 +165,10 @@ public class SimPathsStart implements ExperimentBuilder {
 		guiOption.setArgName("true/false");
 		options.addOption(guiOption);
 
+		options.addOption(new Option("macro", "macro-model", true, "off, ramsey, dsge, or ramsey_dsge"));
+		options.addOption(new Option("macroBundleDir", "macro-bundle-dir", true, "Directory of the UK macro bundle"));
+		options.addOption(new Option("dsgeShockScenario", "dsge-shock-scenario", true, "Shock CSV in the macro bundle"));
+
 		Option helpOption = new Option("h", "help", false, "Print help message");
 		options.addOption(helpOption);
 
@@ -178,6 +186,10 @@ public class SimPathsStart implements ExperimentBuilder {
 				printHelpMessage(formatter, options);
 				return false; // Exit without reporting an error
 			}
+
+			macroModelMode = MacroModelMode.fromConfigValue(cmd.getOptionValue("macro", "off"));
+			macroBundleDir = cmd.getOptionValue("macroBundleDir");
+			dsgeShockScenario = cmd.getOptionValue("dsgeShockScenario");
 
 			if (cmd.hasOption("g")) {
 				showGui = Boolean.parseBoolean(cmd.getOptionValue("g"));
@@ -245,6 +257,9 @@ public class SimPathsStart implements ExperimentBuilder {
 
 		// instantiate simulation processes
 		SimPathsModel model = new SimPathsModel(country, startYear);
+		model.setMacroModelMode(macroModelMode);
+		model.setMacroBundleDir(macroBundleDir);
+		model.setDsgeShockScenario(dsgeShockScenario);
 		SimPathsCollector collector = new SimPathsCollector(model);
 		SimPathsObserver observer = new SimPathsObserver(model, collector);
 
