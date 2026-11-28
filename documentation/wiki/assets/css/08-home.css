@@ -40,7 +40,7 @@ html.sp-page-home .md-content .md-content__inner::before {
 }
 .simpaths-home-hero__logo {
   display: block;
-  width: clamp(5.25rem, 9.1vw, 6.12rem); aspect-ratio: 514 / 256;
+  width: clamp(4.75rem, 8.2vw, 5.5rem); aspect-ratio: 514 / 256;
   height: auto; margin: 0 auto 0.62rem;
 }
 [data-md-color-scheme="slate"] .simpaths-home-hero__baseline { fill: #C8D8E8; opacity: 0.86; }
@@ -48,7 +48,7 @@ html.sp-page-home .md-content .md-content__inner::before {
 .md-typeset .simpaths-home-hero h1.simpaths-home-hero__title {
   margin: 0;
   color: var(--sp-midnight);
-  font-size: clamp(1.78rem, 3.2vw, 2.24rem);
+  font-size: clamp(1.6rem, 2.88vw, 2rem);
   font-weight: 610;
   line-height: 1.02;
   letter-spacing: -0.035em;
@@ -300,7 +300,7 @@ html.sp-page-home .md-content .md-content__inner::before {
   .simpaths-home-hero {
     padding: 1.85rem 1rem 2rem;
   }
-  .simpaths-home-hero__logo { width: 4.2rem; }
+  .simpaths-home-hero__logo { width: 3.8rem; }
   .md-typeset .simpaths-home-hero p.simpaths-home-hero__strap { font-size: 0.55rem; letter-spacing: 0.11em; }
   .simpaths-home-intro-band {
     padding: 2rem 1rem 2.15rem;

@@ -53,7 +53,7 @@ extra_css:
   - assets/css/05-site-chrome.css?v=20261128-search-wider
   - assets/css/06-page-sections.css?v=20261126-content-width
   - assets/css/07-roadmap.css?v=20261125-green-restored-2
-  - assets/css/08-home.css?v=20261126-hero-spacing
+  - assets/css/08-home.css?v=20261128-hero-brand-smaller
   - assets/css/09-model-explorer.css?v=20261125-build-cleanup-1
   - assets/css/10-developer-guide.css?v=20261125-green-headings-1
 
