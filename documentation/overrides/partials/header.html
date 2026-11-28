@@ -50,7 +50,7 @@
           {% set icon = config.theme.icon.search or "material/magnify" %}
           {% include ".icons/" ~ icon ~ ".svg" %}
         </button>
-        {% include "partials/search.html" %}
+        {% include "partials/site-search.html" %}
       {% endif %}
     {% endif %}
     {% if config.repo_url %}

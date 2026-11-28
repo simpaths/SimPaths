@@ -15,28 +15,13 @@
   let searchToggle = null;
   let updateSearchState = null;
 
-  // One listener for the persistent shell, also used after instant navigation.
-  // Spacing, mark and shadow share one scroll progress; stop writing once settled.
-  // Reduced motion keeps the full-sized header still, including on restored pages.
-  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  let headerFrame = 0;
-  let headerProgress = null;
-  const updateHeaderState = () => {
-    headerFrame = 0;
-    const position = reducedMotion.matches ? 0 : Math.min(1, Math.max(0, window.scrollY / 160));
-    // Smooth endpoints avoid an abrupt start or stop as the header settles.
-    const progress = (position * position * (3 - 2 * position)).toFixed(3);
-    if (progress !== headerProgress) {
-      document.documentElement.style.setProperty("--sp-header-progress", progress);
-      headerProgress = progress;
-    }
+  // Headers join full-width opening bands at the top. Only the shadow
+  // changes on scroll; the header and page geometry stay fixed.
+  const updateHeaderElevation = () => {
+    document.documentElement.classList.toggle("sp-page-scrolled", window.scrollY > 0);
   };
-  const scheduleHeaderState = () => {
-    if (!headerFrame) headerFrame = requestAnimationFrame(updateHeaderState);
-  };
-  window.addEventListener("scroll", scheduleHeaderState, { passive: true });
-  window.addEventListener("pageshow", scheduleHeaderState);
-  reducedMotion.addEventListener("change", scheduleHeaderState);
+  window.addEventListener("scroll", updateHeaderElevation, { passive: true });
+  window.addEventListener("pageshow", updateHeaderElevation);
 
   const setSearchState = () => {
     document.body.classList.toggle("sp-search-open", Boolean(searchToggle?.checked));
@@ -97,7 +82,7 @@
 
     markNavigationState();
     bindSearchState();
-    scheduleHeaderState();
+    updateHeaderElevation();
   };
 
   if (typeof document$ !== "undefined") {

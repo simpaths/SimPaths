@@ -35,7 +35,7 @@
   color: #25362F;
   border: 0;
   font-family: "Inter", var(--md-text-font), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.02em;
 }
 
 .md-typeset .docs-hub--index h1 {

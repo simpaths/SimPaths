@@ -46,9 +46,9 @@ class ReadingPresentationTest(unittest.TestCase):
         self.assertTrue(any("language-java" in fence for fence in fences[1:]))
         self.assertTrue(any("language-bash" in fence for fence in fences[1:]))
 
-    def test_tables_use_reading_size_and_unboxed_surfaces(self):
+    def test_tables_use_compact_reading_size_and_unboxed_surfaces(self):
         table = self.rule(TABLE)
-        self.assertEqual(table["font-size"], "inherit")
+        self.assertEqual(table["font-size"], "0.75rem")
         self.assertEqual(table["border"], "0")
         self.assertNotIn("border-top", table)
         self.assertEqual(table["background"], "transparent")
@@ -62,14 +62,14 @@ class ReadingPresentationTest(unittest.TestCase):
             expected = "2px solid currentColor" if cell == "th" else "1px solid var(--sp-border-strong)"
             self.assertEqual(rule["border-bottom"], expected)
             self.assertEqual(rule["vertical-align"], "top")
-        self.assertEqual(self.rule(f"{TABLE} th")["font-weight"], "var(--sp-label-weight)")
+        self.assertEqual(self.rule(f"{TABLE} th")["font-weight"], "600")
         self.assertNotIn(f"{TABLE} code", self.css)
         self.assertEqual(self.rule(f"{TABLE} tbody tr:hover")["box-shadow"], "none")
 
     def test_column_labels_and_values_have_distinct_roles(self):
         header = self.rule(f"{TABLE} th")
         self.assertEqual(header["font-size"], "var(--sp-label-size)")
-        self.assertEqual(header["font-family"], "var(--md-code-font-family)")
+        self.assertEqual(header["font-family"], "inherit")
         self.assertEqual(header["text-transform"], "none")
         self.assertEqual(header["letter-spacing"], "normal")
         self.assertEqual(self.rule(f"{TABLE} td")["padding"], "0.48rem 0.8rem")
@@ -81,7 +81,9 @@ class ReadingPresentationTest(unittest.TestCase):
         header = self.rule(f"{TABLE} th")
         self.assertEqual(header["border-bottom"], "2px solid currentColor")
         self.assertEqual(header["color"], "inherit")
-        self.assertFalse(blocks(self.css, f'[data-md-color-scheme="slate"] {TABLE} th'))
+        dark_header = self.rule(f'[data-md-color-scheme="slate"] {TABLE} th')
+        self.assertNotIn("color", dark_header)
+        self.assertNotIn("border-bottom", dark_header)
 
     def test_scroll_wrapper_and_author_column_alignment_are_preserved(self):
         self.assertEqual(self.rule(".md-typeset .md-typeset__scrollwrap")["overflow-x"], "auto")

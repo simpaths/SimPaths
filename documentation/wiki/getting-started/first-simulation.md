@@ -101,6 +101,8 @@ This starts the JAS-mine engine with:
 
 The most useful `singlerun.jar` options are:
 
+<div class="technical-table" role="region" aria-label="Simulation options and purposes" tabindex="0" markdown="1">
+
 | Option | Purpose |
 | --- | --- |
 | `-c <CC>` | country code such as `UK` or `IT` |
@@ -109,6 +111,8 @@ The most useful `singlerun.jar` options are:
 | `-Run` | skip setup and run the simulation directly |
 | `-g true\|false` | enable or disable the GUI |
 | `--rewrite-policy-schedule` | rebuild `UKMODpolicySchedule.xlsx` from detected donor policy files |
+
+</div>
 
 `-Setup` and `-Run` are mutually exclusive. If neither is provided, `SimPathsStart` does both.
 
@@ -148,12 +152,16 @@ If the run fails before the simulation starts, the problem is usually in setup r
 
 ## Common first-run problems
 
+<div class="technical-table technical-table--prose" role="region" aria-label="First-run problems and checks" tabindex="0" markdown="1">
+
 | Problem | What to check |
 | --- | --- |
 | `Policy Schedule file ... doesn't exist` | create `input/UKMOD/UKMODpolicySchedule.xlsx` first, or rerun setup with `--rewrite-policy-schedule` |
 | donor or initial-population files are missing | check the contents of `input/InitialPopulations/` and `input/UKMOD/UKMODoutput/` |
 | wrong Java version | SimPaths targets Java 25 |
 | setup succeeds but the run uses unexpected inputs | rebuild the database after changing donor files or the policy schedule |
+
+</div>
 
 </section>
 

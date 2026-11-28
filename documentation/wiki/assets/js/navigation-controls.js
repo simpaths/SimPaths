@@ -5,7 +5,7 @@
   const setup = () => {
     const panel = document.querySelector('.md-sidebar--primary');
     const header = document.querySelector('.md-header');
-    const search = document.querySelector('[data-md-component="search"]');
+    const search = document.querySelector('[data-sp-search]');
     if (!header || !search) return;
     if (mounted?.panel === panel && mounted.header === header && mounted.search === search) return;
     dispose();
@@ -29,6 +29,7 @@
 
     // Keep Material's checkbox state and events as the single source of truth.
     const setToggle = (toggle, open) => {
+      if (toggle === searchToggle && !open) search.dispatchEvent(new Event('sp-search-close'));
       if (toggle && toggle.checked !== open) toggle.click();
     };
     const focusAfterUpdate = (element) => {
@@ -38,17 +39,6 @@
       });
     };
 
-    // The desktop search pill uses the same native control as the mobile icon.
-    const searchLabel = search.querySelector('label.md-search__icon[for="__search"]');
-    if (searchLabel) {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = searchLabel.className;
-      button.dataset.spToggle = 'search';
-      button.setAttribute('aria-controls', search.id);
-      button.replaceChildren(...searchLabel.childNodes);
-      searchLabel.replaceWith(button);
-    }
     const searchButtons = [...header.querySelectorAll('[data-sp-toggle="search"]')];
 
     panel?.querySelectorAll('label.md-nav__title[for]').forEach((label) => {

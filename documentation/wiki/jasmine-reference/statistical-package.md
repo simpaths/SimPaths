@@ -142,19 +142,27 @@ The functions contained by the `it.zero11.microsim.statistics.functions` package
 
 As an example, the following table describes some Array functions which operate on array of source values:
 
+<div class="technical-table" role="region" aria-label="Array functions and descriptions" tabindex="0" markdown="1">
+
 | **Function** | **Description** |
 | --- | --- |
 | [MinArrayFunction](https://raw.githack.com/jasmineRepo/JAS-mine-core/master/microsim-core/doc/microsim/statistics/functions/MinArrayFunction.html) | Finds the lowest value in the array. |
 | [MaxArrayFunction](https://raw.githack.com/jasmineRepo/JAS-mine-core/master/microsim-core/doc/microsim/statistics/functions/MaxArrayFunction.html) | Finds the highest value in the array. |
 | [MeanVarianceArrayFunction](https://raw.githack.com/jasmineRepo/JAS-mine-core/master/microsim-core/doc/microsim/statistics/functions/MeanVarianceArrayFunction.html) | Computes the average and the variance for the values in the array. |
 
+</div>
+
 Finally, the following table gives an example of Trace functions which operate on single source values over time:
+
+<div class="technical-table" role="region" aria-label="Trace functions and descriptions" tabindex="0" markdown="1">
 
 | **Function** | **Description** |
 | --- | --- |
 | [MinTraceFunction](https://raw.githack.com/jasmineRepo/JAS-mine-core/master/microsim-core/doc/microsim/statistics/functions/MinTraceFunction.html) | Checks the source value over time keeping the lowest value ever received. |
 | [MaxTraceFunction](https://raw.githack.com/jasmineRepo/JAS-mine-core/master/microsim-core/doc/microsim/statistics/functions/MaxTraceFunction.html) | Checks the source value over time keeping the highest value ever received. |
 | [MultiTraceFunction](https://raw.githack.com/jasmineRepo/JAS-mine-core/master/microsim-core/doc/microsim/statistics/functions/MultiTraceFunction.html) | Computes the minimum, maximum, sum, mean and variance of the present and past readings by storing the sums and the count of the values received over time. |
+
+</div>
 
 
 ## 5. The encapsulation system

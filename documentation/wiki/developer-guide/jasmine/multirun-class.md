@@ -4,11 +4,15 @@ JAS-mine's `MultiRun` contract supports a sequence of experiments. SimPaths impl
 
 ## Core responsibilities
 
+<div class="technical-table" role="region" aria-label="MultiRun methods and purposes" tabindex="0" markdown="1">
+
 | Method | Purpose |
 | --- | --- |
 | `buildExperiment()` | Construct and register the model and collector for a run. |
 | `nextModel()` | Decide whether another experiment should run and prepare the next parameter values. |
 | `setupRunLabel()` | Identify the run in experiment output. |
+
+</div>
 
 In the [checked SimPaths implementation](https://github.com/simpaths/SimPaths/blob/b223738b9cdf1d814cc3c6f09b04bc4930d3c667/src/main/java/simpaths/experiment/SimPathsMultiRun.java), the sequence advances a run counter, applies the enabled innovations and stops at `maxNumberOfRuns`. Labels combine the seed and run counter. This is sequential execution, not a parallel worker scheduler.
 

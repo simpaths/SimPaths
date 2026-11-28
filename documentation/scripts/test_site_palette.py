@@ -177,10 +177,11 @@ class SitePaletteTest(unittest.TestCase):
                 focus = resolve_colour(colours["--docs-panel-ink"], colours)
                 self.assertGreaterEqual(contrast_ratio(focus, surface), 3)
 
-    def test_reading_tables_use_the_page_surface_instead_of_a_separate_palette(self):
-        for selector in (".md-typeset table:not([class])", ".md-typeset table:not([class]) th"):
-            rule = self.rule("03-content.css", selector)
-            self.assertEqual(rule["background"], "transparent")
+    def test_reading_tables_reuse_the_site_palette(self):
+        self.assertEqual(self.rule("03-content.css", ".md-typeset table:not([class])")["background"],
+                         "transparent")
+        self.assertEqual(self.rule("03-content.css", ".md-typeset table:not([class]) th")["background"],
+                         "var(--sp-home-hero-bg)")
         self.assertEqual(self.rule("03-content.css", ".md-typeset table:not([class])")["color"], "inherit")
         self.assertEqual(self.rule("03-content.css", ".md-typeset table:not([class]) th")["color"],
                          "inherit")

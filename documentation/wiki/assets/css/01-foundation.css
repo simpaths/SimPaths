@@ -24,39 +24,37 @@
   --sp-heading-font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --sp-brand-font: var(--sp-heading-font);
   --sp-research-font: var(--md-text-font), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  /* Shared editorial scale; display branding and compact metadata stay distinct. */
-  --sp-title-size: 1.8rem;
-  --sp-title-weight: 560;
-  --sp-section-size: 1.16rem;
-  --sp-section-weight: 520;
-  --sp-subheading-size: 0.95rem;
-  --sp-subheading-weight: 560;
-  --sp-reading-copy-size: 0.82rem;
-  --sp-reading-line-height: 1.75;
+  /* Compact, firm headings above comfortable reading copy; display branding stays distinct. */
+  --sp-title-size: 1.58rem;
+  --sp-title-weight: 650;
+  --sp-section-size: 1.106rem;
+  --sp-section-weight: 600;
+  --sp-subheading-size: 0.938125rem;
+  --sp-subheading-weight: 600;
+  --sp-reading-copy-size: 0.79rem;
+  --sp-reading-line-height: 1.65;
   --sp-reading-measure: 42rem;
   --sp-wide-measure: 56rem;
   --sp-layout-rail: 11.5rem;
   --sp-layout-gap: 1.2rem;
   --sp-layout-measure: calc(var(--sp-reading-measure) + 2 * (var(--sp-layout-gap) + var(--sp-layout-rail)));
   --sp-page-gutter: 0.8rem;
+  --sp-sidebar-outset: clamp(0rem, calc((100vw - var(--sp-layout-measure) - 2 * var(--sp-page-gutter)) / 2), 1.5rem);
   --sp-section-gap: 2.1rem;
   --sp-subheading-gap: 1.35rem;
   --sp-label-size: 0.7rem;
   --sp-label-weight: 550;
   --sp-meta-size: 0.62rem;
   --sp-nav-size: 0.675rem;
-  --sp-header-progress: 0;
-  --sp-header-expanded-height: 4rem;
-  --sp-header-height: calc(var(--sp-header-expanded-height) - 0.5rem * var(--sp-header-progress));
+  --sp-header-height: 2.9rem;
   --sp-header-row-offset: 0rem;
   --sp-toc-size: 0.67rem;
 }
 
 @media (min-width: 64em) {
   :root {
-    --sp-header-expanded-height: 5rem;
-    --sp-header-height: calc(var(--sp-header-expanded-height) - 1.15rem * var(--sp-header-progress));
-    --sp-header-row-offset: calc(0.8rem - 0.22rem * var(--sp-header-progress));
+    --sp-header-height: 3.3rem;
+    --sp-header-row-offset: 0.47rem;
   }
 }
 

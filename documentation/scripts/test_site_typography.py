@@ -1,4 +1,4 @@
-"""Source-level contracts for the approved site-wide typography (not visual QA)."""
+"""Source-level contracts for the shared site-wide typography (not visual QA)."""
 
 from pathlib import Path
 import re
@@ -24,12 +24,12 @@ class SiteTypographyTest(unittest.TestCase):
     def setUpClass(cls):
         cls.styles = {path.name: path.read_text() for path in CSS_DIR.glob("*.css")}
 
-    def test_approved_scale_is_defined_once_in_global_foundation(self):
+    def test_shared_scale_is_defined_once_in_global_foundation(self):
         expected = {
-            "--sp-title-size": "1.8rem", "--sp-title-weight": "560",
-            "--sp-section-size": "1.16rem", "--sp-section-weight": "520",
-            "--sp-subheading-size": "0.95rem", "--sp-subheading-weight": "560",
-            "--sp-reading-copy-size": "0.82rem", "--sp-reading-line-height": "1.75",
+            "--sp-title-size": "1.58rem", "--sp-title-weight": "650",
+            "--sp-section-size": "1.106rem", "--sp-section-weight": "600",
+            "--sp-subheading-size": "0.938125rem", "--sp-subheading-weight": "600",
+            "--sp-reading-copy-size": "0.79rem", "--sp-reading-line-height": "1.65",
             "--sp-reading-measure": "42rem", "--sp-section-gap": "2.1rem",
             "--sp-subheading-gap": "1.35rem", "--sp-label-size": "0.7rem",
             "--sp-label-weight": "550", "--sp-meta-size": "0.62rem",

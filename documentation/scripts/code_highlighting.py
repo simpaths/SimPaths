@@ -1,14 +1,18 @@
 """Conservative code colours, applied at build time without changing code text.
 
 Plain paths, CLI options and unknown identifiers stay neutral. Java types come
-from source filenames/imports, not capitalisation guesses; methods need visible
-call syntax. This is syntax assistance, not an IDE's semantic analysis. Existing
-Pygments output keeps its line anchors, whitespace and copy-button behaviour.
+from source declarations/imports and explicit documentation, not capitalisation
+guesses; methods need visible call syntax. This is syntax assistance, not an
+IDE's semantic analysis. Existing Pygments output keeps its line anchors,
+whitespace and copy-button behaviour.
 """
 
 import html
 import re
 from pathlib import Path
+
+import markdown
+from markdown.treeprocessors import Treeprocessor
 
 
 JAVA_TYPES = set()
@@ -18,17 +22,67 @@ CODE_OR_PRE = re.compile(r"<pre\b[^>]*>.*?</pre>|<code>([^<]*)</code>", re.S)
 JAVA_BLOCK = re.compile(r'(<div class="language-java highlight"[^>]*>)(.*?)(</div>)', re.S)
 JAVA_NAME = re.compile(r'<span class="(?:n|na)">([A-Za-z_$][\w$]*)</span>')
 JAVA_CALL = re.compile(r'(?:<span class="w">\s*</span>)*<span class="[po]">\(')
+JAVA_NON_CODE = re.compile(r'//[^\n]*|/\*.*?\*/|""".*?"""|"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'', re.S)
+JAVA_DECLARATION = re.compile(r"\b(?:class|interface|enum|record)\s+([A-Za-z_$][\w$]*)")
+JAVA_FENCE = re.compile(r'<pre><code class="language-java">(.*?)</code></pre>', re.S)
+TYPE_HEADERS = {"class", "interface", "enum", "entity"}
+TYPE_NAME = re.compile(r"[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*")
+
+
+def declared_types(source):
+    """Include nested types without treating comments or strings as declarations."""
+    return set(JAVA_DECLARATION.findall(JAVA_NON_CODE.sub(" ", source)))
+
+
+class DocumentedTypes(Treeprocessor):
+    """Read semantic table columns, leaving ordinary labels and filenames alone."""
+
+    def __init__(self, md):
+        super().__init__(md)
+        self.names = set()
+
+    def run(self, root):
+        for table in root.iter("table"):
+            headers = table.findall("./thead/tr/th")
+            columns = {i for i, header in enumerate(headers)
+                       if "".join(header.itertext()).strip().casefold() in TYPE_HEADERS}
+            for row in table.findall("./tbody/tr"):
+                for i, cell in enumerate(row):
+                    if i in columns:
+                        for code in cell.iter("code"):
+                            name = "".join(code.itertext()).strip()
+                            if TYPE_NAME.fullmatch(name):
+                                self.names.add(name.rsplit(".", 1)[-1])
+
+
+def documented_types(source):
+    """Recognise documented classes and Java examples before colouring any page."""
+    md = markdown.Markdown(extensions=["tables", "fenced_code", "md_in_html"])
+    collector = DocumentedTypes(md)
+    md.treeprocessors.register(collector, "documented_types", 15)
+    md.convert(source)
+    for block in md.htmlStash.rawHtmlBlocks:
+        match = JAVA_FENCE.fullmatch(block)
+        if match:
+            collector.names.update(declared_types(html.unescape(match.group(1))))
+    return collector.names
 
 
 def on_config(config):
-    """Reuse source names so docs do not need a hand-maintained class inventory."""
+    """Build one type inventory so tables, prose and examples agree site-wide."""
     JAVA_TYPES.clear()
     JAVA_TYPES.update("String Object Boolean Byte Character Double Float Integer Long Short Void Math System Exception Map List Set Collection Optional".split())
-    root = Path(config.config_file_path).parent / "src/main/java"
-    for source in root.rglob("*.java"):
+    root = Path(config.config_file_path).parent
+    for source in (root / "src/main/java").rglob("*.java"):
         JAVA_TYPES.add(source.stem)
         text = source.read_text(encoding="utf-8")
+        JAVA_TYPES.update(declared_types(text))
         JAVA_TYPES.update(re.findall(r"^import\s+(?!static\b)[\w.]+\.([A-Z]\w*);", text, re.M))
+    docs = Path(getattr(config, "docs_dir", root / "documentation/wiki"))
+    if not docs.is_absolute():
+        docs = root / docs
+    for source in docs.rglob("*.md"):
+        JAVA_TYPES.update(documented_types(source.read_text(encoding="utf-8")))
     return config
 
 

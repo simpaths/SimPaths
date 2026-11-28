@@ -262,12 +262,16 @@ The constructor accepts one flattened, single-key coefficient map. A
 category-specific coefficient is identified by an underscore followed by the
 matching enum constant:
 
+<div class="technical-table" role="region" aria-label="Regressor names and meanings" tabindex="0" markdown="1">
+
 | REGRESSOR | Meaning |
 |---|---|
 | `Constant_Low` | Intercept for `P(Y > Low)` |
 | `Age_Low` | Age coefficient for `P(Y > Low)` |
 | `Constant_Medium` | Intercept for `P(Y > Medium)` |
 | `Age_Medium` | Age coefficient for `P(Y > Medium)` |
+
+</div>
 
 For the three-category example, no `High` equation is required because `High`
 is the final residual category. Suffixes are case sensitive and must exactly

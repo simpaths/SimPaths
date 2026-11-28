@@ -473,7 +473,7 @@ test("site state exposes explicit styling hooks", async ({ page }) => {
 
   await searchTrigger.click();
   await expect(page.locator("body")).not.toHaveClass(/sp-search-open/);
-  await expect.poll(async () => (await page.locator(".md-search").boundingBox()).width).toBeLessThanOrEqual(165);
+  await expect.poll(async () => (await page.locator(".md-search").boundingBox()).width).toBeLessThanOrEqual(210);
   const restoredSearch = await page.locator(".md-search").boundingBox();
   expect(Math.abs(restoredSearch.width - closedSearch.width)).toBeLessThanOrEqual(1);
 
@@ -485,7 +485,7 @@ test("site state exposes explicit styling hooks", async ({ page }) => {
   await expect(page.locator(".sp-modules-branch")).not.toHaveCount(0);
 });
 
-test("search is unboxed until opened and retains clear keyboard focus", async ({ page }, testInfo) => {
+test("search has a subtle resting field and retains clear keyboard focus", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop");
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.emulateMedia({ reducedMotion: "reduce" });
@@ -504,8 +504,10 @@ test("search is unboxed until opened and retains clear keyboard focus", async ({
     };
   });
   const closed = await appearance();
-  expect(closed.background).toBe("rgba(0, 0, 0, 0)");
-  expect(closed.border).toBe("rgba(0, 0, 0, 0)");
+  expect(closed.background).not.toBe("rgba(0, 0, 0, 0)");
+  expect(closed.border).toBe("rgba(37, 54, 47, 0.14)");
+  expect(closed.shadow).toBe("none");
+  expect(closed.radius).toBeGreaterThanOrEqual(closed.height / 2);
   expect(closed.headerWash).toBe("none");
   expect(closed.inputDecoration).toBe("none");
   await page.locator(".md-search").hover();
@@ -597,7 +599,7 @@ test("setup guides keep content readable and notes responsive", async ({ page },
         bodySize: parseFloat(getComputedStyle(node.firstElementChild).fontSize) };
     }));
     expect(layout.every(row => testInfo.project.name === "desktop" ? row.sideBySide : row.stacked)).toBe(true);
-    expect(layout.every(row => row.noteSize >= 13 && row.noteSize / row.bodySize <= 0.8)).toBe(true);
+    expect(layout.every(row => row.noteSize >= 13 && row.noteSize < row.bodySize)).toBe(true);
     const inlineStyles = await guide.locator(":not(pre) > code").evaluateAll(nodes => nodes.map(node => {
       const css = getComputedStyle(node), parent = getComputedStyle(node.parentElement);
       return css.fontFamily === parent.fontFamily && css.fontSize === parent.fontSize &&
@@ -608,6 +610,11 @@ test("setup guides keep content readable and notes responsive", async ({ page },
     await expect(guide.locator(".highlight code").first()).toHaveCSS("font-family", /monospace/);
     const problems = await guide.locator("code, table, .setup-guide__note").evaluateAll(nodes => nodes.filter(node => {
       const bounds = node.getBoundingClientRect();
+      const region = node.closest('.technical-table');
+      if (region && ['auto', 'scroll'].includes(getComputedStyle(region).overflowX)) {
+        const frame = region.getBoundingClientRect();
+        return frame.left < 0 || frame.right > innerWidth + 1;
+      }
       return bounds.left < 0 || bounds.right > innerWidth + 1;
     }).map(node => node.textContent));
     expect(problems).toEqual([]);

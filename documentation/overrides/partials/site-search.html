@@ -1,0 +1,33 @@
+{# Use Material's shell styles and search index, with one compact row per section.
+   data-sp-search avoids mounting a second, competing result controller. #}
+<div class="md-search" data-sp-search role="dialog" aria-label="Search SimPaths">
+  <label class="md-search__overlay" for="__search" aria-hidden="true"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search SimPaths" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" aria-controls="sp-search-results" required>
+      <button class="md-search__icon md-icon" type="button" data-sp-toggle="search" aria-label="Close search" aria-controls="sp-site-search">
+        {% include ".icons/material/magnify.svg" %}
+        {% include ".icons/material/arrow-left.svg" %}
+      </button>
+      <nav class="md-search__options" aria-label="Search controls">
+        <a class="md-search__icon md-icon" data-sp-search-share aria-label="Share search" title="Share search">
+          {% include ".icons/material/share-variant.svg" %}
+        </a>
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" title="Clear">
+          {% include ".icons/material/close.svg" %}
+        </button>
+      </nav>
+      <div class="md-search__suggest" aria-hidden="true"></div>
+    </form>
+    <div class="md-search__output" inert>
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        {% include "partials/search-suggestions.html" %}
+        <div class="md-search-result" hidden>
+          <div class="md-search-result__meta" role="status" aria-live="polite" aria-atomic="true"></div>
+          <ol id="sp-search-results" class="md-search-result__list" aria-label="Search results"></ol>
+          <button type="button" class="sp-search-more" hidden>Show more results</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -12,6 +12,8 @@ Training donor data are available in the repository for testing. They are not a 
 
 ## Parameters and targets {#2-model-parameters}
 
+<div class="technical-table" role="region" aria-labelledby="2-model-parameters" tabindex="0" markdown="1">
+
 | File family | Role |
 | --- | --- |
 | `reg_*.xlsx` | Regression coefficients and, where provided, covariance matrices. Some workbooks contain multiple processes; `reg_RMSE.xlsx` contains residual error scales rather than a separate behavioural equation. |
@@ -22,6 +24,8 @@ Training donor data are available in the repository for testing. They are not a 
 | `social_care_parameters.xlsx` | Social-care policy parameters. |
 | `economic_time_series.xlsx` | Price and wage indices, returns, debt costs and care wages. |
 | `alignment_adjustment_series.xlsx` | Time-varying adjustments for alignment processes. |
+
+</div>
 
 The [Repository Guide's estimation reference](../developer-guide/repository-guide.md#data-pipeline-reference) maps UK Stata scripts to the outcomes they estimate. A script can update several workbooks, and a workbook can supply several processes.
 

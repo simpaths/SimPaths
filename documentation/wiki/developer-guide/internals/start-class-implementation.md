@@ -14,6 +14,8 @@ In the [checked revision](https://github.com/simpaths/SimPaths/blob/b223738b9cdf
 
 ## Responsibilities
 
+<div class="technical-table" role="region" aria-label="Startup components and responsibilities" tabindex="0" markdown="1">
+
 | Component | Responsibility |
 | --- | --- |
 | `parseCommandLineArgs()` | Country/year arguments, mutually exclusive setup-only and run-only modes, GUI and policy-schedule options |
@@ -22,6 +24,8 @@ In the [checked revision](https://github.com/simpaths/SimPaths/blob/b223738b9cdf
 | `Parameters.databaseSetup()` and input parsers | Build or load the required population and donor inputs |
 | `SimPathsModel.buildObjects()` | Initialise the simulation population and model state |
 | `SimPathsModel.buildSchedule()` | Define the simulation event order |
+
+</div>
 
 Database preparation is not all implemented inside the start class. Follow the called parser and parameter methods before changing input handling.
 

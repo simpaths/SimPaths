@@ -192,6 +192,8 @@ SimPaths/
 
 **Critical input files**:
 
+<div class="technical-table" role="region" aria-label="Input files and purposes" tabindex="0" markdown="1">
+
 | File Pattern | Purpose |
 |--------------|---------|
 | `align_*.xlsx` and `alignment_targets_*.xlsx` | Population, student share, employment and partnership targets |
@@ -203,6 +205,8 @@ SimPaths/
 | `DatabaseCountryYear.xlsx` | Tracks current database country/year |
 | `UKMODpolicySchedule.xlsx` | Tax-benefit policy schedule |
 | `social_care_parameters.xlsx` | Detailed social care parameters |
+
+</div>
 
 **Subdirectories**:
 
@@ -231,6 +235,8 @@ The following sub-packages are self-contained subsystems whose internals are not
 
 When IO is enabled, computing optimal consumption–labour choices for every agent at every time step would be prohibitively slow. This package solves the problem once before the simulation runs: it constructs a grid covering all meaningful combinations of state variables (wealth, age, health, family status, etc.), then works backwards from the end of life to find the optimal choice at each grid point (backward induction). During the simulation, agents simply look up their current state in the pre-computed grid.
 
+<div class="technical-table" role="region" aria-label="Decision classes and purposes" tabindex="0" markdown="1">
+
 | Class | Purpose |
 | --- | --- |
 | `DecisionParams` | Defines the state-space dimensions and grid parameters for the optimisation problem. |
@@ -242,24 +248,32 @@ When IO is enabled, computing optimal consumption–labour choices for every age
 | `Expectations` / `LocalExpectations` | Computes expected future values over stochastic transitions. |
 | `CESUtility` | CES utility function used in the optimisation. |
 
+</div>
+
 ### `model/taxes/` — UKMOD donor matching
 
 Imputes taxes and benefits onto simulated benefit units by matching them to pre-computed UKMOD donor records.
 
+<div class="technical-table" role="region" aria-label="Tax matching classes and purposes" tabindex="0" markdown="1">
+
 | Class | Purpose |
 | --- | --- |
 | `DonorTaxImputation` | Main entry point. Implements the three-step matching process: coarse-exact matching on characteristics, income proximity filtering, and candidate selection/averaging. |
-| `KeyFunction` / `KeyFunction1`–`4` | Four progressively relaxed matching-key definitions. The system tries the tightest key first and falls back through wider keys if no donors are found. |
+| `KeyFunction` / `KeyFunction1`–`KeyFunction4` | Four progressively relaxed matching-key definitions. The system tries the tightest key first and falls back through wider keys if no donors are found. |
 | `DonorKeys` | Builds composite matching keys from benefit-unit characteristics. |
 | `DonorTaxUnit` / `DonorPerson` | Represent the pre-computed UKMOD donor records loaded from the database. |
 | `CandidateList` | Ranked list of donor matches for a given benefit unit, sorted by income proximity. |
 | `Match` / `Matches` | Store the final selected donor(s) and their imputed tax-benefit values. |
+
+</div>
 
 The `taxes/database/` sub-package handles loading donor data from the H2 database into memory (`TaxDonorDataParser`, `DatabaseExtension`, `MatchIndices`).
 
 ### `model/lifetime_incomes/` — synthetic income trajectories
 
 When IO is enabled, this package creates projected income paths for birth cohorts using an AR(2) process anchored to age-gender geometric means, and matches simulated persons to donor income profiles.
+
+<div class="technical-table" role="region" aria-label="Lifetime income classes and purposes" tabindex="0" markdown="1">
 
 | Class | Purpose |
 | --- | --- |
@@ -268,6 +282,8 @@ When IO is enabled, this package creates projected income paths for birth cohort
 | `AnnualIncome` | Implements the AR(2) income process with age-gender anchoring. |
 | `BirthCohort` | Groups individuals by birth year for cohort-level income projection. |
 | `Individual` | Entity carrying age dummies and log GDP per capita for income regression. |
+
+</div>
 
 Collector CSV outputs are written under the run's output directory. Inspect that directory and its generated output README for the actual filenames and columns; do not infer the run identifier from a filename suffix. See [Statistical display](../overview/modules/statistical-display.md) for output selection.
 
@@ -298,6 +314,8 @@ The pipeline has three main parts: initial populations, regression coefficients 
 
 The pipeline runs in numbered stages:
 
+<div class="technical-table" role="region" aria-label="Initial population scripts" tabindex="0" markdown="1">
+
 | Script | What it does |
 |--------|-------------|
 | `01_prepare_UKHLS_pooled_data.do` | Pools and standardises UKHLS waves |
@@ -313,20 +331,28 @@ The pipeline runs in numbered stages:
 | `10_check_yearly_data.do` | Per-year consistency checks |
 | `99_training_data.do` | Produces the de-identified training population committed to `input/InitialPopulations/training/` |
 
+</div>
+
 #### Employment history sub-pipeline (`compile/do_emphist/`)
 
 Reconstructs each respondent's monthly employment history from January 2007 onwards by combining UKHLS and BHPS interview records. The output variable `liwwh` (months employed since Jan 2007) feeds into the labour supply models.
+
+<div class="technical-table" role="region" aria-label="Employment history scripts" tabindex="0" markdown="1">
 
 | Script | Purpose |
 |--------|---------|
 | `00_Master_emphist.do` | Master; sets parameters and calls sub-scripts |
 | `01_Intdate.do` – `07_Empcal1a.do` | Sequential stages: interview dating, BHPS linkage, employment spell reconstruction, new-entrant identification |
 
+</div>
+
 ### Part 2: Regression coefficients (`input/InitialPopulations/compile/RegressionEstimates/`)
 
 The master script is `00_master_regression_estimates.do`. It defines the estimation samples and output paths, loads process conditions, and calls the numbered scripts. Review and adapt its local paths before use.
 
 The master notes that wage predictions are needed by later estimation work, but its listed calls are not a complete dependency guarantee. In particular, `09_reg_income.do` reads `estimation_sample2`, which includes predicted wages. Confirm that this file has been produced by the compatible wage-estimation step before running income estimation.
+
+<div class="technical-table" role="region" aria-label="Regression estimation scripts" tabindex="0" markdown="1">
 
 | Script | Outcomes and methods |
 | --- | --- |
@@ -344,6 +370,8 @@ The master notes that wage predictions are needed by later estimation work, but 
 | `12_reg_health_mental.do` | GHQ-based wellbeing and distress: linear level model, ordered-logit baseline caseness model, and subsequent adjustments |
 | `13_reg_health_wellbeing.do` | SF-12 MCS, SF-12 PCS and life satisfaction, with linear baseline models and subsequent adjustments |
 
+</div>
+
 `00_master_conditions.do` defines estimation conditions. `variable_update.do` prepares regression variables, and `programs.do` supplies export helpers. The master lists the required Stata packages. Its final three estimation scripts are marked as not yet refactored, so do not infer identical naming conventions throughout the pipeline.
 
 Results are written to the configured `dir_results` and `dir_raw_results` locations. They do not automatically replace every model input workbook. Review the outputs, worksheet names, regressor mappings and validation results before promoting compatible files into a simulation's input directory.
@@ -351,6 +379,8 @@ Results are written to the configured `dir_results` and `dir_raw_results` locati
 The [Model Parameterisation page](../overview/parameterisation.md) links the canonical workbook inventory and loader. Estimation scripts and input workbooks are different inventories; a single script may update multiple files.
 
 ### Part 3: Alignment targets (`input/alignment_files/DoFilesTarget/`)
+
+<div class="technical-table" role="region" aria-label="Alignment scripts and outputs" tabindex="0" markdown="1">
 
 | Script | Main output |
 | --- | --- |
@@ -360,6 +390,8 @@ The [Model Parameterisation page](../overview/parameterisation.md) links the can
 | `03_partnership_targets_initpopdata.do` | `alignment_targets_partnered_share.xlsx` |
 | `05_retirement_targets_initpopdata.do` | `alignment_targets_retirement.xlsx`: share of retired persons among those aged 50+ (`MIN_AGE_TO_RETIRE`) |
 | `90_person_risk_employment_stats.do` | Person-level employment-risk diagnostics |
+
+</div>
 
 The previous versions of `01`, `02`, `03` and `05`, weighted by `wgthhcross` only, are kept as `*_NotPopProjAgeNormalised.do`; the model does not read their workbooks. Scripts `01`, `02`, `03` and `05` read and write within the project root set in `global dir_w`; the others have their own configured input/output paths. Check the resulting workbook names and worksheets against the Java loader before use. Demographic projection workbooks are separate inputs; these scripts do not regenerate the entire set of population, fertility and mortality projections.
 

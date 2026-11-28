@@ -1,0 +1,19 @@
+{# URLs also work below a site prefix. #}
+  <nav class="sp-search-suggestions" aria-labelledby="sp-search-suggestions-title" hidden>
+    <p id="sp-search-suggestions-title" class="sp-search-suggestions__heading">Suggested pages</p>
+    <ul class="sp-search-suggestions__list">
+      {% for title, destination, description in [
+        ("Run your first simulation", "getting-started/first-simulation/", "Build the model, prepare the database and check your first run."),
+        ("Input data", "getting-started/data/", "Find the starting population, tax–benefit data and model parameters."),
+        ("Model modules", "overview/#simulated-modules", "Explore the life domains represented in the model."),
+        ("First-run troubleshooting", "getting-started/first-simulation/#common-first-run-problems", "Check common setup errors and missing input files.")
+      ] %}
+        <li>
+          <a class="sp-search-suggestions__link" href="{{ destination | url }}">
+            <span class="sp-search-suggestions__title">{{ title }}<span aria-hidden="true">→</span></span>
+            <span class="sp-search-suggestions__description">{{ description }}</span>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </nav>

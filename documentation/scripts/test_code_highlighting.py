@@ -33,6 +33,58 @@ class CodeColoursTest(unittest.TestCase):
         self.assertIn('class="sp-code-function">buildSchedule', result)
         self.assertEqual(TextOnly(result).text, "SimPathsModel.buildSchedule()")
 
+    def test_documented_classes_use_the_same_colour_as_source_classes(self):
+        for name in ("ManagerLifetimeIncomes", "LifetimeIncomeImputation", "AnnualIncome",
+                     "BirthCohort", "Individual", "MyAgent", "Variables"):
+            with self.subTest(name=name):
+                self.assertEqual(colours.highlight_inline(name),
+                                 f'<span class="sp-code-type">{name}</span>')
+        result = colours.highlight_inline("MyAgent.getDblValue(2019)")
+        self.assertIn('sp-code-type">MyAgent', result)
+        self.assertIn('sp-code-function">getDblValue', result)
+        self.assertIn('sp-code-number">2019', result)
+
+    def test_documentation_inventory_uses_explicit_type_context(self):
+        source = '''<div markdown="1">
+
+| Purpose | **Class** |
+| --- | --- |
+| Calls `Unrelated` | `DocumentedClass` / `OtherClass` |
+
+</div>
+
+| File | Purpose |
+| --- | --- |
+| `NeutralName` | `AnotherName` |
+
+```java
+public class ExampleAgent {
+    enum ExampleState { Ready }
+}
+```
+
+```text
+class NotJava {}
+| Class |
+| --- |
+| `NotATable` |
+```
+'''
+        self.assertEqual(colours.documented_types(source),
+                         {"DocumentedClass", "OtherClass", "ExampleAgent", "ExampleState"})
+
+    def test_nested_declarations_ignore_comments_and_strings(self):
+        source = '''public class Outer {
+    // class CommentOnly {}
+    /* interface CommentInterface {} */
+    String text = "class StringOnly {}";
+    String block = """class TextBlockOnly {}""";
+    public enum State { Ready }
+    interface Source {}
+    record Value(int amount) {}
+}'''
+        self.assertEqual(colours.declared_types(source), {"Outer", "State", "Source", "Value"})
+
     def test_neutral_fragments_are_not_guessed(self):
         for value in ("input/InitialPopulations/training/", "output/logs/run_&lt;seed&gt;.txt", "singlerun.jar",
                       "Person.java", "--rewrite-policy-schedule", "-f", "java -jar multirun.jar",
@@ -73,6 +125,16 @@ class CodeColoursTest(unittest.TestCase):
         source = markdown.markdown('```bash\necho Person\n```', extensions=["pymdownx.superfences", "pymdownx.highlight"],
                                    extension_configs={"pymdownx.highlight": {"pygments_lang_class": True}})
         self.assertEqual(self.render(source), source)
+
+    def test_documented_types_also_work_in_java_examples(self):
+        source = markdown.markdown('```java\nAnnualIncome income;\nMyAgent agent;\n```',
+                                   extensions=["pymdownx.superfences", "pymdownx.highlight"],
+                                   extension_configs={"pymdownx.highlight": {"pygments_lang_class": True}})
+        result = self.render(source)
+        self.assertIn('class="nc">AnnualIncome', result)
+        self.assertIn('class="nc">MyAgent', result)
+        self.assertIn('class="n">income', result)
+        self.assertEqual(TextOnly(result).text, TextOnly(source).text)
 
 
 if __name__ == "__main__":

@@ -2,34 +2,39 @@
    HEADER & NAVIGATION
 ═══════════════════════════════════════════════ */
 
-:root { --sp-header-motion: 180ms cubic-bezier(0.2, 0.7, 0.2, 1); }
-
 .md-header {
   background: var(--sp-header-bg) !important;
-  box-shadow: 0 3px 12px rgba(25, 45, 35, calc(0.08 * var(--sp-header-progress)));
+  box-shadow: 0 3px 12px rgba(25, 45, 35, 0.08);
   border: 0;
   backdrop-filter: none; -webkit-backdrop-filter: none;
   min-height: var(--sp-header-height);
-  /* Reserve the expanded height so scroll anchoring cannot feed back into
-     header progress. The margin and height must share the same transition. */
-  margin-bottom: calc(var(--sp-header-expanded-height) - var(--sp-header-height));
-  transition: min-height var(--sp-header-motion), margin-bottom var(--sp-header-motion), box-shadow var(--sp-header-motion);
+  margin-bottom: 0;
 }
-.md-header__inner {
-  min-height: var(--sp-header-height); gap: 0.8rem;
-  transition: min-height var(--sp-header-motion);
+/* Join full-width opening bands at the top; add separation while scrolling. */
+html:is(.sp-page-home, .sp-page-validation) .md-header {
+  transition: box-shadow 180ms ease;
+}
+html:is(.sp-page-home, .sp-page-validation):not(.sp-page-scrolled) .md-header {
+  box-shadow: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  html:is(.sp-page-home, .sp-page-validation) .md-header { transition: none; }
 }
 
-/* Align the desktop header with the documentation rails on every page. */
+.md-header__inner {
+  min-height: var(--sp-header-height); gap: 0.8rem;
+}
+
+/* Keep the desktop brand centred over the left rail with a compact link area. */
 @media (min-width: 76.25em) {
   .md-header .md-header__inner {
     width: calc(100% - 2 * var(--sp-page-gutter));
     max-width: var(--sp-layout-measure);
     padding-inline: 0;
+    column-gap: var(--sp-layout-gap);
   }
   .md-header .md-header__title {
-    width: var(--sp-layout-rail);
-    margin-inline: 0;
+    margin-inline: calc((var(--sp-layout-rail) - 5rem) / 2 - var(--sp-sidebar-outset)) 0;
   }
   .md-header .md-header__title .md-header__topic {
     width: 100%;
@@ -50,13 +55,12 @@
 /* ── Header title ── */
 .md-header__title {
   font-family: var(--sp-brand-font) !important;
-  font-size: 1rem !important;
+  font-size: 0.85rem !important;
   font-weight: 700 !important;
   letter-spacing: 0;
   display: flex; flex: 0 0 auto; min-width: 8rem; margin: 0; text-decoration: none;
   align-items: center;
   height: var(--sp-header-height);
-  transition: height var(--sp-header-motion);
   line-height: 1;
   color: var(--sp-midnight) !important;
 }
@@ -78,7 +82,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.2rem;
+  gap: 0.2em;
   line-height: 1;
   letter-spacing: -0.025em;
   overflow: visible;
@@ -87,13 +91,12 @@
 
 .md-header__title .md-header__topic:first-child .md-ellipsis::before {
   content: "";
-  width: 2.15rem;
-  height: 1.18rem;
-  flex: 0 0 1.18rem;
+  width: 2.15em;
+  height: 1.18em;
+  flex: 0 0 1.18em;
   background: url("../images/homepage-hero-logo.svg") center / contain no-repeat;
-  transform: scale(calc(1 - 0.1 * var(--sp-header-progress)));
+  transform: scale(0.9);
   transform-origin: center bottom;
-  transition: transform var(--sp-header-motion);
 }
 
 /* Keep the brand topic stable everywhere. Material normally swaps this with
@@ -153,11 +156,12 @@
 
 /* Keep the site navigation in the same row; the drawer serves smaller screens. */
 @media (min-width: 64em) {
+  .md-header .md-header__title { width: 5rem; min-width: 5rem; }
   .md-header .md-tabs {
     display: block; width: auto; flex: 0 0 auto;
     position: relative; top: var(--sp-header-row-offset);
-    transition: top var(--sp-header-motion), opacity 120ms ease 120ms, visibility 0s linear 120ms;
-    margin: 0 9.2rem 0 auto; overflow: visible;
+    transition: opacity 120ms ease 120ms, visibility 0s linear 120ms;
+    margin: 0 11.5rem 0 0; overflow: visible;
   }
   .md-header .md-tabs > .md-grid { margin: 0; }
   .md-header .md-tabs__list { display: flex; overflow: visible; contain: none; gap: clamp(0.7rem, 1.6vw, 1.3rem); margin: 0; padding: 0; }
@@ -199,7 +203,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :root { --sp-header-motion: 0s; }
   .md-header .md-tabs { transition: none; }
   .md-tabs__link::before { transition: none; }
 }

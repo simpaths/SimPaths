@@ -6,11 +6,15 @@ SimPaths uses JAS-mine and Hibernate to map Java entities to database records. D
 
 The model's population hierarchy is:
 
+<div class="technical-table" role="region" aria-label="Entities and relationships" tabindex="0" markdown="1">
+
 | Entity | Relationship |
 | --- | --- |
 | `Household` | Contains benefit units |
 | `BenefitUnit` | Belongs to a household and contains persons |
 | `Person` | Belongs to a benefit unit |
+
+</div>
 
 For an existing `Person person`, navigation through the mapped relationships looks like this:
 

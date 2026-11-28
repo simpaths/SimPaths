@@ -45,20 +45,16 @@ for (const route of ["/", "/documentation/", "/validation/", "/research/", "/fun
   test(`scrolling down and back up keeps the page stable: ${route}`, async ({ page }) => {
     await page.goto(route);
     await page.evaluate(() => document.fonts.ready);
-    await expect.poll(() => page.evaluate(() =>
-      document.documentElement.style.getPropertyValue("--sp-header-progress")
-    )).toBe("0.000");
-    const expandedHeight = await page.locator(".md-header").evaluate(element => element.getBoundingClientRect().height);
+    const headerHeight = await page.locator(".md-header").evaluate(element => element.getBoundingClientRect().height);
     for (const top of [80, 40, 240, 60, 0]) {
       const result = await sampleScroll(page, top);
       expectStable(result);
-      if (top === 240) expect(result.headerHeight).toBeLessThan(expandedHeight - 2);
-      if (top === 0) expect(Math.abs(result.headerHeight - expandedHeight)).toBeLessThan(0.5);
+      expect(Math.abs(result.headerHeight - headerHeight)).toBeLessThan(0.5);
     }
   });
 }
 
-test("a short documentation page stays still at the bottom with header motion enabled", async ({ page }, testInfo) => {
+test("a short documentation page stays still at the bottom", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop", "Exercise a tall desktop viewport with less than 160px to scroll.");
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/documentation/");
@@ -70,14 +66,14 @@ test("a short documentation page stays still at the bottom with header motion en
   expectStable(await sampleScroll(page, 0));
 });
 
-test("reduced motion keeps the header full-sized while scrolling", async ({ page }) => {
+test("reduced motion keeps the same compact header while scrolling", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/documentation/");
   await page.evaluate(() => document.fonts.ready);
-  const expandedHeight = await page.locator(".md-header").evaluate(element => element.getBoundingClientRect().height);
+  const headerHeight = await page.locator(".md-header").evaluate(element => element.getBoundingClientRect().height);
   for (const top of [80, 240, 0]) {
     const result = await sampleScroll(page, top);
     expectStable(result);
-    expect(result.headerHeight).toBe(expandedHeight);
+    expect(result.headerHeight).toBe(headerHeight);
   }
 });
